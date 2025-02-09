@@ -4,10 +4,10 @@ import SignUp from "./pages/user/auth/SignUp";
 const App = () => {
   return (
     <div >
-      {/* <SignIn/> */}
+      <SignIn/>
       {/* <SignUp/> */}
     </div>
-  );
+  ); 
 };
 
 export default App;
