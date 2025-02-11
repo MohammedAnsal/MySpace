@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// app.use('/auth',userRoute)
+// app.use('/auth',)
 
 const PORT = process.env.PORT || 7001;
 
