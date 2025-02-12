@@ -1,4 +1,4 @@
-import { IOtp } from "../../../models/otp.model";
+import { IOtp } from "../../../interface/otp.Imodel";
 
 export interface IOtpRepository {
   createOtp(otpData: IOtp): Promise<IOtp>;

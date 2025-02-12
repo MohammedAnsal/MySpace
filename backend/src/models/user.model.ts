@@ -20,22 +20,20 @@ const userSchema = new Schema<IUser>(
     email: { type: String, unique: true, required: true },
     phone: { type: Number, required: true },
     password: { type: String, required: true },
-    profile_picture: { type: String, required: true },
-    gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
+    profile_picture: { type: String, default: "" },
+    gender: { type: String, enum: ["Male", "Female", "Other"] },
     address_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Address",
-      required: true,
     },
     role: {
       type: String,
       enum: ["user", "provider"],
       default: "user",
-      required: true,
     },
     is_verified: { type: Boolean, default: false },
     is_active: { type: Boolean, default: false },
-    created_at : {type : Date}
+    created_at: { type: Date },
   },
   { timestamps: true }
 );

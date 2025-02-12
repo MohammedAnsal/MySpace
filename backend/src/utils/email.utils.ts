@@ -21,7 +21,7 @@ export const sendOtpMail = async (
     subject: "Verify Your Email to Complete The Process on MySpace",
     html: `
         <div style="font-family: Arial, sans-serif; color: #333;">
-        <h1 style="color: white; background-color: #BB956B; padding: 10px; text-align: center;">
+        <h1 style="color: #FFFFFF; background-color: #BB956B; padding: 10px; text-align: center;">
         Welcome to MySpace!
         </h1>
         <p style="font-size: 16px;">
