@@ -23,9 +23,9 @@ export class AuthService implements IAuthService {
 
   async signUp(userData: IUser): Promise<AuthResponse> {
     try {
-      const { fullName, email, phone , password } = userData;
+      const { fullName, email, phone, password, role, gender } = userData;
 
-      console.log(fullName, email, phone , password);
+      // console.log(fullName, email, phone, password, role, gender);
 
       const existingUser = await this.userRepo.findUserByEmail(email);
 
@@ -77,9 +77,11 @@ export class AuthService implements IAuthService {
         email,
         phone,
         password: hashedPasswordd,
+        role,
+        gender,
       } as IUser);
 
-      console.log(newUser, ":-  newww Userrrrrrrr");
+      // console.log(newUser, ":-  newww Userrrrrrrr");
 
       const newOtp = generateOtp();
       await this.otpRepo.create({ email, otp: newOtp } as IOtp);
@@ -90,6 +92,67 @@ export class AuthService implements IAuthService {
       return {
         success: false,
         message: "An error occurred while signing up. Please try again later.",
+      };
+    }
+  }
+
+  async verifyOtp(otpData: AuthResponse): Promise<AuthResponse> {
+    try {
+      const { email, otp } = otpData;
+
+      if (!email) {
+        return {
+          success: false,
+          message: "Email is required for OTP verification.",
+        };
+      }
+
+      if (!otp) {
+        return { success: false, message: "OTP is required." };
+      }
+
+      console.log(email);
+      console.log(otp);
+
+      const validUser = await this.userRepo.findUserByEmail(email);
+      console.log(validUser, "the valid user in verifyOtp user in authservice");
+
+      if (!validUser) {
+        return { success: false, message: "Email is not yet registered" };
+      }
+
+      const getOtp = await this.otpRepo.findOtpByEmail(email);
+      console.log(getOtp, "the get otp from the email and db");
+
+      if (!getOtp) {
+        return { success: false, message: "No OTP found for this email" };
+      }
+
+      if (getOtp.otp === otp) {
+        console.log("Matched");
+
+        await this.userRepo.verifyUser(email, true);
+
+        try {
+          await this.otpRepo.otpDeleteByMail(email);
+        } catch (err) {
+          console.error("Failed to delete OTP:", err);
+          return {
+            success: false,
+            message: "Verification complete, but failed to remove OTP.",
+          };
+        }
+
+        return { success: true, message: "Verification complete" };
+      } else {
+        return { success: false, message: "OTP verification failed" };
+      }
+    } catch (error) {
+      console.error("Error in verifyOtp:", error);
+      return {
+        success: false,
+        message:
+          "An error occurred while verifying OTP. Please try again later.",
       };
     }
   }

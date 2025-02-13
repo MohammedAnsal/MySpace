@@ -3,12 +3,12 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IUser extends Document {
   fullName: string;
   email: string;
-  phone: number;
+  phone: string;
   password: string;
   profile_picture: string;
   gender: "Male" | "Female" | "Other";
-  address_id: mongoose.Types.ObjectId;
-  role: "user" | "provider";
+  address_id?: mongoose.Types.ObjectId | null;
+  role: "user" | "provider" | "admin";
   is_verified: boolean;
   is_active: boolean;
   created_at: Date;
@@ -18,17 +18,18 @@ const userSchema = new Schema<IUser>(
   {
     fullName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
-    phone: { type: Number, required: true },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
     profile_picture: { type: String, default: "" },
     gender: { type: String, enum: ["Male", "Female", "Other"] },
     address_id: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Address",
+      default: null,
     },
     role: {
       type: String,
-      enum: ["user", "provider"],
+      enum: ["user", "provider", "admin"],
       default: "user",
     },
     is_verified: { type: Boolean, default: false },

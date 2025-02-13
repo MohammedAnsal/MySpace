@@ -35,14 +35,13 @@ export const registerSchema = z.object({
       "Password must contain at least one uppercase letter, one number, and one special character"
     ),
 
-  profile_picture: z.string().url("Invalid URL for profile picture"),
+  // profile_picture: z.string().url("Invalid URL for profile picture"),
 
   gender: z.enum(["Male", "Female", "Other"]),
 
-  address_id: z.string().regex(objectIdRegex, "Invalid Address ID"),
+  // address_id: z.string().regex(objectIdRegex, "Invalid Address ID"),
 
-  role: z.enum(["user", "provider"]),
-
+  role: z.enum(["user", "provider", "admin"]),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

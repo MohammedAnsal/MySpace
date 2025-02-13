@@ -30,4 +30,14 @@ export class OtpRepository
       );
     }
   }
+
+  async otpDeleteByMail(email: string): Promise<void> {
+    try {
+      await Otp.deleteOne({ email });
+    } catch (error) {
+      throw new Error(
+        `Error deleting OTP by email: ${(error as Error).message}`
+      );
+    }
+  }
 }

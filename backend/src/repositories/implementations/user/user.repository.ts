@@ -27,4 +27,18 @@ export class UserRepository
       return Promise.reject(new Error(`Error finding users by role: ${error}`));
     }
   }
+
+  async verifyUser(
+    email: string,
+    is_verified: boolean
+  ): Promise<IUser | null | never> {
+    try {
+      await User.updateOne({ email }, { is_verified });
+      return await User.findOne({ email });
+    } catch (error) {
+      return Promise.reject(
+        new Error(`Error finding users by email: ${error}`)
+      );
+    }
+  }
 }
