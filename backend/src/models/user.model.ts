@@ -8,7 +8,7 @@ export interface IUser extends Document {
   profile_picture: string;
   gender: "Male" | "Female" | "Other";
   address_id?: mongoose.Types.ObjectId | null;
-  role: "user" | "provider" | "admin";
+  role: "user" | "provider" ;
   is_verified: boolean;
   is_active: boolean;
   created_at: Date;
@@ -29,7 +29,7 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["user", "provider", "admin"],
+      enum: ["user", "provider"],
       default: "user",
     },
     is_verified: { type: Boolean, default: false },

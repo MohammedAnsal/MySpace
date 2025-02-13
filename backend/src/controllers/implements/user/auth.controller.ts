@@ -28,7 +28,9 @@ export class AuthController implements IAuthController {
 
       // console.log(response,'reeesssss')
 
-      res.status(HttpStatus.OK).json(response);
+      res
+        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
+        .json(response);
     } catch (error) {
       console.log("error in the signup auth controller", error);
       res
@@ -37,10 +39,56 @@ export class AuthController implements IAuthController {
     }
   }
 
+  async signIn(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password } = req.body;
+
+      const response = await this.authSrvice.signIn(email, password);
+
+      res
+        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
+        .json(response);
+    } catch (error) {
+      console.error("Error in the signIn auth controller:", error);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
+
   async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
+      const otpData = req.body;
+      const response = await this.authSrvice.verifyOtp(otpData);
+
+      if (typeof response === "string") {
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: response });
+      }
+
+      res
+        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
+        .json(response);
     } catch (error) {
-      console.log("error in the otpVerify auth controller", error);
+      console.error("Error in the otpVerify auth controller:", error);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
+
+  async resendOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      const response = await this.authSrvice.resendOtp(email);
+
+      res
+        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
+        .json(response);
+    } catch (error) {
+      console.error("Error in the re-sendOtp auth controller:", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });

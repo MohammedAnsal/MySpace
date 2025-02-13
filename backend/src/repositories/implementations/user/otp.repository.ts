@@ -23,7 +23,7 @@ export class OtpRepository
 
   async findOtpByEmail(email: string): Promise<IOtp | null> {
     try {
-      return await this.model.findOne({ email });
+      return await Otp.findOne({ email });
     } catch (error) {
       throw new Error(
         `Error finding OTP by email: ${(error as Error).message}`
@@ -31,7 +31,20 @@ export class OtpRepository
     }
   }
 
-  async otpDeleteByMail(email: string): Promise<void> {
+  async updateOtpByEmail(email: string, newOtp: string): Promise<void> {
+    try {
+      await Otp.updateOne(
+        { email: email },
+        { otp: newOtp, createdAt: new Date() }
+      );
+    } catch (error) {
+      throw new Error(
+        `Error updateing OTP by email: ${(error as Error).message}`
+      );
+    }
+  }
+
+  async otpDeleteByEmail(email: string): Promise<void> {
     try {
       await Otp.deleteOne({ email });
     } catch (error) {
