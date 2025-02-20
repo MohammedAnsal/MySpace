@@ -1,17 +1,19 @@
-import Footer from "./components/global/Footer";
-import Navbar from "./components/global/Navbar";
-import SignIn from "./pages/user/auth/SignIn";
-import SignUp from "./pages/user/auth/SignUp";
-import HomePage from "./pages/user/home/Home";
+import Footer from "./components/layouts/Footer";
+import Navbar from "./components/layouts/Navbar";
+import OTPVerification from "./pages/user/Auth/Otp";
+import SignIn from "./pages/user/Auth/SignIn";
+import SignUp from "./pages/user/Auth/SignUp";
+import HomePage from "./pages/user/Home/Home";
 
 const App = () => {
   return (
-    <div >
+    <div>
       {/* <SignIn/> */}
       {/* <SignUp/> */}
       {/* <Navbar /> */}
+      {/* <HomePage/> */}
       {/* <Footer/> */}
-      <HomePage/>
+      {/* <OTPVerification/> */}
     </div>
   ); 
 };

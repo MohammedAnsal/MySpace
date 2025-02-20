@@ -85,9 +85,9 @@ export const registerSchema = z
 
     confirmPassword: z.string(),
 
-    gender: z.enum(["Male", "Female", "Other"]),
+    gender: z.enum(["male", "female", "other"]),
 
-    role: z.enum(["user", "provider", "admin"]),
+    role: z.enum(["user", "provider"]),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

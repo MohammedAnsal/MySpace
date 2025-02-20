@@ -6,9 +6,9 @@ export interface IUser extends Document {
   phone: string;
   password: string;
   profile_picture: string;
-  gender: "Male" | "Female" | "Other";
+  gender: "male" | "female" | "other";
   address_id?: mongoose.Types.ObjectId | null;
-  role: "user" | "provider" ;
+  role: "user" | "provider";
   is_verified: boolean;
   is_active: boolean;
   created_at: Date;
@@ -18,10 +18,10 @@ const userSchema = new Schema<IUser>(
   {
     fullName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
-    phone: { type: String, required: true },
+    phone: { type: String },
     password: { type: String, required: true },
     profile_picture: { type: String, default: "" },
-    gender: { type: String, enum: ["Male", "Female", "Other"] },
+    gender: { type: String, enum: ["male", "female", "other"] },
     address_id: {
       type: Schema.Types.ObjectId,
       ref: "Address",

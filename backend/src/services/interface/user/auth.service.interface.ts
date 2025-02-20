@@ -14,9 +14,14 @@ export interface SignInResult extends AuthResponse {
   username?: string;
 }
 
+export interface OtpVerificationData {
+  email: string;
+  otp: string;
+}
+
 export interface IAuthService {
   signUp(userData: IUser): Promise<AuthResponse>;
   signIn(email: string, password: string): Promise<AuthResponse>;
-  verifyOtp(otpData: AuthResponse): Promise<SignInResult>;
+  verifyOtp(otpData: OtpVerificationData): Promise<SignInResult>;
   resendOtp(email: string): Promise<AuthResponse>;
 }

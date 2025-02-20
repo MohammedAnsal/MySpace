@@ -5,6 +5,7 @@ import dbConnect from "./config/dbConfig";
 import dotenv from "dotenv";
 import cors from "cors";
 import authRoute from "./routers/user/authRoute";
+import authProviderRoute from "./routers/provider/auth.p.route";
 
 dotenv.config();
 dbConnect();
@@ -12,7 +13,7 @@ dbConnect();
 const app = express();
 
 const target = {
-  origin: process.env.PORT,
+  origin: process.env.SERVER_URL,
   changeOrigin: true,
   credentials: true,
 };
@@ -22,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use("/auth", authRoute);
+app.use("/auth", authRoute, authProviderRoute);
 
 const PORT = process.env.PORT || 7001;
 

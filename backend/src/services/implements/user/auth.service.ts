@@ -10,6 +10,7 @@ import { hashPassword } from "../../../utils/password.utils";
 import {
   AuthResponse,
   IAuthService,
+  OtpVerificationData,
   SignInResult,
 } from "../../interface/user/auth.service.interface";
 import {
@@ -33,7 +34,7 @@ export class AuthService implements IAuthService {
 
       // console.log(fullName, email, phone, password, role, gender);
 
-      const rolee = role == "provider" ? "provider" : "user";
+      // const rolee = role == "provider" ? "provider" : "user";
 
       const existingUser = await this.userRepo.findUserByEmail(email);
 
@@ -85,7 +86,7 @@ export class AuthService implements IAuthService {
         email,
         phone,
         password: hashedPasswordd,
-        role: rolee,
+        role,
         gender,
       } as IUser);
 
@@ -138,7 +139,6 @@ export class AuthService implements IAuthService {
         success: true,
         message: "Sign in successfully completed",
         accessToken: accessToken,
-        refreshToken: refreshToken,
         username: existingUser.fullName,
         email: existingUser.email,
       };
@@ -151,7 +151,7 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async verifyOtp(otpData: AuthResponse): Promise<AuthResponse> {
+  async verifyOtp(otpData: OtpVerificationData): Promise<AuthResponse> {
     try {
       const { email, otp } = otpData;
 
