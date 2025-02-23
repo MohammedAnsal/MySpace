@@ -41,7 +41,8 @@ export class AuthProviderService implements IAuthService {
         //  Exist User & Verified
         return {
           success: false,
-          message: "Provider already registered with this email , Please login...",
+          message:
+            "Provider already registered with this email , Please login...",
         };
 
       if (existingUser && !existingUser.is_verified) {
@@ -85,7 +86,7 @@ export class AuthProviderService implements IAuthService {
         email,
         phone,
         password: hashedPasswordd,
-        role,
+        role: "provider",
         gender,
       } as IUser);
 
@@ -125,6 +126,10 @@ export class AuthProviderService implements IAuthService {
         return { success: false, message: "Invalid Credentials" };
       }
 
+      if (existingUser.role != "provider") {
+        return { success: false, message: "Invalid Credentials" };
+      }
+
       const accessToken = generateAccessToken({
         id: existingUser._id,
         role: existingUser.role,
@@ -141,6 +146,7 @@ export class AuthProviderService implements IAuthService {
         refreshToken: refreshToken,
         fullName: existingUser.fullName,
         email: existingUser.email,
+        role: existingUser.role,
       };
     } catch (error) {
       console.error("Error in signIn:", error);
@@ -167,7 +173,10 @@ export class AuthProviderService implements IAuthService {
       }
 
       const validUser = await this.providerRepo.findProviderByEmail(email);
-      console.log(validUser, "the valid provider in verifyOtp provider in authservice");
+      console.log(
+        validUser,
+        "the valid provider in verifyOtp provider in authservice"
+      );
 
       if (!validUser) {
         return { success: false, message: "Email is not yet registered" };

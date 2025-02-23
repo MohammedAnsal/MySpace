@@ -22,7 +22,7 @@ userAxiosInstance.interceptors.request.use(async (config) => {
   console.log(token, "this is is in userInstance");
 
   if (token) {
-    config.headers.authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
     console.log("===========", config.headers.authorization);
   }
 

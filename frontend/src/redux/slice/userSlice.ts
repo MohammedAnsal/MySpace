@@ -26,14 +26,19 @@ const userSlice = createSlice({
   reducers: {
     loginSuccess: (
       state,
-      action: PayloadAction<{ token: string; fullName: string; email: string }>
+      action: PayloadAction<{
+        token: string;
+        fullName: string;
+        email: string;
+        role: string;
+      }>
     ) => {
       state.loading = false;
       state.token = action.payload.token;
       state.fullName = action.payload.fullName;
       state.email = action.payload.email;
       state.isAuthenticated = true;
-      state.role = "user";
+      state.role = action.payload.role;
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       (state.loading = false), (state.error = action.payload);

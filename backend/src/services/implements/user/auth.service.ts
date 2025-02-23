@@ -139,7 +139,8 @@ export class AuthService implements IAuthService {
         success: true,
         message: "Sign in successfully completed",
         accessToken: accessToken,
-        username: existingUser.fullName,
+        role: existingUser.role,
+        fullName: existingUser.fullName,
         email: existingUser.email,
       };
     } catch (error) {

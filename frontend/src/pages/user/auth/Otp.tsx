@@ -226,6 +226,9 @@ export default function OTPVerification() {
   const location = useLocation();
 
   const email = location.state?.email || "";
+  const flag = location.state?.provider || "";
+
+  console.log(flag, "from otpppp");
 
   useEffect(() => {
     // Check if there's an existing expiration time in localStorage
@@ -278,7 +281,11 @@ export default function OTPVerification() {
 
       if (response.data.success) {
         toast.success(response.data.message);
-        navigate("/auth/signIn");
+        if (flag == 1) {
+          navigate("/provider/signIn");
+        } else {
+          navigate("/auth/signIn");
+        }
       } else {
         toast.error(response.data.message);
       }
@@ -310,7 +317,7 @@ export default function OTPVerification() {
   const handleResendOTP = async () => {
     try {
       const response = await resend_Otp(email);
-      console.log(response)
+      console.log(response);
       if (response.data.success) {
         const newExpirationTime = Date.now() + OTP_EXPIRATION_TIME * 1000;
         localStorage.setItem("otpExpiration", newExpirationTime.toString());
@@ -412,4 +419,3 @@ export default function OTPVerification() {
     </div>
   );
 }
-

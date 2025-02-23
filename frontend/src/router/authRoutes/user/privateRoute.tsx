@@ -1,13 +1,20 @@
-import { RootState } from "../../../redux/store/store";
+import React from "react";
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { RootState } from "../../../redux/store/store";
+import { Navigate } from "react-router";
 
-const PrivateRoute = ({ element }: { element: JSX.Element }) => {
-  const authenticated = useSelector(
+interface PrivateRouteProps {
+  element: React.ReactNode;
+}
+
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
+  const isAuthenticated = useSelector(
     (state: RootState) => state.user.isAuthenticated
   );
-  if (!authenticated) return <Navigate to="/auth/signup" replace />;
-  return authenticated ? element : <Navigate to="/auth/signup" replace />;
+
+  console.log("isAuth in private", isAuthenticated);
+
+  return isAuthenticated ? <>{element}</> : <Navigate to="/auth/signIn" />;
 };
 
 export default PrivateRoute;

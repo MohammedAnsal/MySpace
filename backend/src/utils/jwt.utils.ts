@@ -17,7 +17,7 @@ const REFRESH_SECRET =
  */
 
 export const generateAccessToken = (payload: object) => {
-  return jwt.sign(payload, ACCESS_SECRET, { expiresIn: "24h" });
+  return jwt.sign(payload, ACCESS_SECRET, { expiresIn: "5h" });
 };
 
 /**
@@ -26,7 +26,7 @@ export const generateAccessToken = (payload: object) => {
  * @returns Signed JWT token
  */
 export const generateRefreshToken = (payload: object) => {
-  return jwt.sign(payload, REFRESH_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, REFRESH_SECRET, { expiresIn: "1d" });
 };
 
 /**

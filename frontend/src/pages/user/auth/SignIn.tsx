@@ -12,11 +12,13 @@ import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../redux/store/store";
 import { loginSuccess } from "../../../redux/slice/userSlice";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -38,16 +40,18 @@ export default function SignIn() {
     setLoading(true);
     const response = await signIn_Requset(data);
     if (response.data.success) {
+      localStorage.setItem("role", response.data.role);
       localStorage.setItem("access-token", response.data.accessToken);
       toast.success(response.data.message);
       dispatch(
         loginSuccess({
           email: response.data.email,
           fullName: response.data.username,
+          role: response.data.role,
           token: response.data.accessToken,
         })
       );
-      navigate("/");
+      navigate("/home");
       setLoading(false);
     } else {
       setLoading(false);
@@ -107,17 +111,21 @@ export default function SignIn() {
               <label className="block text-gray-700 font-semibold mb-1">
                 Password
               </label>
-              <input
-                {...register("password")}
-                placeholder="Enter password*"
-                type="password"
-                className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
-              />
-              {/* {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.password.message}
-                </p>
-              )} */}
+              <div className="relative">
+                <input
+                  {...register("password")}
+                  placeholder="Enter password*"
+                  type={showPassword ? "text" : "password"}
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <div className="text-right">
               <Link

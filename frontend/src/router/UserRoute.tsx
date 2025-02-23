@@ -1,65 +1,52 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { Navigate, RouteObject } from "react-router-dom";
 import SignUp from "../pages/user/Auth/SignUp";
 import SignIn from "../pages/user/Auth/SignIn";
-// import OTPVerification from "../pages/user/Auth/Otp";
 import HomePage from "../pages/user/Home/Home";
 import Auth from "../pages/user/Auth/Auth";
 import PublicRoute from "./authRoutes/user/publicRoute";
 import OTPVerification from "../pages/user/Auth/Otp";
-// import PrivateRoute from "./authRoutes/user/privateRoute";
+import NotFound from "../components/global/NotFound";
+import ProtectRoute from "./authRoutes/user/ProtectRoute";
 
-export const Router = createBrowserRouter([
+export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
   {
     path: "/auth",
     element: <Auth />,
     children: [
       {
-        // element: <SideTextSection />, // Common layout for Auth pages
-        children: [
-          {
-            path: "",
-            element: <Navigate to="/auth/signUp" />,
-          },
-          {
-            path: "signUp",
-            element: <PublicRoute element={<SignUp />} route="/" />,
-          },
-          {
-            path: "signIn",
-            element: <PublicRoute element={<SignIn />} route="/" />,
-          },
-          // {
-          //   path: "otp/resend",
-          //   element: (
-          //     <ProtectedRoute element={<ResendOtp />} store="otp-token" />
-          //   ),
-          // },
-        ],
+        path: "",
+        element: <Navigate to="/auth/signUp" replace />,
+      },
+      {
+        path: "signUp",
+        element: <PublicRoute element={<SignUp />} route="/home" />,
+      },
+      {
+        path: "signIn",
+        element: <PublicRoute element={<SignIn />} route="/home" />,
       },
     ],
   },
 
   {
     path: "/auth/verify-otp",
-    element: <PublicRoute element={<OTPVerification />} route="/" />,
+    element: <PublicRoute element={<OTPVerification />} route="/home" />,
   },
 
-  // OTHER ROUTES
+  // PROTECTED ROUTE
   {
-    path: "/",
-    element: <HomePage />,
-    children: [
-      {
-        path: "home",
-        element: <Navigate to="/" />,
-      },
-    ],
+    path: "/home",
+    element: (
+      <ProtectRoute allowedRoles={["user"]}>
+        <HomePage />
+      </ProtectRoute>
+    ),
   },
 
   // NOT FOUND PAGE
-  // {
-  //   path: "*",
-  //    : <NotFoundPage />,
-  // },
-]);
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+];

@@ -4,21 +4,21 @@ import { authController } from "../../controllers/implements/provider/auth.contr
 const authProviderRoute = Router();
 
 authProviderRoute.post(
-  "/provider-signUp",
+  "/provider/sign-up",
   authController.signUp.bind(authController)
 );
 authProviderRoute.post(
-  "/provider-signIn",
+  "/provider/sign-in",
   authController.signIn.bind(authController)
 );
 
 authProviderRoute.post(
-  "/provider-verifyOtp",
+  "/provider/verify-otp",
   authController.verifyOtp.bind(authController)
 );
 
 authProviderRoute.post(
-  "/provider-resendOtp",
+  "/provider/resend-otp",
   authController.resendOtp.bind(authController)
 );
 

@@ -12,6 +12,7 @@ export interface SignInResult extends AuthResponse {
   accessToken?: string;
   refreshToken?: string;
   fullName?: string;
+  role?: string;
 }
 
 export interface IAuthService {

@@ -9,10 +9,13 @@ import {
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { signUp_Request } from "../../../services/Api/userApi";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -31,23 +34,41 @@ const SignUp: React.FC = () => {
     });
   }, [errors]);
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      setLoading(true);
-      const response = await signUp_Request(data);
+  // const onSubmit = async (data: FormValues) => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await signUp_Request(data);
 
+  //     if (response.data.success) {
+  //       toast.success(response.data.message);
+  //       navigate("/auth/verify-otp", { state: { email: data.email } });
+  //       setLoading(false);
+  //     } else {
+  //       setLoading(false);
+  //       toast.error(response.data.message);
+  //     }
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error("Signup error:", error);
+  //     toast.error("Something went wrong. Please try again.");
+  //   }
+  // };
+
+  const onSubmit = async (data: FormValues) => {
+    setLoading(true);
+    try {
+      const response = await signUp_Request(data);
       if (response.data.success) {
         toast.success(response.data.message);
         navigate("/auth/verify-otp", { state: { email: data.email } });
-        setLoading(false);
       } else {
-        setLoading(false);
         toast.error(response.data.message);
       }
-      setLoading(false);
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,7 +148,7 @@ const SignUp: React.FC = () => {
               )} */}
             </div>
 
-            <div className="space-y-1">
+            {/* <div className="space-y-1">
               <label className="block text-gray-700 font-medium">
                 Password
               </label>
@@ -137,11 +158,27 @@ const SignUp: React.FC = () => {
                 className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
                 placeholder="Enter password*"
               />
-              {/* {errors.password && (
-                <p className="text-red-500 text-xs">
-                  {errors.password.message}
-                </p>
-              )} */}
+            </div> */}
+
+            <div className="space-y-1 relative">
+              <label className="block text-gray-700 font-medium">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  {...register("password")}
+                  type={showPassword ? "text" : "password"}
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none pr-10"
+                  placeholder="Enter password*"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-3 flex items-center"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -159,7 +196,7 @@ const SignUp: React.FC = () => {
               )} */}
             </div>
 
-            <div className="space-y-1">
+            {/* <div className="space-y-1">
               <label className="block text-gray-700 font-medium">
                 Confirm Password
               </label>
@@ -169,11 +206,31 @@ const SignUp: React.FC = () => {
                 className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
                 placeholder="Confirm password*"
               />
-              {/* {errors.confirmPassword && (
-                <p className="text-red-500 text-xs">
-                  {errors.confirmPassword.message}
-                </p>
-              )} */}
+            </div> */}
+
+            <div className="space-y-1 relative">
+              <label className="block text-gray-700 font-medium">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  {...register("confirmPassword")}
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none pr-10"
+                  placeholder="Confirm password*"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-3 flex items-center"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1">
