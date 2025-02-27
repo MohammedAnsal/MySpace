@@ -51,7 +51,7 @@ export class AuthController {
 
       return res
         .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-        .cookie("refrToken", response.refreshToken, {
+        .cookie("refr_Provider_Token", response.refreshToken, {
           httpOnly: true,
           secure: false,
           sameSite: "none",

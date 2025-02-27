@@ -94,7 +94,7 @@ export class AuthController {
 
   async resendOtp(req: Request, res: Response): Promise<any> {
     try {
-      const email = req.body.email
+      const email = req.body.email;
 
       const response = await this.authSrvice.resendOtp(email);
 

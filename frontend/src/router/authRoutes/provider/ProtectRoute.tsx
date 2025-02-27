@@ -1,6 +1,9 @@
 import { PropsWithChildren } from "react";
 import { useAuth } from "../../../context/Provider/AuthContext.p";
 import { Provider } from "../../../types/Provider";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store/store";
+import { Navigate } from "react-router-dom";
 
 type ProtectedRouteProps = PropsWithChildren & {
   allowedRoles?: Provider["role"][];
@@ -11,6 +14,9 @@ export default function ProtectedRoute({
   children,
 }: ProtectedRouteProps) {
   const { currentUser } = useAuth();
+  const authenticated = useSelector(
+    (state: RootState) => state.provider.isAuthenticated
+  );
 
   console.log(currentUser?.role, "JFJFJ");
 
@@ -23,7 +29,7 @@ export default function ProtectedRoute({
     currentUser === null ||
     (allowedRoles && !allowedRoles.includes(currentUser.role))
   ) {
-    return <div>Permission denied</div>;
+    return <div>Permission Denided</div>;
   }
 
   // All good, show the protected content

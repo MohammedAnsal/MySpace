@@ -1,31 +1,37 @@
 import { RouteObject } from "react-router-dom";
 import ProviderSignup from "../pages/provider/Auth/SignUp";
-import PublicRoute from "./authRoutes/provider/publicRoute";
+// import PublicRoute from "./authRoutes/provider/publicRoute";
 import ProviderSignIn from "../pages/provider/Auth/SignIn";
 import Dashboard from "../pages/provider/Home/Home";
 import NotFound from "../components/global/NotFound";
 import ProtectedRoute from "./authRoutes/provider/ProtectRoute";
+import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
+import { Role } from "@/types/types";
+import { PublicRoute } from "./authRoutes/user/publicRoute";
 
 export const ProviderRouter: RouteObject[] = [
-  
   {
     path: "/provider/dashboard",
     element: (
-      <ProtectedRoute allowedRoles={["provider"]}>
+      <ProtecteddRoute allowedRole={Role.PROVIDER}>
         <Dashboard />
-      </ProtectedRoute>
+      </ProtecteddRoute>
     ),
   },
   {
     path: "/provider/signUp",
     element: (
-      <PublicRoute element={<ProviderSignup />} route="/provider/dashboard" />
+      <PublicRoute routeType={Role.PROVIDER}>
+        <ProviderSignup />
+      </PublicRoute>
     ),
   },
   {
     path: "/provider/signIn",
     element: (
-      <PublicRoute element={<ProviderSignIn />} route="/provider/dashboard" />
+      <PublicRoute routeType={Role.PROVIDER}>
+        <ProviderSignIn />
+      </PublicRoute>
     ),
   },
 

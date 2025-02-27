@@ -176,7 +176,7 @@ const SignUp: React.FC = () => {
                   className="absolute inset-y-0 right-3 flex items-center"
                   onClick={() => setShowPassword((prev) => !prev)}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {!showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -224,7 +224,7 @@ const SignUp: React.FC = () => {
                   className="absolute inset-y-0 right-3 flex items-center"
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
                 >
-                  {showConfirmPassword ? (
+                  {!showConfirmPassword ? (
                     <EyeOff size={18} />
                   ) : (
                     <Eye size={18} />

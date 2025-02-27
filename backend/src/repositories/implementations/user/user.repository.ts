@@ -6,8 +6,7 @@ import { IUserRepository } from "../../interfaces/user/user.Irepository";
 @Service()
 export class UserRepository
   extends BaseRepository<IUser>
-  implements IUserRepository
-{
+  implements IUserRepository {
   constructor() {
     super(User);
   }
@@ -41,4 +40,5 @@ export class UserRepository
       );
     }
   }
+
 }

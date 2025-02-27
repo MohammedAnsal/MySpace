@@ -3,10 +3,12 @@ import SignUp from "../pages/user/Auth/SignUp";
 import SignIn from "../pages/user/Auth/SignIn";
 import HomePage from "../pages/user/Home/Home";
 import Auth from "../pages/user/Auth/Auth";
-import PublicRoute from "./authRoutes/user/publicRoute";
+import { PublicRoute } from "./authRoutes/user/publicRoute";
 import OTPVerification from "../pages/user/Auth/Otp";
 import NotFound from "../components/global/NotFound";
-import ProtectRoute from "./authRoutes/user/ProtectRoute";
+// import ProtectRoute from "./authRoutes/user/ProtectRoute";
+import { Role } from "@/types/types";
+import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -20,27 +22,39 @@ export const UserRoutes: RouteObject[] = [
       },
       {
         path: "signUp",
-        element: <PublicRoute element={<SignUp />} route="/home" />,
+        element: (
+          <PublicRoute routeType={Role.USER}>
+            <SignUp />
+          </PublicRoute>
+        ),
       },
       {
         path: "signIn",
-        element: <PublicRoute element={<SignIn />} route="/home" />,
+        element: (
+          <PublicRoute routeType={Role.USER}>
+            <SignIn />
+          </PublicRoute>
+        ),
       },
     ],
   },
 
   {
     path: "/auth/verify-otp",
-    element: <PublicRoute element={<OTPVerification />} route="/home" />,
+    element: (
+      <PublicRoute routeType={Role.USER}>
+        <OTPVerification />
+      </PublicRoute>
+    ),
   },
 
   // PROTECTED ROUTE
   {
     path: "/home",
     element: (
-      <ProtectRoute allowedRoles={["user"]}>
+      <ProtecteddRoute allowedRole={Role.USER}>
         <HomePage />
-      </ProtectRoute>
+      </ProtecteddRoute>
     ),
   },
 

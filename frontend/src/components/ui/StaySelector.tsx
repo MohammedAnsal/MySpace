@@ -1,4 +1,4 @@
-import { Tabs, TabsList, TabsTrigger } from "../ui/Tabs";
+import { Tabs, TabsList, TabsTrigger } from "./tabs";
 
 export default function StaySelector() {
   return (

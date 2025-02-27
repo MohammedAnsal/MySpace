@@ -26,7 +26,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   // Get auth state from Redux
   const provider = useSelector((state: RootState) => state.provider);
 
-  console.log(provider, "ssssss");
+  // console.log(provider, "ssssss");
 
   useEffect(() => {
     // Sync Redux state to context state

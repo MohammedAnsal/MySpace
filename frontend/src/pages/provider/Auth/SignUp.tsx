@@ -55,9 +55,9 @@ const ProviderSignup: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen">
       {/* Left Side (Form Section) */}
-      <div className="w-full md:w-1/2 bg-gray-100 flex flex-col justify-center items-center p-6 md:p-10">
+      <div className="w-full md:w-1/2 bg-gray-100 flex flex-col justify-center items-center p-6 md:p-10 min-h-screen md:min-h-0">
         <h2 className="text-xl md:text-2xl font-semibold mb-2">
           Welcome to MySpace
         </h2>
@@ -118,7 +118,7 @@ const ProviderSignup: React.FC = () => {
               className="absolute top-4 right-3 cursor-pointer text-gray-600"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {!showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </span>
           </div>
           {/* {errors.password && (
@@ -136,7 +136,7 @@ const ProviderSignup: React.FC = () => {
               className="absolute top-4 right-3 cursor-pointer text-gray-600"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {!showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </span>
           </div>
           {/* {errors.confirmPassword && (
@@ -173,7 +173,7 @@ const ProviderSignup: React.FC = () => {
       </div>
 
       {/* Right Side (Image Section) */}
-      <div className="hidden md:block w-1/2 h-full">
+      <div className="hidden md:block w-1/2 min-h-screen">
         <img
           src={signUp_img}
           alt="Sign Up"
