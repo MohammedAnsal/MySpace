@@ -27,7 +27,17 @@ class AdminUserController implements IAdminUserController {
     }
   }
 
-  async updateUser(req: Request, res: Response): Promise<any> {}
+  async updateUser(req: Request, res: Response): Promise<any> {
+    const { email } = req.body;
+
+    const findUser = await this.userService.updateUser(email);
+
+    if (findUser) {
+      return res.status(200).json(findUser);
+    } else {
+      throw new Error("Error in updateUser");
+    }
+  }
 }
 
 export const AdminUserControllerr = Container.get(AdminUserController);

@@ -12,4 +12,10 @@ adminUserRoute.get(
   "/providers",
   AdminUserControllerr.fetchProviders.bind(AdminUserControllerr)
 );
+
+adminUserRoute.put(
+  "/updateUser",
+  AdminUserControllerr.updateUser.bind(AdminUserControllerr)
+);
+
 export default adminUserRoute;

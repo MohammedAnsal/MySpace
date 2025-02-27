@@ -24,7 +24,7 @@ const data = {
       isActive: true,
     },
     {
-      title: "Users",
+      title: "Clients",
       url: "/admin/users",
       icon: Users,
       items: [

@@ -11,16 +11,14 @@ import AuthProvider_Provider from "./context/Provider/AuthContext.p.tsx";
 import AuthProvider_Admin from "./context/admin/AuthContext.A.tsx";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <AuthProvider_Admin>
-        <AuthProvider_User>
-          <AuthProvider_Provider>
-            <Toaster richColors position="top-right" theme="dark" />
-            <RouterProvider router={MainRouter} />
-          </AuthProvider_Provider>
-        </AuthProvider_User>
-      </AuthProvider_Admin>
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <AuthProvider_Admin>
+      <AuthProvider_User>
+        <AuthProvider_Provider>
+          <Toaster richColors position="top-right" theme="dark" />
+          <RouterProvider router={MainRouter} />
+        </AuthProvider_Provider>
+      </AuthProvider_User>
+    </AuthProvider_Admin>
+  </Provider>
 );

@@ -11,14 +11,6 @@ import { PublicRoute } from "./authRoutes/user/publicRoute";
 
 export const ProviderRouter: RouteObject[] = [
   {
-    path: "/provider/dashboard",
-    element: (
-      <ProtecteddRoute allowedRole={Role.PROVIDER}>
-        <Dashboard />
-      </ProtecteddRoute>
-    ),
-  },
-  {
     path: "/provider/signUp",
     element: (
       <PublicRoute routeType={Role.PROVIDER}>
@@ -32,6 +24,16 @@ export const ProviderRouter: RouteObject[] = [
       <PublicRoute routeType={Role.PROVIDER}>
         <ProviderSignIn />
       </PublicRoute>
+    ),
+  },
+
+  // PROTECTED ROUTE
+  {
+    path: "/provider/dashboard",
+    element: (
+      <ProtecteddRoute allowedRole={Role.PROVIDER}>
+        <Dashboard />
+      </ProtecteddRoute>
     ),
   },
 

@@ -28,7 +28,7 @@ export class AdminUserService implements IAdminUserService {
       if (allProviders) {
         return { success: true, data: allProviders };
       } else {
-        throw new Error("faild to fetch providers");
+        throw new Error("faild to fetch provider");
       }
     } catch (error) {
       throw new Error((error as Error).message);
@@ -39,7 +39,18 @@ export class AdminUserService implements IAdminUserService {
     email: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      return { success: false, message: "k" };
+      const findUser = await this.userRepo.findUserByEmail(email);
+
+      if (findUser) {
+        findUser.is_active = !findUser.is_active;
+        await findUser.save();
+
+        console.log(findUser, "afterrrr");
+
+        return { success: true, message: "User status updated" };
+      } else {
+        return { success: false, message: "User status didn't updated" };
+      }
     } catch (error) {
       throw new Error("internal error");
     }

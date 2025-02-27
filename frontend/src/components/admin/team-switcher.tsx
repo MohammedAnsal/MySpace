@@ -1,5 +1,5 @@
 import * as React from "react";
-import czn from '@/assets/admin/czn.jpg'
+import czn from "@/assets/admin/czn.jpg";
 import { ChevronsUpDown, Plus } from "lucide-react";
 // import { Logout } from "@/redux/slice/adminSlice";
 import {
@@ -29,28 +29,34 @@ export function TeamSwitcher({
   }[];
 }) {
   const { isMobile } = useSidebar();
+  const [isOpen, setIsOpen] = React.useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-//   const LogoutAdmin = async () => {
-//     try {
-//       await logoutAdmin();
-//       dispatch(Logout());
-//       navigate("/admin/auth");
-//       toast.success("Logged Out");
-//     } catch (error) {
-//       toast.error("failedf to logout");
-//     }
-//   };
+  console.log(isOpen)
+  //   const LogoutAdmin = async () => {
+  //     try {
+  //       await logoutAdmin();
+  //       dispatch(Logout());
+  //       navigate("/admin/auth");
+  //       toast.success("Logged Out");
+  //     } catch (error) {
+  //       toast.error("failedf to logout");
+  //     }
+  //   };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
               className="mt-1 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-12 object-cover justify-center rounded-full overflow-  text-sidebar-primary-foreground">
+              <div
+                className={`flex aspect-square ${
+                  isOpen ? "size-10 md:size-10" : "size-12 md:size-10"
+                } object-cover justify-center rounded-full overflow-hidden text-sidebar-primary-foreground transition-all duration-200`}
+              >
                 <img
                   src={czn}
                   className="object-cover w-full rounded-full h-full overflow-hidden"
@@ -60,7 +66,7 @@ export function TeamSwitcher({
                 <span className="truncate font-semibold">admin</span>
                 <span className="truncate text-xs">Admin</span>
               </div>
-              <ChevronsUpDown className="ml-auto" />
+              {!isOpen && <ChevronsUpDown className="ml-auto" />}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
