@@ -8,9 +8,14 @@ import authRoute from "./routers/user/authRoute";
 import authProviderRoute from "./routers/provider/auth.p.routes";
 import authAdminRoute from "./routers/admin/auth.admin.routes";
 import adminUserRoute from "./routers/admin/user.admin.routes";
+import userRoute from "./routers/user/userRoute";
+import morgan from "morgan";
+import { morganOptions } from "./utils/logger";
 
 dotenv.config();
 dbConnect();
+
+const morganFormat = ":method :url :status :response-time ms";
 
 const app = express();
 
@@ -20,6 +25,8 @@ const target = {
   credentials: true,
 };
 
+app.use(morgan(morganFormat, morganOptions));
+
 app.use(cors(target));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +34,8 @@ app.use(cookieParser());
 
 app.use("/auth", authRoute, authProviderRoute, authAdminRoute);
 app.use("/admin", adminUserRoute);
+app.use("/user", userRoute);
+
 
 const PORT = process.env.PORT || 7001;
 

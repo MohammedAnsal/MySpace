@@ -25,4 +25,10 @@ export interface IAuthService {
   signIn(email: string, password: string): Promise<AuthResponse>;
   verifyOtp(otpData: OtpVerificationData): Promise<SignInResult>;
   resendOtp(email: string): Promise<AuthResponse>;
+  forgotPassword(email: string): Promise<AuthResponse>;
+  resetPassword(
+    email: string,
+    otp: string,
+    newPassword: string
+  ): Promise<AuthResponse>;
 }

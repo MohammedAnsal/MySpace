@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store/store";
 import { Navigate } from "react-router-dom";
 
-export const PublicRoute = async ({
+export const PublicRoute = ({
   element,
   route,
 }: {

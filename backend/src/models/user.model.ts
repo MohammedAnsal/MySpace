@@ -33,7 +33,7 @@ const userSchema = new Schema<IUser>(
       default: "user",
     },
     is_verified: { type: Boolean, default: false },
-    is_active: { type: Boolean, default: false },
+    is_active: { type: Boolean, default: true },
     created_at: { type: Date },
   },
   { timestamps: true }

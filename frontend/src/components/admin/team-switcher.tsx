@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/sidebar";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store/store";
-import { Navigate, useNavigate } from "react-router-dom";
+import { logout as adminLogout } from "@/redux/slice/adminSlice";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-// import { logoutAdmin } from "@/service/Api/adminApi";
+import { logout } from "@/services/Api/adminApi";
 
 export function TeamSwitcher({
   teams,
@@ -32,17 +33,19 @@ export function TeamSwitcher({
   const [isOpen, setIsOpen] = React.useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  console.log(isOpen)
-  //   const LogoutAdmin = async () => {
-  //     try {
-  //       await logoutAdmin();
-  //       dispatch(Logout());
-  //       navigate("/admin/auth");
-  //       toast.success("Logged Out");
-  //     } catch (error) {
-  //       toast.error("failedf to logout");
-  //     }
-  //   };
+
+  const handleLogout = async () => {
+    try {
+      const response = await logout();
+      if (response.data) {
+        dispatch(adminLogout());
+        toast.success(response.data.message);
+        navigate("/admin/signIn");
+      }
+    } catch (error) {
+      toast.error("Failed logout");
+    }
+  };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -78,7 +81,7 @@ export function TeamSwitcher({
             {teams.map((team, index) => (
               <DropdownMenuItem
                 key={team.name}
-                // onClick={LogoutAdmin}
+                onClick={handleLogout}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">

@@ -51,7 +51,7 @@ userAxiosInstance.interceptors.response.use(
         originalRequest._retry = true;
         try {
           const newAccessToken = await getNewAccessToken();
-          localStorage.setItem("accessToken", newAccessToken);
+          localStorage.setItem("access-token", newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return userAxiosInstance(originalRequest);
         } catch (err) {
@@ -86,8 +86,9 @@ userAxiosInstance.interceptors.response.use(
 //  For New AccessToken
 
 async function getNewAccessToken() {
-  const response = await axios.get(`${API_URL}/refresh-token`, {
+  const response = await axios.get(`${API_URL}/auth/refresh-token`, {
     withCredentials: true,
   });
+  console.log(response , 'getRefreshhh')
   return response.data.accessToken;
 }

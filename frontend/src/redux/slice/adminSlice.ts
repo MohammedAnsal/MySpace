@@ -53,5 +53,5 @@ const adminSlice = createSlice({
   },
 });
 
-export const { loginSuccess } = adminSlice.actions;
+export const { loginSuccess, logout } = adminSlice.actions;
 export default adminSlice.reducer;

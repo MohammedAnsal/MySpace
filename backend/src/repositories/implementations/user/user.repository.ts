@@ -6,7 +6,8 @@ import { IUserRepository } from "../../interfaces/user/user.Irepository";
 @Service()
 export class UserRepository
   extends BaseRepository<IUser>
-  implements IUserRepository {
+  implements IUserRepository
+{
   constructor() {
     super(User);
   }
@@ -41,4 +42,25 @@ export class UserRepository
     }
   }
 
+  async updatePassword(
+    email: string,
+    newPassword: string
+  ): Promise<IUser | null> {
+    try {
+      console.log(email);
+      console.log(newPassword);
+
+      const updatePassword = await User.findOneAndUpdate(
+        { email },
+        { $set: { password: newPassword } },
+        { new: true }
+      );
+
+      return updatePassword;
+    } catch (error) {
+      return Promise.reject(
+        new Error(`Error updating user password: ${error}`)
+      );
+    }
+  }
 }

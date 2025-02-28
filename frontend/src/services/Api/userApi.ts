@@ -3,7 +3,7 @@ import {
   userAxiosInstance,
 } from "../axiosInstance/userInstance";
 
-// const api = userAxiosInstance
+const api = userAxiosInstance;
 const public_api = publicAxiosInstance;
 
 export const signUp_Request = async (formData: object) => {
@@ -45,6 +45,41 @@ export const resend_Otp = async (email: string) => {
 
   console.log(response, "get Responsee otppp");
   if (!response) console.log("returning is not gettin correctly");
+
+  return response;
+};
+
+export const user_Logout = async () => {
+  const response = await api.post("/user/logout");
+
+  if (!response) console.log("Error in logout");
+
+  return response;
+};
+
+export const forgot_Password = async (email: string) => {
+  const response = await public_api.post("/auth/forgot-password", { email });
+
+  if (!response) console.log("Error in forgot password");
+
+  return response;
+};
+
+export const reset_Password = async (
+  email: string,
+
+  newPassword: string
+) => {
+  console.log(email);
+
+  console.log(newPassword);
+  const response = await public_api.put("/auth/reset-password", {
+    email,
+
+    newPassword,
+  });
+
+  if (!response) console.log("Error in re-setPassword");
 
   return response;
 };

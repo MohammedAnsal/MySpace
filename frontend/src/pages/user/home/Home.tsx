@@ -9,6 +9,7 @@ import Navbar from "../../../components/layouts/Navbar";
 import StaySelector from "../../../components/ui/StaySelector";
 
 export default function HomePage() {
+
   return (
     <>
       <Navbar />

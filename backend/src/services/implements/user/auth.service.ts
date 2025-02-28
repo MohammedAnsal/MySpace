@@ -7,6 +7,7 @@ import { UserRepository } from "../../../repositories/implementations/user/user.
 import { sendOtpMail } from "../../../utils/email.utils";
 import { generateOtp } from "../../../utils/otp.utils";
 import { hashPassword } from "../../../utils/password.utils";
+import { addMinutes, isAfter } from "date-fns";
 import {
   AuthResponse,
   IAuthService,
@@ -16,7 +17,9 @@ import {
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from "../../../utils/jwt.utils";
+import { JsonWebTokenError } from "jsonwebtoken";
 
 @Service()
 export class AuthService implements IAuthService {
@@ -113,6 +116,10 @@ export class AuthService implements IAuthService {
         "this is the user that found from database in user from authService"
       );
 
+      if (existingUser?.is_active == false) {
+        return { success: false, message: "Your Blocked User" };
+      }
+
       if (!existingUser) {
         return { success: false, message: "Invalid Credentials" };
       }
@@ -139,6 +146,7 @@ export class AuthService implements IAuthService {
         success: true,
         message: "Sign in successfully completed",
         accessToken: accessToken,
+        refreshToken: refreshToken,
         role: existingUser.role,
         fullName: existingUser.fullName,
         email: existingUser.email,
@@ -247,6 +255,125 @@ export class AuthService implements IAuthService {
         message:
           "An error occurred while verifying OTP. Please try again later.",
       };
+    }
+  }
+
+  async forgotPassword(email: string): Promise<AuthResponse> {
+    try {
+      console.log(email);
+
+      const existingUser = await this.userRepo.findUserByEmail(email);
+
+      if (!existingUser) {
+        return {
+          success: false,
+          message: "You are not a verified user.",
+        };
+      }
+
+      const otp = generateOtp();
+
+      console.log("The OTP generated for forgot password:", otp);
+
+      const existingOtpRecord = await this.otpRepo.findOtpByEmail(email);
+
+      if (!existingOtpRecord) {
+        await this.otpRepo.create({ email, otp } as IOtp);
+      } else {
+        const isExpired = isAfter(
+          new Date(),
+          addMinutes(existingOtpRecord.createdAt, 5)
+        );
+
+        if (isExpired) {
+          await this.otpRepo.create({ email, otp } as IOtp);
+        } else {
+          await this.otpRepo.updateOtpByEmail(email, otp);
+        }
+      }
+
+      await sendOtpMail(email, "Forgot Password", otp);
+      // if (!mailResult) {
+      //   return {
+      //     success: false,
+      //     message: "Failed to send OTP. Please try again later.",
+      //   };
+      // }
+
+      return {
+        success: true,
+        message: "OTP sent for resetting your password.",
+      };
+    } catch (error) {
+      console.error("Error during forgot password process:", error);
+      return {
+        success: false,
+        message: "An error occurred while processing your request.",
+      };
+    }
+  }
+
+  async resetPassword(
+    email: string,
+    otp: string,
+    newPassword: string
+  ): Promise<AuthResponse> {
+    try {
+      console.log(email);
+      console.log(otp);
+      console.log(newPassword);
+      const findUser = await this.userRepo.findUserByEmail(email);
+
+      console.log("the user from db in resetpassword", findUser);
+
+      if (!findUser)
+        return { success: false, message: "Invalide User details" };
+
+      const hashedPassword = await hashPassword(newPassword);
+      console.log("the hashed password", hashedPassword);
+
+      const changedPassword = await this.userRepo.updatePassword(
+        email,
+        hashedPassword
+      );
+      console.log("the changed password is ", changedPassword);
+
+      if (!changedPassword) {
+        return { success: false, message: "failed to update the password" };
+      }
+
+      return { success: true, message: "password successfully changed" };
+    } catch (error) {
+      return { success: true, message: "s" };
+    }
+  }
+
+  async checkToken(token: string) {
+    try {
+      const response = verifyRefreshToken(token);
+      if (
+        typeof response === "object" &&
+        response !== null &&
+        "id" in response
+      ) {
+        const newAccessToken = generateAccessToken({
+          email: response.email,
+          id: response.id,
+        });
+        return {
+          success: true,
+          message: "new token created",
+          accessToken: newAccessToken,
+        };
+      }
+    } catch (error) {
+      if (error instanceof JsonWebTokenError) {
+        return {
+          success: false,
+          message: "Refresh token expired, please log in again",
+        };
+      }
+      console.error("Error verifying refresh token:", error);
     }
   }
 }

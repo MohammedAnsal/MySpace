@@ -1,27 +1,36 @@
-import { PropsWithChildren } from "react";
-import { Admin } from "../../../types/Admin";
-import { useAuth } from "../../../context/admin/AuthContext.A";
+import { RootState } from "@/redux/store/store";
+import { Role } from "@/types/types";
+import { useSelector } from "react-redux";
+import { Navigate, useLocation } from "react-router-dom";
 
-type ProtectedRouteProps = PropsWithChildren & {
-  allowedRoles?: Admin["role"][];
-};
+interface ProtectedRouteProps {
+  allowedRole: Role;
+  children: React.ReactNode;
+}
 
-export default function ProtectRoute({
-  allowedRoles,
+export const ProtectedRoute = ({
+  allowedRole,
   children,
-}: ProtectedRouteProps) {
-  const { currentUser } = useAuth();
+}: ProtectedRouteProps) => {
+  const { isAuthenticated, role } = useSelector(
+    (state: RootState) => state.admin
+  );
 
-  if (currentUser === undefined) {
-    return <div>Loading...</div>;
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to={"/admin/signIn"} state={{ from: location }} replace />;
   }
 
-  if (
-    currentUser === null ||
-    (allowedRoles && !allowedRoles.includes(currentUser.role))
-  ) {
-    return <div>Permission Denided</div>;
+  if (role != allowedRole) {
+    const rePath = role == Role.PROVIDER ? "/provider/dashboard" : "/home";
+
+    return <Navigate to={rePath} replace />;
   }
+
+  // if (role !== Role.USER) {
+  //   return <Navigate to={location} state={{ from: location }} replace />;
+  // }
 
   return <>{children}</>;
-}
+};

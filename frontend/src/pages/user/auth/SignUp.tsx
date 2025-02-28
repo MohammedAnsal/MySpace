@@ -59,6 +59,7 @@ const SignUp: React.FC = () => {
     try {
       const response = await signUp_Request(data);
       if (response.data.success) {
+        localStorage.removeItem("otpExpiration");
         toast.success(response.data.message);
         navigate("/auth/verify-otp", { state: { email: data.email } });
       } else {

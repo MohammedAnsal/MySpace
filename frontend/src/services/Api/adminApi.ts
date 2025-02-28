@@ -37,3 +37,11 @@ export const updateStatus = async (email: string) => {
 
   return response;
 };
+
+export const logout = async () => {
+  const response = await private_api.post("/admin/logout");
+
+  if (!response) console.log("Error in admin logout");
+
+  return response;
+};

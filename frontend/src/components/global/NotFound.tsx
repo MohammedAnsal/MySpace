@@ -1,8 +1,11 @@
 import Navbar from "../layouts/Navbar";
 import Footer from "../layouts/Footer";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store/store";
 
 export default function NotFound() {
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
   return (
     <>
       <Navbar />
@@ -15,7 +18,7 @@ export default function NotFound() {
             Let's guide you back to your perfect stay."
           </p>
           <Link
-            to="/"
+            to={isAuthenticated ? "/home" : "/auth/signIn"}
             className="font-dm_sans bg-[#B58C5F] text-white px-6 py-3 rounded-lg hover:bg-[#9A7B4F] transition-colors"
           >
             Return Home

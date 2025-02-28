@@ -47,11 +47,6 @@ export const ProtecteddRoute = ({
     (state: RootState) => state.user
   );
 
-  console.log(isAuthenticated, "authh");
-  console.log(role, "roleee");
-
-  console.log(allowedRole, "allow Wolreee");
-
   const location = useLocation();
 
   if (!isAuthenticated) {

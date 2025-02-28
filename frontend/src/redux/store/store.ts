@@ -1,7 +1,7 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import userReducer from "../slice/userSlice";
 import adminReducer from "../slice/adminSlice";
-import providerReducer from "../slice/providerSlice";
+// import providerReducer from "../slice/providerSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -9,13 +9,13 @@ import storage from "redux-persist/lib/storage";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user", "admin", "provider"], // Persist user, admin, and doctor slices
+  whitelist: ["user", "admin"], // Persist user, admin, and doctor slices
 };
 
 // Combine all slice reducers into a single root reducer
 const rootReducer = combineReducers({
   user: userReducer,
-  provider: providerReducer,
+  // provider: providerReducer,
   admin: adminReducer,
 });
 

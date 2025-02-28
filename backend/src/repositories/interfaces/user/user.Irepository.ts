@@ -8,4 +8,5 @@ export interface IUserRepository extends IRepository<IUser> {
     email: string,
     is_verified: boolean
   ): Promise<IUser | null | never>;
+  updatePassword(email: string, newPassword: string): Promise<IUser | null>;
 }

@@ -39,7 +39,7 @@ const ProviderLogin = () => {
       const response = await signIn_Request(data);
       if (response.data.success) {
         localStorage.setItem("role", response.data.role);
-        localStorage.setItem("provider-access-token", response.data.accessToken);
+        localStorage.setItem("access-token", response.data.accessToken);
         toast.success(response.data.message);
         dispatch(
           loginSuccess({

@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { AdminUserService } from "../../../services/implements/admin/user.admin.service";
-import { IAdminUserController } from "../../interface/admin/auth.controller.interface";
+import { IAdminController } from "../../interface/admin/admin.controller.interface";
 import Container, { Service } from "typedi";
+import { HttpStatus } from "../../../enums/http.status";
 
 @Service()
-class AdminUserController implements IAdminUserController {
+class AdminUserController implements IAdminController {
   constructor(private userService: AdminUserService) {}
 
   async fetchUsers(req: Request, res: Response): Promise<any> {
@@ -36,6 +37,18 @@ class AdminUserController implements IAdminUserController {
       return res.status(200).json(findUser);
     } else {
       throw new Error("Error in updateUser");
+    }
+  }
+
+  async logout(req: Request, res: Response): Promise<any> {
+    try {
+      res
+        .clearCookie("refr_Admin_Token")
+        .status(HttpStatus.OK)
+        .json({ message: "Logout successfully" });
+    } catch (error) {
+      console.log((error as Error).message);
+      throw new Error("from logout user");
     }
   }
 }
