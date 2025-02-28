@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { authController } from "../../controllers/implements/admin/auth.controller";
+
+const authAdminRoute = Router();
+
+authAdminRoute.post(
+  "/admin/sign-in",
+  authController.signIn.bind(authController)
+);
+
+export default authAdminRoute;
