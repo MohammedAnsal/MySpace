@@ -1,0 +1,4 @@
+{"level":"info","message":"{\n  \"Method\": \"OPTIONS\",\n  \"URL\": \"/auth/sign-up\",\n  \"Status\": \"204\",\n  \"Response Time (ms)\": \"1.404\"\n}","timestamp":"2025-03-05T07:57:05.648Z"}
+{"level":"info","message":"{\n  \"Method\": \"POST\",\n  \"URL\": \"/auth/sign-up\",\n  \"Status\": \"200\",\n  \"Response Time (ms)\": \"5697.246\"\n}","timestamp":"2025-03-05T07:57:11.352Z"}
+{"level":"info","message":"{\n  \"Method\": \"OPTIONS\",\n  \"URL\": \"/auth/sign-up\",\n  \"Status\": \"204\",\n  \"Response Time (ms)\": \"0.323\"\n}","timestamp":"2025-03-05T07:58:22.196Z"}
+{"level":"info","message":"{\n  \"Method\": \"POST\",\n  \"URL\": \"/auth/sign-up\",\n  \"Status\": \"200\",\n  \"Response Time (ms)\": \"6055.136\"\n}","timestamp":"2025-03-05T07:58:28.255Z"}
