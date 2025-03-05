@@ -1,4 +1,7 @@
+import { logout } from "@/redux/slice/userSlice";
+import store from "@/redux/store/store";
 import axios from "axios";
+import { a } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_USER_BASE_URL;
@@ -47,18 +50,27 @@ userAxiosInstance.interceptors.response.use(
     const url = originalRequest.url;
 
     if (error.response) {
+
+      if (axios.isAxiosError(error)) {
+        const errorMsg = error.response?.data?.message || "An error occured";
+        const customError = new Error(errorMsg);
+        return Promise.reject(customError);
+      }
+
       if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
+
         try {
           const newAccessToken = await getNewAccessToken();
           localStorage.setItem("access-token", newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return userAxiosInstance(originalRequest);
         } catch (err) {
-          toast.error("Session expired");
-          // store.dispatch(resetUser());
+          // toast.error("Session expired");
+          // store.dispatch(logout());
           return Promise.reject(err);
         }
+        
       }
 
       if (error.response.status >= 500) {
@@ -89,6 +101,6 @@ async function getNewAccessToken() {
   const response = await axios.get(`${API_URL}/auth/refresh-token`, {
     withCredentials: true,
   });
-  console.log(response , 'getRefreshhh')
-  return response.data.accessToken;
+  console.log(response, "getRefreshhh");
+  return response.data.token;
 }

@@ -7,5 +7,11 @@ authAdminRoute.post(
   "/admin/sign-in",
   authController.signIn.bind(authController)
 );
+authAdminRoute.post("/logout", authController.logout.bind(authController));
+
+authAdminRoute.get(
+  "/admin-refresh-token",
+  authController.setNewToken.bind(authController)
+);
 
 export default authAdminRoute;

@@ -44,7 +44,7 @@ export class OtpRepository
     }
   }
 
-  async otpDeleteByEmail(email: string): Promise<void> {
+  async deleteOtpByEmail(email: string): Promise<void> {
     try {
       await Otp.deleteOne({ email });
     } catch (error) {

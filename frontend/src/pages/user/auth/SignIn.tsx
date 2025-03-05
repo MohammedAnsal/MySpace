@@ -38,25 +38,32 @@ export default function SignIn() {
 
   const onSubmit = async (data: SignInFormData) => {
     setLoading(true);
-    const response = await signIn_Requset(data);
-    if (response.data.success) {
-      localStorage.setItem("role", response.data.role);
-      localStorage.setItem("access-token", response.data.accessToken);
-      toast.success(response.data.message);
-      dispatch(
-        loginSuccess({
-          email: response.data.email,
-          fullName: response.data.username,
-          role: response.data.role,
-          token: response.data.accessToken,
-        })
-      );
-      navigate("/home");
+    try {
+      const response = await signIn_Requset(data);
+      if (response.data.success) {
+        localStorage.setItem("role", response.data.role);
+        localStorage.setItem("access-token", response.data.token);
+        toast.success(response.data.message);
+        dispatch(
+          loginSuccess({
+            email: response.data.email,
+            fullName: response.data.username,
+            role: response.data.role,
+            token: response.data.token,
+          })
+        );
+        navigate("/home");
+        setLoading(false);
+      } else {
+        toast.error(response.data.message);
+        setLoading(false);
+      }
+    } catch (error: any) {
+      console.error("SignIn error:", error);
+      toast.error(error.message);
+    } finally {
       setLoading(false);
-    } else {
-      toast.error(response.data.message);
     }
-    setLoading(false);
   };
 
   return (
@@ -100,11 +107,6 @@ export default function SignIn() {
                 type="email"
                 className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
               />
-              {/* {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.email.message}
-                </p>
-              )} */}
             </div>
             <div>
               <label className="block text-gray-700 font-semibold mb-1">

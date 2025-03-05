@@ -34,26 +34,6 @@ const SignUp: React.FC = () => {
     });
   }, [errors]);
 
-  // const onSubmit = async (data: FormValues) => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await signUp_Request(data);
-
-  //     if (response.data.success) {
-  //       toast.success(response.data.message);
-  //       navigate("/auth/verify-otp", { state: { email: data.email } });
-  //       setLoading(false);
-  //     } else {
-  //       setLoading(false);
-  //       toast.error(response.data.message);
-  //     }
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.error("Signup error:", error);
-  //     toast.error("Something went wrong. Please try again.");
-  //   }
-  // };
-
   const onSubmit = async (data: FormValues) => {
     setLoading(true);
     try {
@@ -65,9 +45,9 @@ const SignUp: React.FC = () => {
       } else {
         toast.error(response.data.message);
       }
-    } catch (error) {
-      console.error("Signup error:", error);
-      toast.error("Something went wrong. Please try again.");
+    } catch (error:any) {
+      console.error("Signup error:", error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -75,19 +55,7 @@ const SignUp: React.FC = () => {
 
   return (
     <div className="flex flex-col md:flex-row bg-[#E2E1DF] relative ">
-      {/* <div className="absolute top-6 right-6">
-        <Link
-          to="/signin"
-          className="bg-[#C4A484] text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-[#B39476] transition"
-        >
-          Login
-        </Link>
-      </div> */}
-
       <div className="md:w-1/2 flex flex-col items-center justify-center p-8 w-full">
-        {/* <div className="absolute top-8 left-8">
-          <h2 className="text-2xl font-bold text-gray-800">MySpace</h2>
-        </div> */}
         <img
           src={signUp_image}
           alt="Illustration"
@@ -127,11 +95,6 @@ const SignUp: React.FC = () => {
                 className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
                 placeholder="Full Name*"
               />
-              {/* {errors.fullName && (
-                <p className="text-red-500 text-xs">
-                  {errors.fullName.message}
-                </p>
-              )} */}
             </div>
 
             <div className="space-y-1">
@@ -144,22 +107,7 @@ const SignUp: React.FC = () => {
                 className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
                 placeholder="Enter email id*"
               />
-              {/* {errors.email && (
-                <p className="text-red-500 text-xs">{errors.email.message}</p>
-              )} */}
             </div>
-
-            {/* <div className="space-y-1">
-              <label className="block text-gray-700 font-medium">
-                Password
-              </label>
-              <input
-                {...register("password")}
-                type="password"
-                className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
-                placeholder="Enter password*"
-              />
-            </div> */}
 
             <div className="space-y-1 relative">
               <label className="block text-gray-700 font-medium">
@@ -192,22 +140,7 @@ const SignUp: React.FC = () => {
                 className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
                 placeholder="Enter phone number*"
               />
-              {/* {errors.phone && (
-                <p className="text-red-500 text-xs">{errors.phone.message}</p>
-              )} */}
             </div>
-
-            {/* <div className="space-y-1">
-              <label className="block text-gray-700 font-medium">
-                Confirm Password
-              </label>
-              <input
-                {...register("confirmPassword")}
-                type="password"
-                className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none"
-                placeholder="Confirm password*"
-              />
-            </div> */}
 
             <div className="space-y-1 relative">
               <label className="block text-gray-700 font-medium">

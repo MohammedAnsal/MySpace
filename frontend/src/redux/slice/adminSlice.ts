@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface AdminState {
-  fullName: string | null;
   email: string | null;
   token: string | null;
   role: string | null;
@@ -11,7 +10,6 @@ export interface AdminState {
 }
 
 const initialState: AdminState = {
-  fullName: null,
   email: null,
   token: null,
   role: null,
@@ -28,13 +26,11 @@ const adminSlice = createSlice({
       state,
       action: PayloadAction<{
         token: string;
-        fullName: string;
         email: string;
         role: string;
       }>
     ) => {
       state.loading = false;
-      state.fullName = action.payload.fullName;
       (state.email = action.payload.email),
         (state.token = action.payload.token),
         (state.isAuthenticated = true),
@@ -44,7 +40,6 @@ const adminSlice = createSlice({
       (state.loading = false), (state.error = action.payload);
     },
     logout: (state) => {
-      (state.fullName = null),
         (state.email = null),
         (state.isAuthenticated = false);
       state.role = null;

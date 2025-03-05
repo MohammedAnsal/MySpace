@@ -1,47 +1,47 @@
 import Container, { Service } from "typedi";
-// import { IAuthController } from "../../interface/user/auth.controller.interface";
+import { IAuthController } from "../../interface/user/auth.controller.interface";
 import { AuthService } from "../../../services/implements/user/auth.service";
 import { Request, Response } from "express";
 import { registerSchema, signInSchema } from "../../../schema/user.Zschema";
 import { HttpStatus, responseMessage } from "../../../enums/http.status";
+import { setCookie } from "../../../utils/cookies.util";
+import { AppError } from "../../../utils/error";
 
 @Service()
-export class AuthController {
+export class AuthController implements IAuthController {
   constructor(private readonly authSrvice: AuthService) {}
 
-  async signUp(req: Request, res: Response): Promise<void> {
+  async signUp(req: Request, res: Response): Promise<any> {
     try {
-      // const validationCheck = registerSchema.safeParse(req.body);
+      const validationCheck = registerSchema.safeParse(req.body);
 
-      // if (!validationCheck.success) {
-      //   res.status(HttpStatus.BAD_REQUEST).json({
-      //     success: false,
-      //     message: validationCheck.error.errors[0].message,
-      //   });
-      //   return;
-      // }
+      if (!validationCheck.success) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: validationCheck.error.errors[0].message,
+        });
+      }
 
       const response = await this.authSrvice.signUp(req.body);
-
-      // console.log(response,'reeesssss')
-
-      res
+      return res
         .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
         .json(response);
-      return;
     } catch (error) {
-      console.log("error in the signup auth controller", error);
-      res
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in signup:", error);
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
-      return;
     }
   }
 
   async signIn(req: Request, res: Response): Promise<any> {
     try {
       const { email, password } = req.body;
-
       const validationCheck = signInSchema.safeParse(req.body);
 
       if (!validationCheck.success) {
@@ -52,41 +52,51 @@ export class AuthController {
 
       const response = await this.authSrvice.signIn(email, password);
 
-      return res
-        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-        .cookie("refrToken", response.refreshToken, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "none",
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-        .json(response);
+      setCookie(res, "refrToken", String(response.refreshToken));
+      setCookie(res, "token", String(response.accessToken));
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Sign in successfully completed",
+        fullName: response.fullName,
+        email: response.email,
+        role: response.role,
+        token: response.accessToken,
+      });
     } catch (error) {
-      console.error("Error in the signIn auth controller:", error);
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in signin:", error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
     }
   }
 
-  async verifyOtp(req: Request, res: Response): Promise<void> {
+  async verifyOtp(req: Request, res: Response): Promise<any> {
     try {
       const { email, otp } = req.body;
 
-      const response = await this.authSrvice.verifyOtp({ email, otp });
-
-      if (typeof response === "string") {
-        res
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .json({ success: false, message: response });
+      if (!email || !otp) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email and OTP are required",
+        });
       }
 
-      res
-        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-        .json(response);
+      const response = await this.authSrvice.verifyOtp({ email, otp });
+      return res.status(HttpStatus.OK).json(response);
     } catch (error) {
-      console.error("Error in the otpVerify auth controller:", error);
-      res
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in OTP verification:", error);
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
     }
@@ -94,84 +104,127 @@ export class AuthController {
 
   async resendOtp(req: Request, res: Response): Promise<any> {
     try {
-      const email = req.body.email;
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email is required",
+        });
+      }
 
       const response = await this.authSrvice.resendOtp(email);
-
-      res
+      return res
         .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
         .json(response);
     } catch (error) {
-      console.error("Error in the re-sendOtp auth controller:", error);
-      res
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in resend OTP:", error);
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
     }
   }
 
-  async forgetPassword(req: Request, res: Response) {
+  async forgetPassword(req: Request, res: Response): Promise<any> {
     try {
       const { email } = req.body;
-      const { success, message } = await this.authSrvice.forgotPassword(email);
-      console.log(success, "from forgot Controller");
-      if (!success) res.status(HttpStatus.UNAUTHORIZED).json({ message });
-      else res.status(HttpStatus.OK).json({ message });
+
+      if (!email) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email is required",
+        });
+      }
+
+      const response = await this.authSrvice.forgotPassword(email);
+      return res
+        .status(response.success ? HttpStatus.OK : HttpStatus.UNAUTHORIZED)
+        .json({ message: response.message, success: response.success });
     } catch (error) {
-      console.log(error);
-      res
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in forgot password:", error);
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
   async resetPassword(req: Request, res: Response): Promise<any> {
-    const { email, otp, newPassword } = req.body;
+    try {
+      const { email, newPassword } = req.body;
 
-    console.log(newPassword, "from con6troller");
+      if (!email || !newPassword) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email and new password are required",
+        });
+      }
 
-    const response = await this.authSrvice.resetPassword(
-      email,
-      otp,
-      newPassword
-    );
+      const response = await this.authSrvice.resetPassword(email, newPassword);
 
-    console.log(response, "from controllerrr");
-
-    if (typeof response === "string") {
+      if (response.success) {
+        return res.status(HttpStatus.OK).json({
+          success: true,
+          message: "Password successfully changed, please login again",
+        });
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: response.message,
+        });
+      }
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in reset password:", error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: response });
-    }
-    if (response.success) {
-      return res.status(HttpStatus.CREATED).json({
-        message: "Password successfully changed please login again",
-      });
-    } else {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: response });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
   async setNewToken(req: Request, res: Response): Promise<any> {
-    const token = req.cookies?.refrToken;
-
-    if (!token) {
-      return res
-        .status(HttpStatus.FORBIDDEN)
-        .json({ message: responseMessage.ERROR_MESSAGE });
-    }
     try {
+      const token = req.cookies?.refrToken;
+
+      if (!token) {
+        return res
+          .status(HttpStatus.FORBIDDEN)
+          .json({ message: responseMessage.ERROR_MESSAGE });
+      }
+
       const response = await this.authSrvice.checkToken(token);
 
       if (response?.success) {
-        return res.status(200).json({ accessToken: response.accessToken });
+        return res.status(HttpStatus.OK).json({ token: response.token });
       } else {
         res.clearCookie("refrToken");
-        res.status(HttpStatus.FORBIDDEN).json({ message: response?.message });
+        return res
+          .status(HttpStatus.FORBIDDEN)
+          .json({ message: response?.message });
       }
     } catch (error) {
-      console.log("error in the setnew token", error);
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in token refresh:", error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
     }
   }
 }

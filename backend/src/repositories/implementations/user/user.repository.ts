@@ -47,8 +47,6 @@ export class UserRepository
     newPassword: string
   ): Promise<IUser | null> {
     try {
-      console.log(email);
-      console.log(newPassword);
 
       const updatePassword = await User.findOneAndUpdate(
         { email },

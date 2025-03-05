@@ -13,28 +13,45 @@ const ResetPassword = () => {
 
   const email = location.state?.emaill || "";
 
+  if (!email) {
+    navigate("/auth/forgot-password");
+    return null;
+  }
+
   const handlePrevious = () => {
     navigate(-1);
   };
 
-  const handleSumbit = async () => {
-    setLoading(true);
+  const validatePasswords = () => {
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return false;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return false;
+    }
+    return true;
+  };
 
+  const handleSumbit = async () => {
+    if (!validatePasswords()) return;
+
+    setLoading(true);
     try {
       const response = await reset_Password(email, newPassword);
 
-      if (response.status === 201) {
-        toast.success("Password reset successful! Please sign in.");
+      if (response.data.success) {
+        toast.success(response.data.message || "Password reset successful!");
         navigate("/auth/signIn");
       } else {
-        toast.error(
-          response.data?.message ||
-            "Failed to reset password. Please try again."
-        );
+        toast.error(response.data.message || "Failed to reset password");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to reset password:", error);
-      toast.error("An unexpected error occurred.");
+      const errorMessage =
+        error.response?.data?.message || "An unexpected error occurred";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -82,7 +99,7 @@ const ResetPassword = () => {
             Enter new password
           </h2>
           <p className="text-base text-gray-600 text-center mt-2">
-            Your new password must be different from previous passwords
+            Your new password must be at least 8 characters long
           </p>
 
           <div className="mt-6">
@@ -100,7 +117,13 @@ const ResetPassword = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
+              minLength={8}
             />
+            {newPassword && newPassword.length < 8 && (
+              <p className="text-red-500 text-sm mt-1">
+                Password must be at least 8 characters
+              </p>
+            )}
           </div>
 
           <div className="mt-4">
@@ -119,6 +142,11 @@ const ResetPassword = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
+            {confirmPassword && newPassword !== confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                Passwords do not match
+              </p>
+            )}
           </div>
 
           <button
@@ -163,7 +191,7 @@ const ResetPassword = () => {
 
           <div className="mt-4 text-center">
             <button
-              onClick={() => navigate("/auth/login")}
+              onClick={() => navigate("/auth/signIn")}
               className="text-[#b08a63] hover:text-[#96745c] text-sm font-medium"
             >
               Back to Login
