@@ -28,7 +28,6 @@ export interface IAuthService {
   forgotPassword(email: string): Promise<AuthResponse>;
   resetPassword(
     email: string,
-    otp: string,
     newPassword: string
   ): Promise<AuthResponse>;
 }

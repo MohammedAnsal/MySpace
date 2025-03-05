@@ -7,8 +7,6 @@ const api = userAxiosInstance;
 const public_api = publicAxiosInstance;
 
 export const signUp_Request = async (formData: object) => {
-  // console.log(formData, "body Dataaa");
-
   const response = await public_api.post("/auth/sign-up", formData);
   console.log(response, "get Responsee");
 
@@ -18,24 +16,30 @@ export const signUp_Request = async (formData: object) => {
 };
 
 export const verify_Otp = async (email: string, otp: string) => {
-  const response = await public_api.post("/auth/verify-otp", { email, otp });
+  try {
+    const response = await public_api.post("/auth/verify-otp", { email, otp });
 
-  console.log(response, "get Responsee otppp");
-  if (!response) console.log("returning is not gettin correctly");
+    console.log(response, "get Responsee otppp");
+    if (!response) console.log("returning is not gettin correctly");
 
-  return response;
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const signIn_Requset = async (formData: object) => {
-  console.log(formData, "form Dataaaa");
+  try {
+    const response = await userAxiosInstance.post("/auth/sign-in", formData);
 
-  const response = await userAxiosInstance.post("/auth/sign-in", formData);
+    console.log(response.data);
 
-  console.log(response, "get signIn Responsee");
+    if (!response) console.log("returning is not gettin correctly");
 
-  if (!response) console.log("returning is not gettin correctly");
-
-  return response;
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const resend_Otp = async (email: string) => {

@@ -25,6 +25,7 @@ const ProviderSignup: React.FC = () => {
     resolver: zodResolver(signUpSchema),
   });
 
+  // Handle form validation errors
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
       Object.values(errors).forEach((error) => {
@@ -38,17 +39,23 @@ const ProviderSignup: React.FC = () => {
     setLoading(true);
     try {
       const response = await signUp_Request(data);
+
       if (response.data.success) {
+        localStorage.removeItem("otpExpiration");
         toast.success(response.data.message);
         navigate("/auth/verify-otp", {
           state: { email: data.email, provider: flag },
         });
-      } else {
-        toast.error(response.data.message || "Signup failed!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signup error:", error);
-      toast.error("Something went wrong. Please try again.");
+
+      if (error.response) {
+        const errorMessage = error.response.data?.message || "Signup failed";
+        toast.error(errorMessage);
+      } else {
+        toast.error("Unable to connect to the server. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
@@ -63,56 +70,55 @@ const ProviderSignup: React.FC = () => {
         </h2>
         <h1 className="text-3xl md:text-4xl font-bold mb-6">Provider SignUp</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
-          <input
-            {...register("fullName")}
-            type="text"
-            placeholder="Full Name"
-            className="w-full p-3 border rounded mb-2"
-          />
-          {/* {errors.fullName && (
-            <p className="text-red-500 text-sm">{errors.fullName.message}</p>
-          )} */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="w-full max-w-sm space-y-3"
+        >
+          <div>
+            <input
+              {...register("fullName")}
+              type="text"
+              placeholder="Full Name"
+              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+            />
+          </div>
 
-          <input
-            {...register("email")}
-            type="email"
-            placeholder="Email"
-            className="w-full p-3 border rounded mb-2"
-          />
-          {/* {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email.message}</p>
-          )} */}
+          <div>
+            <input
+              {...register("email")}
+              type="email"
+              placeholder="Email"
+              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+            />
+          </div>
 
-          <input
-            {...register("phone")}
-            type="text"
-            placeholder="Phone Number"
-            className="w-full p-3 border rounded mb-2"
-          />
-          {/* {errors.phone && (
-            <p className="text-red-500 text-sm">{errors.phone.message}</p>
-          )} */}
+          <div>
+            <input
+              {...register("phone")}
+              type="text"
+              placeholder="Phone Number"
+              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+            />
+          </div>
 
-          <select
-            {...register("gender")}
-            className="w-full p-3 border rounded mb-2"
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-          {/* {errors.gender && (
-            <p className="text-red-500 text-sm">{errors.gender.message}</p>
-          )} */}
+          <div>
+            <select
+              {...register("gender")}
+              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
           <div className="relative">
             <input
               {...register("password")}
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="w-full p-3 border rounded mb-2 pr-10"
+              className="w-full p-3 border rounded pr-10 focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
             />
             <span
               className="absolute top-4 right-3 cursor-pointer text-gray-600"
@@ -121,16 +127,13 @@ const ProviderSignup: React.FC = () => {
               {!showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </span>
           </div>
-          {/* {errors.password && (
-            <p className="text-red-500 text-sm">{errors.password.message}</p>
-          )} */}
 
           <div className="relative">
             <input
               {...register("confirmPassword")}
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
-              className="w-full p-3 border rounded mb-2 pr-10"
+              className="w-full p-3 border rounded pr-10 focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
             />
             <span
               className="absolute top-4 right-3 cursor-pointer text-gray-600"
@@ -139,20 +142,34 @@ const ProviderSignup: React.FC = () => {
               {!showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </span>
           </div>
-          {/* {errors.confirmPassword && (
-            <p className="text-red-500 text-sm">
-              {errors.confirmPassword.message}
-            </p>
-          )} */}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#c3a07c] text-white p-3 rounded hover:bg-[#a38565] transition"
+            className="w-full bg-[#c3a07c] text-white p-3 rounded hover:bg-[#a38565] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {loading ? (
               <>
-                <span className="loader mr-2"></span>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
                 Signing Up...
               </>
             ) : (

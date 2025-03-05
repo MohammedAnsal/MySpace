@@ -18,9 +18,5 @@ adminUserRoute.put(
   AdminUserControllerr.updateUser.bind(AdminUserControllerr)
 );
 
-adminUserRoute.post(
-  "/logout",
-  AdminUserControllerr.logout.bind(AdminUserControllerr)
-);
 
 export default adminUserRoute;

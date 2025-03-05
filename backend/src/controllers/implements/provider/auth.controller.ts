@@ -2,36 +2,36 @@ import { Request, Response } from "express";
 import { HttpStatus } from "../../../enums/http.status";
 import { AuthProviderService } from "../../../services/implements/provider/auth.p.service";
 import Container, { Service } from "typedi";
+import { setCookie } from "../../../utils/cookies.util";
+import { AppError } from "../../../utils/error";
+import { IAuthController } from "../../interface/provider/auth.controller.interface";
 @Service()
-export class AuthController {
+export class AuthController implements IAuthController {
   constructor(private readonly providerService: AuthProviderService) {}
 
-  async signUp(req: Request, res: Response): Promise<void> {
+  async signUp(req: Request, res: Response): Promise<any> {
     try {
-      // const validationCheck = registerSchema.safeParse(req.body);
-
-      // if (!validationCheck.success) {
-      //   res.status(HttpStatus.BAD_REQUEST).json({
-      //     success: false,
-      //     message: validationCheck.error.errors[0].message,
-      //   });
-      //   return;
-      // }
+      if (!req.body.email || !req.body.password) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email and password are required",
+        });
+      }
 
       const response = await this.providerService.signUp(req.body);
-
-      console.log(response, "reeesssss");
-
-      res
+      return res
         .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
         .json(response);
-      return;
     } catch (error) {
-      console.log("error in the signup auth controller", error);
-      res
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in provider signup:", error);
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
-      return;
     }
   }
 
@@ -39,27 +39,33 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      //   const validationCheck = signInSchema.safeParse(req.body);
-
-      //   if (!validationCheck.success) {
-      //     return res
-      //       .status(HttpStatus.BAD_REQUEST)
-      //       .json({ success: false, message: "Invalid credentials" });
-      //   }
+      if (!email || !password) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email and password are required",
+        });
+      }
 
       const response = await this.providerService.signIn(email, password);
 
-      return res
-        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-        .cookie("refr_Provider_Token", response.refreshToken, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "none",
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-        .json(response);
+      setCookie(res, "refr_Provider_Token", String(response.refreshToken));
+      setCookie(res, "token", String(response.accessToken));
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Sign in successfully completed",
+        fullName: response.fullName,
+        email: response.email,
+        role: response.role,
+        token: response.accessToken,
+      });
     } catch (error) {
-      console.error("Error in the signIn auth controller:", error);
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in provider signin:", error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
@@ -69,21 +75,24 @@ export class AuthController {
   async verifyOtp(req: Request, res: Response): Promise<any> {
     try {
       const otpData = req.body;
-      console.log(otpData)
-      const response = await this.providerService.verifyOtp(otpData);
 
-      if (typeof response === "string") {
-        res
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .json({ success: false, message: response });
+      if (!otpData) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email and OTP are required",
+        });
       }
 
-      res
-        .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-        .json(response);
+      const response = await this.providerService.verifyOtp(otpData);
+      return res.status(HttpStatus.OK).json(response);
     } catch (error) {
-      console.error("Error in the otpVerify auth controller:", error);
-      res
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in provider OTP verification:", error);
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
     }
@@ -93,14 +102,25 @@ export class AuthController {
     try {
       const { email } = req.body;
 
-      const response = await this.providerService.resendOtp(email);
+      if (!email) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email is required",
+        });
+      }
 
-      res
+      const response = await this.providerService.resendOtp(email);
+      return res
         .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
         .json(response);
     } catch (error) {
-      console.error("Error in the re-sendOtp auth controller:", error);
-      res
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in provider resend OTP:", error);
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
     }

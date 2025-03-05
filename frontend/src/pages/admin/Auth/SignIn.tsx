@@ -27,8 +27,6 @@ const AdminSignIn = () => {
     resolver: zodResolver(signInSchema),
   });
 
-  // Show validation errors
-
   useEffect(() => {
     Object.values(errors).forEach((error: any) => {
       toast.error(error.message);
@@ -39,25 +37,25 @@ const AdminSignIn = () => {
     setLoading(true);
     try {
       const response = await signIn_Request(data);
+
       if (response.data.success) {
         localStorage.setItem("role", response.data.role);
-        localStorage.setItem("admin-access-token", response.data.accessToken);
-        toast.success("Signed in successfully!");
+        localStorage.setItem("admin-access-token", response.data.token);
+        toast.success(response.data.message || "Signed in successfully!");
         dispatch(
           loginSuccess({
             email: response.data.email,
-            fullName: response.data.fullName,
             role: response.data.role,
-            token: response.data.accessToken,
+            token: response.data.token,
           })
         );
         navigate("/admin/dashboard");
-      } else {
-        toast.error(response.data.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("SignIn error:", error);
-      toast.error("Something went wrong. Please try again.");
+
+      const errorMessage = error.response.data?.message;
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -82,21 +80,10 @@ const AdminSignIn = () => {
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-2 text-center md:text-left">
             <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
+            <p className="text-gray-400">Please sign in to continue</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label className="block text-white font-semibold mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                placeholder="Your Full Name"
-                className="w-full p-3 bg-[#D9D9D9] focus:ring-2 focus:ring-lime-400 border border-gray-300 rounded-lg focus:outline-none"
-                {...register("fullName")}
-              />
-            </div>
-
             <div>
               <label className="block text-white font-semibold mb-1">
                 Email
@@ -106,6 +93,7 @@ const AdminSignIn = () => {
                 placeholder="Your Email"
                 className="w-full p-3 bg-[#D9D9D9] focus:ring-2 focus:ring-lime-400 text-black border border-gray-300 rounded-lg focus:outline-none"
                 {...register("email")}
+                disabled={loading}
               />
             </div>
 
@@ -119,11 +107,13 @@ const AdminSignIn = () => {
                   placeholder="Your Password"
                   className="w-full p-3 bg-[#D9D9D9] focus:ring-2 focus:ring-lime-400 border border-gray-300 rounded-lg focus:outline-none pr-10"
                   {...register("password")}
+                  disabled={loading}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-3 flex items-center"
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-600"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
                 >
                   {!showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -131,13 +121,32 @@ const AdminSignIn = () => {
             </div>
 
             <button
-              className="w-full bg-[#C8ED4F] hover:bg-[#D4F562] text-gray-900 py-3 rounded-lg font-semibold transition duration-200 flex items-center justify-center"
+              className="w-full bg-[#C8ED4F] hover:bg-[#D4F562] text-gray-900 py-3 rounded-lg font-semibold transition duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <span className="loader mr-2"></span>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
                   Signing In...
                 </>
               ) : (

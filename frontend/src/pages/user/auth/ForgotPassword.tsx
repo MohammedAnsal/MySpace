@@ -6,8 +6,8 @@ import { toast } from "sonner";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const forgot = 1;
 
   const handlePrevious = () => {
@@ -18,7 +18,6 @@ const ForgotPasswordPage = () => {
     setLoading(true);
     try {
       const response = await forgot_Password(email);
-      console.log(response);
       if (response.data.message) {
         localStorage.removeItem("otpExpiration");
         toast.success(response.data.message);

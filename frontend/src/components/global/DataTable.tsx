@@ -1,11 +1,3 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table";
 import React, { useMemo, useState } from "react";
 import {
   Pagination,
@@ -37,21 +29,24 @@ export default function DataTable<T extends Record<string, any>>({
 }: TableProps<T>) {
   const [currentPage, setCurrentpage] = useState(1);
 
+  console.log(data, "aaa");
+  console.log(columns, "aaa");
+
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
   const currentData = useMemo(() => {
+    const safeData = Array.isArray(data) ? data : []; // Ensure data is always an array
     const firstPage = (currentPage - 1) * itemsPerPage;
     const lastPage = firstPage + itemsPerPage;
-    return data?.slice(firstPage, lastPage);
+    return safeData.slice(firstPage, lastPage);
   }, [currentPage, data, itemsPerPage]);
 
   const pageChange = (page: number) => {
     setCurrentpage(page);
   };
 
-  // Define fixed column widths to ensure alignment
   const columnWidths = useMemo(() => {
-    return columns.map((col, index) => {
+    return columns.map((col) => {
       if (col.width) return col.width;
       return `${100 / columns.length}%`;
     });

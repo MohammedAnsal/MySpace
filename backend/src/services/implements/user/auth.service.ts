@@ -19,7 +19,8 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../../utils/jwt.utils";
-import { JsonWebTokenError } from "jsonwebtoken";
+import { AppError } from "../../../utils/error";
+import { HttpStatus } from "../../../enums/http.status";
 
 @Service()
 export class AuthService implements IAuthService {
@@ -35,21 +36,15 @@ export class AuthService implements IAuthService {
     try {
       const { fullName, email, phone, password, role, gender } = userData;
 
-      // console.log(fullName, email, phone, password, role, gender);
-
-      // const rolee = role == "provider" ? "provider" : "user";
-
       const existingUser = await this.userRepo.findUserByEmail(email);
 
       if (existingUser && existingUser.is_verified)
-        //  Exist User & Verified
-        return {
-          success: false,
-          message: "User already registered with this email , Please login...",
-        };
+        throw new AppError(
+          "User already registered with this email , Please login...",
+          HttpStatus.BAD_REQUEST
+        );
 
       if (existingUser && !existingUser.is_verified) {
-        //   Exist User & Not Verified
         const getOtp = await this.otpRepo.findOtpByEmail(email);
 
         if (getOtp) {
@@ -58,19 +53,16 @@ export class AuthService implements IAuthService {
             new Date(getOtp.createdAt).getTime() + 5 * 60 * 1000;
 
           if (currentTime < expirationTime) {
-            //  Otp Still Valid
-            return {
-              success: false,
-              message: "OTP is still valid. Please verify using the same OTP.",
-            };
+            throw new AppError(
+              "OTP is still valid. Please verify using the same OTP.",
+              HttpStatus.BAD_REQUEST
+            );
           } else {
-            //    If Not There New One
             const newOtp = generateOtp();
             await this.otpRepo.createOtp({ email, otp: newOtp } as IOtp);
             await sendOtpMail(email, "Registration", newOtp);
           }
         } else {
-          //  if no otp newOne
           const newOtp = generateOtp();
           await this.otpRepo.createOtp({ email, otp: newOtp } as IOtp);
           await sendOtpMail(email, "Registration", newOtp);
@@ -80,8 +72,6 @@ export class AuthService implements IAuthService {
           };
         }
       }
-
-      //  Lastly Create Everything
 
       const hashedPasswordd = await hashPassword(password);
       await this.userRepo.create({
@@ -93,35 +83,34 @@ export class AuthService implements IAuthService {
         gender,
       } as IUser);
 
-      // console.log(newUser, ":-  newww Userrrrrrrr");
-
       const newOtp = generateOtp();
       await this.otpRepo.createOtp({ email, otp: newOtp } as IOtp);
       await sendOtpMail(email, "Registration", newOtp);
       return { success: true, message: "Email with OTP has been sented" };
     } catch (error) {
-      console.error("Error in signUp:", error);
-      return {
-        success: false,
-        message: "An error occurred while signing up. Please try again later.",
-      };
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while signing in. Please try again later.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
   async signIn(email: string, password: string): Promise<SignInResult> {
     try {
       const existingUser = await this.userRepo.findUserByEmail(email);
-      console.log(
-        existingUser,
-        "this is the user that found from database in user from authService"
-      );
 
-      if (existingUser?.is_active == false) {
-        return { success: false, message: "Your Blocked User" };
+      if (existingUser?.is_active === false) {
+        throw new AppError(
+          "Your account has been blocked",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       if (!existingUser) {
-        return { success: false, message: "Invalid Credentials" };
+        throw new AppError("Invalid Credentials", HttpStatus.BAD_REQUEST);
       }
 
       const passwordCheck = await bcrypt.compare(
@@ -130,7 +119,14 @@ export class AuthService implements IAuthService {
       );
 
       if (!passwordCheck) {
-        return { success: false, message: "Invalid Credentials" };
+        throw new AppError("Incorrect password", HttpStatus.BAD_REQUEST);
+      }
+
+      if (!existingUser.is_verified) {
+        throw new AppError(
+          "Please verify your email first",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const accessToken = generateAccessToken({
@@ -138,9 +134,6 @@ export class AuthService implements IAuthService {
         role: existingUser.role,
       });
       const refreshToken = generateRefreshToken({ id: existingUser._id });
-
-      // console.log(accessToken, "the token created for the user");
-      // console.log(refreshToken, "the refresh token created for the user");
 
       return {
         success: true,
@@ -152,11 +145,13 @@ export class AuthService implements IAuthService {
         email: existingUser.email,
       };
     } catch (error) {
-      console.error("Error in signIn:", error);
-      return {
-        success: false,
-        message: "An error occurred while signing. Please try again later.",
-      };
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while signing in. Please try again later.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -165,73 +160,79 @@ export class AuthService implements IAuthService {
       const { email, otp } = otpData;
 
       if (!email) {
-        return {
-          success: false,
-          message: "Email is required for OTP verification.",
-        };
+        throw new AppError(
+          "Email is required for OTP verification.",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       if (!otp) {
-        return { success: false, message: "OTP is required." };
+        throw new AppError("OTP is required.", HttpStatus.BAD_REQUEST);
       }
 
       const validUser = await this.userRepo.findUserByEmail(email);
-      console.log(validUser, "the valid user in verifyOtp user in authservice");
 
       if (!validUser) {
-        return { success: false, message: "Email is not yet registered" };
+        throw new AppError(
+          "Email is not yet registered",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       const getOtp = await this.otpRepo.findOtpByEmail(email);
-      console.log(getOtp, "the get otp from the email and db");
 
       if (!getOtp) {
-        return { success: false, message: "No OTP found for this email" };
+        throw new AppError(
+          "No OTP found for this email",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
-      if (getOtp.otp === otp) {
-        console.log("Matched");
-
-        await this.userRepo.verifyUser(email, true);
-
-        try {
-          await this.otpRepo.otpDeleteByEmail(email);
-        } catch (err) {
-          console.error("Failed to delete OTP:", err);
-          return {
-            success: false,
-            message: "Verification complete, but failed to remove OTP.",
-          };
-        }
-
-        return { success: true, message: "Verification complete" };
-      } else {
-        return { success: false, message: "OTP verification failed" };
+      if (getOtp.otp !== otp) {
+        throw new AppError(
+          "Invalid OTP. Please try again.",
+          HttpStatus.BAD_REQUEST
+        );
       }
+
+      await this.userRepo.verifyUser(email, true);
+
+      try {
+        await this.otpRepo.deleteOtpByEmail(email);
+      } catch (err) {
+        console.error("Failed to delete OTP:", err);
+        throw new AppError(
+          "Verification complete, but failed to remove OTP.",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      return { success: true, message: "Verification complete" };
     } catch (error) {
-      console.error("Error in verifyOtp:", error);
-      return {
-        success: false,
-        message:
-          "An error occurred while verifying OTP. Please try again later.",
-      };
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while verifying OTP.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
   async resendOtp(email: string): Promise<AuthResponse> {
     try {
       if (!email) {
-        return { success: false, message: "Email is required" };
+        throw new AppError("Email is required", HttpStatus.BAD_REQUEST);
       }
 
       const existingUser = await this.userRepo.findUserByEmail(email);
 
       if (!existingUser) {
-        return { success: false, message: "Email is not registered" };
+        throw new AppError("Email is not registered", HttpStatus.BAD_REQUEST);
       }
 
       if (existingUser.is_verified) {
-        return { success: false, message: "User is already verified" };
+        throw new AppError("User is already verified", HttpStatus.BAD_REQUEST);
       }
 
       const newOtp = generateOtp();
@@ -249,26 +250,26 @@ export class AuthService implements IAuthService {
       await sendOtpMail(email, "Registartion", newOtp);
       return { success: true, message: "New OTP sent successfully" };
     } catch (error) {
-      console.error("Error in verifyOtp:", error);
-      return {
-        success: false,
-        message:
-          "An error occurred while verifying OTP. Please try again later.",
-      };
+      console.error("Error in re-send otp:", error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while re-send OTP.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
   async forgotPassword(email: string): Promise<AuthResponse> {
     try {
-      console.log(email);
-
       const existingUser = await this.userRepo.findUserByEmail(email);
 
       if (!existingUser) {
-        return {
-          success: false,
-          message: "You are not a verified user.",
-        };
+        throw new AppError(
+          "You are not a verified user.",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       const otp = generateOtp();
@@ -293,12 +294,6 @@ export class AuthService implements IAuthService {
       }
 
       await sendOtpMail(email, "Forgot Password", otp);
-      // if (!mailResult) {
-      //   return {
-      //     success: false,
-      //     message: "Failed to send OTP. Please try again later.",
-      //   };
-      // }
 
       return {
         success: true,
@@ -306,31 +301,29 @@ export class AuthService implements IAuthService {
       };
     } catch (error) {
       console.error("Error during forgot password process:", error);
-      return {
-        success: false,
-        message: "An error occurred while processing your request.",
-      };
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while forgot password.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
   async resetPassword(
     email: string,
-    otp: string,
     newPassword: string
   ): Promise<AuthResponse> {
     try {
-      console.log(email);
-      console.log(otp);
-      console.log(newPassword);
       const findUser = await this.userRepo.findUserByEmail(email);
 
       console.log("the user from db in resetpassword", findUser);
 
       if (!findUser)
-        return { success: false, message: "Invalide User details" };
+        throw new AppError("Invalide User details", HttpStatus.BAD_REQUEST);
 
       const hashedPassword = await hashPassword(newPassword);
-      console.log("the hashed password", hashedPassword);
 
       const changedPassword = await this.userRepo.updatePassword(
         email,
@@ -339,12 +332,21 @@ export class AuthService implements IAuthService {
       console.log("the changed password is ", changedPassword);
 
       if (!changedPassword) {
-        return { success: false, message: "failed to update the password" };
+        throw new AppError(
+          "failed to update the password",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       return { success: true, message: "password successfully changed" };
     } catch (error) {
-      return { success: true, message: "s" };
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while re-setpassword.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -363,17 +365,17 @@ export class AuthService implements IAuthService {
         return {
           success: true,
           message: "new token created",
-          accessToken: newAccessToken,
+          token: newAccessToken,
         };
       }
     } catch (error) {
-      if (error instanceof JsonWebTokenError) {
-        return {
-          success: false,
-          message: "Refresh token expired, please log in again",
-        };
+      if (error instanceof AppError) {
+        throw error;
       }
-      console.error("Error verifying refresh token:", error);
+      throw new AppError(
+        "An error occurred while verifying refresh token.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }

@@ -1,48 +1,55 @@
 import DataTable from "@/components/global/DataTable";
-import { UserDetailsModal } from "@/components/modal/userModal";
-import { getAllUsers, updateStatus } from "@/services/Api/adminApi";
+import { useUsers } from "@/hooks/admin/useAdminQueries";
+import { updateStatus } from "@/services/Api/adminApi";
 import { IUser } from "@/types/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 const Users = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<IUser[]>([]);
+  const { data, isLoading, isError } = useUsers();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getAllUsers();
-        setData(response.data.data);
-      } catch (error) {
-        toast.error("Failed to fetch users");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const blockUser = async (email: string) => {
-    const updatedUsers = data.map((user) =>
-      user.email === email ? { ...user, is_active: !user.is_active } : user
-    );
-    setData(updatedUsers);
-
+  const toggleUserStatus = async (email: string) => {
     try {
       const { data: responseData } = await updateStatus(email);
       if (responseData) {
         toast.success(responseData.message);
+        queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       }
     } catch (error) {
       toast.error("Failed to update user status");
-      setData(data); // Roll back state on failure
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#242529]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500" />
+          <div className="text-slate-400 animate-pulse">Loading users...</div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-red-500 text-center mt-10">
+        Failed to load users!
+      </div>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="text-center text-slate-400 mt-10">No users found.</div>
+    );
+  }
 
   const columns = [
     {
@@ -86,32 +93,27 @@ const Users = () => {
         </AnimatePresence>
       ),
     },
+
     {
       header: "Details",
       render: (user: IUser) => (
-        <UserDetailsModal data={user} action={blockUser} />
+        <button
+          onClick={() => toggleUserStatus(user.email)}
+          className={`px-4 py-2 rounded-lg text-white font-semibold transition-all duration-200 ${
+            user.is_active
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-green-500 hover:bg-green-600"
+          }`}
+        >
+          {user.is_active ? "Block" : "Unblock"}
+        </button>
       ),
     },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#242529]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500" />
-          <div className="text-slate-400 animate-pulse">Loading users...</div>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
-    <div className="">
-      <DataTable data={data} columns={columns} />
+    <div>
+      <DataTable data={data?.data} columns={columns} />
     </div>
   );
 };

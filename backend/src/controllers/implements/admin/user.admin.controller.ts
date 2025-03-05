@@ -40,17 +40,17 @@ class AdminUserController implements IAdminController {
     }
   }
 
-  async logout(req: Request, res: Response): Promise<any> {
-    try {
-      res
-        .clearCookie("refr_Admin_Token")
-        .status(HttpStatus.OK)
-        .json({ message: "Logout successfully" });
-    } catch (error) {
-      console.log((error as Error).message);
-      throw new Error("from logout user");
-    }
-  }
+  // async logout(req: Request, res: Response): Promise<any> {
+  //   try {
+  //     res
+  //       .clearCookie("refr_Admin_Token")
+  //       .status(HttpStatus.OK)
+  //       .json({ message: "Logout successfully" });
+  //   } catch (error) {
+  //     console.log((error as Error).message);
+  //     throw new Error("from logout user");
+  //   }
+  // }
 }
 
 export const AdminUserControllerr = Container.get(AdminUserController);
