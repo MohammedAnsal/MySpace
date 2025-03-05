@@ -6,6 +6,7 @@ import { registerSchema, signInSchema } from "../../../schema/user.Zschema";
 import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import { setCookie } from "../../../utils/cookies.util";
 import { AppError } from "../../../utils/error";
+import redisClient from "../../../config/redisConfig";
 
 @Service()
 export class AuthController implements IAuthController {
@@ -52,7 +53,7 @@ export class AuthController implements IAuthController {
 
       const response = await this.authSrvice.signIn(email, password);
 
-      setCookie(res, "refrToken", String(response.refreshToken));
+      setCookie(res, "refreshToken", String(response.refreshToken));
       setCookie(res, "token", String(response.accessToken));
 
       return res.status(HttpStatus.OK).json({
@@ -225,6 +226,32 @@ export class AuthController implements IAuthController {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
+    }
+  }
+
+  async logout(req: Request, res: Response): Promise<any> {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+        return res.status(400).json({ message: "No token provided" });
+      }
+
+      const tokenExpiration = 7 * 24 * 60 * 60; // 7 days in seconds
+
+      await redisClient.set(refreshToken, "blacklisted", {
+        EX: tokenExpiration,
+      });
+
+      res.clearCookie("token");
+      res.clearCookie("refreshToken");
+
+      res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Server error" });
     }
   }
 }

@@ -5,4 +5,5 @@ export interface IAuthController {
   signIn(req: Request, res: Response): Promise<any>;
   verifyOtp(req: Request, res: Response): Promise<any>;
   resendOtp(req: Request, res: Response): Promise<any>;
+  logout(req: Request, res: Response): Promise<any>;
 }

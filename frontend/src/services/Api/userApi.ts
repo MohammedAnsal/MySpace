@@ -54,7 +54,7 @@ export const resend_Otp = async (email: string) => {
 };
 
 export const user_Logout = async () => {
-  const response = await api.post("/user/logout");
+  const response = await api.post("/auth/logout");
 
   if (!response) console.log("Error in logout");
 

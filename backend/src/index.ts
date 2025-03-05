@@ -8,9 +8,9 @@ import authRoute from "./routers/user/authRoute";
 import authProviderRoute from "./routers/provider/auth.p.routes";
 import authAdminRoute from "./routers/admin/auth.admin.routes";
 import adminUserRoute from "./routers/admin/user.admin.routes";
-import userRoute from "./routers/user/userRoute";
 import morgan from "morgan";
 import { morganOptions } from "./utils/logger";
+import authLimiter from "./middlewares/auth/rate-limiting";
 
 dotenv.config();
 dbConnect();
@@ -32,10 +32,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use("/auth", authRoute, authProviderRoute, authAdminRoute);
+app.use("/auth", authLimiter, authRoute, authProviderRoute, authAdminRoute);
 app.use("/admin", adminUserRoute);
-app.use("/user", userRoute);
-
 
 const PORT = process.env.PORT || 7001;
 

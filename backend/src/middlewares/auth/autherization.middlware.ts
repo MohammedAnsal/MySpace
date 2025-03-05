@@ -3,7 +3,7 @@ import { AuthRequset } from "../../types/api";
 import { User } from "../../models/user.model";
 import { HttpStatus } from "../../enums/http.status";
 
-export const Autherization = async (
+export const autherization = async (
   req: AuthRequset,
   res: Response,
   next: NextFunction
