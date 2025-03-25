@@ -1,11 +1,25 @@
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 import { IUser } from "../../../models/user.model";
 import { UserRepository } from "../../../repositories/implementations/user/user.repository";
-import { IAdminUserService } from "../../interface/admin/user.admin.service.interface";
+import {
+  AdminResult,
+  IAdminUserService,
+} from "../../interface/admin/user.admin.service.interface";
+import { AppError } from "../../../utils/error";
+import { HttpStatus } from "../../../enums/http.status";
+import { IAdminRepository } from "../../../repositories/interfaces/admin/admin.Irepository";
+import { adminRepository } from "../../../repositories/implementations/admin/admin.repository";
+import { s3Service } from "../../../services/implements/s3/s3.service";
 
 @Service()
 export class AdminUserService implements IAdminUserService {
-  constructor(private userRepo: UserRepository) {}
+  private adminRepositoryy: IAdminRepository;
+  private s3ServiceInstance: s3Service;
+
+  constructor(private userRepo: UserRepository, s3Service: s3Service) {
+    this.adminRepositoryy = adminRepository;
+    this.s3ServiceInstance = s3Service;
+  }
 
   async findAllUser(): Promise<{ success: boolean; data: IUser[] }> {
     try {
@@ -14,10 +28,16 @@ export class AdminUserService implements IAdminUserService {
       if (allUsers) {
         return { success: true, data: allUsers };
       } else {
-        throw new Error("faild to fetch user");
+        throw new AppError("faild to fetch user");
       }
-    } catch (error) {
-      throw new Error((error as Error).message);
+    } catch (error: any) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while finding users. Please try again later.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -55,4 +75,118 @@ export class AdminUserService implements IAdminUserService {
       throw new Error("internal error");
     }
   }
+
+  async verifyHostel(
+    hostelId: string,
+    isVerified: boolean
+  ): Promise<AdminResult> {
+    try {
+      if (!hostelId) {
+        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
+      }
+
+      const result = await this.adminRepositoryy.verifyHostel(
+        hostelId,
+        isVerified
+      );
+
+      if (!result) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        success: true,
+        message: isVerified
+          ? "Hostel verified successfully"
+          : "Hostel rejected successfully",
+        data: result,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while verifying hostel",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getUnverifiedHostels(): Promise<AdminResult> {
+    try {
+      const hostels = await this.adminRepositoryy.getUnverifiedHostels();
+
+      return {
+        success: true,
+        message: "Unverified hostels fetched successfully",
+        data: hostels,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while fetching unverified hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getVerifiedHostels(): Promise<AdminResult> {
+    try {
+      const hostels = await this.adminRepositoryy.getVerifiedHostels();
+      return {
+        success: true,
+        message: "Verified hostels fetched successfully",
+        data: hostels,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while fetching verified hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getHostelById(hostelId: string): Promise<AdminResult> {
+    try {
+      if (!hostelId) {
+        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
+      }
+
+      const hostel = await this.adminRepositoryy.getHostelById(hostelId);
+
+      if (!hostel) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
+
+      if (hostel.photos && hostel.photos.length > 0) {
+        const signedPhotos = await Promise.all(
+          hostel.photos.map((photo) =>
+            this.s3ServiceInstance.generateSignedUrl(photo)
+          )
+        );
+        hostel.photos = signedPhotos;
+      }
+
+      return {
+        success: true,
+        message: "Hostel details fetched successfully",
+        data: hostel,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while fetching hostel details",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 }
+
+export const adminService = Container.get(AdminUserService);

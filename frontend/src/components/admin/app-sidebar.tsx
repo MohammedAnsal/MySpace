@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LogOut, SquareTerminal, Users } from "lucide-react";
+import { LogOut, SquareTerminal, Users, HomeIcon } from "lucide-react";
 import { NavMain } from "../../components/admin/nav-main";
 import { TeamSwitcher } from "@/components/admin/team-switcher";
 import {
@@ -35,6 +35,17 @@ const data = {
         {
           title: "Provider",
           url: "/admin/providers",
+        },
+      ],
+    },
+    {
+      title: "Accommodations",
+      url: "/admin/accommodations",
+      icon: HomeIcon,
+      items: [
+        {
+          title: "Requests",
+          url: "/admin/accommodations/requests",
         },
       ],
     },

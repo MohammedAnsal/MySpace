@@ -1,8 +1,8 @@
 import { useState } from "react";
 import forgotPass from "@/assets/user/forgott.png";
 import { useNavigate } from "react-router-dom";
-import { forgot_Password } from "@/services/Api/userApi";
-import { toast } from "sonner";
+import { forgotPassword } from "@/services/Api/userApi";
+  import { toast } from "sonner";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ const ForgotPasswordPage = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const response = await forgot_Password(email);
+      const response = await forgotPassword(email);
       if (response.data.message) {
         localStorage.removeItem("otpExpiration");
         toast.success(response.data.message);

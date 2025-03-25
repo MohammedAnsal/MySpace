@@ -1,7 +1,7 @@
 import { useState } from "react";
 import forgotPass from "@/assets/user/forgott.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { reset_Password } from "@/services/Api/userApi";
+import { resetPassword } from "@/services/Api/userApi";
 import { toast } from "sonner";
 
 const ResetPassword = () => {
@@ -39,7 +39,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      const response = await reset_Password(email, newPassword);
+      const response = await resetPassword(email, newPassword);
 
       if (response.data.success) {
         toast.success(response.data.message || "Password reset successful!");

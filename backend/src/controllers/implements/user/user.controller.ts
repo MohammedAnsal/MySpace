@@ -1,22 +1,113 @@
 import { Request, Response } from "express";
 import { UserService } from "../../../services/implements/user/user.service";
 import { IUserController } from "../../interface/user/user.controller.inteface";
-import { HttpStatus } from "../../../enums/http.status";
+import { AppError } from "../../../utils/error";
+import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import Container, { Service } from "typedi";
+import { AuthRequset } from "../../../types/api";
 
 @Service()
 class UserController implements IUserController {
-  constructor(private userServive: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
-  async logout(req: Request, res: Response): Promise<any> {
+  async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
-      res
-        .clearCookie("refrToken")
-        .status(HttpStatus.OK)
-        .json({ message: "Logout successfully" });
+      const user = req.user;
+      const { success, data } = await this.userService.findUser(user as string);
+      if (success) {
+        res.status(HttpStatus.OK).json({ success: true, data });
+      } else
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: responseMessage.ACCESS_DENIED });
     } catch (error) {
-      console.log((error as Error).message);
-      throw new Error("from logout user");
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in findUser:", error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
+
+  async changePassword(req: Request, res: Response): Promise<any> {
+    try {
+      const { email, currentPassword, newPassword } = req.body;
+
+      if (!email || !currentPassword || !newPassword) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email, current password, and new password are required.",
+        });
+      }
+
+      const result = await this.userService.changePassword(
+        email,
+        currentPassword,
+        newPassword
+      );
+
+      if (!result.success) {
+        return res.status(HttpStatus.BAD_REQUEST).json(result);
+      }
+
+      return res.status(HttpStatus.OK).json(result);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      }
+
+      console.error("Error in changePassword controller:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error. Please try again later.",
+      });
+    }
+  }
+
+  async editProfile(req: AuthRequset, res: Response): Promise<any> {
+    try {
+      const formData = req.body;
+      const profileImage = req.file;
+
+      const userId = req.user;
+
+      if (!formData) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "User data is required.",
+        });
+      }
+
+      await this.userService.editProfile(
+        formData,
+        userId,
+        profileImage ? profileImage : undefined
+      );
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Profile updated successfully.",
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      }
+
+      console.error("Error in editProfile controller:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "An unexpected error occurred. Please try again later.",
+      });
     }
   }
 }

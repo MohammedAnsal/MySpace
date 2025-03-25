@@ -1,4 +1,5 @@
 import DataTable from "@/components/global/DataTable";
+import Loading from "@/components/global/Loading";
 import { useUsers } from "@/hooks/admin/useAdminQueries";
 import { updateStatus } from "@/services/Api/adminApi";
 import { IUser } from "@/types/types";
@@ -24,22 +25,19 @@ const Users = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#242529]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500" />
-          <div className="text-slate-400 animate-pulse">Loading users...</div>
-        </motion.div>
+      <div className="flex bg-[#242529] justify-center items-center min-h-screen">
+        <Loading
+          text="Loading users..."
+          color="#6366f1"
+          className="text-white"
+        />
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="text-red-500 text-center mt-10">
+      <div className="text-center text-red-500 mt-10">
         Failed to load users!
       </div>
     );
@@ -61,7 +59,7 @@ const Users = () => {
       header: "User",
       render: (user: IUser) => (
         <div className="flex">
-          <span className="font-medium text-yellow-500">{user.fullName}</span>
+          <span className="text-yellow-500 font-medium">{user.fullName}</span>
         </div>
       ),
     },

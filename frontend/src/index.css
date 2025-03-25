@@ -23,8 +23,18 @@
     transform: rotate(360deg);
   }
 }
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 
 
+html::-webkit-scrollbar {
+  display: none;
+}
 
 @layer base {
   :root {
@@ -97,8 +107,6 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
-
 
 @layer base {
   * {

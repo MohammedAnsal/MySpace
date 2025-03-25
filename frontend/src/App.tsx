@@ -8,13 +8,15 @@ import SignIn from "./pages/user/Auth/SignIn";
 import SignUp from "./pages/user/Auth/SignUp";
 import HomePage from "./pages/user/Home/Home";
 import AdminSignIn from "./pages/admin/Auth/SignIn";
+import UserProfile from "./pages/user/Home/profile/UserProfile";
 
 const App = () => {
   return (
     <div>
       <BrowserRouter>
-        {/* <AdminSignUp /> */}
-        <AdminSignIn />
+              {/* <AdminSignUp /> */}
+              <UserProfile/>
+        {/* <AdminSignIn /> */}
       </BrowserRouter>
       {/* <SignIn/> */}
       {/* <SignUp/> */}

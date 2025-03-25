@@ -8,7 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { signUp_Request } from "../../../services/Api/providerApi";
+import { signUpRequest } from "../../../services/Api/providerApi";
 import { Link, useNavigate } from "react-router-dom";
 
 const ProviderSignup: React.FC = () => {
@@ -38,7 +38,7 @@ const ProviderSignup: React.FC = () => {
     const flag = 1;
     setLoading(true);
     try {
-      const response = await signUp_Request(data);
+      const response = await signUpRequest(data);
 
       if (response.data.success) {
         localStorage.removeItem("otpExpiration");

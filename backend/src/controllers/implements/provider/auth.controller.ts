@@ -5,6 +5,7 @@ import Container, { Service } from "typedi";
 import { setCookie } from "../../../utils/cookies.util";
 import { AppError } from "../../../utils/error";
 import { IAuthController } from "../../interface/provider/auth.controller.interface";
+import redisClient from "../../../config/redisConfig";
 @Service()
 export class AuthController implements IAuthController {
   constructor(private readonly providerService: AuthProviderService) {}
@@ -48,7 +49,7 @@ export class AuthController implements IAuthController {
 
       const response = await this.providerService.signIn(email, password);
 
-      setCookie(res, "refr_Provider_Token", String(response.refreshToken));
+      setCookie(res, "provider_rfr", String(response.refreshToken));
       setCookie(res, "token", String(response.accessToken));
 
       return res.status(HttpStatus.OK).json({
@@ -123,6 +124,32 @@ export class AuthController implements IAuthController {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
+    }
+  }
+
+  async logout(req: Request, res: Response): Promise<any> {
+    try {
+      const refreshToken = req.cookies.provider_rfr;
+
+      if (!refreshToken) {
+        return res.status(400).json({ message: "No token provided" });
+      }
+
+      const tokenExpiration = 7 * 24 * 60 * 60; // 7 days in seconds
+
+      await redisClient.set(refreshToken, "provider-blacklisted", {
+        EX: tokenExpiration,
+      });
+
+      res.clearCookie("token");
+      res.clearCookie("provider_rfr");
+
+      res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Server error" });
     }
   }
 }

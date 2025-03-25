@@ -1,165 +1,212 @@
-import React, { useState } from 'react';
-import { Search, Filter, Star, Edit2, Trash2 } from 'lucide-react';
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { listAllHostels } from "@/services/Api/providerApi";
+import { motion } from "framer-motion";
+import { MapPin, Users, Bed, Search, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import Loading from "@/components/global/Loading";
 
-interface Property {
-  id: string;
-  title: string;
-  type: string;
-  address: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  image: string;
-  status: 'active' | 'inactive';
-}
+const ITEMS_PER_PAGE = 6;
 
-const Properties: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+const Properties = () => {
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Mock data
-  const properties: Property[] = [
-    {
-      id: '1',
-      title: 'Modern Apartment in City Center',
-      type: 'Apartment',
-      address: '123 Main St, City',
-      price: 150,
-      rating: 4.8,
-      reviews: 24,
-      image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
-      status: 'active',
-    },
-    {
-      id: '2',
-      title: 'Cozy Beach House',
-      type: 'House',
-      address: '456 Beach Rd, Coast',
-      price: 200,
-      rating: 4.5,
-      reviews: 18,
-      image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688',
-      status: 'active',
-    },
-    {
-      id: '3',
-      title: 'Mountain View Villa',
-      type: 'Villa',
-      address: '789 Mountain Ave, Hills',
-      price: 300,
-      rating: 4.9,
-      reviews: 32,
-      image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914',
-      status: 'inactive',
-    },
-  ];
-
-  const filteredProperties = properties.filter(property => {
-    const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         property.address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || property.status === filterStatus;
-    return matchesSearch && matchesFilter;
+  const { data: hostels, isLoading } = useQuery({
+    queryKey: ["provider-hostels"],
+    queryFn: listAllHostels,
   });
 
-  const handleDelete = (id: string) => {
-    // Implement delete functionality
-    console.log('Delete property:', id);
-  };
+  // Filter hostels based on search
+  const filteredHostels = hostels?.filter(
+    (hostel: any) =>
+      hostel.hostel_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      hostel.location.address.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleEdit = (id: string) => {
-    // Implement edit functionality
-    console.log('Edit property:', id);
-  };
+  // Pagination calculations
+  const totalItems = filteredHostels?.length || 0;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentHostels = filteredHostels?.slice(startIndex, endIndex);
 
   return (
-    <div className="p-4 lg:p-6">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 space-y-4 lg:space-y-0">
-        <h1 className="text-2xl font-semibold">My Properties</h1>
-        
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
-          <div className="relative flex-1 lg:flex-initial">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search properties..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-200 outline-none"
-            />
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Header Section */}
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">My Properties</h1>
+            <p className="text-gray-600 mt-1">
+              Manage your listed properties and rooms
+            </p>
           </div>
-          
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-200 outline-none"
+          <button
+            onClick={() => navigate("/provider/properties/add")}
+            className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
           >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+            <Plus className="w-5 h-5 mr-2" />
+            Add New Property
+          </button>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProperties.map(property => (
-          <div key={property.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="relative aspect-video">
-              <img
-                src={property.image}
-                alt={property.title}
-                className="w-full h-full object-cover"
+        {/* Search and Filters */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Search by name or location..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-amber-500 outline-none"
               />
-              <span
-                className={`absolute top-4 right-4 px-2 py-1 rounded text-sm ${
-                  property.status === 'active'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            </div>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loading text="Loading properties" />
+          </div>
+        )}
+
+        {/* Properties Grid */}
+        {!isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentHostels?.map((hostel: any) => (
+              <motion.div
+                key={hostel._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 border border-gray-100"
+              >
+                {/* Image Section */}
+                <div className="relative h-48">
+                  <img
+                    src={hostel.photos[0]}
+                    alt={hostel.hostel_name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-full text-sm font-semibold">
+                      ₹{hostel.monthly_rent}/month
+                    </span>
+                  </div>
+                  <div className="absolute top-3 right-3">
+                    <span
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                        hostel.is_verified
+                          ? "bg-green-500/90 text-white"
+                          : "bg-yellow-500/90 text-white"
+                      }`}
+                    >
+                      {hostel.is_verified ? "Verified" : "Pending"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content Section */}
+                <div className="p-5">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    {hostel.hostel_name}
+                  </h3>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="w-4 h-4 mr-2 text-amber-500" />
+                      <span className="text-sm truncate">
+                        {hostel.location.address}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Users className="w-4 h-4 mr-2 text-amber-500" />
+                      <span className="text-sm">For {hostel.gender}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Bed className="w-4 h-4 mr-2 text-amber-500" />
+                      <span className="text-sm">
+                        {hostel.available_space} of {hostel.total_space} beds
+                        available
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  {/* <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => navigate(`/provider/properties/edit/${hostel._id}`)}
+                      className="p-2 text-gray-600 hover:text-amber-500 transition-colors"
+                    >
+                      <Edit2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {}}
+                      className="p-2 text-gray-600 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div> */}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && currentHostels?.length === 0 && (
+          <div className="text-center py-12">
+            <div className="bg-white rounded-xl shadow-sm p-6 max-w-md mx-auto">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No Properties Found
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Start by adding your first property
+              </p>
+              <button
+                onClick={() => navigate("/provider/properties/add")}
+                className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add Property
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex justify-center items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  currentPage === page
+                    ? "bg-amber-500 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                {property.status}
-              </span>
-            </div>
-            
-            <div className="p-4">
-              <h3 className="text-lg font-medium mb-1">{property.title}</h3>
-              <p className="text-gray-500 text-sm mb-2">{property.address}</p>
-              
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl font-bold">${property.price}</span>
-                <div className="flex items-center">
-                  <Star className="text-yellow-400 w-5 h-5" fill="currentColor" />
-                  <span className="ml-1 text-sm text-gray-600">
-                    {property.rating} ({property.reviews})
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => handleEdit(property.id)}
-                  className="p-2 text-gray-600 hover:text-amber-500 transition-colors"
-                >
-                  <Edit2 size={20} />
-                </button>
-                <button
-                  onClick={() => handleDelete(property.id)}
-                  className="p-2 text-gray-600 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            </div>
+                {page}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
+        )}
 
-      {filteredProperties.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No properties found</p>
-        </div>
-      )}
+        {/* Results Counter */}
+        {totalItems > 0 && (
+          <div className="mt-4 text-center text-sm text-gray-500">
+            Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of{" "}
+            {totalItems} properties
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default Properties; 
+export default Properties;

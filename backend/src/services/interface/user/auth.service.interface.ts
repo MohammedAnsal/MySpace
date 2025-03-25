@@ -1,24 +1,6 @@
 import { IUser } from "../../../models/user.model";
-
-export interface AuthResponse {
-  message: string;
-  success: boolean;
-  token?: string;
-  email?: string;
-  otp?: string;
-}
-
-export interface SignInResult extends AuthResponse {
-  accessToken?: string;
-  refreshToken?: string;
-  fullName?: string;
-  role?: string;
-}
-
-export interface OtpVerificationData {
-  email: string;
-  otp: string;
-}
+import { OtpVerificationData } from "../../../types/types";
+import { AuthResponse, SignInResult } from "../../../types/types";
 
 export interface IAuthService {
   signUp(userData: IUser): Promise<AuthResponse>;
@@ -26,8 +8,6 @@ export interface IAuthService {
   verifyOtp(otpData: OtpVerificationData): Promise<SignInResult>;
   resendOtp(email: string): Promise<AuthResponse>;
   forgotPassword(email: string): Promise<AuthResponse>;
-  resetPassword(
-    email: string,
-    newPassword: string
-  ): Promise<AuthResponse>;
+  resetPassword(email: string, newPassword: string): Promise<AuthResponse>;
+  signInGoogle(email: string, fullName: string): Promise<AuthResponse>;
 }

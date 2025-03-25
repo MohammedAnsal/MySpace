@@ -1,19 +1,18 @@
 import { Service } from "typedi";
 import bcrypt from "bcryptjs";
 import { IOtp } from "../../../interface/otp.Imodel";
-import { IUser } from "../../../models/user.model";
+import { IUser, User } from "../../../models/user.model";
 import { OtpRepository } from "../../../repositories/implementations/user/otp.repository";
 import { UserRepository } from "../../../repositories/implementations/user/user.repository";
 import { sendOtpMail } from "../../../utils/email.utils";
 import { generateOtp } from "../../../utils/otp.utils";
-import { hashPassword } from "../../../utils/password.utils";
+import { hashPassword, RandomPassword } from "../../../utils/password.utils";
 import { addMinutes, isAfter } from "date-fns";
 import {
   AuthResponse,
-  IAuthService,
   OtpVerificationData,
   SignInResult,
-} from "../../interface/user/auth.service.interface";
+} from "../../../types/types";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -21,6 +20,11 @@ import {
 } from "../../../utils/jwt.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
+import { IAuthService } from "../../interface/user/auth.service.interface";
+import { StatusCodes } from "http-status-codes";
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Service()
 export class AuthService implements IAuthService {
@@ -348,6 +352,64 @@ export class AuthService implements IAuthService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  async signInGoogle(token: string): Promise<SignInResult> {
+    let user;
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) {
+      throw new AppError("Invalid token", StatusCodes.BAD_REQUEST);
+    }
+
+    const { email, name, picture, sub } = payload;
+    if (!email) {
+      throw new AppError(
+        "Google account does not have an email",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    user = await this.userRepo.findUserByEmail(email);
+
+    if (user && user.is_active === false) {
+      throw new AppError("User account is blocked", StatusCodes.FORBIDDEN);
+    }
+
+    if (!user) {
+      const pass = await RandomPassword();
+
+      user = await this.userRepo.create({
+        email,
+        fullName: name,
+        google_id: sub,
+        password: pass,
+        phone: "",
+        profile_picture: picture,
+        role: "user",
+        is_verified: true,
+      } as IUser);
+    }
+
+    const accessToken = generateAccessToken({
+      id: user._id,
+      role: user.role,
+    });
+    const refreshToken = generateRefreshToken({ userId: user._id });
+
+    return {
+      success: true,
+      message: "Sign in successfully completed",
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      role: user.role,
+      fullName: user.fullName,
+      email: user.email,
+    };
   }
 
   async checkToken(token: string) {

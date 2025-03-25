@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="font-dm_sans bg-[#E2E1DF] py-12">
+    <footer className="font-dm_sans bg-[#E2E1DF] py-10 border-t-2 border-black">
       <div className="container w-[90%] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-8 text-[#333]">
         {/* Left Section */}
         <div className="max-w-sm">

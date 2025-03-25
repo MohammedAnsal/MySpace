@@ -1,12 +1,28 @@
 import { Request, Response } from "express";
-import { AdminUserService } from "../../../services/implements/admin/user.admin.service";
+import {
+  adminService,
+  AdminUserService,
+} from "../../../services/implements/admin/user.admin.service";
 import { IAdminController } from "../../interface/admin/admin.controller.interface";
 import Container, { Service } from "typedi";
 import { HttpStatus } from "../../../enums/http.status";
+import { AuthRequset } from "../../../types/api";
+import { IAdminUserService } from "../../../services/interface/admin/user.admin.service.interface";
+import { AppError } from "../../../utils/error";
+import {
+  s3Service,
+  S3Service,
+} from "../../../services/implements/s3/s3.service";
+import { IHostel } from "../../../models/provider/hostel.model";
 
 @Service()
 class AdminUserController implements IAdminController {
-  constructor(private userService: AdminUserService) {}
+  private adminServicee: IAdminUserService;
+  private s3ServiceInstance = Container.get(s3Service);
+
+  constructor(private userService: AdminUserService) {
+    this.adminServicee = adminService;
+  }
 
   async fetchUsers(req: Request, res: Response): Promise<any> {
     const getAllUsers = await this.userService.findAllUser();
@@ -40,17 +56,180 @@ class AdminUserController implements IAdminController {
     }
   }
 
-  // async logout(req: Request, res: Response): Promise<any> {
-  //   try {
-  //     res
-  //       .clearCookie("refr_Admin_Token")
-  //       .status(HttpStatus.OK)
-  //       .json({ message: "Logout successfully" });
-  //   } catch (error) {
-  //     console.log((error as Error).message);
-  //     throw new Error("from logout user");
-  //   }
-  // }
+  async verifyHostel(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const { hostelId, isVerified } = req.body;
+
+      const result = await this.adminServicee.verifyHostel(
+        hostelId,
+        isVerified
+      );
+
+      // Generate signed URLs for the verified/rejected hostel if data exists
+      if (result.data) {
+        const hostel = result.data as IHostel;
+        const signedPhotos = await Promise.all(
+          (hostel.photos || []).map((photo: string) =>
+            this.s3ServiceInstance.generateSignedUrl(photo)
+          )
+        );
+
+        const hostelWithSignedUrls = {
+          ...(hostel as any).toObject(),
+          photos: signedPhotos,
+        };
+
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: hostelWithSignedUrls,
+        });
+      } else {
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: null,
+        });
+      }
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to verify hostel",
+        });
+      }
+    }
+  }
+
+  async getUnverifiedHostels(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const result = await this.adminServicee.getUnverifiedHostels();
+
+      // Generate signed URLs for all hostel photos
+      if (result.data && Array.isArray(result.data)) {
+        const hostelsWithSignedUrls = await Promise.all(
+          result.data.map(async (hostel) => {
+            // Generate signed URLs for all photos
+            const signedPhotos = await Promise.all(
+              (hostel.photos || []).map((photo) =>
+                this.s3ServiceInstance.generateSignedUrl(photo)
+              )
+            );
+
+            return {
+              ...hostel.toObject(), // Convert mongoose document to plain object
+              photos: signedPhotos,
+            };
+          })
+        );
+
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: hostelsWithSignedUrls,
+        });
+      } else {
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: [],
+        });
+      }
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to fetch unverified hostels",
+        });
+      }
+    }
+  }
+
+  async getVerifiedHostels(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const result = await this.adminServicee.getVerifiedHostels();
+
+      // Generate signed URLs for all hostel photos
+      if (result.data && Array.isArray(result.data)) {
+        const hostelsWithSignedUrls = await Promise.all(
+          result.data.map(async (hostel) => {
+            const signedPhotos = await Promise.all(
+              (hostel.photos || []).map((photo) =>
+                this.s3ServiceInstance.generateSignedUrl(photo)
+              )
+            );
+            return {
+              ...hostel.toObject(),
+              photos: signedPhotos,
+            };
+          })
+        );
+
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: hostelsWithSignedUrls,
+        });
+      } else {
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: [],
+        });
+      }
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to fetch verified hostels",
+        });
+      }
+    }
+  }
+
+  async getHostelById(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const { hostelId } = req.params;
+      const result = await this.adminServicee.getHostelById(hostelId);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: result.message,
+        data: result.data,
+      });
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to fetch hostel details",
+        });
+      }
+    }
+  }
 }
 
 export const AdminUserControllerr = Container.get(AdminUserController);

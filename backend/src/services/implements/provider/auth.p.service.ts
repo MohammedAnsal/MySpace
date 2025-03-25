@@ -4,11 +4,7 @@ import { IOtp } from "../../../interface/otp.Imodel";
 import { OtpRepository } from "../../../repositories/implementations/user/otp.repository";
 import { sendOtpMail } from "../../../utils/email.utils";
 import { generateOtp } from "../../../utils/otp.utils";
-import {
-  AuthResponse,
-  IAuthService,
-  SignInResult,
-} from "../../interface/provider/auth.p.service.interface";
+import { IAuthService } from "../../interface/provider/auth.p.service.interface";
 import { ProviderRepository } from "../../../repositories/implementations/provider/provider.repository";
 import { IUser } from "../../../models/user.model";
 import { hashPassword } from "../../../utils/password.utils";
@@ -18,6 +14,7 @@ import {
 } from "../../../utils/jwt.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
+import { AuthResponse, SignInResult } from "../../../types/types";
 
 @Service()
 export class AuthProviderService implements IAuthService {

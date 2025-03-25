@@ -9,7 +9,7 @@ import {
   SignInFormData,
 } from "../../../utils/validation/provider.z.validation";
 import { Link, useNavigate } from "react-router-dom";
-import { signIn_Request } from "../../../services/Api/providerApi";
+import { signInRequest } from "../../../services/Api/providerApi";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slice/userSlice";
 
@@ -36,7 +36,7 @@ const ProviderLogin = () => {
   const onSubmit = async (data: SignInFormData) => {
     setLoading(true);
     try {
-      const response = await signIn_Request(data);
+      const response = await signInRequest(data);
       
       if (response.data.success) {
         localStorage.setItem("role", response.data.role);

@@ -1,6 +1,7 @@
 import { Document, Model } from "mongoose";
 import { IRepository } from "./interfaces/base.Irepository";
 import { Service } from "typedi";
+import { IUser } from "../models/user.model";
 
 @Service()
 export abstract class BaseRepository<T extends Document>
@@ -10,6 +11,10 @@ export abstract class BaseRepository<T extends Document>
 
   constructor(model: Model<T>) {
     this.model = model;
+  }
+
+  async save(user: IUser): Promise<IUser> {
+    return await user.save();
   }
 
   async findAll(): Promise<T[]> {

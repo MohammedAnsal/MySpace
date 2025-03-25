@@ -1,7 +1,6 @@
 import { logout } from "@/redux/slice/userSlice";
 import store from "@/redux/store/store";
 import axios from "axios";
-import { a } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_USER_BASE_URL;
@@ -26,7 +25,7 @@ userAxiosInstance.interceptors.request.use(async (config) => {
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log("===========", config.headers.authorization);
+    console.log("===========", config.headers.Authorization);
   }
 
   if (!config.signal) {
@@ -38,7 +37,7 @@ userAxiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-//  For Response
+// For Response
 
 userAxiosInstance.interceptors.response.use(
   (response) => {
@@ -50,9 +49,15 @@ userAxiosInstance.interceptors.response.use(
     const url = originalRequest.url;
 
     if (error.response) {
+      if (error.response.status === 403) {
+        toast.error("Your account has been blocked. Logging out...");
+        store.dispatch(logout());
+        localStorage.removeItem("access-token");
+        return Promise.reject(new Error("User blocked by admin"));
+      }
 
       if (axios.isAxiosError(error)) {
-        const errorMsg = error.response?.data?.message || "An error occured";
+        const errorMsg = error.response?.data?.message || "An error occurred";
         const customError = new Error(errorMsg);
         return Promise.reject(customError);
       }
@@ -66,11 +71,12 @@ userAxiosInstance.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return userAxiosInstance(originalRequest);
         } catch (err) {
-          // toast.error("Session expired");
-          // store.dispatch(logout());
+          toast.error("Session expired");
+          store.dispatch(logout());
+          localStorage.removeItem("access-token");
+          // window.location.href = "/login";
           return Promise.reject(err);
         }
-        
       }
 
       if (error.response.status >= 500) {
@@ -94,6 +100,7 @@ userAxiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 
 //  For New AccessToken
 

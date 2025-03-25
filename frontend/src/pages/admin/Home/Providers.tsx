@@ -5,9 +5,9 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProviders } from "@/hooks/admin/useAdminQueries";
 import { useQueryClient } from "@tanstack/react-query";
+import Loading from "@/components/global/Loading";
 
 const Users = () => {
-  
   const { data, isLoading, isError } = useProviders();
   const queryClient = useQueryClient();
 
@@ -84,15 +84,12 @@ const Users = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#242529]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500" />
-          <div className="text-slate-400 animate-pulse">Loading users...</div>
-        </motion.div>
+      <div className="flex bg-[#242529] justify-center items-center min-h-screen">
+        <Loading
+          text="Loading providers..."
+          color="#6366f1"
+          className="text-white"
+        />
       </div>
     );
   }

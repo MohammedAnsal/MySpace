@@ -7,7 +7,7 @@ authAdminRoute.post(
   "/admin/sign-in",
   authController.signIn.bind(authController)
 );
-authAdminRoute.post("/logout", authController.logout.bind(authController));
+authAdminRoute.post("/admin/logout", authController.logout.bind(authController));
 
 authAdminRoute.get(
   "/admin-refresh-token",
