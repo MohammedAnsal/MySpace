@@ -18,7 +18,7 @@ const controllerMap = new Map();
 //  For Requset
 
 adminAxiosInstance.interceptors.request.use(async (config) => {
-  const token = localStorage.getItem("access-token");
+  const token = localStorage.getItem("admin-access-token");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

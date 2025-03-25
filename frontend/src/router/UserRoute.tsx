@@ -11,6 +11,10 @@ import { Role } from "@/types/types";
 import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
 import ForgotPassword from "@/pages/user/Auth/ForgotPassword";
 import ResetPassword from "@/pages/user/Auth/ResetPassword";
+import ProfileLayout from "@/components/client/ProfileLayout";
+import UserProfile from "@/pages/user/Home/profile/UserProfile";
+import Hostels from "@/pages/user/Home/hostel/Hostels";
+import HostelDetails from "@/pages/user/Home/hostel/HostelDetails";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -77,18 +81,45 @@ export const UserRoutes: RouteObject[] = [
   },
 
   {
-    path: "/",
-    element: <Auth />,
+    path: "/user",
+    element: <ProfileLayout />,
     children: [
       {
-        path: "/",
+        path: "profile",
         element: (
-          <PublicRoute routeType={Role.USER}>
-            <SignIn />
-          </PublicRoute>
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <UserProfile />
+          </ProtecteddRoute>
         ),
       },
     ],
+  },
+
+  {
+    path: "/accommodations",
+    element: (
+      <ProtecteddRoute allowedRole={Role.USER}>
+        <Hostels />
+      </ProtecteddRoute>
+    ),
+  },
+
+  {
+    path: "/accommodations/:id",
+    element: (
+      <ProtecteddRoute allowedRole={Role.USER}>
+        <HostelDetails />
+      </ProtecteddRoute>
+    ),
+  },
+
+  {
+    path: "/",
+    element: (
+      <PublicRoute routeType={Role.USER}>
+        <HomePage />
+      </PublicRoute>
+    ),
   },
 
   // NOT FOUND PAGE

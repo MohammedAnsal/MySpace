@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import OtpImage from "../../../assets/user/Otp.png";
 import type React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { resend_Otp, verify_Otp } from "../../../services/Api/userApi";
+import { resendOtp, verifyOtp } from "../../../services/Api/userApi";
 import { toast } from "sonner";
 
 const OTP_EXPIRATION_TIME = 90;
@@ -63,7 +63,7 @@ export default function OTPVerification() {
       const otpValue = otp.join("");
       const userEmail = email || "";
 
-      const response = await verify_Otp(userEmail, otpValue);
+      const response = await verifyOtp(userEmail, otpValue);
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -110,7 +110,7 @@ export default function OTPVerification() {
 
   const handleResendOTP = async () => {
     try {
-      const response = await resend_Otp(email);
+      const response = await resendOtp(email);
       console.log(response);
       if (response.data.success) {
         const newExpirationTime = Date.now() + OTP_EXPIRATION_TIME * 1000;

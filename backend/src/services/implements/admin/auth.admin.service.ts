@@ -30,6 +30,8 @@ export class AdminAuthService implements IAdminAuthService {
         );
       }
 
+      console.log(email,password)
+
       const exists = await this.adminRepo.findByEmail(email);
 
       if (!exists) {

@@ -7,6 +7,9 @@ import Providers from "@/pages/admin/Home/Providers";
 import Dash from "@/pages/admin/Home/Dashboard";
 import { PublicRoute } from "./authRoutes/admin/PublicRoute";
 import { Role } from "@/types/types";
+import { Requests } from "@/pages/admin/Home/Requests";
+import AccommodationsList from "@/pages/admin/Home/AccommodationsList";
+import AccommodationDetails from "@/pages/admin/Home/AccommodationDetails";
 
 export const AdminRouter: RouteObject[] = [
   {
@@ -32,6 +35,18 @@ export const AdminRouter: RouteObject[] = [
           {
             path: "providers",
             element: <Providers />,
+          },
+          {
+            path: "accommodations/requests",
+            element: <Requests />,
+          },
+          {
+            path: "accommodations",
+            element: <AccommodationsList />,
+          },
+          {
+            path: "accommodations/:id",
+            element: <AccommodationDetails />,
           },
         ],
       },

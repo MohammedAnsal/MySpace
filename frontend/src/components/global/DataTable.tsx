@@ -53,9 +53,9 @@ export default function DataTable<T extends Record<string, any>>({
   }, [columns]);
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="flex flex-col w-full gap-4">
       {/* Header Section */}
-      <div className="rounded-2xl border border-[#C8ED4F] bg-[#242529] overflow-hidden">
+      <div className="bg-[#242529] border border-[#C8ED4F] rounded-2xl overflow-hidden">
         <div
           className="grid"
           style={{ gridTemplateColumns: columnWidths.join(" ") }}
@@ -63,7 +63,7 @@ export default function DataTable<T extends Record<string, any>>({
           {columns.map((e, i) => (
             <div
               key={i}
-              className="text-sm text-gray-400 font-medium bg-[#242529] h-14 px-6 flex items-center"
+              className="flex bg-[#242529] h-14 text-gray-400 text-sm font-medium items-center px-6"
               style={{ width: "100%" }}
             >
               {e.header}
@@ -73,7 +73,7 @@ export default function DataTable<T extends Record<string, any>>({
       </div>
 
       {/* Body Section */}
-      <div className="rounded-2xl border border-[#C8ED4F] bg-[#242529] overflow-hidden">
+      <div className="bg-[#242529] border border-[#C8ED4F] rounded-2xl overflow-hidden">
         {currentData.length ? (
           currentData.map((item, ind) => (
             <div
@@ -90,7 +90,7 @@ export default function DataTable<T extends Record<string, any>>({
               {columns.map((e, i) => (
                 <div
                   key={i}
-                  className="text-sm text-gray-200 font-medium h-14 px-6 flex items-center"
+                  className="flex h-14 text-gray-200 text-sm font-medium items-center px-6"
                   style={{ width: "100%" }}
                 >
                   {e.render
@@ -103,14 +103,14 @@ export default function DataTable<T extends Record<string, any>>({
             </div>
           ))
         ) : (
-          <div className="h-14 text-center text-gray-400 flex items-center justify-center">
+          <div className="flex h-14 justify-center text-center text-gray-400 items-center">
             No data available
           </div>
         )}
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-2">
+        <div className="flex justify-between items-center px-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

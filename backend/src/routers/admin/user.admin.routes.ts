@@ -18,5 +18,24 @@ adminUserRoute.put(
   AdminUserControllerr.updateUser.bind(AdminUserControllerr)
 );
 
+adminUserRoute.get(
+  "/unverified-hostels",
+  AdminUserControllerr.getUnverifiedHostels.bind(AdminUserControllerr)
+);
+
+adminUserRoute.put(
+  "/verify-hostel",
+  AdminUserControllerr.verifyHostel.bind(AdminUserControllerr)
+);
+
+adminUserRoute.get(
+  "/verified-hostels",
+  AdminUserControllerr.getVerifiedHostels.bind(AdminUserControllerr)
+);
+
+adminUserRoute.get(
+  "/hostel/:hostelId",
+  AdminUserControllerr.getHostelById.bind(AdminUserControllerr)
+);
 
 export default adminUserRoute;

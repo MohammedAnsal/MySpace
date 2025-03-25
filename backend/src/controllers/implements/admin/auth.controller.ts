@@ -26,7 +26,6 @@ export class AdminController {
       setCookie(res, "token", String(response.accessToken));
       setCookie(res, "refr_Admin_Token", String(response.refreshToken));
 
-      // Return success response
       return res.status(HttpStatus.OK).json({
         success: true,
         message: response.message,

@@ -22,6 +22,6 @@ authProviderRoute.post(
   authController.resendOtp.bind(authController)
 );
 
-authProviderRoute.post("/logout", authController.logout.bind(authController));
+authProviderRoute.post("/provider/logout", authController.logout.bind(authController));
 
 export default authProviderRoute;
