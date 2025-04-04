@@ -12,14 +12,14 @@ export const authMiddleWare = async (
   try {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1]; // Extract the token
-    
+
     if (!token)
       res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: "Access denied . No token provided" });
     else {
-      const { id } = verifyAccessToken(token) as JwtPayload;
-      const userId = id;
+      const decodedToken = verifyAccessToken(token) as JwtPayload;
+      const userId = decodedToken.id;
       if (userId) {
         req.user = userId;
         next();
@@ -31,6 +31,8 @@ export const authMiddleWare = async (
   } catch (error) {
     console.log((error as Error).message);
     console.log("error from middleware");
-    res.status(400).json({ message: (error as Error).message });
+    res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ message: (error as Error).message });
   }
 };

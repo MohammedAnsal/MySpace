@@ -137,6 +137,9 @@ export class AuthService implements IAuthService {
         id: existingUser._id,
         role: existingUser.role,
       });
+
+      console.log(accessToken,'from serviceee')
+
       const refreshToken = generateRefreshToken({ id: existingUser._id });
 
       return {
@@ -421,8 +424,8 @@ export class AuthService implements IAuthService {
         "id" in response
       ) {
         const newAccessToken = generateAccessToken({
-          email: response.email,
           id: response.id,
+          role: response.role,
         });
         return {
           success: true,

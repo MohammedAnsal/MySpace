@@ -53,4 +53,19 @@ providerRoute.get(
   hostelController.getAllHostels.bind(hostelController)
 );
 
+providerRoute.get(
+  "/get-hostel/:hostelId",
+  hostelController.getHostelById.bind(hostelController)
+);
+
+providerRoute.put(
+  "/edit-hostel/:hostelId",upload.array("photos", 5),
+  hostelController.editHostel.bind(hostelController)
+);
+
+providerRoute.delete(
+  "/delete-hostel/:hostelId",
+  hostelController.deleteHostel.bind(hostelController)
+);
+
 export default providerRoute;

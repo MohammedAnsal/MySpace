@@ -1,5 +1,5 @@
-import React from 'react';
-import { MapPin, Map } from 'lucide-react';
+import React from "react";
+import { MapPin, Map } from "lucide-react";
 
 interface LocationSectionProps {
   formData: {
@@ -9,8 +9,8 @@ interface LocationSectionProps {
   };
   errors: {
     address?: string;
-    latitude?: string;
-    longitude?: string;
+    // latitude?: string;
+    // longitude?: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setMapVisible: (visible: boolean) => void;
@@ -41,35 +41,35 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
               name="address"
               value={formData.address}
               onChange={handleInputChange}
-              className={`border ${errors.address ? 'border-red-500' : 'border-gray-300'} rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none px-3 py-2`}
+              className={`border ${
+                errors.address ? "border-red-500" : "border-gray-300"
+              } rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none px-3 py-2`}
               placeholder="Select address"
-              required
               readOnly={formData.latitude !== null}
             />
             <button
               type="button"
               onClick={() => setMapVisible(true)}
               className="text-amber-500 absolute hover:text-amber-600 right-2 top-2"
-              title="Select location on map"
+              title="Select address on map"
             >
               <Map size={20} />
             </button>
           </div>
-          
-          {(errors.address || errors.latitude || errors.longitude) && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.address || errors.latitude || errors.longitude}
-            </p>
+
+          {errors.address && (
+            <p className="text-red-500 text-sm mt-1">{errors.address}</p>
           )}
-          
+
           {formData.latitude && formData.longitude && (
             <div className="flex text-green-600 text-sm items-center">
               <MapPin size={16} className="mr-1" />
-              Location selected: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+              Location selected: {formData.latitude.toFixed(6)},{" "}
+              {formData.longitude.toFixed(6)}
             </div>
           )}
         </div>
       </div>
     </div>
   );
-}; 
+};

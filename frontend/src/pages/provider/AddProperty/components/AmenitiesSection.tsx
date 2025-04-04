@@ -1,20 +1,32 @@
-import React from 'react';
-import { Wifi, Car, CookingPot, AirVentIcon, WashingMachine } from 'lucide-react';
+import React from "react";
+import {
+  Wifi,
+  Car,
+  CookingPot,
+  AirVentIcon,
+  WashingMachine,
+} from "lucide-react";
 
 interface AmenitiesSectionProps {
-  formData: any;
+  formData: {
+    amenities: string[];
+  };
+  errors: {
+    amenities?: string;
+  };
   handleAmenityToggle: (amenity: string) => void;
 }
 
 export const AmenitiesSection: React.FC<AmenitiesSectionProps> = ({
   formData,
+  errors,
   handleAmenityToggle,
 }) => {
   const amenityOptions = [
-    { id: "wifi", label: "WiFi", icon: <Wifi size={20} /> },
-    { id: "parking", label: "Parking", icon: <Car size={20} /> },
-    { id: "kitchen", label: "Kitchen", icon: <CookingPot size={20} /> },
-    { id: "ac", label: "Air Conditioning", icon: <AirVentIcon size={20} /> },
+    { id: "Wifi", label: "WiFi", icon: <Wifi size={20} /> },
+    { id: "Parking", label: "Parking", icon: <Car size={20} /> },
+    { id: "Kitchen", label: "Kitchen", icon: <CookingPot size={20} /> },
+    { id: "Ac", label: "Air Conditioning", icon: <AirVentIcon size={20} /> },
     // { id: "laundry", label: "Laundry", icon: <WashingMachine size={20} /> },
   ];
 
@@ -62,6 +74,9 @@ export const AmenitiesSection: React.FC<AmenitiesSectionProps> = ({
           </div>
         ))}
       </div>
+      {errors?.amenities && (
+        <p className="mt-3 text-sm text-red-500">{errors.amenities}</p>
+      )}
     </div>
   );
-}; 
+};

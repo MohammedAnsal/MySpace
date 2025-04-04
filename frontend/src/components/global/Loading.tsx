@@ -19,8 +19,6 @@ const Loading: React.FC<LoadingProps> = ({
     large: "h-16 w-16 border-t-3 border-b-3",
   };
 
-  console.log(color);
-
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <motion.div

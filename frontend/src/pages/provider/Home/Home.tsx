@@ -75,7 +75,7 @@ const ProviderDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen">
       <div className="flex-1 overflow-x-hidden">
         <div className="p-4 lg:p-6">
           <div className="flex justify-between items-center mb-6">

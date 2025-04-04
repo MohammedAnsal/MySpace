@@ -75,7 +75,7 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
               errors.propertyType ? "propertyType-error" : undefined
             }
           >
-            <option value="">Select property type</option>
+            {/* <option value="">Select property type</option> */}
             <option value="hostel">Hostel</option>
           </select>
           {errors.propertyType && (
