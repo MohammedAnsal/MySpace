@@ -92,7 +92,6 @@ export class HostelController {
     try {
       const result = await this.hostelServicee.getAllHostels();
 
-
       if (result.hostelData && Array.isArray(result.hostelData)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.hostelData.map(async (hostel) => {
@@ -132,6 +131,186 @@ export class HostelController {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch unverified hostels",
+        });
+      }
+    }
+  }
+
+  async getHostelById(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const { hostelId } = req.params;
+
+      if (!hostelId) {
+        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
+      }
+
+      const result = await this.hostelServicee.getHostelById(hostelId);
+
+      if (result.hostelData) {
+        // Generate signed URLs for photos
+        const hostelWithSignedUrls = {
+          ...(Array.isArray(result.hostelData) 
+            ? result.hostelData[0] 
+            : result.hostelData
+          ),
+          photos: await Promise.all(
+            ((Array.isArray(result.hostelData) 
+              ? result.hostelData[0].photos 
+              : result.hostelData.photos) || []
+            ).map((photo: string) =>
+              this.s3ServiceInstance.generateSignedUrl(photo)
+            )
+          ),
+        };
+
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: hostelWithSignedUrls,
+        });
+      } else {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: "Hostel not found",
+        });
+      }
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to fetch hostel details",
+        });
+      }
+    }
+  }
+
+  async editHostel(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const { hostelId } = req.params;
+      const files = req.files as Express.Multer.File[];
+    
+     const updateData: any = {};
+
+      const numberFields = ['monthly_rent', 'deposit_amount', 'maximum_occupancy', 'total_space'];
+      const stringFields = ['hostel_name', 'description', 'gender', 'rules', 'deposit_terms'];
+
+      stringFields.forEach(field => {
+        if (req.body[field]) {
+          updateData[field] = req.body[field];
+        }
+      });
+
+      numberFields.forEach(field => {
+        if (req.body[field]) {
+          updateData[field] = Number(req.body[field]);
+        }
+      });
+
+      if (req.body.latitude && req.body.longitude && req.body.address) {
+        const locationData = {
+          latitude: Number(req.body.latitude),
+          longitude: Number(req.body.longitude),
+          address: req.body.address
+        };
+
+        const locationResult = await this.locationServicee.createLocation(locationData);
+        if (locationResult.success && locationResult.locationData) {
+          if (Array.isArray(locationResult.locationData)) {
+            updateData.location = locationResult.locationData[0]._id;
+          } else {
+            updateData.location = locationResult.locationData._id;
+          }
+        }
+      }
+
+      if (req.body.amenities) {
+        try {
+          updateData.amenities = JSON.parse(req.body.amenities);
+        } catch (e) {
+          console.error('Error parsing amenities:', e);
+        }
+      }
+
+      if (req.body.facilities) {
+        try {
+          updateData.facilities = JSON.parse(req.body.facilities);
+          console.log(updateData.facilities);
+        } catch (e) {
+          console.error('Error parsing facilities:', e);
+        }
+      }
+
+      if (req.body.existingPhotos) {
+        try {
+          updateData.photos = JSON.parse(req.body.existingPhotos);
+        } catch (e) {
+          console.error('Error parsing existing photos:', e);
+        }
+      }
+
+      if (files && files.length > 0) {
+        const uploadResults = await this.s3ServiceInstance.uploadMultipleFiles(
+          files,
+          "hostels"
+        );
+        const newImageUrls = uploadResults.map((result) => result.Location);
+        
+        updateData.photos = updateData.photos 
+          ? [...updateData.photos, ...newImageUrls]
+          : newImageUrls;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        throw new AppError("No valid data provided for update", HttpStatus.BAD_REQUEST);
+      }
+
+      const result = await this.hostelServicee.editHostelById(hostelId, updateData);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: result.message,
+        data: result.hostelData,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to update hostel",
+        });
+      }
+    }
+  }
+
+  async deleteHostel(req: Request, res: Response): Promise<void> {
+    try {
+      const { hostelId } = req.params;
+      const result = await this.hostelServicee.deleteHostelById(hostelId);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: result.message,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to delete hostel",
         });
       }
     }

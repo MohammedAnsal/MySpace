@@ -2,8 +2,7 @@ import { RouteObject } from "react-router-dom";
 import ProviderSignup from "../pages/provider/Auth/SignUp";
 import ProviderSignIn from "../pages/provider/Auth/SignIn";
 import Analytics from "../pages/provider/Analytics/Analytics";
-import { AddProperty } from "../pages/provider/AddProperty/AddProperty";
-import Properties from "../pages/provider/Properties/Properties";
+import { AddHostel } from "../pages/provider/AddProperty/AddHostel";
 import Notifications from "../pages/provider/Notifications/Notifications";
 import Profile from "../pages/provider/Profile/Profile";
 import NotFound from "../components/global/NotFound";
@@ -13,6 +12,8 @@ import { PublicRoute } from "./authRoutes/user/publicRoute";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import ProviderDashboard from "../pages/provider/Home/Home";
 import { ManageFacilities } from "@/pages/provider/Facilities/ManageFacilities";
+import Hostels from "../pages/provider/Hostels/Hostels";
+import EditHostel from "@/pages/provider/Hostels/components/editHostel";
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes
@@ -47,12 +48,16 @@ export const ProviderRouter: RouteObject[] = [
         element: <ProviderDashboard />,
       },
       {
-        path: "properties/add",
-        element: <AddProperty />,
+        path: "hostel/add",
+        element: <AddHostel />,
       },
       {
-        path: "properties",
-        element: <Properties />,
+        path: "hostels",
+        element: <Hostels />,
+      },
+      {
+        path: "hostel/edit/:hostelId",
+        element: <EditHostel />,
       },
       {
         path: "analytics",

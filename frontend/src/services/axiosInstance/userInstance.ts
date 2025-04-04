@@ -8,24 +8,21 @@ const API_URL = import.meta.env.VITE_USER_BASE_URL;
 export const userAxiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-}); //  User Axios Instence
+}); //  User Axios Instance
 
 export const publicAxiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-}); //  Public Axios Instence
+}); //  Public Axios Instance
 
 const controllerMap = new Map();
 
-//  For Request
-
+//  **Request Interceptor**
 userAxiosInstance.interceptors.request.use(async (config) => {
   const token = localStorage.getItem("access-token");
-  console.log(token, "this is is in userInstance");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log("===========", config.headers.Authorization);
   }
 
   if (!config.signal) {
@@ -37,8 +34,7 @@ userAxiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// For Response
-
+// **Response Interceptor**
 userAxiosInstance.interceptors.response.use(
   (response) => {
     controllerMap.delete(response.config.url);
@@ -49,46 +45,45 @@ userAxiosInstance.interceptors.response.use(
     const url = originalRequest.url;
 
     if (error.response) {
-      if (error.response.status === 403) {
+      const status = error.response.status;
+
+      // **Handle Unauthorized (401) - Token Expired**
+      if (status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true; // Prevent infinite retry loop
+
+        try {
+          const newAccessToken = await getNewAccessToken();
+          if (newAccessToken) {
+            localStorage.setItem("access-token", newAccessToken);
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return userAxiosInstance(originalRequest);
+          } else {
+            throw new Error("Failed to refresh token");
+          }
+        } catch (err) {
+          toast.error("Session expired, please log in again.");
+          store.dispatch(logout());
+          localStorage.removeItem("access-token");
+          return Promise.reject(err);
+        }
+      }
+
+      // **Handle Forbidden (403) - Blocked User**
+      if (status === 403) {
         toast.error("Your account has been blocked. Logging out...");
         store.dispatch(logout());
         localStorage.removeItem("access-token");
         return Promise.reject(new Error("User blocked by admin"));
       }
 
-      if (axios.isAxiosError(error)) {
-        const errorMsg = error.response?.data?.message || "An error occurred";
-        const customError = new Error(errorMsg);
-        return Promise.reject(customError);
-      }
-
-      if (error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-
-        try {
-          const newAccessToken = await getNewAccessToken();
-          localStorage.setItem("access-token", newAccessToken);
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return userAxiosInstance(originalRequest);
-        } catch (err) {
-          toast.error("Session expired");
-          store.dispatch(logout());
-          localStorage.removeItem("access-token");
-          // window.location.href = "/login";
-          return Promise.reject(err);
-        }
-      }
-
-      if (error.response.status >= 500) {
+      // **Handle Server Errors (5xx)**
+      if (status >= 500) {
         toast.error("Server error, please try again later.");
       }
 
-      if (
-        error.response.status >= 400 &&
-        error.response.status < 500 &&
-        error.response.status !== 401
-      ) {
-        toast.error(`${error.response.data.error || "An error occurred"}`);
+      // **Handle Other Client Errors (4xx)**
+      if (status >= 400 && status < 500 && status !== 401) {
+        toast.error(error.response.data.error || "An error occurred");
       }
     } else if (error.request) {
       toast.error("Network error, please check your connection.");
@@ -101,13 +96,16 @@ userAxiosInstance.interceptors.response.use(
   }
 );
 
-
-//  For New AccessToken
-
+// **Function to Get a New Access Token**
 async function getNewAccessToken() {
-  const response = await axios.get(`${API_URL}/auth/refresh-token`, {
-    withCredentials: true,
-  });
-  console.log(response, "getRefreshhh");
-  return response.data.token;
+  try {
+    const response = await axios.get(`${API_URL}/auth/refresh-token`, {
+      withCredentials: true,
+    });
+
+    return response.data.token;
+  } catch (error) {
+    console.error("Error refreshing access token:", error);
+    return null;
+  }
 }

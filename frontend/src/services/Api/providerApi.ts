@@ -37,7 +37,6 @@ export const signInRequest = async (data: Object) => {
 export const providerLogout = async () => {
   try {
     const response = await publicApi.post("/auth/provider/logout");
-    console.log(response);
     return handleResponse(response, "Logout response not received correctly");
   } catch (error) {
     handleError(error);
@@ -104,10 +103,8 @@ export const createFacility = async (facilityData: any) => {
   }
 };
 
-export const findAllFacilities = async (facilityData: any) => {
+export const findAllFacilities = async () => {
   try {
-    console.log("Sending facility data:", facilityData);
-
     const response = await privateApi.get("/provider/facilities");
 
     return handleResponse(response.data, "Error in provider get all facility.");
@@ -162,8 +159,55 @@ export const createHostel = async (formData: FormData) => {
 export const listAllHostels = async () => {
   try {
     const response = await privateApi.get("/provider/all-hostels");
-    console.log(response.data)
     return handleResponse(response.data.data, "Error listing hostel");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getHostelById = async (hostelId: string) => {
+  try {
+    const response = await privateApi.get(`/provider/get-hostel/${hostelId}`);
+    return handleResponse(response.data, "Error getting hostel");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const updateHostel = async (id: string, formData: FormData) => {
+  try {
+    // Debug log
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
+    const response = await privateApi.put(
+      `/provider/edit-hostel/${id}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true
+      }
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Failed to update hostel");
+    }
+
+    return response.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteHostel = async (hostelId: string) => {
+  try {
+    const response = await privateApi.delete(
+      `/provider/delete-hostel/${hostelId}`
+    );
+    return handleResponse(response.data.data, "Error delete hostel");
   } catch (error) {
     handleError(error);
   }

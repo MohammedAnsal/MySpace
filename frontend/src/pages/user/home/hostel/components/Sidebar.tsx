@@ -69,9 +69,9 @@ const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
 
       {/* Facilities */}
       <div className="mb-8">
-        <h3 className="text-sm font-medium mb-4">Facilities</h3>
+        <h3 className="text-sm font-medium mb-4">Amenities</h3>
         <div className="space-y-3">
-          {["wifi", "parking", "kitchen", "ac"].map((amenity) => (
+          {["Wifi", "Parking", "Kitchen", "Ac"].map((amenity) => (
             <label
               key={amenity}
               className="flex items-center space-x-3 cursor-pointer"
@@ -79,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
               <input
                 type="checkbox"
                 checked={filters.amenities.includes(amenity)}
-                onChange={(e:any) => {
+                onChange={(e: any) => {
                   const newAmenities = e.target.checked
                     ? [...filters.amenities, amenity]
                     : filters.amenities.filter((a) => a !== amenity);

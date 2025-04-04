@@ -232,7 +232,7 @@ export class AuthController implements IAuthController {
 
   async setNewToken(req: Request, res: Response): Promise<any> {
     try {
-      const token = req.cookies?.refrToken;
+      const token = req.cookies?.refreshToken;
 
       if (!token) {
         return res

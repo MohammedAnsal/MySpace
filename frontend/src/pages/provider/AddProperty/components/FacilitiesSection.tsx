@@ -3,13 +3,19 @@ import { useFacilities } from "@/hooks/useFacilities";
 import Loading from "@/components/global/Loading";
 
 interface FacilitiesSectionProps {
-  formData: any;
-  handleFacilityToggle: (facilityName: string) => void;
+  formData: {
+    facilities: string[];
+  };
+  errors: {
+    facilities?: string;
+  };
+  handleFacilityToggle: (facilityId: string) => void;
   // availableFacilities: { id: string; name: string; isAvailable: boolean }[];
 }
 
 export const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
   formData,
+  errors,
   handleFacilityToggle,
   // availableFacilities
 }) => {
@@ -20,8 +26,6 @@ export const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
   const availableFacilities = facilities.filter(
     (facility: any) => facility.status
   );
-
-  console.log(availableFacilities)
 
   if (isLoading) {
     return (
@@ -104,6 +108,9 @@ export const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
             </div>
           ))}
         </div>
+      )}
+      {errors?.facilities && (
+        <p className="mt-3 text-sm text-red-500">{errors.facilities}</p>
       )}
     </div>
   );

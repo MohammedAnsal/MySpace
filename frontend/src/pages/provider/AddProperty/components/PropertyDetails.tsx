@@ -27,7 +27,6 @@ export const PropertyDetails: React.FC<PropertyDetailsProps> = ({
             onChange={handleInputChange}
             className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none"
             placeholder="Enter price"
-            required
           />
         </div>
       </div>
@@ -44,7 +43,6 @@ export const PropertyDetails: React.FC<PropertyDetailsProps> = ({
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none"
             placeholder="No. of beds"
-            required
           />
         </div>
         <div>
@@ -58,7 +56,6 @@ export const PropertyDetails: React.FC<PropertyDetailsProps> = ({
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none"
             placeholder="No. of bathrooms"
-            required
           />
         </div>
       </div>
@@ -78,7 +75,6 @@ export const PropertyDetails: React.FC<PropertyDetailsProps> = ({
             onChange={handleInputChange}
             className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none"
             placeholder="Max number of guests"
-            required
           />
         </div>
       </div>

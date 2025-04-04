@@ -5,14 +5,13 @@ import { FilterQuery } from "mongoose";
 
 @Service()
 export class HostelRepository implements IHostelRepository {
-
   async getVerifiedHostels(filters: {
     minPrice?: number;
     maxPrice?: number;
     gender?: string;
     amenities?: string[];
     search?: string;
-    sortBy?: 'asc' | 'desc';
+    sortBy?: "asc" | "desc";
   }): Promise<IHostel[]> {
     try {
       let query: FilterQuery<IHostel> = {
@@ -48,7 +47,7 @@ export class HostelRepository implements IHostelRepository {
         query = {
           ...query,
           $or: [
-            { hostel_name: { $regex: filters.search, $options: 'i' } },
+            { hostel_name: { $regex: filters.search, $options: "i" } },
             // { 'location.address': { $regex: filters.search, $options: 'i' } },
           ],
         };
@@ -60,7 +59,9 @@ export class HostelRepository implements IHostelRepository {
         .populate("facilities");
 
       if (filters.sortBy) {
-        hostelsQuery = hostelsQuery.sort({ monthly_rent: filters.sortBy === 'asc' ? 1 : -1 });
+        hostelsQuery = hostelsQuery.sort({
+          monthly_rent: filters.sortBy === "asc" ? 1 : -1,
+        });
       } else {
         hostelsQuery = hostelsQuery.sort({ createdAt: -1 });
       }

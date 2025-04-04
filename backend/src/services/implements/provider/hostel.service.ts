@@ -17,7 +17,6 @@ class HostelService {
 
   async createHostel(hostelData: Partial<IHostel>): Promise<hostelResult> {
     try {
-
       const {
         hostel_name,
         monthly_rent,
@@ -88,6 +87,97 @@ class HostelService {
       }
       throw new AppError(
         "An error occurred while fetching unverified hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async editHostelById(hostelId: string, updateData: Partial<IHostel>): Promise<hostelResult> {
+    try {
+      if (!hostelId) {
+        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
+      }
+
+      const existingHostel = await this.hostelRepositoryy.findHostelById(hostelId);
+      if (!existingHostel) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+      const updatedHostel = await this.hostelRepositoryy.updateHostel(hostelId, updateData);
+      if (!updatedHostel) {
+        throw new AppError("Failed to update hostel", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      
+      return {
+        success: true,
+        message: "Hostel updated successfully",
+        hostelData: updatedHostel
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while updating hostel",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async deleteHostelById(hostelId: string): Promise<hostelResult> {
+    try {
+      if (!hostelId) {
+        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
+      }
+
+      const existingHostel = await this.hostelRepositoryy.findHostelById(hostelId);
+      if (!existingHostel) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
+
+      const isDeleted = await this.hostelRepositoryy.deleteHostel(hostelId);
+      if (!isDeleted) {
+        throw new AppError("Failed to delete hostel", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      return {
+        success: true,
+        message: "Hostel deleted successfully"
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while deleting hostel",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getHostelById(hostelId: string): Promise<hostelResult> {
+    try {
+      if (!hostelId) {
+        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
+      }
+
+      const hostel = await this.hostelRepositoryy.findHostelById(hostelId);
+
+      if (!hostel) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        success: true,
+        message: "Hostel fetched successfully",
+        hostelData: hostel.toObject(),
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while fetching hostel details",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

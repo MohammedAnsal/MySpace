@@ -9,90 +9,81 @@ import { LocationSection } from "./components/LocationSection";
 import { DetailsSection } from "./components/DetailsSection";
 import { BasicInformation } from "./components/BasicInformation";
 import {
-  propertyValidationSchema,
-  PropertyFormData,
+  HostelFormData,
+  hostelValidationSchema,
 } from "@/utils/validation/propertyValidation";
 import { z } from "zod";
 import { createHostel } from "@/services/Api/providerApi";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
+import { useParams } from "react-router-dom";
 
 interface PropertyForm {
   hostel_name: string;
   description: string;
   address: string;
-  price: string;
+  monthly_rent: string;
   propertyType: string;
   gender: string;
   amenities: string[];
-  maxOccupancy: string;
-  deposit: string;
+  maximum_occupancy: string;
+  deposit_amount: string;
   rules: string;
   availability: string;
   facilities: string[];
   latitude: number | null;
   longitude: number | null;
-  totalSpace: string;
-  depositTerms: string;
+  total_space: string;
+  deposit_terms: string;
 }
 
-export const AddProperty: React.FC = () => {
+export const AddHostel: React.FC = () => {
+
+  const { hostelId } = useParams();
+
   const [showInstructions, setShowInstructions] = useState(true);
   const [formData, setFormData] = useState<PropertyForm>({
     hostel_name: "",
     description: "",
     address: "",
-    price: "",
+    monthly_rent: "",
     propertyType: "hostel",
     gender: "",
     amenities: [],
-    maxOccupancy: "",
-    deposit: "",
+    maximum_occupancy: "",
+    deposit_amount: "",
     rules: "",
     availability: "",
     facilities: [],
     latitude: null,
     longitude: null,
-    totalSpace: "",
-    depositTerms: "",
+    total_space: "",
+    deposit_terms: "",
   });
 
   const [images, setImages] = useState<File[]>([]);
-  const [firstTimeUser, setFirstTimeUser] = useState(true);
+  // const [firstTimeUser, setFirstTimeUser] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [imageError, setImageError] = useState("");
-  // const [availableFacilities, setAvailableFacilities] = useState<
-  //   { id: string; name: string; isAvailable: boolean }[]
-  // >([]);
   const [mapVisible, setMapVisible] = useState(false);
   const [formErrors, setFormErrors] = useState<
-    Partial<Record<keyof PropertyFormData, string>>
+    Partial<Record<keyof HostelFormData, string>>
   >({});
 
+  let flag = 0;
+
   useEffect(() => {
-    // Check if user has seen the instructions before
-    const hasSeenInstructions = localStorage.getItem(
-      "hasSeenHostelInstructions"
-    );
-    if (hasSeenInstructions) {
-      setShowInstructions(false);
+    if (showInstructions) {
+      flag = 1;
+      if (flag == 1) {
+        setShowInstructions(false);
+      }
     }
   }, []);
 
-  // useEffect(() => {
-  //   // Load facilities from localStorage or API
-  //   const savedFacilities = localStorage.getItem("hostelFacilities");
-  //   if (savedFacilities) {
-  //     const facilities = JSON.parse(savedFacilities);
-  //     setAvailableFacilities(facilities);
-  //   }
-  // }, []);
-
   const handleCloseInstructions = () => {
     setShowInstructions(false);
-    localStorage.setItem("hasSeenHostelInstructions", "true");
-    setFirstTimeUser(false);
   };
 
   const handleInputChange = (
@@ -107,6 +98,8 @@ export const AddProperty: React.FC = () => {
     }));
   };
 
+  //  Handle Amenity Section
+
   const handleAmenityToggle = (amenity: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -116,6 +109,8 @@ export const AddProperty: React.FC = () => {
     }));
   };
 
+  //  Handle Facility Sacetion
+
   const handleFacilityToggle = (facilityId: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -124,6 +119,8 @@ export const AddProperty: React.FC = () => {
         : [...prev.facilities, facilityId],
     }));
   };
+
+  //  Handle Image Upload
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -154,10 +151,14 @@ export const AddProperty: React.FC = () => {
     }
   };
 
+  //  Handle Remove Image
+
   const handleRemoveImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
     setImageError("");
   };
+
+  //  Handle Location Selection
 
   const handleLocationSelect = (location: {
     lat: number;
@@ -173,17 +174,19 @@ export const AddProperty: React.FC = () => {
     setMapVisible(false);
   };
 
+  //  Handle Validation
+
   const validateForm = (): boolean => {
     try {
-      propertyValidationSchema.parse(formData);
+      hostelValidationSchema.parse(formData);
       setFormErrors({});
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errors: Partial<Record<keyof PropertyFormData, string>> = {};
+        const errors: Partial<Record<keyof HostelFormData, string>> = {};
         error.errors.forEach((err) => {
           if (err.path) {
-            errors[err.path[0] as keyof PropertyFormData] = err.message;
+            errors[err.path[0] as keyof HostelFormData] = err.message;
           }
         });
         setFormErrors(errors);
@@ -192,13 +195,15 @@ export const AddProperty: React.FC = () => {
     }
   };
 
+  //  Handle Sumbit
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (images.length === 0) {
-      toast.error("Please upload at least one image of your property.");
-      return;
-    }
+    // if (images.length === 0) {
+    //   toast.error("Please upload at least one image of your property.");
+    //   return;
+    // }
 
     if (!validateForm()) {
       const firstErrorField = Object.keys(formErrors)[0];
@@ -216,30 +221,26 @@ export const AddProperty: React.FC = () => {
 
       formDataToSend.append("hostel_name", formData.hostel_name);
       formDataToSend.append("description", formData.description);
-      formDataToSend.append("monthly_rent", formData.price);
-      formDataToSend.append("deposit_amount", formData.deposit);
-      formDataToSend.append("maximum_occupancy", formData.maxOccupancy);
-      formDataToSend.append("total_space", formData.totalSpace);
+      formDataToSend.append("monthly_rent", formData.monthly_rent);
+      formDataToSend.append("deposit_amount", formData.deposit_amount);
+      formDataToSend.append("maximum_occupancy", formData.maximum_occupancy);
+      formDataToSend.append("total_space", formData.total_space);
       formDataToSend.append("gender", formData.gender);
       formDataToSend.append("rules", formData.rules);
-      formDataToSend.append("deposit_terms", formData.depositTerms);
+      formDataToSend.append("deposit_terms", formData.deposit_terms);
 
       formDataToSend.append("latitude", formData.latitude?.toString() || "");
       formDataToSend.append("longitude", formData.longitude?.toString() || "");
       formDataToSend.append("address", formData.address);
 
       formData.amenities.forEach((amenity) => {
-        formDataToSend.append("amenities[]", amenity);
+        formDataToSend.append("amenities", amenity);
       });
 
       formDataToSend.append("facilities", formData.facilities.join(","));
 
       images.forEach((image) => {
         formDataToSend.append("photos", image);
-      });
-
-      formDataToSend.forEach((value: any, key: any) => {
-        console.log(`${key}: ${value}`);
       });
 
       const response = await createHostel(formDataToSend);
@@ -252,19 +253,19 @@ export const AddProperty: React.FC = () => {
           hostel_name: "",
           description: "",
           address: "",
-          price: "",
+          monthly_rent: "",
           propertyType: "hostel",
           gender: "",
           amenities: [],
-          maxOccupancy: "",
-          deposit: "",
+          maximum_occupancy: "",
+          deposit_amount: "",
           rules: "",
           availability: "",
           facilities: [],
           latitude: null,
           longitude: null,
-          totalSpace: "",
-          depositTerms: "",
+          total_space: "",
+          deposit_terms: "",
         });
         setImages([]);
         setImageError("");
@@ -376,20 +377,21 @@ export const AddProperty: React.FC = () => {
 
               <AmenitiesSection
                 formData={formData}
-                // errors={formErrors}
+                errors={formErrors}
                 handleAmenityToggle={handleAmenityToggle}
               />
 
               <FacilitiesSection
                 // availableFacilities={availableFacilities}
                 formData={formData}
-                // errors={formErrors}
+                errors={formErrors}
                 handleFacilityToggle={handleFacilityToggle}
               />
 
               <ImageUploadSection
                 images={images}
                 imageError={imageError}
+                // errors={formErrors}
                 handleImageUpload={handleImageUpload}
                 handleRemoveImage={handleRemoveImage}
               />

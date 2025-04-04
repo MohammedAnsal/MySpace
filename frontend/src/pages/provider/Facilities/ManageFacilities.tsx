@@ -187,7 +187,7 @@ export const ManageFacilities: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={facility.status}
-                        onChange={(e:any) =>
+                        onChange={() =>
                           handleToggleFacility(facility._id, facility.status)
                         }
                         className="mr-3 h-5 w-5 accent-amber-500 mt-1"
@@ -203,7 +203,7 @@ export const ManageFacilities: React.FC = () => {
                           {facility.name}
                         </span>
                         <span className="text-sm text-gray-500">
-                          ${facility.price}
+                          ₹{facility.price}
                         </span>
                         <p className="text-sm text-gray-600 mt-1">
                           {facility.description}

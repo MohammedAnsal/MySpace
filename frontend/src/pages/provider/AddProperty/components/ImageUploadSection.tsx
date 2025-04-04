@@ -4,6 +4,9 @@ import { Upload, X, AlertCircle } from "lucide-react";
 interface ImageUploadSectionProps {
   images: File[];
   imageError: string;
+  // errors: {
+  //   photos?: string;
+  // };
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleRemoveImage: (index: number) => void;
 }
@@ -11,6 +14,7 @@ interface ImageUploadSectionProps {
 export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
   images,
   imageError,
+  // errors,
   handleImageUpload,
   handleRemoveImage,
 }) => {
@@ -56,6 +60,13 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
           {imageError}
         </div>
       )}
+
+      {/* {errors?.photos && (
+        <div className="mt-2 text-red-500 text-sm flex items-center">
+          <AlertCircle size={16} className="mr-1" />
+          {errors.photos}
+        </div>
+      )} */}
 
       {images.length > 0 && (
         <div className="mt-4">

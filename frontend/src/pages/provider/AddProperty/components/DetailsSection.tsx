@@ -1,22 +1,24 @@
-import React from 'react';
-import { DollarSign, Users, Maximize2 } from 'lucide-react';
+import React from "react";
+import { DollarSign, Users, Bed, IndianRupee } from "lucide-react";
 
 interface DetailsSectionProps {
   formData: {
-    price: string;
-    deposit: string;
-    depositTerms: string;
-    totalSpace: string;
-    maxOccupancy: string;
+    monthly_rent: string;
+    deposit_amount: string;
+    deposit_terms: string;
+    total_space: string;
+    maximum_occupancy: string;
   };
   errors: {
-    price?: string;
-    deposit?: string;
-    depositTerms?: string;
-    totalSpace?: string;
-    maxOccupancy?: string;
+    monthly_rent?: string;
+    deposit_amount?: string;
+    deposit_terms?: string;
+    total_space?: string;
+    maximum_occupancy?: string;
   };
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
 }
 
 export const DetailsSection: React.FC<DetailsSectionProps> = ({
@@ -24,6 +26,7 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
   errors,
   handleInputChange,
 }) => {
+
   return (
     <div className="bg-white border border-amber-100 p-4 rounded-lg shadow-sm sm:p-6">
       <h2 className="flex text-gray-800 text-xl font-medium items-center mb-4">
@@ -38,22 +41,21 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
           </label>
           <div className="relative">
             <span className="text-gray-500 absolute left-3 top-2">
-              <DollarSign size={20} />
+              <IndianRupee size={20} />
             </span>
             <input
               type="number"
-              name="price"
-              value={formData.price}
+              name="monthly_rent"
+              value={formData.monthly_rent}
               onChange={handleInputChange}
               className={`border ${
-                errors.price ? "border-red-500" : "border-gray-300"
+                errors.monthly_rent ? "border-red-500" : "border-gray-300"
               } rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none pl-10 pr-3 py-2`}
               placeholder="Enter price"
-              required
             />
           </div>
-          {errors.price && (
-            <p className="mt-1 text-sm text-red-500">{errors.price}</p>
+          {errors.monthly_rent && (
+            <p className="mt-1 text-sm text-red-500">{errors.monthly_rent}</p>
           )}
         </div>
 
@@ -63,18 +65,20 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
           </label>
           <div className="relative">
             <span className="text-gray-500 absolute left-3 top-2">
-              <Maximize2 size={20} />
+              <Bed size={20} />
             </span>
             <input
               type="number"
-              name="totalSpace"
-              value={formData.totalSpace}
+              name="total_space"
+              value={formData.total_space}
               onChange={handleInputChange}
               className="border border-gray-300 rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none pl-10 pr-3 py-2"
               placeholder="Enter total space"
-              required
             />
           </div>
+          {errors.total_space && (
+            <p className="mt-1 text-sm text-red-500">{errors.total_space}</p>
+          )}
         </div>
 
         <div>
@@ -83,18 +87,20 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
           </label>
           <div className="relative">
             <span className="text-gray-500 absolute left-3 top-2">
-              <DollarSign size={20} />
+              <IndianRupee size={20} />
             </span>
             <input
               type="number"
-              name="deposit"
-              value={formData.deposit}
+              name="deposit_amount"
+              value={formData.deposit_amount}
               onChange={handleInputChange}
               className="border border-gray-300 rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none pl-10 pr-3 py-2"
               placeholder="Enter deposit amount"
-              required
             />
           </div>
+          {errors.deposit_amount && (
+            <p className="mt-1 text-sm text-red-500">{errors.deposit_amount}</p>
+          )}
         </div>
 
         <div>
@@ -107,14 +113,16 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
             </span>
             <input
               type="number"
-              name="maxOccupancy"
-              value={formData.maxOccupancy}
+              name="maximum_occupancy"
+              value={formData.maximum_occupancy}
               onChange={handleInputChange}
               className="border border-gray-300 rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none pl-10 pr-3 py-2"
               placeholder="Max number of guests"
-              required
             />
           </div>
+          {errors.maximum_occupancy && (
+            <p className="mt-1 text-sm text-red-500">{errors.maximum_occupancy}</p>
+          )}
         </div>
 
         <div>
@@ -122,18 +130,17 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
             Deposit Terms
           </label>
           <textarea
-            name="depositTerms"
-            value={formData.depositTerms}
+            name="deposit_terms"
+            value={formData.deposit_terms}
             onChange={handleInputChange}
             className={`border ${
-              errors.depositTerms ? "border-red-500" : "border-gray-300"
+              errors.deposit_terms ? "border-red-500" : "border-gray-300"
             } rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none px-3 py-2`}
             placeholder="Enter deposit terms and conditions"
             rows={3}
-            required
           />
-          {errors.depositTerms && (
-            <p className="mt-1 text-sm text-red-500">{errors.depositTerms}</p>
+          {errors.deposit_terms && (
+            <p className="mt-1 text-sm text-red-500">{errors.deposit_terms}</p>
           )}
         </div>
 
@@ -149,7 +156,7 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
               onChange={handleInputChange}
               className="border border-gray-300 rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none px-3 py-2"
               placeholder="No. of beds"
-              required
+              
             />
           </div>
           <div>
@@ -163,11 +170,11 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
               onChange={handleInputChange}
               className="border border-gray-300 rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none px-3 py-2"
               placeholder="No. of bathrooms"
-              required
+              
             />
           </div>
         </div> */}
       </div>
     </div>
   );
-}; 
+};
