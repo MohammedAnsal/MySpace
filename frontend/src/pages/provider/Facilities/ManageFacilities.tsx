@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Trash2, AlertCircle, Loader2 } from "lucide-react";
-import { useFacilities } from "@/hooks/useFacilities";
+import { useFacilities } from "@/hooks/provider/useFacilities";
 import Loading from "@/components/global/Loading";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 

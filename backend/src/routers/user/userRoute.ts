@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { userController } from "../../controllers/implements/user/user.controller";
 import { upload } from "../../utils/multer";
+import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
+import { bookingContrller } from "../../controllers/implements/user/booking.controller";
 
 const userRoute = Router();
 

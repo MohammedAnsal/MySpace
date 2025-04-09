@@ -9,7 +9,7 @@ import storage from "redux-persist/lib/storage";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user", "admin"], // Persist user, admin, and doctor slices
+  whitelist: ["user", "admin"], // Persist user, admin
 };
 
 // Combine all slice reducers into a single root reducer

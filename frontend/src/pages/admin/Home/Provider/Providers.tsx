@@ -1,14 +1,14 @@
 import DataTable from "@/components/global/DataTable";
-import Loading from "@/components/global/Loading";
-import { useUsers } from "@/hooks/admin/useAdminQueries";
-import { updateStatus } from "@/services/Api/adminApi";
+import { updateStatus } from "@/services/Api/admin/adminApi";
 import { IUser } from "@/types/types";
-import { useQueryClient } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { useProviders } from "@/hooks/admin/useAdminQueries";
+import { useQueryClient } from "@tanstack/react-query";
+import Loading from "@/components/global/Loading";
 
 const Users = () => {
-  const { data, isLoading, isError } = useUsers();
+  const { data, isLoading, isError } = useProviders();
   const queryClient = useQueryClient();
 
   const toggleUserStatus = async (email: string) => {
@@ -16,38 +16,12 @@ const Users = () => {
       const { data: responseData } = await updateStatus(email);
       if (responseData) {
         toast.success(responseData.message);
-        queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-providers"] }); // Refetch data
       }
     } catch (error) {
       toast.error("Failed to update user status");
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex bg-[#242529] justify-center items-center min-h-screen">
-        <Loading
-          text="Loading users..."
-          color="#6366f1"
-          className="text-white"
-        />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="text-center text-red-500 mt-10">
-        Failed to load users!
-      </div>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="text-center text-slate-400 mt-10">No users found.</div>
-    );
-  }
 
   const columns = [
     {
@@ -59,7 +33,7 @@ const Users = () => {
       header: "User",
       render: (user: IUser) => (
         <div className="flex">
-          <span className="text-yellow-500 font-medium">{user.fullName}</span>
+          <span className="font-medium text-yellow-500">{user.fullName}</span>
         </div>
       ),
     },
@@ -91,7 +65,6 @@ const Users = () => {
         </AnimatePresence>
       ),
     },
-
     {
       header: "Details",
       render: (user: IUser) => (
@@ -109,9 +82,29 @@ const Users = () => {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex bg-[#242529] justify-center items-center min-h-screen">
+        <Loading
+          text="Loading providers..."
+          color="#6366f1"
+          className="text-white"
+        />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-red-500 text-center mt-10">
+        Failed to load users!
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <DataTable data={data?.data} columns={columns} />
+    <div className="">
+      <DataTable data={data.data} columns={columns} />
     </div>
   );
 };

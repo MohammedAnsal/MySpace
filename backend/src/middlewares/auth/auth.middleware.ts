@@ -11,7 +11,7 @@ export const authMiddleWare = async (
 ) => {
   try {
     const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1]; // Extract the token
+    const token = authHeader && authHeader.split(" ")[1]; 
 
     if (!token)
       res

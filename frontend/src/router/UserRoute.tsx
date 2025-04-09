@@ -15,6 +15,7 @@ import ProfileLayout from "@/components/client/ProfileLayout";
 import UserProfile from "@/pages/user/Home/profile/UserProfile";
 import Hostels from "@/pages/user/Home/hostel/Hostels";
 import HostelDetails from "@/pages/user/Home/hostel/HostelDetails";
+import Checkout from "@/pages/user/Home/booking/BookingHostel";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -109,6 +110,15 @@ export const UserRoutes: RouteObject[] = [
     element: (
       <ProtecteddRoute allowedRole={Role.USER}>
         <HostelDetails />
+      </ProtecteddRoute>
+    ),
+  },
+
+  {
+    path: "/checkout",
+    element: (
+      <ProtecteddRoute allowedRole={Role.USER}>
+        <Checkout />
       </ProtecteddRoute>
     ),
   },

@@ -1,7 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { hostelDetails } from "@/services/Api/userApi";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -24,13 +22,13 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
-import { Loader2 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Loading from "@/components/global/Loading";
+import { useHostelDetails } from "@/hooks/user/useUserQueries";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -51,13 +49,12 @@ const fadeInUp = {
 
 const HostelDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: hostel, isLoading } = useQuery({
-    queryKey: ["hostel", id],
-    queryFn: () => hostelDetails(id!),
-  });
+  const { data: hostel, isLoading } = useHostelDetails(id);
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -67,6 +64,14 @@ const HostelDetails = () => {
           color="#b9a089"
           className="text-black"
         />
+      </div>
+    );
+  }
+
+  if (!hostel) {
+    return (
+      <div className="min-h-screen bg-[#E2E1DF] py-8 flex justify-center items-center">
+        <p className="text-gray-500 text-xl">Hostel details not found.</p>
       </div>
     );
   }
@@ -88,17 +93,17 @@ const HostelDetails = () => {
             <div className="flex items-center gap-4 mb-4">
               <Home className="w-8 h-8 text-amber-500" />
               <h1 className="text-3xl font-bold text-gray-900">
-                {hostel?.hostel_name}
+                {hostel.hostel_name}
               </h1>
             </div>
             <div className="flex flex-wrap gap-4 text-gray-600">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 text-amber-500 mr-2" />
-                <span>{hostel?.location?.address}</span>
+                <span>{hostel.location?.address}</span>
               </div>
               <div className="flex items-center">
                 <Users className="w-5 h-5 text-amber-500 mr-2" />
-                <span>{hostel?.gender} Hostel</span>
+                <span>{hostel.gender} Hostel</span>
               </div>
               <div className="flex items-center">
                 <Shield className="w-5 h-5 text-green-500 mr-2" />
@@ -121,38 +126,36 @@ const HostelDetails = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     className="h-96 rounded-lg overflow-hidden cursor-pointer"
                     onClick={() => {
-                      setSelectedImage(hostel?.photos[0]);
+                      setSelectedImage(hostel.photos[0]);
                       setIsGalleryOpen(true);
                     }}
                   >
                     <img
-                      src={hostel?.photos[0]}
-                      alt={hostel?.hostel_name}
+                      src={hostel.photos[0]}
+                      alt={hostel.hostel_name}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </motion.div>
                   <div className="grid grid-cols-2 gap-4">
-                    {hostel?.photos
-                      .slice(1, 5)
-                      .map((photo: string, index: number) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="h-44 rounded-lg overflow-hidden cursor-pointer"
-                          onClick={() => {
-                            setSelectedImage(photo);
-                            setIsGalleryOpen(true);
-                          }}
-                        >
-                          <img
-                            src={photo}
-                            alt={`${hostel?.hostel_name} ${index + 2}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                          />
-                        </motion.div>
-                      ))}
+                    {hostel.photos?.slice(1, 5).map((photo: string, index: number) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="h-44 rounded-lg overflow-hidden cursor-pointer"
+                        onClick={() => {
+                          setSelectedImage(photo);
+                          setIsGalleryOpen(true);
+                        }}
+                      >
+                        <img
+                          src={photo}
+                          alt={`${hostel.hostel_name} ${index + 2}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
               </motion.div>
@@ -167,7 +170,7 @@ const HostelDetails = () => {
                   About this hostel
                 </h2>
                 <p className="text-gray-600 leading-relaxed">
-                  {hostel?.description}
+                  {hostel.description}
                 </p>
               </motion.div>
 
@@ -177,11 +180,11 @@ const HostelDetails = () => {
                 className="bg-white rounded-xl shadow-sm p-6"
               >
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Wifi className="w-6 h-6 text-amber-500 mr-2" />
+                  <Shield className="w-6 h-6 text-amber-500 mr-2" />
                   Amenities
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {hostel?.amenities?.map((amenity: string, index: number) => (
+                  {hostel.amenities?.map((amenity: string, index: number) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, x: -20 }}
@@ -206,7 +209,7 @@ const HostelDetails = () => {
                   Additional Facilities
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {hostel?.facilities?.map((facility: any, index: number) => (
+                  {hostel.facilities?.map((facility: any, index: number) => (
                     <motion.div
                       key={facility._id}
                       initial={{ opacity: 0, y: 20 }}
@@ -241,21 +244,21 @@ const HostelDetails = () => {
                   <div className="flex items-center text-gray-600">
                     <User className="w-5 h-5 text-amber-500 mr-3" />
                     <span>
-                      {hostel?.provider_id?.fullName ||
+                      {hostel.provider_id?.fullName ||
                         "Contact number not available"}
                     </span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Phone className="w-5 h-5 text-amber-500 mr-3" />
                     <span>
-                      {hostel?.provider_id?.phone ||
+                      {hostel.provider_id?.phone ||
                         "Contact number not available"}
                     </span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Mail className="w-5 h-5 text-amber-500 mr-3" />
                     <span>
-                      {hostel?.provider_id?.email || "Email not available"}
+                      {hostel.provider_id?.email || "Email not available"}
                     </span>
                   </div>
                 </div>
@@ -285,7 +288,7 @@ const HostelDetails = () => {
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="text-3xl font-bold text-amber-500 mb-4 flex items-center">
                   <IndianRupee className="w-8 h-8 mr-2" />
-                  {hostel?.monthly_rent}
+                  {hostel.monthly_rent}
                   <span className="text-base font-normal text-gray-500 ml-2">
                     /month
                   </span>
@@ -294,23 +297,35 @@ const HostelDetails = () => {
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Deposit</span>
                     <span className="font-semibold">
-                      ₹{hostel?.deposit_amount}
+                      ₹{hostel.deposit_amount}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Available Beds</span>
                     <span className="font-semibold">
-                      {hostel?.available_space} of {hostel?.total_space}
+                      {hostel.available_space} of {hostel.total_space}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Maximum Occupancy</span>
                     <span className="font-semibold">
-                      {hostel?.maximum_occupancy}
+                      {hostel.maximum_occupancy}
                     </span>
                   </div>
                 </div>
-                <button className="w-full bg-amber-500 text-white py-3 px-4 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center font-semibold">
+                <button
+                  onClick={() =>
+                    navigate("/checkout", {
+                      state: {
+                        hostelId: hostel._id,
+                        providerId: hostel.provider_id._id,
+                        monthlyRent: hostel.monthly_rent,
+                        depositAmount: hostel.deposit_amount,
+                      },
+                    })
+                  }
+                  className="w-full bg-amber-500 text-white py-3 px-4 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center font-semibold"
+                >
                   <Calendar className="w-5 h-5 mr-2" />
                   Book Now
                 </button>
@@ -322,8 +337,8 @@ const HostelDetails = () => {
                   Location
                 </h3>
                 <div className="h-[200px] rounded-lg overflow-hidden mb-4">
-                  {hostel?.location?.latitude &&
-                    hostel?.location?.longitude && (
+                  {hostel.location?.latitude &&
+                    hostel.location?.longitude && (
                       <MapContainer
                         center={[
                           hostel.location.latitude,
@@ -361,7 +376,7 @@ const HostelDetails = () => {
                 <div className="flex items-start">
                   <MapPin className="w-5 h-5 text-amber-500 mt-1 flex-shrink-0" />
                   <p className="ml-2 text-gray-600 text-sm">
-                    {hostel?.location?.address}
+                    {hostel.location?.address}
                   </p>
                 </div>
               </div>

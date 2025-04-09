@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useFacilities } from "@/hooks/useFacilities";
+import { useFacilities } from "@/hooks/provider/useFacilities";
 import Loading from "@/components/global/Loading";
 
 interface FacilitiesSectionProps {

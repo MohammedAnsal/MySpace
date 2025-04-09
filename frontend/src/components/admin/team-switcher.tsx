@@ -19,7 +19,7 @@ import { AppDispatch } from "@/redux/store/store";
 import { logout } from "@/redux/slice/adminSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { admin_logout } from "@/services/Api/adminApi";
+import { admin_logout } from "@/services/Api/admin/adminApi";
 
 export function TeamSwitcher({
   teams,

@@ -1,7 +1,6 @@
 import { RouteObject } from "react-router-dom";
 import ProviderSignup from "../pages/provider/Auth/SignUp";
 import ProviderSignIn from "../pages/provider/Auth/SignIn";
-import Analytics from "../pages/provider/Analytics/Analytics";
 import { AddHostel } from "../pages/provider/AddProperty/AddHostel";
 import Notifications from "../pages/provider/Notifications/Notifications";
 import Profile from "../pages/provider/Profile/Profile";
@@ -13,7 +12,7 @@ import ProviderLayout from "@/components/provider/ProviderLayout";
 import ProviderDashboard from "../pages/provider/Home/Home";
 import { ManageFacilities } from "@/pages/provider/Facilities/ManageFacilities";
 import Hostels from "../pages/provider/Hostels/Hostels";
-import EditHostel from "@/pages/provider/Hostels/components/editHostel";
+import EditHostel from "@/pages/provider/Hostels/components/EditHostel";
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes
@@ -58,10 +57,6 @@ export const ProviderRouter: RouteObject[] = [
       {
         path: "hostel/edit/:hostelId",
         element: <EditHostel />,
-      },
-      {
-        path: "analytics",
-        element: <Analytics />,
       },
       {
         path: "facilities",

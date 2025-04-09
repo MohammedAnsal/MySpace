@@ -34,6 +34,7 @@ export interface Hostel {
   available_space: number;
   total_space: number;
   deposit_amount: number;
+  is_verified:boolean
   maximum_occupancy: number;
   facilities: Array<{
     name: string;

@@ -1,6 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
-import { getHostelById } from "@/services/Api/adminApi";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -27,6 +25,7 @@ import {
   User,
 } from "lucide-react";
 import Loading from "@/components/global/Loading";
+import { useHostelDetails } from "@/hooks/admin/useAdminQueries";
 
 const getAmenityIcon = (amenity: string) => {
   const iconMap: { [key: string]: JSX.Element } = {
@@ -45,19 +44,11 @@ const getAmenityIcon = (amenity: string) => {
   return iconMap[amenity] || <CheckCircle2 className="w-4 h-4" />;
 };
 
-const AccommodationDetails = () => {
+const HostelDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: hostelData, isLoading } = useQuery({
-    queryKey: ["hostel", id],
-    queryFn: async () => {
-      const response = await getHostelById(id as string);
-      return response;
-    },
-  });
-
-  const hostel = hostelData;
+  const { data: hostel, isLoading } = useHostelDetails(id as string);
 
   if (isLoading) {
     return (
@@ -315,4 +306,4 @@ const AccommodationDetails = () => {
   );
 };
 
-export default AccommodationDetails;
+export default HostelDetails;

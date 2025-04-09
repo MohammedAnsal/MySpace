@@ -1,7 +1,7 @@
 import {
   adminAxiosInstance,
   publicAxiosInstance,
-} from "../axiosInstance/adminInstance";
+} from "../../axiosInstance/adminInstance";
 
 const public_api = publicAxiosInstance;
 const private_api = adminAxiosInstance;
@@ -70,11 +70,9 @@ export const verifyHostel = async (hostelId: string, isVerified: boolean) => {
 
 export const getUnverifiedHostels = async () => {
   try {
-    console.log('aaa')
     const response = await private_api.get("/admin/unverified-hostels");
 
-    console.log(response,'un')
-    return response.data.data
+    return response.data.data;
   } catch (error) {
     throw error;
   }
@@ -83,7 +81,6 @@ export const getUnverifiedHostels = async () => {
 export const getVerifiedHostels = async () => {
   try {
     const response = await private_api.get("/admin/verified-hostels");
-    console.log(response.data.data,'alal')
     return response.data.data;
   } catch (error) {
     throw error;
@@ -93,7 +90,7 @@ export const getVerifiedHostels = async () => {
 export const getHostelById = async (hostelId: string) => {
   try {
     const response = await private_api.get(`/admin/hostel/${hostelId}`);
-    return response.data.data
+    return response.data.data;
   } catch (error) {
     throw error;
   }
