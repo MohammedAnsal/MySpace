@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { SquarePen, Mail, Phone, Wallet, User } from "lucide-react";
-import { findUser } from "@/services/Api/userApi";
 import { toast } from "sonner";
 import Loading from "@/components/global/Loading";
 import EditProfileModal from "./components/EditProfileModal";
 import ChangePasswordModal from "./components/ChangePasswordModal";
+import { useUserProfile } from "@/hooks/user/useUserQueries";
 
 interface UserProfile {
   fullName: string;
@@ -18,48 +18,31 @@ const DEFAULT_AVATAR =
   "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg";
 
 const UserProfile: React.FC = () => {
-  const [profile, setProfile] = useState<UserProfile>({
-    fullName: "",
-    email: "",
-    profile_picture: "",
-    phone: "",
-    wallet: 0,
-  });
+  const { data: profile, isLoading: isProfileLoading, error, refetch } = useUserProfile();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isProfileLoading, setIsProfileLoading] = useState(true);
-
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      setIsProfileLoading(true);
-      try {
-        const response = await findUser();
-        if (response && response.data) {
-          setProfile(response.data);
-        }
-      } catch (error) {
-        console.error("Error loading user profile:", error);
-        toast.error("Failed to load profile. Please try again.");
-      } finally {
-        setIsProfileLoading(false);
-      }
-    };
-
-    loadUserProfile();
-  }, []);
 
   const openEditModal = () => {
-    setIsEditModalOpen(true);
+    if (profile) {
+      setIsEditModalOpen(true);
+    } else {
+      toast.error("Profile data not available yet.");
+    }
   };
 
   const openPasswordModal = () => {
-    setIsPasswordModalOpen(true);
+    if (profile) {
+      setIsPasswordModalOpen(true);
+    } else {
+      toast.error("Profile data not available yet.");
+    }
   };
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
-    setProfile(updatedProfile);
+    refetch();
     setIsEditModalOpen(false);
+    toast.success("Profile updated successfully!");
   };
 
   const handlePasswordChange = () => {
@@ -78,6 +61,17 @@ const UserProfile: React.FC = () => {
         style={{ minHeight: "300px" }}
       >
         <Loading text="Loading profile..." />
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div
+        className="p-4 sm:p-8 mt-4 sm:mt-20 max-w-4xl mx-auto flex items-center justify-center text-red-500"
+        style={{ minHeight: "300px" }}
+      >
+        {error ? `Error: ${error.message}` : "Failed to load profile data."}
       </div>
     );
   }
@@ -176,7 +170,7 @@ const UserProfile: React.FC = () => {
                       wallet*
                     </h4>
                     <p className="mt-1 text-sm sm:text-base text-gray-900 font-medium truncate">
-                      ₹ {0}
+                      ₹ {profile.wallet || 0}
                     </p>
                   </div>
                 </div>

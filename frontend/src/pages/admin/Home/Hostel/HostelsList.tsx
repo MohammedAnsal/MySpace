@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import { getVerifiedHostels } from '@/services/Api/adminApi';
-import { Loader2, Eye, MapPin, Users, Bed } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import Loading from '@/components/global/Loading';
+import { useNavigate } from "react-router-dom";
+import { getVerifiedHostels } from "@/services/Api/admin/adminApi";
+import { Eye, MapPin, Users, Bed } from "lucide-react";
+import { motion } from "framer-motion";
+import Loading from "@/components/global/Loading";
+import { useVerifiedHostels } from "@/hooks/admin/useAdminQueries";
 
 interface Hostel {
   _id: string;
@@ -25,32 +25,24 @@ interface Hostel {
   available_space: number;
 }
 
-const AccommodationsList = () => {
+const HostelsList = () => {
   const navigate = useNavigate();
-  
-  const { data, isLoading } = useQuery({
-    queryKey: ['verified-hostels'],
-    queryFn: async () => {
-      const response = await getVerifiedHostels();
-      return response
-    }
-  });
 
-  const hostels = data || [];
+  const { data: hostels = [], isLoading } = useVerifiedHostels();
 
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    show: { opacity: 1, y: 0 },
   };
 
   if (isLoading) {
@@ -122,7 +114,8 @@ const AccommodationsList = () => {
                 <div className="flex items-center text-gray-400">
                   <Bed className="w-4 h-4 mr-2 text-amber-500" />
                   <span className="text-sm">
-                    {hostel.available_space} of {hostel.total_space} beds available
+                    {hostel.available_space} of {hostel.total_space} beds
+                    available
                   </span>
                 </div>
               </div>
@@ -134,7 +127,9 @@ const AccommodationsList = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate(`/admin/accommodations/${hostel._id}`)}
+                  onClick={() =>
+                    navigate(`/admin/accommodations/${hostel._id}`)
+                  }
                   className="flex items-center px-4 py-2 bg-[#242529] text-amber-500 rounded-lg hover:bg-[#1e1f22] transition-colors"
                 >
                   <Eye className="w-4 h-4 mr-2" />
@@ -159,4 +154,4 @@ const AccommodationsList = () => {
   );
 };
 
-export default AccommodationsList;
+export default HostelsList;

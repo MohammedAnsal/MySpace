@@ -14,7 +14,7 @@ import { AppDispatch } from "../../../redux/store/store";
 import { loginSuccess } from "../../../redux/slice/userSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
-import { useGoogle } from "@/hooks/useGoogle";
+import { useGoogle } from "@/hooks/user/useGoogle";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);

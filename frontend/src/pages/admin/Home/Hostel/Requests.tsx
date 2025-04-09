@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { verifyHostel, getUnverifiedHostels } from "@/services/Api/adminApi";
+import { verifyHostel } from "@/services/Api/admin/adminApi";
 import { Eye, MapPin, Users, Bed } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-
 import Loading from "@/components/global/Loading";
 import { useState } from "react";
 import { HostelDetailsDialog } from "@/components/admin/HostelDetailsDialog";
+import { useUnverifiedHostels } from "@/hooks/admin/useAdminQueries";
 
 interface Hostel {
   _id: string;
@@ -42,16 +42,7 @@ export const Requests: React.FC = () => {
   const [selectedHostel, setSelectedHostel] = useState<Hostel | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["unverified-hostels"],
-    queryFn: async () => {
-      const response = await getUnverifiedHostels();
-      console.log(response, "aaaa");
-      return response;
-    },
-  });
-
-  const hostels = data || [];
+  const { data: hostels = [], isLoading, error, refetch } = useUnverifiedHostels();
 
   const handleVerification = async (hostelId: string, isVerified: boolean) => {
     try {
@@ -221,7 +212,7 @@ export const Requests: React.FC = () => {
       <HostelDetailsDialog
         isOpen={isDialogOpen}
         onClose={setIsDialogOpen}
-        selectedHostel={selectedHostel}
+        selectedHostel={selectedHostel as any} // Type assertion to temporarily fix type mismatch
         onVerify={handleVerification}
       />
     </motion.div>

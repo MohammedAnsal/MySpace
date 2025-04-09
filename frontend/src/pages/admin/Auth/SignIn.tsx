@@ -8,7 +8,7 @@ import {
   SignInFormData,
   signInSchema,
 } from "../../../utils/validation/admin.z.validation";
-import { signIn_Request } from "../../../services/Api/adminApi";
+import { signIn_Request } from "../../../services/Api/admin/adminApi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slice/adminSlice";

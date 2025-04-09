@@ -1,6 +1,4 @@
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { listAllHostels } from "@/services/Api/userApi";
 import HostelCard from "./components/HostelCard";
 import Sidebar from "./components/Sidebar";
 import Footer from "@/components/layouts/Footer";
@@ -9,6 +7,7 @@ import main from "@/assets/user/m2.jpg";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Loading from "@/components/global/Loading";
+import { useHostels } from "@/hooks/user/useUserQueries";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -25,19 +24,16 @@ const Hostels = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const {
-    data: hostels,
+    data: hostels = [],
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ["hostels", filters],
-    queryFn: () => listAllHostels(filters),
-  });
+  } = useHostels(filters);
 
-  const totalItems = hostels?.length || 0;
+  const totalItems = hostels.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentHostels = hostels?.slice(startIndex, endIndex);
+  const currentHostels = hostels.slice(startIndex, endIndex);
 
   const getPageNumbers = () => {
     const pageNumbers = [];
@@ -174,7 +170,7 @@ const Hostels = () => {
                 {!isLoading && !error && (
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {currentHostels?.map((hostel) => (
+                      {currentHostels.map((hostel) => (
                         <HostelCard key={hostel._id} hostel={hostel} />
                       ))}
                     </div>
@@ -245,7 +241,7 @@ const Hostels = () => {
                 )}
 
                 {/* Empty State */}
-                {!isLoading && !error && hostels?.length === 0 && (
+                {!isLoading && !error && hostels.length === 0 && (
                   <div className="text-center text-gray-500 min-h-[400px] flex items-center justify-center">
                     No hostels found
                   </div>

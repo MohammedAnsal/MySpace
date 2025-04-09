@@ -18,6 +18,7 @@ import { userTokenBlackList } from "./middlewares/user/auth.blacklist.middleware
 import { providerTokenBlackList } from "./middlewares/provider/auth.blacklist.middleware";
 import providerRoute from "./routers/provider/provider.routes";
 import hostelRoute from "./routers/user/hostelRoute";
+import bookingRoute from "./routers/user/bookingRoute";
 
 dotenv.config();
 dbConnect();
@@ -48,7 +49,8 @@ app.use(
   authMiddleWare,
   autherization,
   userRoute,
-  hostelRoute
+  hostelRoute,
+  bookingRoute
 );
 app.use(
   "/provider",

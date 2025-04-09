@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { HostelInstructionModal } from "./HostelInstructionModal";
+import { HostelInstructionModal } from "./components/HostelInstructionModal";
 import MapPicker from "@/components/provider/MapPicker";
 import { HouseRules } from "./components/HouseRules";
 import { AmenitiesSection } from "./components/AmenitiesSection";
@@ -16,7 +16,6 @@ import { z } from "zod";
 import { createHostel } from "@/services/Api/providerApi";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
-import { useParams } from "react-router-dom";
 
 interface PropertyForm {
   hostel_name: string;
@@ -38,8 +37,6 @@ interface PropertyForm {
 }
 
 export const AddHostel: React.FC = () => {
-
-  const { hostelId } = useParams();
 
   const [showInstructions, setShowInstructions] = useState(true);
   const [formData, setFormData] = useState<PropertyForm>({

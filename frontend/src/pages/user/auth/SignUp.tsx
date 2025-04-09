@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { signUpRequest } from "../../../services/Api/userApi";
 import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import { useGoogle } from "@/hooks/useGoogle";
+import { useGoogle } from "@/hooks/user/useGoogle";
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();

@@ -1,13 +1,24 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteHostel, listAllHostels } from "@/services/Api/providerApi";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteHostel } from "@/services/Api/providerApi";
 import { motion } from "framer-motion";
-import { MapPin, Users, Bed, Search, Plus, Edit2, Trash2, Eye } from "lucide-react";
+import {
+  MapPin,
+  Users,
+  Bed,
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  Eye,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loading from "@/components/global/Loading";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
-import ViewHostel from './components/ViewHostel';
+import ViewHostel from "./components/ViewHostel";
+import { useProviderHostels } from "@/hooks/provider/useProviderQueries";
+import { Hostel } from "@/types/api.types";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -17,20 +28,16 @@ const Hostels = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [hostelToDelete, setHostelToDelete] = useState<string | null>(null);
-  const [selectedHostel, setSelectedHostel] = useState<any>(null);
+  const [selectedHostel, setSelectedHostel] = useState<Hostel | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-  const { data: hostels, isLoading } = useQuery({
-    queryKey: ["provider-hostels"],
-    queryFn: listAllHostels,
-  });
+  const { data: hostels = [], isLoading, error } = useProviderHostels();
 
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: deleteHostel,
     onSuccess: () => {
-      // Invalidate and refetch the hostels list
       queryClient.invalidateQueries({ queryKey: ["provider-hostels"] });
       toast.success("Hostel deleted successfully");
     },
@@ -39,19 +46,17 @@ const Hostels = () => {
     },
   });
 
-  // Filter hostels based on search
-  const filteredHostels = hostels?.filter(
-    (hostel: any) =>
+  const filteredHostels = hostels.filter(
+    (hostel: Hostel) =>
       hostel.hostel_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       hostel.location.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination calculations
-  const totalItems = filteredHostels?.length || 0;
+  const totalItems = filteredHostels.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentHostels = filteredHostels?.slice(startIndex, endIndex);
+  const currentHostels = filteredHostels.slice(startIndex, endIndex);
 
   const handleDeleteHostel = (hostelId: string) => {
     setHostelToDelete(hostelId);
@@ -66,15 +71,24 @@ const Hostels = () => {
     }
   };
 
-  const handleViewHostel = (hostel: any) => {
+  const handleViewHostel = (hostel: Hostel) => {
     setSelectedHostel(hostel);
     setIsViewModalOpen(true);
   };
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <p className="text-red-500">
+          Failed to load hostels. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gray-50 p-6">
-        {/* Header Section */}
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
@@ -92,7 +106,6 @@ const Hostels = () => {
             </button>
           </div>
 
-          {/* Search and Filters */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
@@ -108,24 +121,21 @@ const Hostels = () => {
             </div>
           </div>
 
-          {/* Loading State */}
           {isLoading && (
             <div className="flex items-center justify-center min-h-[400px]">
-              <Loading text="Loading properties" />
+              <Loading text="Loading properties..." />
             </div>
           )}
 
-          {/* Hostels Grid */}
           {!isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentHostels?.map((hostel: any) => (
+              {currentHostels.map((hostel: Hostel) => (
                 <motion.div
                   key={hostel._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 border border-gray-100"
                 >
-                  {/* Image Section */}
                   <div className="relative h-48">
                     <img
                       src={hostel.photos[0]}
@@ -150,7 +160,6 @@ const Hostels = () => {
                     </div>
                   </div>
 
-                  {/* Content Section */}
                   <div className="p-5">
                     <h3 className="text-xl font-semibold text-gray-900 mb-3">
                       {hostel.hostel_name}
@@ -176,7 +185,6 @@ const Hostels = () => {
                       </div>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
                       <button
                         onClick={() => handleViewHostel(hostel)}
@@ -185,7 +193,9 @@ const Hostels = () => {
                         <Eye className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => navigate(`/provider/hostel/edit/${hostel._id}`)}
+                        onClick={() =>
+                          navigate(`/provider/hostel/edit/${hostel._id}`)
+                        }
                         className="p-2 text-gray-600 hover:text-amber-500 transition-colors"
                       >
                         <Edit2 className="w-5 h-5" />
@@ -204,8 +214,7 @@ const Hostels = () => {
             </div>
           )}
 
-          {/* Empty State */}
-          {!isLoading && currentHostels?.length === 0 && (
+          {!isLoading && currentHostels.length === 0 && (
             <div className="text-center py-12">
               <div className="bg-white rounded-xl shadow-sm p-6 max-w-md mx-auto">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -225,8 +234,7 @@ const Hostels = () => {
             </div>
           )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
+          {!isLoading && totalPages > 1 && (
             <div className="mt-8 flex justify-center items-center gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
@@ -246,8 +254,7 @@ const Hostels = () => {
             </div>
           )}
 
-          {/* Results Counter */}
-          {totalItems > 0 && (
+          {!isLoading && totalItems > 0 && (
             <div className="mt-4 text-center text-sm text-gray-500">
               Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of{" "}
               {totalItems} properties
@@ -267,7 +274,7 @@ const Hostels = () => {
         message="Are you sure you want to delete this hostel? This action cannot be undone and all associated data will be permanently removed."
       />
 
-      {isViewModalOpen && (
+      {isViewModalOpen && selectedHostel && (
         <ViewHostel
           hostel={selectedHostel}
           onClose={() => {

@@ -2,7 +2,7 @@ import {
   publicAxiosInstance,
   userAxiosInstance,
 } from "../axiosInstance/userInstance";
-import { HostelFilters, ApiResponse, Hostel } from '@/types/api.types';
+import { HostelFilters, ApiResponse, Hostel } from "@/types/api.types";
 
 const api = userAxiosInstance;
 const publicApi = publicAxiosInstance;
@@ -138,19 +138,26 @@ export const editProfile = async (formData: FormData) => {
   }
 };
 
-export const listAllHostels = async (filters?: HostelFilters): Promise<Hostel[] | undefined> => {
+export const listAllHostels = async (
+  filters?: HostelFilters
+): Promise<Hostel[] | undefined> => {
   try {
     const queryParams = new URLSearchParams();
     if (filters) {
-      if (filters.minPrice) queryParams.append('minPrice', filters.minPrice.toString());
-      if (filters.maxPrice) queryParams.append('maxPrice', filters.maxPrice.toString());
-      if (filters.gender) queryParams.append('gender', filters.gender);
-      if (filters.amenities?.length) queryParams.append('amenities', filters.amenities.join(','));
-      if (filters.search) queryParams.append('search', filters.search);
-      if (filters.sortBy) queryParams.append('sortBy', filters.sortBy);
+      if (filters.minPrice)
+        queryParams.append("minPrice", filters.minPrice.toString());
+      if (filters.maxPrice)
+        queryParams.append("maxPrice", filters.maxPrice.toString());
+      if (filters.gender) queryParams.append("gender", filters.gender);
+      if (filters.amenities?.length)
+        queryParams.append("amenities", filters.amenities.join(","));
+      if (filters.search) queryParams.append("search", filters.search);
+      if (filters.sortBy) queryParams.append("sortBy", filters.sortBy);
     }
 
-    const response = await api.get<ApiResponse<Hostel[]>>(`/user/verified-hostels?${queryParams.toString()}`);
+    const response = await api.get<ApiResponse<Hostel[]>>(
+      `/user/verified-hostels?${queryParams.toString()}`
+    );
     return handleResponse(response.data.data, "Error in list hostel");
   } catch (error) {
     handleError(error);
@@ -162,6 +169,29 @@ export const hostelDetails = async (hostelId: string) => {
   try {
     const response = await api.get(`/user/hostel/${hostelId}`);
     return handleResponse(response.data.data, "Error in list details hostel");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const bookingHostel = async (bookingData: FormData) => {
+  try {
+    const response = await api.post("/user/create-booking", bookingData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return handleResponse(response.data.data, "Error in booking hostel");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const createPayment = async (hostelId: string) => {
+  try {
+    const response = await api.post(`/user/payments/${hostelId}/payment`);
+
+    return handleResponse(response.data.data, "Error in booking hostel");
   } catch (error) {
     handleError(error);
   }

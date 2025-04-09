@@ -20,8 +20,9 @@ import {
 } from "@/services/Api/providerApi";
 import Loading from "@/components/global/Loading";
 import ChangePasswordModal from "./components/ChangePasswordModal";
+import { useProviderProfile } from "@/hooks/provider/useProviderQueries";
 
-interface UserProfile {
+export interface ProviderProfile {
   fullName: string | null;
   email: string;
   phone: string;
@@ -30,53 +31,35 @@ interface UserProfile {
 }
 
 const Profile: React.FC = () => {
+  const { data: profile, isLoading: isProfileLoading, error, refetch } = useProviderProfile();
+
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false);
-  const [profile, setProfile] = useState<UserProfile>({
-    fullName: "",
-    email: "",
-    phone: "",
-    profile_picture: "",
-    businessName: "",
-  });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [tempProfile, setTempProfile] = useState<UserProfile>(profile);
-  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [tempProfile, setTempProfile] = useState<ProviderProfile | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState<'personal' | 'business'>('personal');
 
   useEffect(() => {
-    const loadProviderProfile = async () => {
-      setIsProfileLoading(true);
-      try {
-        const response = await findProvider();
-        if (response && response.data) {
-          setProfile(response.data.data);
-          setTempProfile(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error loading user profile:", error);
-        toast.error("Failed to load profile. Please try again.");
-      } finally {
-        setIsProfileLoading(false);
-      }
-    };
-
-    loadProviderProfile();
-  }, []);
+    if (profile) {
+      setTempProfile(profile);
+    }
+  }, [profile]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setTempProfile((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setTempProfile((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
   const handleSave = async () => {
+    if (!tempProfile) {
+       toast.error("Profile data is not available to save.");
+       return;
+    }
+
     setIsLoading(true);
     try {
       const formData = new FormData();
@@ -91,12 +74,9 @@ const Profile: React.FC = () => {
       const response = await editProfile(formData);
 
       if (response && response.success) {
-        const updatedUserData = await findProvider();
-        if (updatedUserData && updatedUserData.data) {
-          setProfile(updatedUserData.data.data);
-          setTempProfile(updatedUserData.data.data);
-        }
+        refetch();
         setIsEditing(false);
+        setImageFile(null);
         toast.success("Profile updated successfully!");
       } else {
         toast.error(response?.message || "Failed to update profile");
@@ -110,8 +90,11 @@ const Profile: React.FC = () => {
   };
 
   const handleCancel = () => {
-    setTempProfile(profile);
+    if (profile) {
+        setTempProfile(profile);
+    }
     setIsEditing(false);
+    setImageFile(null);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,10 +105,7 @@ const Profile: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          setTempProfile((prev) => ({
-            ...prev,
-            profile_picture: event.target?.result as string,
-          }));
+          setTempProfile((prev) => (prev ? { ...prev, profile_picture: event.target?.result as string } : null));
         }
       };
       reader.readAsDataURL(file);
@@ -145,6 +125,16 @@ const Profile: React.FC = () => {
     );
   }
 
+  if (error || !profile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <p className="text-red-500">
+          {error ? `Error: ${error.message}` : "Failed to load profile data."}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 lg:p-6 bg-gray-50 min-h-screen">
       <div className="max-w-5xl mx-auto">
@@ -154,7 +144,6 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-amber-100">
-          {/* Profile Header */}
           <div className="relative">
             <div className="h-40 bg-gradient-to-r from-amber-300 to-amber-100"></div>
             <div className="absolute top-0 right-0 p-4">
@@ -198,11 +187,10 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          {/* Profile Info */}
           <div className="px-6 py-4 flex flex-col md:flex-row">
             <div className="relative -mt-16 mb-4 md:mb-0 flex-shrink-0 self-center md:self-start">
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white bg-gray-100 shadow-md">
-                {tempProfile.profile_picture ? (
+                {(tempProfile?.profile_picture) ? (
                   <img
                     src={tempProfile.profile_picture}
                     alt="Profile"
@@ -237,7 +225,7 @@ const Profile: React.FC = () => {
                   <input
                     type="text"
                     name="fullName"
-                    value={tempProfile.fullName || ""}
+                    value={tempProfile?.fullName || ""}
                     onChange={handleInputChange}
                     className="text-2xl font-bold mb-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none w-full md:w-auto"
                     placeholder="Full Name"
@@ -257,7 +245,7 @@ const Profile: React.FC = () => {
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Phone size={16} className="mr-2 text-amber-500" />
-                  <span>{profile.phone || "Not provided"}</span>
+                  <span>{isEditing ? (tempProfile?.phone || 'Not provided') : (profile.phone || 'Not provided')}</span>
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Calendar size={16} className="mr-2 text-amber-500" />
@@ -270,7 +258,6 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          {/* Tabs */}
           <div className="border-t border-gray-200">
             <div className="flex">
               <button
@@ -296,7 +283,6 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          {/* Tab Content */}
           <div className="p-6">
             {activeTab === 'personal' && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -321,7 +307,7 @@ const Profile: React.FC = () => {
                           <input
                             type="tel"
                             name="phone"
-                            value={tempProfile.phone || ""}
+                            value={tempProfile?.phone || ""}
                             onChange={handleInputChange}
                             className="flex-1 px-2 py-1 focus:outline-none"
                             placeholder="Phone Number"
@@ -401,7 +387,7 @@ const Profile: React.FC = () => {
                           <input
                             type="text"
                             name="businessName"
-                            value={tempProfile.businessName || ""}
+                            value={tempProfile?.businessName || ""}
                             onChange={handleInputChange}
                             className="flex-1 px-2 py-1 focus:outline-none"
                             placeholder="Your Business Name"
@@ -451,7 +437,6 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
-      {/* Change Password Modal Component */}
       <ChangePasswordModal 
         isOpen={isChangingPassword}
         onClose={() => setIsChangingPassword(false)}
