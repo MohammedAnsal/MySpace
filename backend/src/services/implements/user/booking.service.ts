@@ -2,26 +2,38 @@ import {
   IBookingService,
   BookingCreateDTO,
   BookingUpdateDTO,
+  FacilityI,
 } from "../../interface/user/booking.service.interface";
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { IBooking, IFacilitySelection } from "../../../models/booking.model";
 import { AppError } from "../../../utils/error";
-import mongoose from "mongoose";
+import mongoose, { Types, Schema } from "mongoose";
 import { s3Service } from "../s3/s3.service";
+import Container, { Service } from "typedi";
+import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
+import { adminFacilityRepository } from "../../../repositories/implementations/admin/facility.repository";
+import { IFacilityRepository } from "../../../repositories/interfaces/provider/facility.Irepository";
+import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 
+@Service()
 export class BookingService implements IBookingService {
   private s3Service: s3Service;
+  private hostelRepository: IHostelRepository;
+  private facilityRepository: IFacilityRepository;
+  private bookingRepository: IBookingRepository;
 
-  constructor(
-    s3Service: s3Service,
-    private bookingRepository: IBookingRepository,
-    private hostelRepository: IHostelRepository
-  ) {
+  constructor(s3Service: s3Service) {
     this.s3Service = s3Service;
+    this.hostelRepository = hostelRepository;
+    this.facilityRepository = adminFacilityRepository;
+    this.bookingRepository = bookingRepository;
   }
 
-  async createBooking(bookingData: BookingCreateDTO): Promise<IBooking> {
+  async createBooking(
+    bookingData: BookingCreateDTO,
+    selectedFacilitiess: FacilityI[]
+  ): Promise<IBooking> {
     try {
       // Check if hostel exists
       const hostel = await this.hostelRepository.getHostelById(
@@ -31,19 +43,21 @@ export class BookingService implements IBookingService {
         throw new AppError("Hostel not found", 404);
       }
 
-      // Check availability
-      const isAvailable = await this.checkAvailability(
-        bookingData.hostelId,
-        bookingData.checkIn,
-        bookingData.checkOut,
-      );
+      console.log(selectedFacilitiess);
 
-      if (!isAvailable) {
-        throw new AppError(
-          "Selected space is not available for the given dates",
-          400
-        );
-      }
+      // // Check availability
+      // const isAvailable = await this.checkAvailability(
+      //   bookingData.hostelId,
+      //   bookingData.checkIn,
+      //   bookingData.checkOut
+      // );
+
+      // if (!isAvailable) {
+      //   throw new AppError(
+      //     "Selected space is not available for the given dates",
+      //     400
+      //   );
+      // }
 
       // Validate proof file
       if (!bookingData.proof || !bookingData.proof.buffer) {
@@ -65,29 +79,37 @@ export class BookingService implements IBookingService {
         throw new AppError("Failed to upload proof document", 500);
       }
 
-      // Calculate costs
-      const costs = await this.calculateBookingCost(
-        bookingData.hostelId,
-        bookingData.stayDurationInMonths,
-        bookingData.selectedFacilities
-      );
+      // Calculate costs and get transformed facilities
+      const { totalPrice, depositAmount, monthlyRent, transformedFacilities , firstMonthRent } =
+        await this.calculateBookingCost(
+          bookingData.hostelId,
+          bookingData.stayDurationInMonths,
+          selectedFacilitiess.map((facility) => ({
+            id: facility.id.toString(), // Convert ObjectId to string
+            duration: String(facility.duration),
+          }))
+        );
 
-      // Create booking with S3 URL
+      // Create booking with S3 URL and transformed facilities
       const booking = await this.bookingRepository.createBooking({
         ...bookingData,
-        userId: new mongoose.Types.ObjectId(
-          bookingData.userId
+        userId: new Types.ObjectId(
+          bookingData.userId.toString()
         ) as unknown as mongoose.Schema.Types.ObjectId,
-        hostelId: new mongoose.Types.ObjectId(
-          bookingData.hostelId
+        hostelId: new Types.ObjectId(
+          bookingData.hostelId.toString()
         ) as unknown as mongoose.Schema.Types.ObjectId,
-        providerId: new mongoose.Types.ObjectId(
-          bookingData.providerId
+        providerId: new Types.ObjectId(
+          bookingData.providerId.toString()
         ) as unknown as mongoose.Schema.Types.ObjectId,
         proof: Array.isArray(uploadResult)
           ? uploadResult[0].Location
-          : uploadResult.Location, // Store the S3 URL
-        ...costs,
+          : uploadResult.Location,
+        totalPrice,
+        firstMonthRent,
+        depositAmount,
+        monthlyRent,
+        selectedFacilities: transformedFacilities, // Use the transformed facilities directly
       });
 
       return booking;
@@ -104,6 +126,7 @@ export class BookingService implements IBookingService {
           );
         }
       }
+      console.error("Error creating booking in repository:", error);
       throw error;
     }
   }
@@ -258,54 +281,105 @@ export class BookingService implements IBookingService {
   async checkAvailability(
     hostelId: string,
     checkIn: Date,
-    checkOut: Date,
+    checkOut: Date
   ): Promise<boolean> {
     return await this.bookingRepository.checkBookingAvailability(
       hostelId,
       checkIn,
-      checkOut,
+      checkOut
     );
   }
 
   async calculateBookingCost(
     hostelId: string,
     stayDurationInMonths: number,
-    selectedFacilities: IFacilitySelection[]
+    selectedFacilities: { id: string; duration: string }[]
   ): Promise<{
     totalPrice: number;
     depositAmount: number;
     monthlyRent: number;
     facilityCharges: number;
+    firstMonthRent: number;
+    transformedFacilities: IFacilitySelection[];
   }> {
-    const hostel = await this.hostelRepository.getHostelById(hostelId);
-    if (!hostel) {
-      throw new AppError("Hostel not found", 404);
+    try {
+      const hostel = await this.hostelRepository.getHostelById(hostelId);
+      if (!hostel) {
+        throw new AppError("Hostel not found", 404);
+      }
+
+      const monthlyRent = hostel.monthly_rent;
+      const depositAmount = hostel.deposit_amount;
+
+      let facilityCharges = 0;
+      let facilityInitialCharge = 0;
+      const transformedFacilities: IFacilitySelection[] = [];
+
+      // Process each selected facility
+      for (const selected of selectedFacilities) {
+        // Find facility by ID
+        const facility = await this.facilityRepository.findFacilityById(
+          selected.id
+        );
+
+        if (!facility) {
+          throw new AppError(`Facility with ID ${selected.id} not found`, 404);
+        }
+
+        // Calculate total cost based on duration and rate per day
+        const totalCost = facility.price * parseInt(selected.duration);
+        const firstMonthFacility = facility.price;
+        facilityCharges += totalCost;
+        facilityInitialCharge += firstMonthFacility;
+
+        // Create facility selection object
+        const facilitySelection: IFacilitySelection = {
+          facilityId:
+            facility.id.toString() as unknown as mongoose.Schema.Types.ObjectId,
+          type: facility.name as
+            | "Catering Service"
+            | "Laundry Service"
+            | "Deep Cleaning Service",
+          startDate: new Date(), // Current date as start date
+          endDate: new Date(
+            Date.now() + parseInt(selected.duration) * 30 * 24 * 60 * 60 * 1000
+          ), // duration months later
+          duration: selected.duration,
+          ratePerMonth: facility.price,
+          totalCost: totalCost,
+        };
+
+        transformedFacilities.push(facilitySelection);
+      }
+
+      if (!monthlyRent || !depositAmount) {
+        throw new AppError("Invalid hostel pricing data", 400);
+      }
+
+      const firstMonthRent =
+        monthlyRent + depositAmount + facilityInitialCharge;
+      
+      console.log(firstMonthRent)
+
+      const totalPrice =
+        monthlyRent * stayDurationInMonths + depositAmount + facilityCharges;
+
+      return {
+        totalPrice,
+        depositAmount,
+        monthlyRent,
+        facilityCharges,
+        firstMonthRent,
+        transformedFacilities,
+      };
+    } catch (error) {
+      console.error("Error in calculateBookingCost:", error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError("Error calculating booking cost", 500);
     }
-
-    const monthlyRent = hostel.monthly_rent;
-    const depositAmount = hostel.deposit_amount;
-
-    // Calculate facility charges
-    const facilityCharges = selectedFacilities.reduce((total, facility) => {
-      const durationInDays = Math.floor(
-        (facility.endDate.getTime() - facility.startDate.getTime()) /
-          (1000 * 60 * 60 * 24)
-      );
-      return total + facility.ratePerDay * durationInDays;
-    }, 0);
-
-    if (!monthlyRent || !depositAmount) {
-      throw new AppError("Invalid hostel pricing data", 400);
-    }
-
-    const totalPrice =
-      monthlyRent * stayDurationInMonths + depositAmount + facilityCharges;
-
-    return {
-      totalPrice,
-      depositAmount,
-      monthlyRent,
-      facilityCharges,
-    };
   }
 }
+
+export const bookingService = Container.get(BookingService);

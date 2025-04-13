@@ -10,4 +10,5 @@ export type hostelResult = {
 export interface IHostelService {
   getHostelById(hostelId: string): Promise<hostelResult>;
   getVerifiedHostels(filters: HostelFilters): Promise<hostelResult>;
+  getVerifiedHostelsForHome(): Promise<hostelResult>;
 }

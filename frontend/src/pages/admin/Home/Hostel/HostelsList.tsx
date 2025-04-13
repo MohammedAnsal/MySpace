@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { getVerifiedHostels } from "@/services/Api/admin/adminApi";
 import { Eye, MapPin, Users, Bed } from "lucide-react";
 import { motion } from "framer-motion";
 import Loading from "@/components/global/Loading";
@@ -122,7 +121,7 @@ const HostelsList = () => {
 
               <div className="flex justify-between items-center">
                 <div className="text-amber-500 font-semibold">
-                  ₹{hostel.monthly_rent}/month
+                  ${hostel.monthly_rent}/month
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}

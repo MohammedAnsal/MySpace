@@ -30,17 +30,17 @@ const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
         <h3 className="text-sm font-medium mb-4">Price Range</h3>
         <Slider
           value={[filters.minPrice, filters.maxPrice]}
-          max={20000}
-          min={500}
-          step={100}
+          max={5000}
+          min={10}
+          step={10}
           className="mb-2"
           onValueChange={(value) =>
             onFilterChange({ minPrice: value[0], maxPrice: value[1] })
           }
         />
         <div className="flex justify-between text-sm text-gray-500">
-          <span>₹{filters.minPrice}</span>
-          <span>₹{filters.maxPrice}</span>
+          <span>${filters.minPrice}</span>
+          <span>${filters.maxPrice}</span>
         </div>
       </div>
 
@@ -64,6 +64,17 @@ const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
               <span className="text-gray-700 capitalize">{gender}</span>
             </label>
           ))}
+          <label className="flex items-center space-x-3 cursor-pointer">
+            <input
+              type="radio"
+              name="gender"
+              value=""
+              checked={filters.gender === ""}
+              onChange={() => onFilterChange({ gender: "" })}
+              className="text-amber-500 focus:ring-amber-500 h-4 w-4"
+            />
+            <span className="text-gray-700">All</span>
+          </label>
         </div>
       </div>
 
@@ -71,7 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
       <div className="mb-8">
         <h3 className="text-sm font-medium mb-4">Amenities</h3>
         <div className="space-y-3">
-          {["Wifi", "Parking", "Kitchen", "Ac"].map((amenity) => (
+          {["Wifi", "Parking", "Kitchen", "Air Conditioning"].map((amenity) => (
             <label
               key={amenity}
               className="flex items-center space-x-3 cursor-pointer"

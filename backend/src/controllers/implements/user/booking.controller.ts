@@ -4,10 +4,15 @@ import { IBookingService } from "../../../services/interface/user/booking.servic
 import { AppError } from "../../../utils/error";
 import { AuthRequset } from "../../../types/api";
 import Container, { Service } from "typedi";
+import { bookingService } from "../../../services/implements/user/booking.service";
 // import { validateBookingData, validateUpdateData } from "../../../utils/validators/bookingValidator";
 @Service()
 class BookingController implements IBookingController {
-  constructor(private bookingService: IBookingService) {}
+  private bookingService: IBookingService;
+
+  constructor() {
+    this.bookingService = bookingService
+  }
 
   async createBooking(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -44,14 +49,15 @@ class BookingController implements IBookingController {
         checkOut: new Date(checkOut),
         stayDurationInMonths,
         selectedFacilities: parsedFacilities,
-        proof,
       };
 
-      console.log(bookingData);
-      const booking = await this.bookingService.createBooking({
-        ...bookingData,
-        proof: proof || null,
-      });
+      const booking = await this.bookingService.createBooking(
+        {
+          ...bookingData,
+          proof: proof || null,
+        },
+        parsedFacilities
+      );
 
       res.status(201).json({
         status: "success",

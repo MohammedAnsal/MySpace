@@ -165,6 +165,20 @@ export const listAllHostels = async (
   }
 };
 
+export const listHostelsHome = async () => {
+  try {
+    const response = await api.get("/user/home-hostels");
+
+    return handleResponse(
+      response.data,
+      "Error in all list hostels in home side"
+    );
+  } catch (error) {
+    handleError(error);
+    return undefined;
+  }
+};
+
 export const hostelDetails = async (hostelId: string) => {
   try {
     const response = await api.get(`/user/hostel/${hostelId}`);
@@ -176,22 +190,48 @@ export const hostelDetails = async (hostelId: string) => {
 
 export const bookingHostel = async (bookingData: FormData) => {
   try {
-    const response = await api.post("/user/create-booking", bookingData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return handleResponse(response.data.data, "Error in booking hostel");
-  } catch (error) {
-    handleError(error);
-  }
-};
+    // First create the booking
+    const bookingResponse = await api.post(
+      "/user/create-booking",
+      bookingData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
-export const createPayment = async (hostelId: string) => {
-  try {
-    const response = await api.post(`/user/payments/${hostelId}/payment`);
+    if (!bookingResponse.data?.data?._id) {
+      throw new Error("Booking creation failed");
+    }
 
-    return handleResponse(response.data.data, "Error in booking hostel");
+    console.log(bookingResponse,'aaaaa')
+
+    // Then create the payment session
+    const paymentResponse = await api.post(
+      `/user/payments/${bookingResponse.data.data.hostelId._id}`,
+      {
+        hostelId: bookingResponse.data.data.hostelId._id,
+        userId: bookingResponse.data.data.userId._id,
+        providerId: bookingResponse.data.data.providerId,
+        bookingId: bookingResponse.data.data._id,
+        amount: bookingResponse.data.data.firstMonthRent,
+        currency: "USD",
+        metadata: {
+          bookingId: bookingResponse.data.data._id,
+          stayDuration: bookingResponse.data.data.stayDurationInMonths,
+        },
+      }
+    );
+
+    // Redirect to Stripe checkout
+    if (paymentResponse.data?.data?.checkoutUrl) {
+      window.location.href = paymentResponse.data.data.checkoutUrl;
+    } else {
+      throw new Error("Payment session creation failed");
+    }
+
+    return bookingResponse.data.data;
   } catch (error) {
     handleError(error);
   }

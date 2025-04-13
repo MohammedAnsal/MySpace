@@ -12,7 +12,9 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  NotebookPen
+  NotebookPen,
+  House,
+  BookCheck,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
@@ -45,17 +47,17 @@ const navItems: NavItem[] = [
     icon: <Home size={20} className="text-gray-700" />,
     path: "/provider/hostels",
   },
-  // {
-  //   id: "analytics",
-  //   title: "Manage Facility",
-  //   icon: <NotebookPen size={20} className="text-gray-700" />,
-  //   path: "/provider/analytics",
-  // },
   {
-    id: "facilities",
-    title: "Facilities",
+    id: "manage facility",
+    title: "Manage Facility",
     icon: <Pen size={20} className="text-gray-700" />,
-    path: "/provider/facilities",
+    path: "/provider/manage-facility",
+  },
+  {
+    id: "bookings",
+    title: "Bookings",
+    icon: <BookCheck size={20} className="text-gray-700" />,
+    path: "/provider/bookings",
   },
   {
     id: "notifications",
@@ -149,7 +151,7 @@ const Sidebar: React.FC = () => {
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 fixed lg:static top-0 left-0 h-full z-40 transition-transform duration-300 ease-in-out shadow-xl`}
       >
-        <div 
+        <div
           className={`${
             isExpanded ? "w-64" : "w-20"
           } h-full bg-gradient-to-b from-amber-200 to-amber-100 flex flex-col overflow-hidden transition-all duration-300`}
@@ -170,12 +172,16 @@ const Sidebar: React.FC = () => {
 
           {/* Toggle Button (Desktop only) */}
           <div className="hidden lg:flex justify-end pr-3 pt-2">
-            <button 
+            <button
               onClick={toggleSidebar}
               className="text-gray-600 hover:text-gray-800 transition-colors"
               aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
             >
-              {isExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+              {isExpanded ? (
+                <ChevronLeft size={20} />
+              ) : (
+                <ChevronRight size={20} />
+              )}
             </button>
           </div>
 
@@ -185,15 +191,17 @@ const Sidebar: React.FC = () => {
               <div
                 key={item.id}
                 className={`mx-2 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
-                  isActivePath(item.path) 
-                    ? "bg-amber-400 text-gray-900 shadow-md" 
+                  isActivePath(item.path)
+                    ? "bg-amber-400 text-gray-900 shadow-md"
                     : "hover:bg-amber-300 text-gray-600"
                 }`}
                 onClick={() => handleNavigation(item.path)}
               >
                 <div className={`${isExpanded ? "" : "mx-auto"}`}>
-                  {React.cloneElement(item.icon, { 
-                    className: isActivePath(item.path) ? "text-gray-900" : "text-gray-600"
+                  {React.cloneElement(item.icon, {
+                    className: isActivePath(item.path)
+                      ? "text-gray-900"
+                      : "text-gray-600",
                   })}
                 </div>
                 {isExpanded && (
@@ -202,7 +210,7 @@ const Sidebar: React.FC = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Logout Button */}
           <div className="p-4 border-t border-amber-300">
             <div

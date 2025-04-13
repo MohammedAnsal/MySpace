@@ -58,10 +58,10 @@ export const ProviderRouter: RouteObject[] = [
         path: "hostel/edit/:hostelId",
         element: <EditHostel />,
       },
-      {
-        path: "facilities",
-        element: <ManageFacilities />,
-      },
+      // {
+      //   path: "facilities",
+      //   element: <ManageFacilities />,
+      // },
       {
         path: "notifications",
         element: <Notifications />,

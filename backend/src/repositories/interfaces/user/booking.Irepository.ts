@@ -10,6 +10,7 @@ export interface CreateBookingData {
   stayDurationInMonths: number;
   selectedFacilities: IFacilitySelection[];
   totalPrice: number;
+  firstMonthRent: number;
   depositAmount: number;
   monthlyRent: number;
   proof: string;
@@ -27,32 +28,35 @@ export interface UpdateBookingData {
 
 export interface IBookingRepository {
   createBooking(bookingData: CreateBookingData): Promise<IBooking>;
-  
+
   // getBookingById(bookingId: string): Promise<IBooking | null>;
-  
+
   // getUserBookings(userId: string): Promise<IBooking[]>;
-  
+
   // getHostelBookings(hostelId: string): Promise<IBooking[]>;
-  
+
   // getProviderBookings(providerId: string): Promise<IBooking[]>;
-  
+
   // updateBooking(bookingId: string, updateData: UpdateBookingData): Promise<IBooking | null>;
-  
+
   // cancelBooking(bookingId: string): Promise<IBooking | null>;
-  
-  updatePaymentStatus(bookingId: string, status: "pending" | "paid" | "cancelled"): Promise<IBooking | null>;
-  
+
+  updatePaymentStatus(
+    bookingId: string,
+    status: "pending" | "paid" | "cancelled"
+  ): Promise<IBooking | null>;
+
   // getActiveBookings(hostelId: string): Promise<IBooking[]>;
-  
+
   // getBookingsByDateRange(
   //   hostelId: string,
   //   startDate: Date,
   //   endDate: Date
   // ): Promise<IBooking[]>;
-  
+
   checkBookingAvailability(
     hostelId: string,
     checkIn: Date,
-    checkOut: Date,
+    checkOut: Date
   ): Promise<boolean>;
 }

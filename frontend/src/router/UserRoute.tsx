@@ -11,11 +11,13 @@ import { Role } from "@/types/types";
 import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
 import ForgotPassword from "@/pages/user/Auth/ForgotPassword";
 import ResetPassword from "@/pages/user/Auth/ResetPassword";
-import ProfileLayout from "@/components/client/ProfileLayout";
+import ProfileLayout from "@/components/client/profile/ProfileLayout";
 import UserProfile from "@/pages/user/Home/profile/UserProfile";
 import Hostels from "@/pages/user/Home/hostel/Hostels";
 import HostelDetails from "@/pages/user/Home/hostel/HostelDetails";
 import Checkout from "@/pages/user/Home/booking/BookingHostel";
+import { SuccessPayment } from "@/components/client/payment/SuccessPayment";
+import { CancelPayment } from "@/components/client/payment/CancelPayment";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -121,6 +123,28 @@ export const UserRoutes: RouteObject[] = [
         <Checkout />
       </ProtecteddRoute>
     ),
+  },
+
+  {
+    path: "/booking",
+    children: [
+      {
+        path: "success",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <SuccessPayment />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "cancel",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <CancelPayment />
+          </ProtecteddRoute>
+        ),
+      },
+    ],
   },
 
   {

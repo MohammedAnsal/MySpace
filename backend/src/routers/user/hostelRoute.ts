@@ -9,6 +9,11 @@ hostelRoute.get(
 );
 
 hostelRoute.get(
+  "/home-hostels",
+  hostelController.getVerifiedHostelsForHome.bind(hostelController)
+);
+
+hostelRoute.get(
   "/hostel/:hostelId",
   hostelController.getHostelById.bind(hostelController)
 );

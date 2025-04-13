@@ -12,11 +12,12 @@ import {
   Clock,
   Calendar,
   CheckCircle,
-  Coffee,
-  Tv,
-  Wind,
-  Utensils,
-  BookOpen
+  Car,
+  AirVent,
+  CookingPot,
+  WashingMachine,
+  Cctv,
+  GlassWaterIcon
 } from 'lucide-react';
 
 interface ViewHostelProps {
@@ -31,11 +32,12 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
   const getAmenityIcon = (amenity: string) => {
     const icons: { [key: string]: JSX.Element } = {
       'Wifi': <Wifi className="w-5 h-5" />,
-      'TV': <Tv className="w-5 h-5" />,
-      'AC': <Wind className="w-5 h-5" />,
-      'Kitchen': <Utensils className="w-5 h-5" />,
-      'Study Room': <BookOpen className="w-5 h-5" />,
-      'Coffee': <Coffee className="w-5 h-5" />
+      'Parking': <Car className="w-5 h-5" />,
+      'Kitchen': <CookingPot className="w-5 h-5" />,
+      'Laundry': <WashingMachine className="w-5 h-5" />,
+      'Cctv': <Cctv className="w-5 h-5" />,
+      'Water filter': <GlassWaterIcon className="w-5 h-5" />,
+      'Air Conditioning': <AirVent className="w-5 h-5" />
     };
     return icons[amenity] || <CheckCircle className="w-5 h-5" />;
   };
@@ -111,7 +113,7 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                   </div>
                   <div>
                     <p className="text-gray-600">Monthly Rent</p>
-                    <p className="text-2xl font-bold text-amber-600">₹{hostel.monthly_rent}</p>
+                    <p className="text-2xl font-bold text-amber-600">${hostel.monthly_rent}</p>
                   </div>
                 </div>
               </div>
@@ -266,7 +268,7 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                 <div className="space-y-4">
                   <div className="bg-white p-4 rounded-lg">
                     <p className="text-gray-600">Deposit Amount</p>
-                    <p className="text-xl font-semibold text-amber-600">₹{hostel.deposit_amount}</p>
+                    <p className="text-xl font-semibold text-amber-600">${hostel.deposit_amount}</p>
                   </div>
                   <div className="bg-white p-4 rounded-lg">
                     <p className="text-gray-600">Terms</p>

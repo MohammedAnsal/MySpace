@@ -199,12 +199,12 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                         <DetailItem
                           icon={<Coins className="w-4 h-4 text-amber-500" />}
                           label="Monthly Rent"
-                          value={`₹${selectedHostel.monthly_rent}`}
+                          value={`$${selectedHostel.monthly_rent}`}
                         />
                         <DetailItem
                           icon={<Wallet className="w-4 h-4 text-amber-500" />}
                           label="Deposit"
-                          value={`₹${selectedHostel.deposit_amount}`}
+                          value={`$${selectedHostel.deposit_amount}`}
                         />
                         <DetailItem
                           icon={<Users className="w-4 h-4 text-amber-500" />}

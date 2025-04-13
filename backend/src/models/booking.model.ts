@@ -1,10 +1,12 @@
 import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
 export interface IFacilitySelection {
-  type: "Food" | "Washing" | "Cleaning";
+  facilityId: ObjectId;
+  type: "Catering Service" | "Laundry Service" | "Deep Cleaning Service";
   startDate: Date;
   endDate: Date;
-  ratePerDay: number;
+  duration: string;
+  ratePerMonth: number;
   totalCost: number;
 }
 
@@ -22,6 +24,7 @@ export interface IBooking extends Document {
 
   bookingDate: Date;
   totalPrice: number;
+  firstMonthRent: number;
   depositAmount: number;
   monthlyRent: number;
   paymentStatus: "pending" | "paid" | "cancelled";
@@ -32,17 +35,16 @@ export interface IBooking extends Document {
   updatedAt: Date;
 }
 
-const FacilitySelectionSchema: Schema = new Schema({
+const FacilitySelectionSchema: Schema<IFacilitySelection> = new Schema({
   facilityId: { type: Schema.Types.ObjectId, ref: "Facility" },
   type: {
     type: String,
-    enum: ["Food", "Washing", "Cleaning"],
-    required: true,
+    enum: ["Catering Service", "Laundry Service", "Deep Cleaning Service"],
   },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  ratePerDay: { type: Number, required: true },
-  totalCost: { type: Number, required: true },
+  startDate: { type: Date },
+  endDate: { type: Date },
+  ratePerMonth: { type: Number },
+  totalCost: { type: Number },
 });
 
 const BookingSchema: Schema<IBooking> = new Schema(
@@ -60,6 +62,7 @@ const BookingSchema: Schema<IBooking> = new Schema(
 
     bookingDate: { type: Date, default: Date.now },
     totalPrice: { type: Number, required: true },
+    firstMonthRent: { type: Number, required: true },
     depositAmount: { type: Number, required: true },
     monthlyRent: { type: Number, required: true },
     paymentStatus: {

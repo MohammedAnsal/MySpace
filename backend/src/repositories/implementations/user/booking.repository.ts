@@ -5,13 +5,26 @@ import {
 } from "../../interfaces/user/booking.Irepository";
 import Booking, { IBooking } from "../../../models/booking.model";
 import mongoose from "mongoose";
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 @Service()
 export class BookingRepository implements IBookingRepository {
-    
+  
   async createBooking(bookingData: CreateBookingData): Promise<IBooking> {
-    const booking = new Booking(bookingData);
-    return await booking.save();
+    try {
+      const booking = await Booking.create(bookingData);
+
+      // Use the correct field names for population
+      const populatedBooking = await booking.populate([
+        { path: "userId", model: "User" },
+        { path: "hostelId", model: "Hostel" },
+        { path: "selectedFacilities.facilityId", model: "Facility" },
+      ]);
+
+      return populatedBooking;
+    } catch (error) {
+      console.error("Error in repository createBooking:", error);
+      throw error;
+    }
   }
 
   // async getBookingById(bookingId: string): Promise<IBooking | null> {
@@ -120,7 +133,7 @@ export class BookingRepository implements IBookingRepository {
   async checkBookingAvailability(
     hostelId: string,
     checkIn: Date,
-    checkOut: Date,
+    checkOut: Date
   ): Promise<boolean> {
     const conflictingBookings = await Booking.find({
       hostelId: new mongoose.Types.ObjectId(hostelId),
@@ -136,3 +149,5 @@ export class BookingRepository implements IBookingRepository {
     return conflictingBookings.length === 0;
   }
 }
+
+export const bookingRepository = Container.get(BookingRepository);

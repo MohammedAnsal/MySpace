@@ -10,6 +10,7 @@ import { Role } from "@/types/types";
 import { Requests } from "@/pages/admin/Home/Hostel/Requests";
 import HostelsList from "@/pages/admin/Home/Hostel/HostelsList";
 import HostelDetails from "@/pages/admin/Home/Hostel/HostelDetails";
+import AdminManageFacilities from "@/pages/admin/Home/Facility/ManageFacilities";
 
 export const AdminRouter: RouteObject[] = [
   {
@@ -47,6 +48,10 @@ export const AdminRouter: RouteObject[] = [
           {
             path: "accommodations/:id",
             element: <HostelDetails />,
+          },
+          {
+            path: "facility",
+            element: <AdminManageFacilities />,
           },
         ],
       },

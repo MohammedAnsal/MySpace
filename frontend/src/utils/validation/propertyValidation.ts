@@ -26,8 +26,8 @@ export const hostelValidationSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Monthly rent must be a valid positive number",
     })
-    .refine((val) => Number(val) >= 1000 && Number(val) <= 100000, {
-      message: "Monthly rent must be between ₹1,000 and ₹100,000",
+    .refine((val) => Number(val) >= 100 && Number(val) <= 1000, {
+      message: "Monthly rent must be between $100 and $1000",
     }),
 
   deposit_amount: z
@@ -93,9 +93,7 @@ export const hostelValidationSchema = z.object({
       message: "Total space must be a valid positive number",
     }),
 
-  address: z
-    .string()
-    .nonempty("Address is required"),
+  address: z.string().nonempty("Address is required"),
 
   // photos: z
   //   .array(z.any(), {

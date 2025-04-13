@@ -95,3 +95,57 @@ export const getHostelById = async (hostelId: string) => {
     throw error;
   }
 };
+
+export const createFacility = async (facilityData: any) => {
+  try {
+    const response = await private_api.post(
+      "/admin/add-facility",
+      facilityData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return handleResponse(response.data, "Error in admin add facility.");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const findAllFacilities = async () => {
+  try {
+    const response = await private_api.get("/admin/facilities");
+
+    return handleResponse(response.data, "Error in admin get all facility.");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const updateFacilityStatus = async (
+  facilityId: string,
+  status: boolean
+) => {
+  try {
+    const response = await private_api.put("/admin/facility/status", {
+      facilityId,
+      status,
+    });
+    return handleResponse(response.data, "Error updating facility status");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteFacility = async (facilityId: string) => {
+  try {
+    const response = await private_api.delete(
+      `/admin/facility/${facilityId}`
+    );
+    return handleResponse(response.data, "Error deleting facility");
+  } catch (error) {
+    handleError(error);
+  }
+};

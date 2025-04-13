@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useFacilities } from "@/hooks/provider/useFacilities";
+import { useAdminFacilities } from "@/hooks/admin/useAdminFacilities";
 import Loading from "@/components/global/Loading";
 
 interface FacilitiesSectionProps {
@@ -20,7 +20,7 @@ export const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
   // availableFacilities
 }) => {
   const navigate = useNavigate();
-  const { facilities, isLoading, error } = useFacilities();
+  const { facilities, isLoading, error } = useAdminFacilities();
 
   // Filter only available (unblocked) facilities
   const availableFacilities = facilities.filter(
@@ -98,7 +98,7 @@ export const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
               />
               <div className="flex flex-col flex-1">
                 <span className="text-gray-700">{facility.name}</span>
-                <span className="text-sm text-gray-500">₹{facility.price}</span>
+                <span className="text-sm text-gray-500">${facility.price}</span>
                 {facility.description && (
                   <span className="text-xs text-gray-500 mt-1">
                     {facility.description}

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 import { StatusCodes } from "http-status-codes";
 import { Types } from "mongoose";
 import { StripeService } from "../../../services/implements/payment/stripe.service";
@@ -21,7 +21,7 @@ export class PaymentController {
         providerId,
         bookingId,
         amount,
-        currency = "inr",
+        currency = "USD",
         metadata,
       } = req.body;
 
@@ -67,3 +67,5 @@ export class PaymentController {
   }
 
 }
+
+export const paymentController = Container.get(PaymentController)

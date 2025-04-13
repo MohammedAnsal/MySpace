@@ -73,6 +73,19 @@ export class HostelRepository implements IHostelRepository {
     }
   }
 
+  async getVerifiedHostelsForHome(): Promise<IHostel[]> {
+    try {
+      const hostels = await Hostel.find({ is_verified: true })
+        .populate("provider_id", "fullName email phone")
+        .populate("location")
+        .populate("facilities");
+
+      return hostels;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getHostelById(hostelId: string): Promise<IHostel | null> {
     try {
       const query: FilterQuery<IHostel> = {

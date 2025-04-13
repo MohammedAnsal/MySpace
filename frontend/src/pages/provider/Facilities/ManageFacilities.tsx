@@ -203,7 +203,7 @@ export const ManageFacilities: React.FC = () => {
                           {facility.name}
                         </span>
                         <span className="text-sm text-gray-500">
-                          ₹{facility.price}
+                          ${facility.price}
                         </span>
                         <p className="text-sm text-gray-600 mt-1">
                           {facility.description}

@@ -1,4 +1,4 @@
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 import { Types } from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import { IPaymentRepository } from "../../interfaces/user/payment.Irepository";
@@ -10,9 +10,9 @@ import { AppError } from "../../../utils/error";
 
 @Service()
 export class PaymentRepository implements IPaymentRepository {
-  
   async create(payment: Partial<IHostelPayment>): Promise<IHostelPayment> {
     try {
+      console.log(payment, "from repo payment");
       const newPayment = new HostelPaymentModel(payment);
       return await newPayment.save();
     } catch (error) {
@@ -78,3 +78,5 @@ export class PaymentRepository implements IPaymentRepository {
     }
   }
 }
+
+export const paymentRepository = Container.get(PaymentRepository);

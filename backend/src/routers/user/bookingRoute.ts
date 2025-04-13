@@ -1,6 +1,5 @@
 import express from "express";
 import { bookingContrller } from "../../controllers/implements/user/booking.controller";
-import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { upload } from "../../utils/multer";
 
 const bookingRoute = express.Router();
