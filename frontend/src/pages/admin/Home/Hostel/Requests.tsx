@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { verifyHostel } from "@/services/Api/admin/adminApi";
 import { Eye, MapPin, Users, Bed } from "lucide-react";
 import { toast } from "sonner";
@@ -101,7 +100,7 @@ export const Requests: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           className="absolute top-2 right-2 bg-amber-500/80 text-white px-3 py-1 rounded-full text-sm font-medium"
         >
-          ₹{hostel.monthly_rent}/month
+          ${hostel.monthly_rent}/month
         </motion.div>
       </div>
 

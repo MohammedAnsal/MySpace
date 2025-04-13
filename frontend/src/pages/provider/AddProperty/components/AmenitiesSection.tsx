@@ -5,6 +5,8 @@ import {
   CookingPot,
   AirVentIcon,
   WashingMachine,
+  GlassWaterIcon,
+  Cctv
 } from "lucide-react";
 
 interface AmenitiesSectionProps {
@@ -26,8 +28,18 @@ export const AmenitiesSection: React.FC<AmenitiesSectionProps> = ({
     { id: "Wifi", label: "WiFi", icon: <Wifi size={20} /> },
     { id: "Parking", label: "Parking", icon: <Car size={20} /> },
     { id: "Kitchen", label: "Kitchen", icon: <CookingPot size={20} /> },
-    { id: "Ac", label: "Air Conditioning", icon: <AirVentIcon size={20} /> },
-    // { id: "laundry", label: "Laundry", icon: <WashingMachine size={20} /> },
+    {
+      id: "Air Conditioning",
+      label: "Air Conditioning",
+      icon: <AirVentIcon size={20} />,
+    },
+    { id: "Laundry", label: "Laundry", icon: <WashingMachine size={20} /> },
+    { id: "Cctv", label: "cctv", icon: <Cctv size={20} /> },
+    {
+      id: "Water filter",
+      label: "Water filter",
+      icon: <GlassWaterIcon size={20} />,
+    },
   ];
 
   return (

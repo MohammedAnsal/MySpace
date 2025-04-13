@@ -1,4 +1,4 @@
-import { Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import HostelCard from "./components/HostelCard";
 import Sidebar from "./components/Sidebar";
 import Footer from "@/components/layouts/Footer";
@@ -8,13 +8,14 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import Loading from "@/components/global/Loading";
 import { useHostels } from "@/hooks/user/useUserQueries";
+import { Pagination } from "@/components/global/Pagination";
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 6;
 
 const Hostels = () => {
   const [filters, setFilters] = useState({
-    minPrice: 500,
-    maxPrice: 20000,
+    minPrice: 10,
+    maxPrice: 5000,
     gender: "",
     amenities: [] as string[],
     search: "",
@@ -23,51 +24,18 @@ const Hostels = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const {
-    data: hostels = [],
-    isLoading,
-    error,
-  } = useHostels(filters);
+  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+    setCurrentPage(1);
+    setFilters((prev) => ({ ...prev, ...newFilters }));
+  };
+
+  const { data: hostels = [], isLoading, error } = useHostels(filters);
 
   const totalItems = hostels.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentHostels = hostels.slice(startIndex, endIndex);
-
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxVisiblePages = 5;
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push("...");
-        pageNumbers.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pageNumbers.push(1);
-        pageNumbers.push("...");
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pageNumbers.push(i);
-        }
-      } else {
-        pageNumbers.push(1);
-        pageNumbers.push("...");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push("...");
-        pageNumbers.push(totalPages);
-      }
-    }
-    return pageNumbers;
-  };
 
   return (
     <>
@@ -107,9 +75,7 @@ const Hostels = () => {
               <div className="w-full md:w-64 shrink-0">
                 <Sidebar
                   filters={filters}
-                  onFilterChange={(newFilters) =>
-                    setFilters((prev) => ({ ...prev, ...newFilters }))
-                  }
+                  onFilterChange={handleFilterChange}
                 />
               </div>
 
@@ -124,10 +90,7 @@ const Hostels = () => {
                         placeholder="Search hostels"
                         value={filters.search}
                         onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            search: e.target.value,
-                          }))
+                          handleFilterChange({ search: e.target.value })
                         }
                         className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
@@ -137,10 +100,9 @@ const Hostels = () => {
                       <select
                         value={filters.sortBy}
                         onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
+                          handleFilterChange({
                             sortBy: e.target.value as "asc" | "desc",
-                          }))
+                          })
                         }
                         className="w-full appearance-none px-4 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                       >
@@ -177,58 +139,12 @@ const Hostels = () => {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="mt-8 flex justify-center items-center gap-2">
-                        {/* Previous Button */}
-                        <button
-                          onClick={() =>
-                            setCurrentPage((prev) => Math.max(prev - 1, 1))
-                          }
-                          disabled={currentPage === 1}
-                          className={`p-2 rounded-lg ${
-                            currentPage === 1
-                              ? "text-gray-400 cursor-not-allowed"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-
-                        {/* Page Numbers */}
-                        {getPageNumbers().map((pageNum, index) => (
-                          <button
-                            key={index}
-                            onClick={() =>
-                              typeof pageNum === "number" &&
-                              setCurrentPage(pageNum)
-                            }
-                            className={`px-4 py-2 rounded-lg ${
-                              pageNum === currentPage
-                                ? "bg-amber-500 text-white"
-                                : pageNum === "..."
-                                ? "cursor-default"
-                                : "hover:bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        ))}
-
-                        {/* Next Button */}
-                        <button
-                          onClick={() =>
-                            setCurrentPage((prev) =>
-                              Math.min(prev + 1, totalPages)
-                            )
-                          }
-                          disabled={currentPage === totalPages}
-                          className={`p-2 rounded-lg ${
-                            currentPage === totalPages
-                              ? "text-gray-400 cursor-not-allowed"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
+                      <div className="mt-8">
+                        <Pagination
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          onPageChange={(page) => setCurrentPage(page)}
+                        />
                       </div>
                     )}
 

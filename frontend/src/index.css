@@ -24,13 +24,24 @@
   }
 }
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
+.bg-main-color {
+  background-color: #384f95;
+}
+
+.bg-main-color:hover {
+  background-color: #384f95dd;
+}
+
+.text-main-color {
+  color: #384f95;
+}
 
 html::-webkit-scrollbar {
   display: none;

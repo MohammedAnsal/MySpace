@@ -1,5 +1,5 @@
 import React from "react";
-import { DollarSign, Users, Bed, IndianRupee } from "lucide-react";
+import { DollarSign, Users, Bed, DollarSignIcon } from "lucide-react";
 
 interface DetailsSectionProps {
   formData: {
@@ -41,7 +41,7 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
           </label>
           <div className="relative">
             <span className="text-gray-500 absolute left-3 top-2">
-              <IndianRupee size={20} />
+              <DollarSignIcon size={20} />
             </span>
             <input
               type="number"
@@ -87,7 +87,7 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
           </label>
           <div className="relative">
             <span className="text-gray-500 absolute left-3 top-2">
-              <IndianRupee size={20} />
+              <DollarSignIcon size={20} />
             </span>
             <input
               type="number"

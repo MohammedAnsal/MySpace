@@ -151,14 +151,11 @@ const Checkout: React.FC = () => {
       bookingFormData.append("selectedFacilities", facilitiesData);
       bookingFormData.append("proof", formData.userProof);
 
-      const response = await bookingHostel(bookingFormData);
-
-      if (response) {
-        toast.success("Booking created successfully!");
-        navigate("/profile");
-      }
+      await bookingHostel(bookingFormData);
+      
+      toast.success("Redirecting to payment...");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error creating booking");
+      toast.error(error.response?.data?.message || "Error processing your request");
     } finally {
       setIsSubmitting(false);
     }
@@ -181,9 +178,7 @@ const Checkout: React.FC = () => {
             <h1 className="font-serif font-light text-4xl tracking-wide text-gray-800">
               Complete Your Booking
             </h1>
-            <div className="mt-2 text-gray-600">
-              Booking as: {"ansalshaah"}
-            </div>
+            <div className="mt-2 text-gray-600">Booking as: {"ansalshaah"}</div>
           </div>
 
           <div className="flex flex-col md:flex-row">
@@ -314,54 +309,80 @@ const Checkout: React.FC = () => {
                   Step 3 - Select Facilities
                 </h2>
                 <div className="grid grid-cols-1 gap-4">
-                  {hostel?.facilities?.map((facility: {
-                    _id: string;
-                    name: string;
-                    price: number;
-                  }) => (
-                    <div key={facility._id} className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex flex-col space-y-2">
-                        <label className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={formData.selectedFacilities.some(f => f.id === facility._id)}
-                              onChange={() => handleFacilityToggle(facility._id, facility.name)}
-                              className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
-                            />
-                            <span className="ml-2 text-sm font-medium text-gray-700">
-                              {facility.name}
-                            </span>
-                          </div>
-                          <span className="text-sm text-amber-600 font-medium">
-                            ₹{facility.price}/month
-                          </span>
-                        </label>
-                        
-                        {/* Duration selector - Only show when facility is selected */}
-                        {formData.selectedFacilities.some(f => f.id === facility._id) && (
-                          <div className="ml-6 mt-2">
-                            <div className="flex items-center space-x-4">
-                              <label className="block text-sm font-medium text-gray-700">
-                                Duration:
-                              </label>
-                              <select
-                                value={formData.selectedFacilities.find(f => f.id === facility._id)?.duration || 1}
-                                onChange={(e) => handleFacilityDurationChange(facility._id, parseInt(e.target.value))}
-                                className="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm"
-                              >
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => (
-                                  <option key={month} value={month}>
-                                    {month} {month === 1 ? "Month" : "Months"}
-                                  </option>
-                                ))}
-                              </select>
+                  {hostel?.facilities?.map(
+                    (facility: {
+                      _id: string;
+                      name: string;
+                      price: number;
+                    }) => (
+                      <div
+                        key={facility._id}
+                        className="bg-gray-50 rounded-lg p-4"
+                      >
+                        <div className="flex flex-col space-y-2">
+                          <label className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={formData.selectedFacilities.some(
+                                  (f) => f.id === facility._id
+                                )}
+                                onChange={() =>
+                                  handleFacilityToggle(
+                                    facility._id,
+                                    facility.name
+                                  )
+                                }
+                                className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                              />
+                              <span className="ml-2 text-sm font-medium text-gray-700">
+                                {facility.name}
+                              </span>
                             </div>
-                          </div>
-                        )}
+                            <span className="text-sm text-main-color font-medium">
+                              ${facility.price}/month
+                            </span>
+                          </label>
+
+                          {/* Duration selector - Only show when facility is selected */}
+                          {formData.selectedFacilities.some(
+                            (f) => f.id === facility._id
+                          ) && (
+                            <div className="ml-6 mt-2">
+                              <div className="flex items-center space-x-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Duration:
+                                </label>
+                                <select
+                                  value={
+                                    formData.selectedFacilities.find(
+                                      (f) => f.id === facility._id
+                                    )?.duration || 1
+                                  }
+                                  onChange={(e) =>
+                                    handleFacilityDurationChange(
+                                      facility._id,
+                                      parseInt(e.target.value)
+                                    )
+                                  }
+                                  className="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm"
+                                >
+                                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(
+                                    (month) => (
+                                      <option key={month} value={month}>
+                                        {month}{" "}
+                                        {month === 1 ? "Month" : "Months"}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </section>
 
@@ -466,9 +487,13 @@ const Checkout: React.FC = () => {
                   <span>Selected Facilities</span>
                   <div className="flex flex-col gap-2 items-end">
                     {formData.selectedFacilities.map((facility) => (
-                      <div key={facility.id} className="flex items-center gap-2">
+                      <div
+                        key={facility.id}
+                        className="flex items-center gap-2"
+                      >
                         <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs">
-                          {facility.name} ({facility.duration} {facility.duration === 1 ? "month" : "months"})
+                          {facility.name} ({facility.duration}{" "}
+                          {facility.duration === 1 ? "month" : "months"})
                         </span>
                       </div>
                     ))}
@@ -505,50 +530,64 @@ const Checkout: React.FC = () => {
               <div className="bg-white rounded-md p-4 mb-5 shadow-sm">
                 <div className="flex justify-between py-2 border-b border-gray-100 text-sm">
                   <span>Monthly-Rent</span>
-                  <span>₹{state.monthlyRent}</span>
+                  <span>${state.monthlyRent}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-gray-100 text-sm">
                   <span>Deposit-Amount</span>
-                  <span>₹{state.depositAmount}</span>
+                  <span>${state.depositAmount}</span>
                 </div>
-                
+
                 {/* First payment details */}
                 <div className="mt-4 mb-2">
-                  <h4 className="font-medium text-sm text-gray-800">First Payment</h4>
-                  <div className="bg-amber-50 rounded-md p-3 mt-2">
+                  <h4 className="font-medium text-sm text-gray-800">
+                    First Payment
+                  </h4>
+                  <div className="bg-[#384f9514] rounded-md p-3 mt-2">
                     <div className="flex justify-between py-1 text-sm">
                       <span>Deposit Amount</span>
-                      <span>₹{state.depositAmount}</span>
+                      <span>${state.depositAmount}</span>
                     </div>
                     <div className="flex justify-between py-1 text-sm">
                       <span>First Month Rent</span>
-                      <span>₹{state.monthlyRent}</span>
+                      <span>${state.monthlyRent}</span>
                     </div>
                     <div className="flex justify-between py-1 text-sm">
                       <span>First Month Facilities</span>
-                      <span>₹{hostel?.facilities
-                        ?.filter((facility: { _id: string; }) => 
-                          formData.selectedFacilities.some(f => f.id === facility._id))
-                        .reduce((total: number, facility: { price: number; }) => 
-                          total + facility.price, 0) || 0}
+                      <span>
+                        $
+                        {hostel?.facilities
+                          ?.filter((facility: { _id: string }) =>
+                            formData.selectedFacilities.some(
+                              (f) => f.id === facility._id
+                            )
+                          )
+                          .reduce(
+                            (total: number, facility: { price: number }) =>
+                              total + facility.price,
+                            0
+                          ) || 0}
                       </span>
                     </div>
-                    <div className="flex justify-between pt-2 mt-1 border-t border-amber-200 font-medium text-amber-800">
+                    <div className="flex justify-between pt-2 mt-1 border-t border-white font-medium text-black">
                       <span>Payment Total</span>
-                      <span>₹{calculatePaymentTotal()}</span>
+                      <span>${calculatePaymentTotal()}</span>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Overall total for entire booking period */}
                 <div className="mt-4">
-                  <h4 className="font-medium text-sm text-gray-800">Entire Stay</h4>
+                  <h4 className="font-medium text-sm text-gray-800">
+                    Entire Stay
+                  </h4>
                   <div className="flex justify-between py-2 mt-2 font-medium text-base border-t border-gray-200 pt-3">
                     <span>Total Price</span>
-                    <span>₹{calculateTotalPrice()}</span>
+                    <span>${calculateTotalPrice()}</span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    (Includes rent for {formData.selectedMonths} {formData.selectedMonths === 1 ? "month" : "months"} and all selected facilities for their respective durations)
+                    (Includes rent for {formData.selectedMonths}{" "}
+                    {formData.selectedMonths === 1 ? "month" : "months"} and all
+                    selected facilities for their respective durations)
                   </p>
                 </div>
               </div>
@@ -559,19 +598,20 @@ const Checkout: React.FC = () => {
                   onClick={handleSubmit}
                   className={`w-full py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] ${
                     formData.acceptedRules && !isSubmitting
-                      ? "bg-amber-700 hover:bg-amber-800 text-white"
+                      ? "bg-main-color text-white"
                       : "bg-gray-300 cursor-not-allowed text-gray-500"
                   }`}
                 >
                   {isSubmitting
                     ? "Processing..."
                     : formData.acceptedRules
-                    ? `Pay Now: ₹${calculatePaymentTotal()}`
+                    ? `Pay Now: $${calculatePaymentTotal()}`
                     : "Accept Rules to Continue"}
                 </button>
                 {formData.acceptedRules && !isSubmitting && (
                   <p className="text-xs text-center mt-2 text-gray-600">
-                    This is your first payment. Total booking value: ₹{calculateTotalPrice()}
+                    This is your first payment. Total booking value: $
+                    {calculateTotalPrice()}
                   </p>
                 )}
               </div>

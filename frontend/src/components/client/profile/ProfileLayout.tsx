@@ -13,8 +13,8 @@ import { userLogout } from "@/services/Api/userApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slice/userSlice";
-import Footer from "../layouts/Footer";
-import Navbar from "../layouts/Navbar";
+import Footer from "@/components/layouts/Footer";
+import Navbar from "@/components/layouts/Navbar";
 
 // Menu items for the sidebar
 const menuItems = [

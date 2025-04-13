@@ -15,7 +15,7 @@ const App = () => {
     <div>
       <BrowserRouter>
               {/* <AdminSignUp /> */}
-              <UserProfile/>
+              {/* <UserProfile/> */}
         {/* <AdminSignIn /> */}
       </BrowserRouter>
       {/* <SignIn/> */}

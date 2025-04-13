@@ -7,7 +7,7 @@ import {
   Phone,
   Users,
   Bed,
-  IndianRupee,
+  DollarSignIcon,
   Shield,
   Info,
   CheckCircle2,
@@ -23,25 +23,28 @@ import {
   Bath,
   Dumbbell,
   User,
+  Car,
+  AirVent,
+  CookingPot,
+  WashingMachine,
+  Cctv,
+  GlassWaterIcon,
 } from "lucide-react";
 import Loading from "@/components/global/Loading";
 import { useHostelDetails } from "@/hooks/admin/useAdminQueries";
 
 const getAmenityIcon = (amenity: string) => {
   const iconMap: { [key: string]: JSX.Element } = {
-    WiFi: <Wifi className="w-4 h-4" />,
-    TV: <Tv className="w-4 h-4" />,
-    Parking: <ParkingCircle className="w-4 h-4" />,
-    Kitchen: <UtensilsCrossed className="w-4 h-4" />,
-    "Coffee Maker": <Coffee className="w-4 h-4" />,
-    Fan: <Fan className="w-4 h-4" />,
-    Security: <Fingerprint className="w-4 h-4" />,
-    Furniture: <Sofa className="w-4 h-4" />,
-    Bathroom: <Bath className="w-4 h-4" />,
-    Gym: <Dumbbell className="w-4 h-4" />,
+    Wifi: <Wifi className="w-5 h-5" />,
+    Parking: <Car className="w-5 h-5" />,
+    Kitchen: <CookingPot className="w-5 h-5" />,
+    Laundry: <WashingMachine className="w-5 h-5" />,
+    Cctv: <Cctv className="w-5 h-5" />,
+    "Water filter": <GlassWaterIcon className="w-5 h-5" />,
+    "Air Conditioning": <AirVent className="w-5 h-5" />,
   };
 
-  return iconMap[amenity] || <CheckCircle2 className="w-4 h-4" />;
+  return iconMap[amenity] || <CheckCircle2 className="w-5 h-5" />;
 };
 
 const HostelDetails = () => {
@@ -159,7 +162,7 @@ const HostelDetails = () => {
                   Monthly Rent
                 </p>
                 <p className="text-2xl font-bold text-white flex items-center">
-                  <IndianRupee className="w-6 h-6 mr-1 text-amber-500" />
+                  <DollarSignIcon className="w-6 h-6 mr-1 text-amber-500" />
                   {hostel.monthly_rent}
                 </p>
               </div>
@@ -168,7 +171,7 @@ const HostelDetails = () => {
                   Security Deposit
                 </p>
                 <p className="text-2xl font-bold text-white flex items-center">
-                  <IndianRupee className="w-6 h-6 mr-1 text-amber-500" />
+                  <DollarSignIcon className="w-6 h-6 mr-1 text-amber-500" />
                   {hostel.deposit_amount}
                 </p>
               </div>

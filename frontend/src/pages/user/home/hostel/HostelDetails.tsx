@@ -7,7 +7,7 @@ import {
   Wifi,
   Phone,
   Mail,
-  IndianRupee,
+  DollarSign,
   Calendar,
   Shield,
   Home,
@@ -19,6 +19,12 @@ import {
   MessageCircle,
   MessageSquare,
   User,
+  Car,
+  AirVent,
+  CookingPot,
+  WashingMachine,
+  Cctv,
+  GlassWaterIcon,
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
@@ -45,6 +51,20 @@ const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.5 },
+};
+
+const getAmenityIcon = (amenity: string) => {
+  const iconMap: { [key: string]: JSX.Element } = {
+    Wifi: <Wifi className="w-5 h-5" />,
+    Parking: <Car className="w-5 h-5" />,
+    Kitchen: <CookingPot className="w-5 h-5" />,
+    Laundry: <WashingMachine className="w-5 h-5" />,
+    Cctv: <Cctv className="w-5 h-5" />,
+    "Water filter": <GlassWaterIcon className="w-5 h-5" />,
+    "Air Conditioning": <AirVent className="w-5 h-5" />,
+  };
+
+  return iconMap[amenity] || <CheckCircle className="w-5 h-5" />;
 };
 
 const HostelDetails = () => {
@@ -91,18 +111,18 @@ const HostelDetails = () => {
             className="bg-white rounded-xl shadow-sm p-6 mb-8"
           >
             <div className="flex items-center gap-4 mb-4">
-              <Home className="w-8 h-8 text-amber-500" />
+              <Home className="w-8 h-8 text-main-color" />
               <h1 className="text-3xl font-bold text-gray-900">
                 {hostel.hostel_name}
               </h1>
             </div>
             <div className="flex flex-wrap gap-4 text-gray-600">
               <div className="flex items-center">
-                <MapPin className="w-5 h-5 text-amber-500 mr-2" />
+                <MapPin className="w-5 h-5 text-main-color mr-2" />
                 <span>{hostel.location?.address}</span>
               </div>
               <div className="flex items-center">
-                <Users className="w-5 h-5 text-amber-500 mr-2" />
+                <Users className="w-5 h-5 text-main-color mr-2" />
                 <span>{hostel.gender} Hostel</span>
               </div>
               <div className="flex items-center">
@@ -137,25 +157,27 @@ const HostelDetails = () => {
                     />
                   </motion.div>
                   <div className="grid grid-cols-2 gap-4">
-                    {hostel.photos?.slice(1, 5).map((photo: string, index: number) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="h-44 rounded-lg overflow-hidden cursor-pointer"
-                        onClick={() => {
-                          setSelectedImage(photo);
-                          setIsGalleryOpen(true);
-                        }}
-                      >
-                        <img
-                          src={photo}
-                          alt={`${hostel.hostel_name} ${index + 2}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </motion.div>
-                    ))}
+                    {hostel.photos
+                      ?.slice(1, 5)
+                      .map((photo: string, index: number) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="h-44 rounded-lg overflow-hidden cursor-pointer"
+                          onClick={() => {
+                            setSelectedImage(photo);
+                            setIsGalleryOpen(true);
+                          }}
+                        >
+                          <img
+                            src={photo}
+                            alt={`${hostel.hostel_name} ${index + 2}`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </motion.div>
+                      ))}
                   </div>
                 </div>
               </motion.div>
@@ -166,7 +188,7 @@ const HostelDetails = () => {
                 className="bg-white rounded-xl shadow-sm p-6"
               >
                 <h2 className="text-2xl font-semibold mb-4 flex items-center">
-                  <Info className="w-6 h-6 text-amber-500 mr-2" />
+                  <Info className="w-6 h-6 text-main-color mr-2" />
                   About this hostel
                 </h2>
                 <p className="text-gray-600 leading-relaxed">
@@ -180,7 +202,7 @@ const HostelDetails = () => {
                 className="bg-white rounded-xl shadow-sm p-6"
               >
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Shield className="w-6 h-6 text-amber-500 mr-2" />
+                  <Shield className="w-6 h-6 text-main-color mr-2" />
                   Amenities
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -190,9 +212,11 @@ const HostelDetails = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center space-x-3 bg-amber-50 p-3 rounded-lg"
+                      className="flex items-center space-x-3 bg-[#384f9514] p-3 rounded-lg"
                     >
-                      <CheckCircle className="w-5 h-5 text-amber-500" />
+                      <span className="text-main-color">
+                        {getAmenityIcon(amenity)}
+                      </span>
                       <span className="text-gray-700">{amenity}</span>
                     </motion.div>
                   ))}
@@ -205,7 +229,7 @@ const HostelDetails = () => {
                 className="bg-white rounded-xl shadow-sm p-6"
               >
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Shield className="w-6 h-6 text-amber-500 mr-2" />
+                  <Shield className="w-6 h-6 text-main-color mr-2" />
                   Additional Facilities
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -215,14 +239,14 @@ const HostelDetails = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-xl p-6 border border-amber-200/30"
+                      className="bg-gradient-to-br from-[#384f9514] to-[#384f9514] rounded-xl p-6 border border-amber-200/30"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <h3 className="text-lg font-semibold text-gray-900">
                           {facility.name}
                         </h3>
-                        <div className="flex items-center text-amber-600 font-semibold bg-amber-100 px-3 py-1 rounded-full">
-                          <IndianRupee className="w-4 h-4 mr-1" />
+                        <div className="flex items-center text-main-color font-semibold bg-[#384f9514] px-3 py-1 rounded-full">
+                          <DollarSign className="w-4 h-4 mr-1" />
                           {facility.price}
                         </div>
                       </div>
@@ -237,26 +261,26 @@ const HostelDetails = () => {
             <motion.div {...fadeInUp} className="space-y-6">
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center">
-                  <Info className="w-6 h-6 text-amber-500 mr-2" />
+                  <Info className="w-6 h-6 text-main-color mr-2" />
                   Provider Information
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center text-gray-600">
-                    <User className="w-5 h-5 text-amber-500 mr-3" />
+                    <User className="w-5 h-5 text-main-color mr-3" />
                     <span>
                       {hostel.provider_id?.fullName ||
                         "Contact number not available"}
                     </span>
                   </div>
                   <div className="flex items-center text-gray-600">
-                    <Phone className="w-5 h-5 text-amber-500 mr-3" />
+                    <Phone className="w-5 h-5 text-main-color mr-3" />
                     <span>
                       {hostel.provider_id?.phone ||
                         "Contact number not available"}
                     </span>
                   </div>
                   <div className="flex items-center text-gray-600">
-                    <Mail className="w-5 h-5 text-amber-500 mr-3" />
+                    <Mail className="w-5 h-5 text-main-color mr-3" />
                     <span>
                       {hostel.provider_id?.email || "Email not available"}
                     </span>
@@ -267,7 +291,7 @@ const HostelDetails = () => {
               {/* Chat with Provider */}
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center">
-                  <MessageCircle className="w-6 h-6 text-amber-500 mr-2" />
+                  <MessageCircle className="w-6 h-6 text-main-color mr-2" />
                   Chat with Provider
                 </h3>
                 <div className="space-y-4">
@@ -278,7 +302,7 @@ const HostelDetails = () => {
                     onClick={() => {
                       /* Add your chat functionality here */
                     }}
-                    className="w-full bg-amber-50 text-amber-600 py-3 px-4 rounded-lg hover:bg-amber-100 transition-colors flex items-center justify-center font-semibold border border-amber-200"
+                    className="w-full bg-main-color text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center font-semibold border border-[#384f9514]"
                   >
                     <MessageSquare className="w-5 h-5 mr-2" />
                     Start Chat
@@ -286,8 +310,8 @@ const HostelDetails = () => {
                 </div>
               </div>
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="text-3xl font-bold text-amber-500 mb-4 flex items-center">
-                  <IndianRupee className="w-8 h-8 mr-2" />
+                <div className="text-3xl font-bold text-main-color mb-4 flex items-center">
+                  <DollarSign className="w-8 h-8 mr-2" />
                   {hostel.monthly_rent}
                   <span className="text-base font-normal text-gray-500 ml-2">
                     /month
@@ -297,7 +321,7 @@ const HostelDetails = () => {
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Deposit</span>
                     <span className="font-semibold">
-                      ₹{hostel.deposit_amount}
+                      ${hostel.deposit_amount}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">
@@ -324,7 +348,7 @@ const HostelDetails = () => {
                       },
                     })
                   }
-                  className="w-full bg-amber-500 text-white py-3 px-4 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center font-semibold"
+                  className="w-full bg-main-color text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center font-semibold"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
                   Book Now
@@ -333,48 +357,47 @@ const HostelDetails = () => {
               {/* Map */}
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center">
-                  <MapPin className="w-6 h-6 text-amber-500 mr-2" />
+                  <MapPin className="w-6 h-6 text-main-color mr-2" />
                   Location
                 </h3>
                 <div className="h-[200px] rounded-lg overflow-hidden mb-4">
-                  {hostel.location?.latitude &&
-                    hostel.location?.longitude && (
-                      <MapContainer
-                        center={[
+                  {hostel.location?.latitude && hostel.location?.longitude && (
+                    <MapContainer
+                      center={[
+                        hostel.location.latitude,
+                        hostel.location.longitude,
+                      ]}
+                      zoom={15}
+                      style={{ height: "100%", width: "100%" }}
+                      scrollWheelZoom={false}
+                      className="rounded-lg"
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <Marker
+                        position={[
                           hostel.location.latitude,
                           hostel.location.longitude,
                         ]}
-                        zoom={15}
-                        style={{ height: "100%", width: "100%" }}
-                        scrollWheelZoom={false}
-                        className="rounded-lg"
                       >
-                        <TileLayer
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <Marker
-                          position={[
-                            hostel.location.latitude,
-                            hostel.location.longitude,
-                          ]}
-                        >
-                          <Popup>
-                            <div className="p-2">
-                              <h3 className="font-medium text-gray-900">
-                                {hostel.hostel_name}
-                              </h3>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {hostel.location.address}
-                              </p>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      </MapContainer>
-                    )}
+                        <Popup>
+                          <div className="p-2">
+                            <h3 className="font-medium text-gray-900">
+                              {hostel.hostel_name}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {hostel.location.address}
+                            </p>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    </MapContainer>
+                  )}
                 </div>
                 <div className="flex items-start">
-                  <MapPin className="w-5 h-5 text-amber-500 mt-1 flex-shrink-0" />
+                  <MapPin className="w-5 h-5 text-main-color mt-1 flex-shrink-0" />
                   <p className="ml-2 text-gray-600 text-sm">
                     {hostel.location?.address}
                   </p>

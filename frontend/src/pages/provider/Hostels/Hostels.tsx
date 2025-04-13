@@ -144,7 +144,7 @@ const Hostels = () => {
                     />
                     <div className="absolute top-3 left-3">
                       <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-full text-sm font-semibold">
-                        ₹{hostel.monthly_rent}/month
+                        ${hostel.monthly_rent}/month
                       </span>
                     </div>
                     <div className="absolute top-3 right-3">

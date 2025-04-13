@@ -6,6 +6,7 @@ export interface IFacilityRepository {
   // findFacilitiesByHostel(hostelId: string): Promise<IFacility[]>;
   // findFacilitiesByProvider(providerId: string): Promise<IFacility[]>;
   findAllFacilities(providerId: string): Promise<IFacility[]>;
+  findFacilityById(facilityId: string): Promise<IFacility | null>;
   updateFacilityStatus(
     providerId: string,
     status: boolean

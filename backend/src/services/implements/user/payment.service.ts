@@ -1,4 +1,4 @@
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 import { Types } from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import { IPaymentService } from "../../interface/user/payment.service.interface";
@@ -148,3 +148,5 @@ export class PaymentService implements IPaymentService {
     }
   }
 }
+
+export const paymentService = Container.get(PaymentService)

@@ -1,14 +1,12 @@
 import Container, { Service } from "typedi";
-import { IUser } from "../../../models/user.model";
-import {
-  AdminResult,
-  IAdminUserService,
-} from "../../interface/admin/user.admin.service.interface";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 
 import { s3Service } from "../../../services/implements/s3/s3.service";
-import { IHostelService } from "../../interface/user/hostel.service.interface";
+import {
+  hostelResult,
+  IHostelService,
+} from "../../interface/user/hostel.service.interface";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
 
@@ -28,8 +26,8 @@ export class HostelService implements IHostelService {
     gender?: string;
     amenities?: string[];
     search?: string;
-    sortBy?: 'asc' | 'desc';
-  }): Promise<AdminResult> {
+    sortBy?: "asc" | "desc";
+  }): Promise<hostelResult> {
     try {
       const hostels = await this.hostelRepositoryy.getVerifiedHostels(filters);
       return {
@@ -48,7 +46,26 @@ export class HostelService implements IHostelService {
     }
   }
 
-  async getHostelById(hostelId: string): Promise<AdminResult> {
+  async getVerifiedHostelsForHome(): Promise<hostelResult> {
+    try {
+      const hostels = await this.hostelRepositoryy.getVerifiedHostelsForHome();
+      return {
+        success: true,
+        message: "Verified all hostels fetched successfully",
+        data: hostels,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while fetching all verified hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getHostelById(hostelId: string): Promise<hostelResult> {
     try {
       if (!hostelId) {
         throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
