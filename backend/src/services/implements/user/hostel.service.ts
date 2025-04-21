@@ -101,6 +101,30 @@ export class HostelService implements IHostelService {
       );
     }
   }
+
+  async getNearbyHostels(latitude: number, longitude: number, radius: number): Promise<hostelResult> {
+    try {
+      if (!latitude || !longitude) {
+        throw new AppError("Latitude and longitude are required", HttpStatus.BAD_REQUEST);
+      }
+      
+      const hostels = await this.hostelRepositoryy.getNearbyHostels(latitude, longitude, radius * 1000); // Convert km to meters
+      
+      return {
+        success: true,
+        message: "Nearby hostels fetched successfully",
+        data: hostels,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while fetching nearby hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 }
 
 export const hostelService = Container.get(HostelService);

@@ -1,5 +1,5 @@
 import { verifyHostel } from "@/services/Api/admin/adminApi";
-import { Eye, MapPin, Users, Bed } from "lucide-react";
+import { Eye, MapPin, Users, Bed, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import Loading from "@/components/global/Loading";
@@ -40,22 +40,60 @@ interface Hostel {
 export const Requests: React.FC = () => {
   const [selectedHostel, setSelectedHostel] = useState<Hostel | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const { data: hostels = [], isLoading, error, refetch } = useUnverifiedHostels();
 
   const handleVerification = async (hostelId: string, isVerified: boolean) => {
     try {
-      await verifyHostel(hostelId, isVerified);
-      toast.success(
-        isVerified
-          ? "Hostel approved successfully"
-          : "Hostel rejected successfully"
-      );
+      if (!isVerified) {
+        // Close the details dialog first before showing the rejection modal
+        setIsDialogOpen(false);
+        
+        // Use setTimeout to ensure the first modal is closed before opening the second
+        setTimeout(() => {
+          setIsRejectModalOpen(true);
+        }, 100);
+        
+        return;
+      }
+      
+      // For approval, proceed normally
+      await verifyHostel(hostelId, "", isVerified , false);
+      toast.success("Hostel approved successfully");
       refetch();
       setIsDialogOpen(false);
     } catch (error) {
       toast.error("Failed to process hostel verification");
     }
+  };
+
+  const handleRejection = async () => {
+    try {
+      if (!selectedHostel) return;
+      
+      if (!rejectionReason.trim()) {
+        toast.error("Please provide a reason for rejection");
+        return;
+      }
+      
+      await verifyHostel(selectedHostel._id, rejectionReason, false , false);
+      toast.success("Hostel rejected successfully");
+      
+      // Reset and close modals
+      setRejectionReason("");
+      setIsRejectModalOpen(false);
+      refetch();
+    } catch (error) {
+      toast.error("Failed to reject hostel");
+    }
+  };
+
+  // Function to close the rejection modal
+  const closeRejectionModal = () => {
+    setIsRejectModalOpen(false);
+    setRejectionReason("");
   };
 
   const containerVariants = {
@@ -208,12 +246,68 @@ export const Requests: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <HostelDetailsDialog
-        isOpen={isDialogOpen}
-        onClose={setIsDialogOpen}
-        selectedHostel={selectedHostel as any} // Type assertion to temporarily fix type mismatch
-        onVerify={handleVerification}
-      />
+      {/* Only render the details dialog if rejection modal is not open */}
+      {!isRejectModalOpen && (
+        <HostelDetailsDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          selectedHostel={selectedHostel as any}
+          onVerify={handleVerification}
+        />
+      )}
+
+      {/* Rejection Reason Modal */}
+      <AnimatePresence>
+        {isRejectModalOpen && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] px-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-[#2A2B2F] rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-700"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-white">
+                  Reject: {selectedHostel?.hostel_name}
+                </h3>
+                <button 
+                  onClick={closeRejectionModal}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <p className="text-gray-300 mb-4">
+                Please provide a reason for rejecting this hostel request. This will be visible to the provider.
+              </p>
+              
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Enter rejection reason..."
+                className="w-full bg-[#1e1f22] text-white border border-gray-700 rounded-lg p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                autoFocus
+              />
+              
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={closeRejectionModal}
+                  className="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRejection}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors flex-1"
+                >
+                  Reject Hostel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

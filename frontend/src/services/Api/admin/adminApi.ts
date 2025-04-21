@@ -56,11 +56,18 @@ export const admin_logout = async () => {
   return response;
 };
 
-export const verifyHostel = async (hostelId: string, isVerified: boolean) => {
+export const verifyHostel = async (
+  hostelId: string,
+  reason: string,
+  isVerified: boolean,
+  isRejected: boolean
+) => {
   try {
     const response = await private_api.put("/admin/verify-hostel", {
       hostelId,
+      reason,
       isVerified,
+      isRejected,
     });
     return response.data;
   } catch (error) {
@@ -141,10 +148,30 @@ export const updateFacilityStatus = async (
 
 export const deleteFacility = async (facilityId: string) => {
   try {
-    const response = await private_api.delete(
-      `/admin/facility/${facilityId}`
-    );
+    const response = await private_api.delete(`/admin/facility/${facilityId}`);
     return handleResponse(response.data, "Error deleting facility");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const listAdminBookings = async () => {
+  try {
+    const response = await private_api.get("/admin/bookings");
+    console.log(response, "from admin api");
+
+    return handleResponse(response.data.data, "Error in list admin bookings");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getAdminDashboard = async () => {
+  try {
+    const response = await private_api.get("/admin/dashboard");
+    console.log(response, "from admin api");
+
+    return handleResponse(response.data.getDashboardData, "Error in admin dashboard");
   } catch (error) {
     handleError(error);
   }

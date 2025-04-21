@@ -13,6 +13,7 @@ import ProviderDashboard from "../pages/provider/Home/Home";
 import { ManageFacilities } from "@/pages/provider/Facilities/ManageFacilities";
 import Hostels from "../pages/provider/Hostels/Hostels";
 import EditHostel from "@/pages/provider/Hostels/components/EditHostel";
+import { Bookings } from "@/pages/provider/Bookings/Bookings";
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes
@@ -58,10 +59,10 @@ export const ProviderRouter: RouteObject[] = [
         path: "hostel/edit/:hostelId",
         element: <EditHostel />,
       },
-      // {
-      //   path: "facilities",
-      //   element: <ManageFacilities />,
-      // },
+      {
+        path: "bookings",
+        element: <Bookings />,
+      },
       {
         path: "notifications",
         element: <Notifications />,

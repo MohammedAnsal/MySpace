@@ -8,4 +8,5 @@ export type locationResult = {
 
 export interface ILocationService {
   createLocation(locationData: Partial<ILocation>): Promise<locationResult>;
+  updateLocation(locationId: string, locationData: Partial<ILocation>): Promise<locationResult>;
 }

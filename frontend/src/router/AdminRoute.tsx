@@ -11,6 +11,7 @@ import { Requests } from "@/pages/admin/Home/Hostel/Requests";
 import HostelsList from "@/pages/admin/Home/Hostel/HostelsList";
 import HostelDetails from "@/pages/admin/Home/Hostel/HostelDetails";
 import AdminManageFacilities from "@/pages/admin/Home/Facility/ManageFacilities";
+import { Bookings } from "@/pages/admin/Home/Bookings/Bookings";
 
 export const AdminRouter: RouteObject[] = [
   {
@@ -52,6 +53,10 @@ export const AdminRouter: RouteObject[] = [
           {
             path: "facility",
             element: <AdminManageFacilities />,
+          },
+          {
+            path: "bookings",
+            element: <Bookings />,
           },
         ],
       },

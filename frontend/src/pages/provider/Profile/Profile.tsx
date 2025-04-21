@@ -119,7 +119,7 @@ const Profile: React.FC = () => {
           <div className="inline-block mb-4">
             <Loading color="#FFB300" text="" />
           </div>
-          <p className="text-gray-600 font-medium">Loading your profile...</p>
+          <p className="text-gray-600 font-medium">loading profile...</p>
         </div>
       </div>
     );

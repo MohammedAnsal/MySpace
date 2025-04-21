@@ -5,4 +5,5 @@ export interface IHostelRepository {
   getHostelById(hostelId: string): Promise<IHostel | null>;
   getVerifiedHostelsForHome(): Promise<IHostel[]>;
   getVerifiedHostels(filters: HostelFilters): Promise<IHostel[]>;
+  getNearbyHostels(latitude: number, longitude: number, maxDistance: number): Promise<IHostel[]>;
 }

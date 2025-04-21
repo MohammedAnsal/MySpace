@@ -1,5 +1,13 @@
 import * as React from "react";
-import { LogOut, SquareTerminal,SquareStack , Users, HomeIcon, House } from "lucide-react";
+import {
+  LogOut,
+  SquareTerminal,
+  SquareStack,
+  Users,
+  HomeIcon,
+  House,
+  NotebookTabs,
+} from "lucide-react";
 import { NavMain } from "../../components/admin/nav-main";
 import { TeamSwitcher } from "@/components/admin/team-switcher";
 import {
@@ -58,7 +66,7 @@ const data = {
     {
       title: "Bookings",
       url: "/admin/bookings",
-      icon: House,
+      icon: NotebookTabs,
       isActive: true,
     },
   ],

@@ -4,6 +4,8 @@ import {
   hostelDetails,
   findUser,
   listHostelsHome,
+  listUserBookings,
+  findNearbyHostels,
 } from "@/services/Api/userApi";
 import { HostelFilters } from "@/types/api.types";
 import UserProfile from "@/pages/user/Home/profile/UserProfile";
@@ -33,6 +35,21 @@ const fetchHostelDetails = async (id: string) => {
 
 const fetchHosteslsHome = async () => {
   const response = await listHostelsHome();
+  return response ?? [];
+};
+
+const fetchUserBookings = async () => {
+  const response = await listUserBookings();
+  return response ?? [];
+};
+
+const fetchNearbyHostels = async (params: { 
+  latitude: number; 
+  longitude: number; 
+  radius?: number;
+}) => {
+  const { latitude, longitude, radius } = params;
+  const response = await findNearbyHostels(latitude, longitude, radius);
   return response ?? [];
 };
 
@@ -68,5 +85,29 @@ export const useHostelsHome = () => {
   return useQuery({
     queryKey: ["hostels-home"],
     queryFn: () => fetchHosteslsHome(),
+  });
+};
+
+export const useUserBookings = () => {
+  return useQuery({
+    queryKey: ["user-bookings"],
+    queryFn: () => fetchUserBookings(),
+  });
+};
+
+// Hook for nearby hostels
+export const useNearbyHostels = (
+  latitude: number | null,
+  longitude: number | null,
+  radius?: number
+) => {
+  return useQuery({
+    queryKey: ["nearby-hostels", { latitude, longitude, radius }],
+    queryFn: () => fetchNearbyHostels({ 
+      latitude: latitude!, 
+      longitude: longitude!,
+      radius 
+    }),
+    enabled: !!latitude && !!longitude, // Only run query if coordinates are provided
   });
 };

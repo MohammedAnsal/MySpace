@@ -10,15 +10,23 @@ import { HttpStatus } from "../../../enums/http.status";
 import { IAdminRepository } from "../../../repositories/interfaces/admin/admin.Irepository";
 import { adminRepository } from "../../../repositories/implementations/admin/admin.repository";
 import { s3Service } from "../../../services/implements/s3/s3.service";
+import { IHostelRepository } from "../../../repositories/interfaces/provider/hostel.Irepository";
+import { hostelRepository } from "../../../repositories/implementations/provider/hostel.repository";
+import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
+import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 
 @Service()
 export class AdminUserService implements IAdminUserService {
   private adminRepositoryy: IAdminRepository;
   private s3ServiceInstance: s3Service;
+  private hostelRepo: IHostelRepository;
+  private bookingRepo: IBookingRepository;
 
   constructor(private userRepo: UserRepository, s3Service: s3Service) {
     this.adminRepositoryy = adminRepository;
     this.s3ServiceInstance = s3Service;
+    this.hostelRepo = hostelRepository;
+    this.bookingRepo = bookingRepository;
   }
 
   async findAllUser(): Promise<{ success: boolean; data: IUser[] }> {
@@ -78,7 +86,9 @@ export class AdminUserService implements IAdminUserService {
 
   async verifyHostel(
     hostelId: string,
-    isVerified: boolean
+    reason: string,
+    isVerified: boolean,
+    isRejected: boolean
   ): Promise<AdminResult> {
     try {
       if (!hostelId) {
@@ -87,7 +97,9 @@ export class AdminUserService implements IAdminUserService {
 
       const result = await this.adminRepositoryy.verifyHostel(
         hostelId,
-        isVerified
+        reason,
+        isVerified,
+        isRejected
       );
 
       if (!result) {
@@ -183,6 +195,127 @@ export class AdminUserService implements IAdminUserService {
       }
       throw new AppError(
         "An error occurred while fetching hostel details",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getAdminDashboard(): Promise<any> {
+    try {
+      const totalHostels = await this.hostelRepo.getAllHostels();
+      const totalUsers = await this.userRepo.findUserByRole("user");
+      const totalProviders = await this.userRepo.findUserByRole("provider");
+      const totalBookings = await this.bookingRepo.getAllBookings();
+
+      const hostels = totalHostels.length;
+      const bookings = totalBookings.length;
+      const users = totalUsers.length;
+      const providers = totalProviders.length;
+
+      // Calculate total revenue (from completed bookings only)
+      const totalRevenue = totalBookings
+        .filter((booking) => booking.paymentStatus === "completed")
+        .reduce((sum, booking) => sum + booking.totalPrice, 0);
+
+      // Get current date
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+
+      // Calculate weekly revenue (last 7 weeks)
+      const weeklyRevenue = [];
+      for (let i = 6; i >= 0; i--) {
+        const weekStart = new Date();
+        weekStart.setDate(currentDate.getDate() - (i * 7 + 7));
+        const weekEnd = new Date();
+        weekEnd.setDate(currentDate.getDate() - i * 7);
+
+        const weeklyBookings = totalBookings.filter(
+          (booking) =>
+            new Date(booking.bookingDate) >= weekStart &&
+            new Date(booking.bookingDate) < weekEnd &&
+            booking.paymentStatus === "completed"
+        );
+
+        const weekRevenue = weeklyBookings.reduce(
+          (sum, booking) => sum + booking.totalPrice,
+          0
+        );
+
+        weeklyRevenue.push({
+          week: `Week ${6 - i + 1}`,
+          revenue: weekRevenue,
+        });
+      }
+
+      // Calculate monthly revenue (for current year)
+      const monthlyRevenue = Array(12)
+        .fill(0)
+        .map((_, index) => {
+          const monthBookings = totalBookings.filter((booking) => {
+            const bookingDate = new Date(booking.bookingDate);
+            return (
+              bookingDate.getMonth() === index &&
+              bookingDate.getFullYear() === currentYear &&
+              booking.paymentStatus === "completed"
+            );
+          });
+
+          const monthRevenue = monthBookings.reduce(
+            (sum, booking) => sum + booking.totalPrice,
+            0
+          );
+
+          return {
+            month: new Date(currentYear, index).toLocaleString("default", {
+              month: "short",
+            }),
+            revenue: monthRevenue,
+          };
+        });
+
+      // Calculate yearly revenue (last 3 years)
+      const yearlyRevenue = [];
+      for (let i = 2; i >= 0; i--) {
+        const year = currentYear - i;
+
+        const yearBookings = totalBookings.filter((booking) => {
+          const bookingDate = new Date(booking.bookingDate);
+          return (
+            bookingDate.getFullYear() === year &&
+            booking.paymentStatus === "completed"
+          );
+        });
+
+        const yearRevenue = yearBookings.reduce(
+          (sum, booking) => sum + booking.totalPrice,
+          0
+        );
+
+        yearlyRevenue.push({
+          year,
+          revenue: yearRevenue,
+        });
+      }
+
+      return {
+        hostels,
+        bookings,
+        users,
+        providers,
+        totalRevenue,
+        revenueData: {
+          weekly: weeklyRevenue,
+          monthly: monthlyRevenue,
+          yearly: yearlyRevenue,
+        },
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      throw new AppError(
+        "An unexpected error occurred while fetching the provider dashboard. Please try again.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

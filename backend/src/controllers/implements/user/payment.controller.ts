@@ -66,6 +66,35 @@ export class PaymentController {
     }
   }
 
+  async handleWebhook(req: Request, res: Response): Promise<void> {
+    try {
+      console.log("aaaapapappa")
+      const signature = req.headers["stripe-signature"] as string;
+      console.log(signature,'sigg')
+      if (!signature) {
+        throw new AppError(
+          "No stripe signature found",
+          StatusCodes.BAD_REQUEST
+        );
+      }
+      console.log("Received webhook with signature:", signature);
+      console.log("Webhook body:", req.body);
+      if (!this.stripeService.validateWebhookSignature(req.body, signature)) {
+        throw new AppError(
+          "Invalid webhook signature",
+          StatusCodes.BAD_REQUEST
+        );
+      }
+      await this.stripeService.handleWebhookEvent(req.body, signature);
+
+      res.json({ received: true });
+    } catch (error: any) {
+      console.error("Webhook Error:", error.message);
+      res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: error.message || "Webhook processing failed",
+      });
+    }
+  }
 }
 
-export const paymentController = Container.get(PaymentController)
+export const paymentController = Container.get(PaymentController);

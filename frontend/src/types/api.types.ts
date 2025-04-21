@@ -14,6 +14,8 @@ export interface ApiResponse<T> {
 }
 
 export interface Hostel {
+  reason: any;
+  is_rejected: any;
   _id: string;
   hostel_name: string;
   photos: string[];

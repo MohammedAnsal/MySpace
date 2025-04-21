@@ -23,6 +23,7 @@
     transform: rotate(360deg);
   }
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

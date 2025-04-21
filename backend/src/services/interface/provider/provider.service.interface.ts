@@ -13,4 +13,5 @@ export interface IProviderService {
     data: IUser,
     userId: string
   ): Promise<{ success: boolean; message: string }>;
+  getProviderDashboard(providerId: string): Promise<any>;
 }

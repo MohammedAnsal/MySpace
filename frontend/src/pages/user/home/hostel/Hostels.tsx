@@ -1,4 +1,4 @@
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, MapPin } from "lucide-react";
 import HostelCard from "./components/HostelCard";
 import Sidebar from "./components/Sidebar";
 import Footer from "@/components/layouts/Footer";
@@ -7,8 +7,9 @@ import main from "@/assets/user/m2.jpg";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Loading from "@/components/global/Loading";
-import { useHostels } from "@/hooks/user/useUserQueries";
+import { useHostels, useNearbyHostels } from "@/hooks/user/useUserQueries";
 import { Pagination } from "@/components/global/Pagination";
+import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -23,13 +24,81 @@ const Hostels = () => {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [isNearbyActive, setIsNearbyActive] = useState(false);
+  const [coordinates, setCoordinates] = useState<{
+    latitude: number | null;
+    longitude: number | null;
+  }>({
+    latitude: null,
+    longitude: null,
+  });
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+    setIsNearbyActive(false);
     setCurrentPage(1);
     setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
-  const { data: hostels = [], isLoading, error } = useHostels(filters);
+  const handleNearbyClick = () => {
+    if (isNearbyActive) {
+      // Turn off nearby mode
+      setIsNearbyActive(false);
+      setCoordinates({ latitude: null, longitude: null });
+      return;
+    }
+
+    // Turn on nearby mode
+    setIsGettingLocation(true);
+    
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      setIsGettingLocation(false);
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoordinates({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setIsNearbyActive(true);
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        let errorMessage = "Unable to retrieve your location";
+        if (error.code === 1) {
+          errorMessage = "Location access denied. Please enable location services.";
+        }
+        toast.error(errorMessage);
+        setIsGettingLocation(false);
+      }
+    );
+  };
+
+  // Use the regular hostels query if nearby is not active
+  const { 
+    data: regularHostels = [], 
+    isLoading: isLoadingRegular, 
+    error: regularError 
+  } = useHostels(filters);
+  
+  // Use the nearby hostels query if nearby is active
+  const { 
+    data: nearbyHostels = [], 
+    isLoading: isLoadingNearby, 
+    error: nearbyError 
+  } = useNearbyHostels(
+    coordinates.latitude, 
+    coordinates.longitude,
+    5 // Default radius in km
+  );
+
+  // Determine which data source to use
+  const hostels = isNearbyActive ? nearbyHostels : regularHostels;
+  const isLoading = isNearbyActive ? isLoadingNearby : isLoadingRegular;
+  const error = isNearbyActive ? nearbyError : regularError;
 
   const totalItems = hostels.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -96,41 +165,68 @@ const Hostels = () => {
                       />
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                     </div>
-                    <div className="relative w-full sm:w-40">
-                      <select
-                        value={filters.sortBy}
-                        onChange={(e) =>
-                          handleFilterChange({
-                            sortBy: e.target.value as "asc" | "desc",
-                          })
-                        }
-                        className="w-full appearance-none px-4 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={handleNearbyClick}
+                        disabled={isGettingLocation}
+                        className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
+                          isGettingLocation 
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : isNearbyActive
+                              ? "bg-amber-500 text-white border-amber-500"
+                              : "bg-white text-gray-700 border-gray-200 hover:bg-amber-50"
+                        }`}
                       >
-                        <option value="asc">₹ Low to High</option>
-                        <option value="desc">₹ High to Low</option>
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <MapPin size={16} className="mr-2" />
+                        {isGettingLocation ? "Locating..." : "Nearby"}
+                      </button>
+                      <div className="relative w-40">
+                        <select
+                          value={filters.sortBy}
+                          onChange={(e) =>
+                            handleFilterChange({
+                              sortBy: e.target.value as "asc" | "desc",
+                            })
+                          }
+                          className="w-full appearance-none px-4 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        >
+                          <option value="asc">₹ Low to High</option>
+                          <option value="desc">₹ High to Low</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Loading State */}
-                {isLoading && (
+                {(isLoading || isGettingLocation) && (
                   <div className="flex items-center justify-center min-h-[400px]">
-                    <Loading text="loading accomoodations" color="#b9a089" />
+                    <Loading 
+                      text={isGettingLocation ? "locating you" : "loading accommodations"} 
+                      color="#b9a089" 
+                    />
                   </div>
                 )}
 
                 {/* Error State */}
-                {error && (
+                {error && !isLoading && !isGettingLocation && (
                   <div className="text-center text-red-500 min-h-[400px] flex items-center justify-center">
                     Failed to load hostels. Please try again later.
                   </div>
                 )}
 
                 {/* Hostel Grid */}
-                {!isLoading && !error && (
+                {!isLoading && !isGettingLocation && !error && (
                   <>
+                    {isNearbyActive && (
+                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                        <p className="text-amber-800 text-sm">
+                          Showing hostels near your current location (within 5km radius)
+                        </p>
+                      </div>
+                    )}
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {currentHostels.map((hostel) => (
                         <HostelCard key={hostel._id} hostel={hostel} />
@@ -157,9 +253,11 @@ const Hostels = () => {
                 )}
 
                 {/* Empty State */}
-                {!isLoading && !error && hostels.length === 0 && (
+                {!isLoading && !isGettingLocation && !error && hostels.length === 0 && (
                   <div className="text-center text-gray-500 min-h-[400px] flex items-center justify-center">
-                    No hostels found
+                    {isNearbyActive 
+                      ? "No hostels found near your location" 
+                      : "No hostels found"}
                   </div>
                 )}
               </div>

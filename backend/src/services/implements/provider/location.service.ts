@@ -41,6 +41,41 @@ class LocationService implements ILocationService {
             );
         }
     }
+
+    async updateLocation(locationId: string, locationData: Partial<ILocation>): Promise<locationResult> {
+        try {
+            if (!locationId) {
+                throw new AppError("Location ID is required", HttpStatus.BAD_REQUEST);
+            }
+
+            const { latitude, longitude, address } = locationData;
+
+            if (!latitude || !longitude || !address) {
+                throw new AppError("Missing location details", HttpStatus.BAD_REQUEST);
+            }
+
+            const location = await this.locationRepositoryy.updateLocation(locationId, locationData);
+
+            if (!location) {
+                throw new AppError("Location not found", HttpStatus.NOT_FOUND);
+            }
+
+            return {
+                success: true,
+                message: "Location updated successfully",
+                locationData: location
+            };
+            
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError(
+                "Failed to update location",
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 }
 
 export const locationService = Container.get(LocationService);

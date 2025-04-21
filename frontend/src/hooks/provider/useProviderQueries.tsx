@@ -1,8 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
-import { findProvider, listAllHostels } from "@/services/Api/providerApi";
+import {
+  findProvider,
+  getProviderDashboard,
+  listAllHostels,
+  listProviderBookings,
+} from "@/services/Api/providerApi";
 // Import UserProfile from the correct location
 import { ProviderProfile } from "@/pages/provider/Profile/Profile";
 import { Hostel } from "@/types/api.types";
+
+interface DashboardData {
+  users: number;
+  hostels: number;
+  bookings: number;
+  totalRevenue: number;
+  revenueData?: {
+    weekly: Array<{ week: string; revenue: number }>;
+    monthly: Array<{ month: string; revenue: number }>;
+    yearly: Array<{ year: number; revenue: number }>;
+  };
+}
 
 const fetchProviderProfile = async (): Promise<ProviderProfile | null> => {
   try {
@@ -50,3 +67,38 @@ export const useProviderHostels = () => {
     // Optional: Add staleTime or cacheTime if desired
   });
 };
+
+const fetchProviderBookings = async () => {
+  const response = await listProviderBookings();
+  return response ?? [];
+};
+
+export const useProviderBookings = () => {
+  return useQuery({
+    queryKey: ["provider-bookings"],
+    queryFn: () => fetchProviderBookings(),
+  });
+};
+
+const fetchProviderDashboard = async (): Promise<DashboardData> => {
+  const response = await getProviderDashboard();
+  return response || { 
+    users: 0, 
+    hostels: 0, 
+    bookings: 0, 
+    totalRevenue: 0,
+    revenueData: {
+      weekly: [],
+      monthly: [],
+      yearly: []
+    }
+  };
+};
+
+export const useProviderDashboard = () => {
+  return useQuery<DashboardData>({
+    queryKey: ["provider-dashboard"],
+    queryFn: fetchProviderDashboard,
+  });
+};
+ 

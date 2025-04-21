@@ -25,7 +25,9 @@ export class AdminRepository
 
   async verifyHostel(
     hostelId: string,
-    isVerified: boolean
+    reason: string,
+    isVerified: boolean,
+    isRejected: boolean
   ): Promise<IHostel | null> {
     try {
       if (isVerified) {
@@ -34,10 +36,18 @@ export class AdminRepository
           { $set: { is_verified: true, is_rejected: false } },
           { new: true }
         ).populate(["provider_id", "location", "facilities"]);
-      } else {
+      } else if (isRejected) {
+        console.log("2");
         return await Hostel.findByIdAndUpdate(
           hostelId,
-          { $set: { is_rejected: true, is_verified: false } },
+          { $set: { is_verified: false, reason, is_rejected: false } },
+          { new: true }
+        ).populate(["provider_id", "location", "facilities"]);
+      } else {
+        console.log("1");
+        return await Hostel.findByIdAndUpdate(
+          hostelId,
+          { $set: { is_rejected: true, reason, is_verified: false } },
           { new: true }
         ).populate(["provider_id", "location", "facilities"]);
       }
@@ -68,13 +78,13 @@ export class AdminRepository
     try {
       const hostels = await Hostel.find({
         is_verified: true,
-        is_rejected: false
+        is_rejected: false,
       })
         .populate("provider_id", "fullName email phone")
         .populate("location")
         .populate("facilities")
         .sort({ createdAt: -1 });
-      
+
       return hostels;
     } catch (error) {
       throw error;
@@ -86,7 +96,7 @@ export class AdminRepository
       const hostel = await Hostel.findOne({
         _id: hostelId,
         is_verified: true,
-        is_rejected: false
+        is_rejected: false,
       })
         .populate("provider_id", "fullName email phone")
         .populate("location")

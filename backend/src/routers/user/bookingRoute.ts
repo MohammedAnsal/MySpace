@@ -1,6 +1,7 @@
 import express from "express";
 import { bookingContrller } from "../../controllers/implements/user/booking.controller";
 import { upload } from "../../utils/multer";
+import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 
 const bookingRoute = express.Router();
 
@@ -10,12 +11,11 @@ bookingRoute.post(
   bookingContrller.createBooking.bind(bookingContrller)
 );
 
-// // Get user's bookings
-// router.get(
-//   "/user-bookings",
-//   authMiddleWare,
-//   bookingContrller.getUserBookings.bind(bookingContrller)
-// );
+bookingRoute.get(
+  "/bookings",
+  authMiddleWare,
+  bookingContrller.getUserBookings.bind(bookingContrller)
+);
 
 // // Get specific booking details
 // router.get(
@@ -40,18 +40,16 @@ bookingRoute.post(
 // );
 
 // // Cancel booking
-// router.delete(
-//   "/:bookingId",
-//   authMiddleWare,
-//   bookingContrller.cancelBooking.bind(bookingContrller)
-// );
+bookingRoute.delete(
+  "/:bookingId",
+  bookingContrller.cancelBooking.bind(bookingContrller)
+);
 
 // // Process payment
-// router.post(
-//   "/:bookingId/payment",
-//   authMiddleWare,
-//   bookingContrller.processPayment.bind(bookingContrller)
-// );
+bookingRoute.post(
+  "/:bookingId/payment",
+  bookingContrller.processPayment.bind(bookingContrller)
+);
 
 // // Check availability (public route)
 // router.get(

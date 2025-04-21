@@ -12,7 +12,6 @@ import { AppError } from "../../../utils/error";
 export class PaymentRepository implements IPaymentRepository {
   async create(payment: Partial<IHostelPayment>): Promise<IHostelPayment> {
     try {
-      console.log(payment, "from repo payment");
       const newPayment = new HostelPaymentModel(payment);
       return await newPayment.save();
     } catch (error) {

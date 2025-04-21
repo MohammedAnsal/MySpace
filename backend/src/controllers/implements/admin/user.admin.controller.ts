@@ -5,7 +5,7 @@ import {
 } from "../../../services/implements/admin/user.admin.service";
 import { IAdminController } from "../../interface/admin/admin.controller.interface";
 import Container, { Service } from "typedi";
-import { HttpStatus } from "../../../enums/http.status";
+import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import { AuthRequset } from "../../../types/api";
 import { IAdminUserService } from "../../../services/interface/admin/user.admin.service.interface";
 import { AppError } from "../../../utils/error";
@@ -58,11 +58,13 @@ class AdminUserController implements IAdminController {
 
   async verifyHostel(req: AuthRequset, res: Response): Promise<void> {
     try {
-      const { hostelId, isVerified } = req.body;
+      const { hostelId, reason, isVerified, isRejected } = req.body;
 
       const result = await this.adminServicee.verifyHostel(
         hostelId,
-        isVerified
+        reason,
+        isVerified,
+        isRejected
       );
 
       // Generate signed URLs for the verified/rejected hostel if data exists
@@ -230,6 +232,29 @@ class AdminUserController implements IAdminController {
       }
     }
   }
+
+  async getDashboard(req: AuthRequset, res: Response): Promise<any> {
+    try {
+      const getDashboardData = await this.adminServicee.getAdminDashboard();
+
+      if (getDashboardData) {
+        res.status(HttpStatus.OK).json({ success: true, getDashboardData });
+      } else
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: responseMessage.ACCESS_DENIED });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in getDashboardData:", error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
 }
 
-export const AdminUserControllerr = Container.get(AdminUserController);
+export const adminUserControllerr = Container.get(AdminUserController);

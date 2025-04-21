@@ -17,7 +17,8 @@ import {
   CookingPot,
   WashingMachine,
   Cctv,
-  GlassWaterIcon
+  GlassWaterIcon,
+  AlertTriangle
 } from 'lucide-react';
 
 interface ViewHostelProps {
@@ -73,6 +74,24 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
               <IoClose size={24} />
             </button>
           </div>
+
+          {hostel.is_rejected && hostel.reason && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="text-red-500 flex-shrink-0 w-5 h-5 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-red-700">Hostel Rejected</h4>
+                  <p className="text-sm text-gray-700 mt-1">
+                    <span className="font-medium">Reason: </span>
+                    {hostel.reason}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Please address these issues and resubmit your hostel for verification.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="p-6 space-y-8">
             {/* Image Gallery */}

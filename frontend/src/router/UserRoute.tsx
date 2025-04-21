@@ -18,6 +18,7 @@ import HostelDetails from "@/pages/user/Home/hostel/HostelDetails";
 import Checkout from "@/pages/user/Home/booking/BookingHostel";
 import { SuccessPayment } from "@/components/client/payment/SuccessPayment";
 import { CancelPayment } from "@/components/client/payment/CancelPayment";
+import { MyBookings } from "@/pages/user/Home/profile/bookings/MyBookings";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -92,6 +93,14 @@ export const UserRoutes: RouteObject[] = [
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
             <UserProfile />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "bookings",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <MyBookings />
           </ProtecteddRoute>
         ),
       },

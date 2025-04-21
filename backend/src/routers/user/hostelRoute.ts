@@ -18,4 +18,9 @@ hostelRoute.get(
   hostelController.getHostelById.bind(hostelController)
 );
 
+hostelRoute.get(
+  "/nearby-hostels",
+  hostelController.getNearbyHostels.bind(hostelController)
+);
+
 export default hostelRoute;

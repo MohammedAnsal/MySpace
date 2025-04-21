@@ -3,6 +3,7 @@ import { providerController } from "../../controllers/implements/provider/provid
 import { upload } from "../../utils/multer";
 // import { facilityController } from "../../controllers/implements/provider/facility.controller";
 import { hostelController } from "../../controllers/implements/provider/hostel.controller";
+import { bookingContrller } from "../../controllers/implements/user/booking.controller";
 
 const providerRoute = Router();
 
@@ -59,13 +60,24 @@ providerRoute.get(
 );
 
 providerRoute.put(
-  "/edit-hostel/:hostelId",upload.array("photos", 5),
+  "/edit-hostel/:hostelId",
+  upload.array("photos", 5),
   hostelController.editHostel.bind(hostelController)
 );
 
 providerRoute.delete(
   "/delete-hostel/:hostelId",
   hostelController.deleteHostel.bind(hostelController)
+);
+
+providerRoute.get(
+  "/bookings",
+  bookingContrller.getProviderBookings.bind(bookingContrller)
+);
+
+providerRoute.get(
+  "/dashboard",
+  providerController.getDashboard.bind(providerController)
 );
 
 export default providerRoute;

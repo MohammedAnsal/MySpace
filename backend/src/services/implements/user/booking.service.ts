@@ -80,15 +80,20 @@ export class BookingService implements IBookingService {
       }
 
       // Calculate costs and get transformed facilities
-      const { totalPrice, depositAmount, monthlyRent, transformedFacilities , firstMonthRent } =
-        await this.calculateBookingCost(
-          bookingData.hostelId,
-          bookingData.stayDurationInMonths,
-          selectedFacilitiess.map((facility) => ({
-            id: facility.id.toString(), // Convert ObjectId to string
-            duration: String(facility.duration),
-          }))
-        );
+      const {
+        totalPrice,
+        depositAmount,
+        monthlyRent,
+        transformedFacilities,
+        firstMonthRent,
+      } = await this.calculateBookingCost(
+        bookingData.hostelId,
+        bookingData.stayDurationInMonths,
+        selectedFacilitiess.map((facility) => ({
+          id: facility.id.toString(), // Convert ObjectId to string
+          duration: String(facility.duration),
+        }))
+      );
 
       // Create booking with S3 URL and transformed facilities
       const booking = await this.bookingRepository.createBooking({
@@ -149,9 +154,84 @@ export class BookingService implements IBookingService {
   //   return booking;
   // }
 
-  // async getUserBookings(userId: string): Promise<IBooking[]> {
-  //   return await this.bookingRepository.getUserBookings(userId);
-  // }
+  async getProviderBookings(providerId: string): Promise<IBooking[]> {
+    try {
+      // Get bookings from repository
+      const bookings = await this.bookingRepository.getProviderBookings(
+        providerId
+      );
+
+      // Generate signed URLs for proof documents
+      const bookingsWithSignedUrls = await Promise.all(
+        bookings.map(async (booking) => {
+          if (booking.proof) {
+            // Generate signed URL for the proof document
+            booking.proof = await this.s3Service.generateSignedUrl(
+              booking.proof
+            );
+          }
+          return booking;
+        })
+      );
+
+      console.log(bookingsWithSignedUrls, "m");
+
+      return bookingsWithSignedUrls;
+    } catch (error) {
+      console.error("Error in getProviderBookings:", error);
+      throw error;
+    }
+  }
+
+  async getUserBookings(userId: string): Promise<IBooking[]> {
+    try {
+      // Get bookings from repository
+      const bookings = await this.bookingRepository.getUserBookings(userId);
+
+      // Generate signed URLs for proof documents
+      const bookingsWithSignedUrls = await Promise.all(
+        bookings.map(async (booking) => {
+          if (booking.proof) {
+            // Generate signed URL for the proof document
+            booking.proof = await this.s3Service.generateSignedUrl(
+              booking.proof
+            );
+          }
+          return booking;
+        })
+      );
+
+      return bookingsWithSignedUrls;
+    } catch (error) {
+      console.error("Error in getUserBookings:", error);
+      throw error;
+    }
+  }
+
+  async getAllBookings(): Promise<IBooking[]> {
+    try {
+      // Get bookings from repository
+      const bookings = await this.bookingRepository.getAllBookings();
+
+      // Generate signed URLs for proof documents
+      const bookingsWithSignedUrls = await Promise.all(
+        bookings.map(async (booking) => {
+          if (booking.proof) {
+            // Generate signed URL for the proof document
+            booking.proof = await this.s3Service.generateSignedUrl(
+              booking.proof
+            );
+          }
+          return booking;
+        })
+      );
+
+      return bookingsWithSignedUrls;
+    } catch (error) {
+      console.error("Error in getAllBookings:", error);
+      throw error;
+    }
+  }
 
   // async getHostelBookings(hostelId: string): Promise<IBooking[]> {
   //   return await this.bookingRepository.getHostelBookings(hostelId);
@@ -227,56 +307,56 @@ export class BookingService implements IBookingService {
   //   return updatedBooking;
   // }
 
-  // async cancelBooking(bookingId: string): Promise<IBooking> {
-  //   const booking = await this.bookingRepository.getBookingById(bookingId);
-  //   if (!booking) {
-  //     throw new AppError("Booking not found", 404);
-  //   }
+  async cancelBooking(bookingId: string): Promise<IBooking> {
+    const booking = await this.bookingRepository.getBookingById(bookingId);
+    if (!booking) {
+      throw new AppError("Booking not found", 404);
+    }
 
-  //   if (booking.paymentStatus === "cancelled") {
-  //     throw new AppError("Booking is already cancelled", 400);
-  //   }
+    if (booking.paymentStatus === "cancelled") {
+      throw new AppError("Booking is already cancelled", 400);
+    }
 
-  //   const cancelledBooking = await this.bookingRepository.cancelBooking(
-  //     bookingId
-  //   );
-  //   if (!cancelledBooking) {
-  //     throw new AppError("Failed to cancel booking", 500);
-  //   }
+    const cancelledBooking = await this.bookingRepository.cancelBooking(
+      bookingId
+    );
+    if (!cancelledBooking) {
+      throw new AppError("Failed to cancel booking", 500);
+    }
 
-  //   return cancelledBooking;
-  // }
+    return cancelledBooking;
+  }
 
-  // async processPayment(
-  //   bookingId: string,
-  //   paymentDetails: any
-  // ): Promise<IBooking> {
-  //   const booking = await this.bookingRepository.getBookingById(bookingId);
-  //   if (!booking) {
-  //     throw new AppError("Booking not found", 404);
-  //   }
+  async processPayment(
+    bookingId: string,
+    paymentDetails: any
+  ): Promise<IBooking> {
+    const booking = await this.bookingRepository.getBookingById(bookingId);
+    if (!booking) {
+      throw new AppError("Booking not found", 404);
+    }
 
-  //   if (booking.paymentStatus === "paid") {
-  //     throw new AppError("Booking is already paid", 400);
-  //   }
+    if (booking.paymentStatus === "completed") {
+      throw new AppError("Booking is already paid", 400);
+    }
 
-  //   if (booking.paymentStatus === "cancelled") {
-  //     throw new AppError("Cannot process payment for cancelled booking", 400);
-  //   }
+    if (booking.paymentStatus === "cancelled") {
+      throw new AppError("Cannot process payment for cancelled booking", 400);
+    }
 
-  //   // Process payment logic here
-  //   // ... payment gateway integration
+    // Process payment logic here
+    // ... payment gateway integration
 
-  //   const updatedBooking = await this.bookingRepository.updatePaymentStatus(
-  //     bookingId,
-  //     "paid"
-  //   );
-  //   if (!updatedBooking) {
-  //     throw new AppError("Failed to update payment status", 500);
-  //   }
+    const updatedBooking = await this.bookingRepository.updatePaymentStatus(
+      bookingId,
+      "completed"
+    );
+    if (!updatedBooking) {
+      throw new AppError("Failed to update payment status", 500);
+    }
 
-  //   return updatedBooking;
-  // }
+    return updatedBooking;
+  }
 
   async checkAvailability(
     hostelId: string,
@@ -358,8 +438,8 @@ export class BookingService implements IBookingService {
 
       const firstMonthRent =
         monthlyRent + depositAmount + facilityInitialCharge;
-      
-      console.log(firstMonthRent)
+
+      console.log(firstMonthRent);
 
       const totalPrice =
         monthlyRent * stayDurationInMonths + depositAmount + facilityCharges;

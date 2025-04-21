@@ -1,6 +1,6 @@
 import { Schema, model, Types } from "mongoose";
 
-export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
+export type PaymentStatus = "pending" | "completed" | "failed";
 
 export interface IHostelPayment {
   _id: Types.ObjectId;
@@ -34,7 +34,7 @@ const HostelPaymentSchema = new Schema<IHostelPayment>(
     currency: { type: String, default: "INR" },
     status: {
       type: String,
-      enum: ["pending", "completed", "failed", "refunded"],
+      enum: ["pending", "completed", "failed"],
       default: "pending",
     },
     paymentMethod: { type: String, required: true },
