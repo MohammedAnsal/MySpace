@@ -35,7 +35,7 @@ export const SuccessPayment = () => {
             Payment Successful!
           </h1>
           <p className="text-gray-600 mb-8">
-            Thank you for your purchase. Your payment has been processed
+            Thank you for your booking hostel. Your payment has been processed
             successfully.
           </p>
           <motion.button
@@ -44,7 +44,7 @@ export const SuccessPayment = () => {
             onClick={() => navigate("/")}
             className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200"
           >
-            Return to Dashboard
+            Return to Home
           </motion.button>
         </motion.div>
       </motion.div>

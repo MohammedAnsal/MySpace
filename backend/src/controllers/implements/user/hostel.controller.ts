@@ -93,6 +93,8 @@ class HostelController {
     try {
       const result = await this.hostelServicee.getVerifiedHostelsForHome();
 
+      console.log(result , 'from controllerrrrrrrrrrr')
+
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
@@ -157,6 +159,63 @@ class HostelController {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch hostel details",
+        });
+      }
+    }
+  }
+
+  async getNearbyHostels(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const { latitude, longitude, radius = 5 } = req.query;
+      
+      if (!latitude || !longitude) {
+        throw new AppError("Latitude and longitude are required", HttpStatus.BAD_REQUEST);
+      }
+      
+      const result = await this.hostelServicee.getNearbyHostels(
+        parseFloat(latitude as string),
+        parseFloat(longitude as string),
+        parseFloat(radius as string)
+      );
+
+      if (result.data && Array.isArray(result.data)) {
+        const hostelsWithSignedUrls = await Promise.all(
+          result.data.map(async (hostel) => {
+            const signedPhotos = await Promise.all(
+              (hostel.photos || []).map((photo) =>
+                this.s3ServiceInstance.generateSignedUrl(photo)
+              )
+            );
+            return {
+              ...hostel.toObject(),
+              photos: signedPhotos,
+            };
+          })
+        );
+
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: hostelsWithSignedUrls,
+        });
+      } else {
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: result.message,
+          data: [],
+        });
+      }
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to fetch nearby hostels",
         });
       }
     }

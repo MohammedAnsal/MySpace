@@ -27,7 +27,7 @@ export interface IBooking extends Document {
   firstMonthRent: number;
   depositAmount: number;
   monthlyRent: number;
-  paymentStatus: "pending" | "paid" | "cancelled";
+  paymentStatus: "pending" | "completed" | "cancelled";
 
   proof: string;
 
@@ -67,7 +67,7 @@ const BookingSchema: Schema<IBooking> = new Schema(
     monthlyRent: { type: Number, required: true },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "cancelled"],
+      enum: ["pending", "completed", "cancelled"],
       default: "pending",
     },
 

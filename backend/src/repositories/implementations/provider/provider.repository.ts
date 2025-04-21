@@ -46,23 +46,24 @@ export class ProviderRepository
     }
   }
 
-   async updatePassword(
-      email: string,
-      newPassword: string
-    ): Promise<IUser | null> {
-      try {
-  
-        const updatePassword = await User.findOneAndUpdate(
-          { email },
-          { $set: { password: newPassword } },
-          { new: true }
-        );
-  
-        return updatePassword;
-      } catch (error) {
-        return Promise.reject(
-          new Error(`Error updating user password: ${error}`)
-        );
-      }
+  async updatePassword(
+    email: string,
+    newPassword: string
+  ): Promise<IUser | null> {
+    try {
+      const updatePassword = await User.findOneAndUpdate(
+        { email },
+        { $set: { password: newPassword } },
+        { new: true }
+      );
+
+      return updatePassword;
+    } catch (error) {
+      return Promise.reject(
+        new Error(`Error updating user password: ${error}`)
+      );
     }
+  }
+
+
 }

@@ -104,6 +104,37 @@ export class HostelRepository implements IHostelRepository {
       throw error;
     }
   }
+
+  async getNearbyHostels(latitude: number, longitude: number, maxDistance: number = 5000): Promise<IHostel[]> {
+    try {
+      // Find hostels within the specified distance (in meters)
+      const hostels = await Hostel.find({
+        is_verified: true,
+        is_rejected: false,
+      })
+      .populate({
+        path: 'location',
+        match: {
+          location: {
+            $near: {
+              $geometry: {
+                type: 'Point',
+                coordinates: [longitude, latitude] // MongoDB uses [lng, lat] order
+              },
+              $maxDistance: maxDistance // in meters
+            }
+          }
+        }
+      })
+      .populate("provider_id", "fullName email phone")
+      .populate("facilities");
+      
+      // Filter out hostels whose location didn't match (will be null)
+      return hostels.filter(hostel => hostel.location);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const hostelRepository = Container.get(HostelRepository);

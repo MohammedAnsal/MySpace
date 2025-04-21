@@ -5,4 +5,5 @@ export interface IAdminController {
   fetchProviders(req: Request, res: Response): Promise<any>;
   updateUser(req: Request, res: Response): Promise<any>;
   
+  
 }

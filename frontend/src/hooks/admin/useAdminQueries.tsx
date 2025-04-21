@@ -1,5 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllProviders, getAllUsers, getUnverifiedHostels, getHostelById, getVerifiedHostels } from "@/services/Api/admin/adminApi";
+import {
+  getAllProviders,
+  getAllUsers,
+  getUnverifiedHostels,
+  getHostelById,
+  getVerifiedHostels,
+  listAdminBookings,
+  getAdminDashboard,
+} from "@/services/Api/admin/adminApi";
 
 const fetchUsers = async () => {
   const { data } = await getAllUsers();
@@ -59,5 +67,53 @@ export const useVerifiedHostels = () => {
   return useQuery({
     queryKey: ["verified-hostels"],
     queryFn: fetchVerifiedHostels,
+  });
+};
+
+const fetchAdminBookings = async () => {
+  const response = await listAdminBookings();
+  return response ?? [];
+};
+
+export const useProviderBookings = () => {
+  return useQuery({
+    queryKey: ["admin-bookings"],
+    queryFn: () => fetchAdminBookings(),
+  });
+};
+
+interface DashboardData {
+  users: number;
+  providers: number;
+  hostels: number;
+  bookings: number;
+  totalRevenue: number;
+  revenueData?: {
+    weekly: Array<{ week: string; revenue: number }>;
+    monthly: Array<{ month: string; revenue: number }>;
+    yearly: Array<{ year: number; revenue: number }>;
+  };
+}
+
+const fetchAdminDashboard = async (): Promise<DashboardData> => {
+  const response = await getAdminDashboard();
+  return response || { 
+    users: 0, 
+    providers: 0,
+    hostels: 0, 
+    bookings: 0, 
+    totalRevenue: 0,
+    revenueData: {
+      weekly: [],
+      monthly: [],
+      yearly: []
+    }
+  };
+};
+
+export const useAdminDashboard = () => {
+  return useQuery<DashboardData>({
+    queryKey: ["admin-dashboard"],
+    queryFn: fetchAdminDashboard,
   });
 };

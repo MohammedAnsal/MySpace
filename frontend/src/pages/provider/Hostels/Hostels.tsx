@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHostel } from "@/services/Api/providerApi";
+import { verifyHostel } from "@/services/Api/admin/adminApi";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -11,6 +12,8 @@ import {
   Edit2,
   Trash2,
   Eye,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loading from "@/components/global/Loading";
@@ -30,6 +33,7 @@ const Hostels = () => {
   const [hostelToDelete, setHostelToDelete] = useState<string | null>(null);
   const [selectedHostel, setSelectedHostel] = useState<Hostel | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [reapplyLoading, setReapplyLoading] = useState<string | null>(null);
 
   const { data: hostels = [], isLoading, error } = useProviderHostels();
 
@@ -43,6 +47,30 @@ const Hostels = () => {
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to delete hostel");
+    },
+  });
+
+  const reapplyMutation = useMutation({
+    mutationFn: (params: {
+      hostelId: string;
+      reason: string;
+      isVerified: boolean;
+      isRejected: boolean;
+    }) =>
+      verifyHostel(
+        params.hostelId,
+        params.reason,
+        params.isVerified,
+        params.isRejected
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["provider-hostels"] });
+      toast.success("Hostel resubmitted for verification");
+      setReapplyLoading(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to resubmit hostel");
+      setReapplyLoading(null);
     },
   });
 
@@ -74,6 +102,16 @@ const Hostels = () => {
   const handleViewHostel = (hostel: Hostel) => {
     setSelectedHostel(hostel);
     setIsViewModalOpen(true);
+  };
+
+  const handleReapply = (hostelId: string) => {
+    setReapplyLoading(hostelId);
+    reapplyMutation.mutate({
+      hostelId,
+      reason: "",
+      isVerified: false,
+      isRejected:true
+    });
   };
 
   if (error) {
@@ -123,7 +161,7 @@ const Hostels = () => {
 
           {isLoading && (
             <div className="flex items-center justify-center min-h-[400px]">
-              <Loading text="Loading properties..." />
+              <Loading text="loading properties..." color="#FFB300" />
             </div>
           )}
 
@@ -152,10 +190,16 @@ const Hostels = () => {
                         className={`px-3 py-1.5 rounded-full text-sm font-medium ${
                           hostel.is_verified
                             ? "bg-green-500/90 text-white"
+                            : hostel.is_rejected
+                            ? "bg-red-500/90 text-white"
                             : "bg-yellow-500/90 text-white"
                         }`}
                       >
-                        {hostel.is_verified ? "Verified" : "Pending"}
+                        {hostel.is_verified
+                          ? "Verified"
+                          : hostel.is_rejected
+                          ? "Rejected"
+                          : "Pending"}
                       </span>
                     </div>
                   </div>
@@ -164,6 +208,35 @@ const Hostels = () => {
                     <h3 className="text-xl font-semibold text-gray-900 mb-3">
                       {hostel.hostel_name}
                     </h3>
+
+                    {hostel.is_rejected && hostel.reason && (
+                      <div className="mb-3 p-3 bg-red-50 border border-red-100 rounded-md">
+                        <div className="flex gap-2">
+                          <AlertTriangle className="text-red-500 flex-shrink-0 w-4 h-4 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-medium text-red-700">
+                              Rejection Reason:
+                            </p>
+                            <p className="text-xs text-gray-700 mt-1">
+                              {hostel.reason}
+                            </p>
+
+                            <button
+                              onClick={() => handleReapply(hostel._id)}
+                              disabled={reapplyLoading === hostel._id}
+                              className="mt-2 flex items-center text-xs bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded transition-colors"
+                            >
+                              {reapplyLoading === hostel._id ? (
+                                <Loading color="#ffffff" className="mr-1" />
+                              ) : (
+                                <RefreshCw className="w-3 h-3 mr-1" />
+                              )}
+                              Reapply for Verification
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center text-gray-600">
@@ -281,6 +354,7 @@ const Hostels = () => {
             setIsViewModalOpen(false);
             setSelectedHostel(null);
           }}
+          onReapply={handleReapply}
         />
       )}
     </>

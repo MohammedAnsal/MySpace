@@ -75,11 +75,7 @@ export class AdminFacilityController {
       //   });
       // }
 
-      console.log('kerii')
-
       const facilities = await this.adminFacilityService.findAllFacilities();
-
-      console.log(facilities)
 
       return res.status(200).json({
         success: true,

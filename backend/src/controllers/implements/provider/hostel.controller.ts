@@ -149,14 +149,14 @@ export class HostelController {
       if (result.hostelData) {
         // Generate signed URLs for photos
         const hostelWithSignedUrls = {
-          ...(Array.isArray(result.hostelData) 
-            ? result.hostelData[0] 
-            : result.hostelData
-          ),
+          ...(Array.isArray(result.hostelData)
+            ? result.hostelData[0]
+            : result.hostelData),
           photos: await Promise.all(
-            ((Array.isArray(result.hostelData) 
-              ? result.hostelData[0].photos 
-              : result.hostelData.photos) || []
+            (
+              (Array.isArray(result.hostelData)
+                ? result.hostelData[0].photos
+                : result.hostelData.photos) || []
             ).map((photo: string) =>
               this.s3ServiceInstance.generateSignedUrl(photo)
             )
@@ -194,55 +194,81 @@ export class HostelController {
     try {
       const { hostelId } = req.params;
       const files = req.files as Express.Multer.File[];
-    
-     const updateData: any = {};
 
-      const numberFields = ['monthly_rent', 'deposit_amount', 'maximum_occupancy', 'total_space'];
-      const stringFields = ['hostel_name', 'description', 'gender', 'rules', 'deposit_terms'];
+      const updateData: any = {};
 
-      stringFields.forEach(field => {
+      const numberFields = [
+        "monthly_rent",
+        "deposit_amount",
+        "maximum_occupancy",
+        "total_space",
+      ];
+      const stringFields = [
+        "hostel_name",
+        "description",
+        "gender",
+        "rules",
+        "deposit_terms",
+      ];
+
+      stringFields.forEach((field) => {
         if (req.body[field]) {
           updateData[field] = req.body[field];
         }
       });
 
-      numberFields.forEach(field => {
+      numberFields.forEach((field) => {
         if (req.body[field]) {
           updateData[field] = Number(req.body[field]);
         }
       });
 
+      // First, get the existing hostel to access its location ID
+      const existingHostel = await this.hostelServicee.getHostelById(hostelId);
+
+      if (!existingHostel.success || !existingHostel.hostelData) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
+
+      // Extract the location ID from the hostel data
+      let locationId;
+      if (Array.isArray(existingHostel.hostelData)) {
+        const location = existingHostel.hostelData[0].location as any;
+        locationId = location?._id?.toString();
+      } else {
+        const location = existingHostel.hostelData.location as any;
+        locationId = location?._id?.toString();
+      }
+
+      if (!locationId) {
+        throw new AppError("Location ID not found", HttpStatus.NOT_FOUND);
+      }
+
+      // If location data is provided, update the existing location instead of creating a new one
       if (req.body.latitude && req.body.longitude && req.body.address) {
         const locationData = {
           latitude: Number(req.body.latitude),
           longitude: Number(req.body.longitude),
-          address: req.body.address
+          address: req.body.address,
         };
 
-        const locationResult = await this.locationServicee.createLocation(locationData);
-        if (locationResult.success && locationResult.locationData) {
-          if (Array.isArray(locationResult.locationData)) {
-            updateData.location = locationResult.locationData[0]._id;
-          } else {
-            updateData.location = locationResult.locationData._id;
-          }
-        }
+        // Now update the existing location
+        await this.locationServicee.updateLocation(locationId, locationData);
       }
 
       if (req.body.amenities) {
         try {
           updateData.amenities = JSON.parse(req.body.amenities);
         } catch (e) {
-          console.error('Error parsing amenities:', e);
+          console.error("Error parsing amenities:", e);
         }
       }
 
       if (req.body.facilities) {
         try {
           updateData.facilities = JSON.parse(req.body.facilities);
-          console.log(updateData.facilities);
         } catch (e) {
-          console.error('Error parsing facilities:', e);
+          console.error("Error parsing facilities:", e);
         }
       }
 
@@ -250,7 +276,7 @@ export class HostelController {
         try {
           updateData.photos = JSON.parse(req.body.existingPhotos);
         } catch (e) {
-          console.error('Error parsing existing photos:', e);
+          console.error("Error parsing existing photos:", e);
         }
       }
 
@@ -260,17 +286,23 @@ export class HostelController {
           "hostels"
         );
         const newImageUrls = uploadResults.map((result) => result.Location);
-        
-        updateData.photos = updateData.photos 
+
+        updateData.photos = updateData.photos
           ? [...updateData.photos, ...newImageUrls]
           : newImageUrls;
       }
 
       if (Object.keys(updateData).length === 0) {
-        throw new AppError("No valid data provided for update", HttpStatus.BAD_REQUEST);
+        throw new AppError(
+          "No valid data provided for update",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
-      const result = await this.hostelServicee.editHostelById(hostelId, updateData);
+      const result = await this.hostelServicee.editHostelById(
+        hostelId,
+        updateData
+      );
 
       res.status(HttpStatus.OK).json({
         success: true,

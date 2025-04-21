@@ -32,15 +32,19 @@ export interface IBookingService {
 
   // getBookingDetails(bookingId: string): Promise<IBooking>;
 
-  // getUserBookings(userId: string): Promise<IBooking[]>;
+  getUserBookings(userId: string): Promise<IBooking[]>;
+
+  getProviderBookings(providerId: string): Promise<IBooking[]>;
+
+  getAllBookings(): Promise<IBooking[]>;
 
   // getHostelBookings(hostelId: string): Promise<IBooking[]>;
 
   // updateBooking(bookingId: string, updateData: BookingUpdateDTO): Promise<IBooking>;
 
-  // cancelBooking(bookingId: string): Promise<IBooking>;
+  cancelBooking(bookingId: string): Promise<IBooking>;
 
-  // processPayment(bookingId: string, paymentDetails: any): Promise<IBooking>;
+  processPayment(bookingId: string, paymentDetails: any): Promise<IBooking>;
 
   checkAvailability(
     hostelId: string,

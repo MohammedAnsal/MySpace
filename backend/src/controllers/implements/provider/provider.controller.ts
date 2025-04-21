@@ -13,7 +13,7 @@ export class ProviderController implements IProviderController {
   async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
       const user = req.user;
-      
+
       const { success, data } = await this.providerService.findProvider(
         user as string
       );
@@ -111,6 +111,33 @@ export class ProviderController implements IProviderController {
         success: false,
         message: "An unexpected error occurred. Please try again later.",
       });
+    }
+  }
+
+  async getDashboard(req: AuthRequset, res: Response): Promise<any> {
+    try {
+      const providerId = req.user;
+
+      const getDashboardData = await this.providerService.getProviderDashboard(
+        providerId as string
+      );
+
+      if (getDashboardData) {
+        res.status(HttpStatus.OK).json({ success: true, getDashboardData });
+      } else
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: responseMessage.ACCESS_DENIED });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ message: error.message, success: false });
+      }
+      console.error("Error in getDashboardData:", error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
     }
   }
 }

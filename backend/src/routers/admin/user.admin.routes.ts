@@ -1,42 +1,43 @@
 import { Router } from "express";
-import { AdminUserControllerr } from "../../controllers/implements/admin/user.admin.controller";
+import { adminUserControllerr } from "../../controllers/implements/admin/user.admin.controller";
 import { adminFacilityController } from "../../controllers/implements/admin/facility.controller";
+import { bookingContrller } from "../../controllers/implements/user/booking.controller";
 
 const adminUserRoute = Router();
 
 adminUserRoute.get(
   "/users",
-  AdminUserControllerr.fetchUsers.bind(AdminUserControllerr)
+  adminUserControllerr.fetchUsers.bind(adminUserControllerr)
 );
 
 adminUserRoute.get(
   "/providers",
-  AdminUserControllerr.fetchProviders.bind(AdminUserControllerr)
+  adminUserControllerr.fetchProviders.bind(adminUserControllerr)
 );
 
 adminUserRoute.put(
   "/updateUser",
-  AdminUserControllerr.updateUser.bind(AdminUserControllerr)
+  adminUserControllerr.updateUser.bind(adminUserControllerr)
 );
 
 adminUserRoute.get(
   "/unverified-hostels",
-  AdminUserControllerr.getUnverifiedHostels.bind(AdminUserControllerr)
+  adminUserControllerr.getUnverifiedHostels.bind(adminUserControllerr)
 );
 
 adminUserRoute.put(
   "/verify-hostel",
-  AdminUserControllerr.verifyHostel.bind(AdminUserControllerr)
+  adminUserControllerr.verifyHostel.bind(adminUserControllerr)
 );
 
 adminUserRoute.get(
   "/verified-hostels",
-  AdminUserControllerr.getVerifiedHostels.bind(AdminUserControllerr)
+  adminUserControllerr.getVerifiedHostels.bind(adminUserControllerr)
 );
 
 adminUserRoute.get(
   "/hostel/:hostelId",
-  AdminUserControllerr.getHostelById.bind(AdminUserControllerr)
+  adminUserControllerr.getHostelById.bind(adminUserControllerr)
 );
 
 adminUserRoute.post(
@@ -57,6 +58,16 @@ adminUserRoute.put(
 adminUserRoute.delete(
   "/facility/:facilityId",
   adminFacilityController.deleteFacility.bind(adminFacilityController)
+);
+
+adminUserRoute.get(
+  "/bookings",
+  bookingContrller.getAllBookings.bind(bookingContrller)
+);
+
+adminUserRoute.get(
+  "/dashboard",
+  adminUserControllerr.getDashboard.bind(adminUserControllerr)
 );
 
 export default adminUserRoute;

@@ -186,9 +186,9 @@ export const updateHostel = async (id: string, formData: FormData) => {
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-        withCredentials: true
+        withCredentials: true,
       }
     );
 
@@ -208,6 +208,32 @@ export const deleteHostel = async (hostelId: string) => {
       `/provider/delete-hostel/${hostelId}`
     );
     return handleResponse(response.data.data, "Error delete hostel");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const listProviderBookings = async () => {
+  try {
+    const response = await privateApi.get("/provider/bookings");
+    console.log(response, "from provider api");
+
+    return handleResponse(
+      response.data.data,
+      "Error in list provider bookings"
+    );
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getProviderDashboard = async () => {
+  try {
+    const response = await privateApi.get("/provider/dashboard");
+    return handleResponse(
+      response.data.getDashboardData,
+      "Error fetching provider dashboard"
+    );
   } catch (error) {
     handleError(error);
   }

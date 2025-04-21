@@ -5,6 +5,8 @@ import {
   Calendar,
   LogOut,
   MapPin,
+  MessageCircle,
+  MessageSquareText,
   SquareLibrary,
   User,
   Wallet,
@@ -18,11 +20,11 @@ import Navbar from "@/components/layouts/Navbar";
 
 // Menu items for the sidebar
 const menuItems = [
-  { name: "My Account", path: "/user/profile", icon: <User /> },
-  { name: "My Bookings", path: "/bookings", icon: <Calendar /> },
-  { name: "My Address", path: "/address", icon: <MapPin /> },
-  { name: "My Wallet", path: "/wallet", icon: <Wallet /> },
-  { name: "My Facility", path: "/facility", icon: <SquareLibrary /> },
+  { name: "My Profile", path: "/user/profile", icon: <User /> },
+  { name: "My Bookings", path: "/user/bookings", icon: <Calendar /> },
+  { name: "My Wallet", path: "/user/wallet", icon: <Wallet /> },
+  { name: "My Facility", path: "/user/facility", icon: <SquareLibrary /> },
+  { name: "My Chat", path: "/chat", icon: <MessageSquareText /> },
 ];
 
 const ProfileLayout: React.FC = () => {
@@ -78,17 +80,17 @@ const ProfileLayout: React.FC = () => {
           </div>
 
           {/* Sidebar - Fixed height and position */}
-          <div className="md:w-64 md:ml-10 md:mt-16 md:sticky md:self-start md:top-4">
+          <div className="md:w-64 md:ml-10 md:mt-10 md:sticky md:top-4 flex-shrink-0">
             <aside
               className={`
-                bg-[#b9a089] text-white w-full rounded-lg
-                md:flex md:flex-col md:h-auto
+                bg-[#b9a089] text-white w-full rounded-lg h-full
+                md:flex md:flex-col 
                 ${isMobileMenuOpen ? "block" : "hidden md:block"}
                 transition-all duration-300 ease-in-out
               `}
             >
-              <div className="p-6 space-y-8">
-                <div className="space-y-6">
+              <div className="p-6 space-y-8 h-full flex flex-col">
+                <div className="space-y-6 flex-grow">
                   {menuItems.map((item) => (
                     <Link
                       key={item.name}
@@ -112,7 +114,7 @@ const ProfileLayout: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-3 py-2 px-3 rounded-md w-full
-                  hover:bg-white/10 transition duration-150 mt-auto"
+                  hover:bg-white/10 transition duration-150"
                 >
                   <LogOut />
                   <span className="font-light tracking-wider text-lg">

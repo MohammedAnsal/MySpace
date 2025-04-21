@@ -205,24 +205,19 @@ export const bookingHostel = async (bookingData: FormData) => {
       throw new Error("Booking creation failed");
     }
 
-    console.log(bookingResponse,'aaaaa')
-
     // Then create the payment session
-    const paymentResponse = await api.post(
-      `/user/payments/${bookingResponse.data.data.hostelId._id}`,
-      {
-        hostelId: bookingResponse.data.data.hostelId._id,
-        userId: bookingResponse.data.data.userId._id,
-        providerId: bookingResponse.data.data.providerId,
+    const paymentResponse = await api.post(`/user/payments/booking`, {
+      hostelId: bookingResponse.data.data.hostelId._id,
+      userId: bookingResponse.data.data.userId._id,
+      providerId: bookingResponse.data.data.providerId,
+      bookingId: bookingResponse.data.data._id,
+      amount: bookingResponse.data.data.firstMonthRent,
+      currency: "USD",
+      metadata: {
         bookingId: bookingResponse.data.data._id,
-        amount: bookingResponse.data.data.firstMonthRent,
-        currency: "USD",
-        metadata: {
-          bookingId: bookingResponse.data.data._id,
-          stayDuration: bookingResponse.data.data.stayDurationInMonths,
-        },
-      }
-    );
+        stayDuration: bookingResponse.data.data.stayDurationInMonths,
+      },
+    });
 
     // Redirect to Stripe checkout
     if (paymentResponse.data?.data?.checkoutUrl) {
@@ -234,5 +229,36 @@ export const bookingHostel = async (bookingData: FormData) => {
     return bookingResponse.data.data;
   } catch (error) {
     handleError(error);
+  }
+};
+
+export const listUserBookings = async () => {
+  try {
+    const response = await api.get("/user/bookings");
+
+    return handleResponse(response.data.data, "Error in list user bookings");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const findNearbyHostels = async (
+  latitude: number,
+  longitude: number,
+  radius: number = 5
+): Promise<Hostel[] | undefined> => {
+  try {
+    const queryParams = new URLSearchParams();
+    queryParams.append("latitude", latitude.toString());
+    queryParams.append("longitude", longitude.toString());
+    queryParams.append("radius", radius.toString());
+
+    const response = await api.get<ApiResponse<Hostel[]>>(
+      `/user/nearby-hostels?${queryParams.toString()}`
+    );
+    return handleResponse(response.data.data, "Error finding nearby hostels");
+  } catch (error) {
+    handleError(error);
+    return undefined;
   }
 };

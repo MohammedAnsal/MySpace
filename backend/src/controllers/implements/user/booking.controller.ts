@@ -11,7 +11,7 @@ class BookingController implements IBookingController {
   private bookingService: IBookingService;
 
   constructor() {
-    this.bookingService = bookingService
+    this.bookingService = bookingService;
   }
 
   async createBooking(req: AuthRequset, res: Response): Promise<void> {
@@ -102,33 +102,91 @@ class BookingController implements IBookingController {
   //   }
   // }
 
-  // async getUserBookings(req: AuthRequset, res: Response): Promise<void> {
-  //   try {
-  //     const userId = req.user?.id;
-  //     if (!userId) {
-  //       throw new AppError("User not authenticated", 401);
-  //     }
+  async getProviderBookings(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const providerId = req.user;
+      if (!providerId) {
+        throw new AppError("User not authenticated", 401);
+      }
 
-  //     const bookings = await this.bookingService.getUserBookings(userId);
+      const bookings = await this.bookingService.getProviderBookings(
+        providerId
+      );
 
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: bookings,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       res.status(500).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
+      res.status(200).json({
+        status: "success",
+        data: bookings,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          status: "error",
+          message: error.message,
+        });
+      } else {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+        });
+      }
+    }
+  }
+
+  async getUserBookings(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const userId = req.user;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
+
+      const bookings = await this.bookingService.getUserBookings(userId);
+
+      res.status(200).json({
+        status: "success",
+        data: bookings,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          status: "error",
+          message: error.message,
+        });
+      } else {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+        });
+      }
+    }
+  }
+
+  async getAllBookings(req: Request, res: Response): Promise<void> {
+    try {
+      // const userId = req.user;
+      // if (!userId) {
+      //   throw new AppError("Admin not authenticated", 401);
+      // }
+
+      const bookings = await this.bookingService.getAllBookings();
+
+      res.status(200).json({
+        status: "success",
+        data: bookings,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          status: "error",
+          message: error.message,
+        });
+      } else {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+        });
+      }
+    }
+  }
 
   // async getHostelBookings(req: Request, res: Response): Promise<void> {
   //   try {
@@ -189,60 +247,60 @@ class BookingController implements IBookingController {
   //   }
   // }
 
-  // async cancelBooking(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { bookingId } = req.params;
-  //     const cancelledBooking = await this.bookingService.cancelBooking(
-  //       bookingId
-  //     );
+  async cancelBooking(req: Request, res: Response): Promise<void> {
+    try {
+      const { bookingId } = req.params;
+      const cancelledBooking = await this.bookingService.cancelBooking(
+        bookingId
+      );
 
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: cancelledBooking,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       res.status(500).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
+      res.status(200).json({
+        status: "success",
+        data: cancelledBooking,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          status: "error",
+          message: error.message,
+        });
+      } else {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+        });
+      }
+    }
+  }
 
-  // async processPayment(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { bookingId } = req.params;
-  //     const paymentDetails = req.body;
+  async processPayment(req: Request, res: Response): Promise<void> {
+    try {
+      const { bookingId } = req.params;
+      const paymentDetails = req.body;
 
-  //     const updatedBooking = await this.bookingService.processPayment(
-  //       bookingId,
-  //       paymentDetails
-  //     );
+      const updatedBooking = await this.bookingService.processPayment(
+        bookingId,
+        paymentDetails
+      );
 
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: updatedBooking,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       res.status(500).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
+      res.status(200).json({
+        status: "success",
+        data: updatedBooking,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          status: "error",
+          message: error.message,
+        });
+      } else {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+        });
+      }
+    }
+  }
 
   async checkAvailability(req: Request, res: Response): Promise<void> {
     try {

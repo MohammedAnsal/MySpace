@@ -35,6 +35,8 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+app.use("/user/payments/webhook", express.raw({ type: "application/json" }));
+
 app.use(morgan(morganFormat, morganOptions));
 
 app.use(cors(corsOptions));
@@ -44,6 +46,7 @@ app.use(cookieParser());
 
 app.use("/auth", authRoute, authProviderRoute, authAdminRoute);
 app.use("/admin", adminUserRoute);
+app.use("/user/payments", paymentRoute);
 app.use(
   "/user",
   userTokenBlackList,
@@ -51,8 +54,8 @@ app.use(
   autherization,
   userRoute,
   hostelRoute,
-  bookingRoute,
-  paymentRoute
+  bookingRoute
+  // paymentRoute
 );
 app.use(
   "/provider",
