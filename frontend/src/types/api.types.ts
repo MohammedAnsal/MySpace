@@ -5,6 +5,8 @@ export interface HostelFilters {
   amenities?: string[];
   search?: string;
   sortBy?: 'asc' | 'desc';
+  minRating?: number;
+  sortByRating?: boolean;
 }
 
 export interface ApiResponse<T> {

@@ -3,6 +3,7 @@ import { Calendar, Clock, CreditCard, Home, MapPin, Phone, User, FileCheck, Aler
 import { useUserBookings } from '@/hooks/user/useUserQueries';
 import Loading from '@/components/global/Loading';
 import BookingDetails from './components/BookingDetails';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Facility {
   facilityId: {
@@ -54,11 +55,9 @@ export const MyBookings = () => {
   );
   const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
   
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const bookingsPerPage = 2; // Show 2 bookings per page
+  const bookingsPerPage = 2; 
 
-  // Reset to first page when changing tabs
   useEffect(() => {
     setCurrentPage(1);
     setExpandedBookingId(null);
@@ -95,12 +94,6 @@ export const MyBookings = () => {
 
   // Extract bookings from the API response structure
   const bookings: Booking[] = bookingsData || [];
-
-  const s = bookings.filter((booking) => {
-   return booking.paymentStatus
-  });
-
-  console.log(s)
   
   const filteredBookings = bookings.filter(booking => {
     if (activeTab === 'all') return true;
@@ -206,145 +199,205 @@ export const MyBookings = () => {
   };
 
   return (
-    <div className="p-4 sm:p-8 mt-4 max-w-6xl mx-auto bg-white rounded-lg shadow-md h-[600px]">
-      <h2 className="text-2xl font-dm_sans font-semibold text-gray-900 mb-6 border-b pb-2">My Bookings</h2>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="p-4 sm:p-8 mt-4 max-w-6xl mx-auto bg-white rounded-lg shadow-md h-[600px]"
+    >
+      <motion.h2 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="text-2xl font-dm_sans font-semibold text-gray-900 mb-6 border-b pb-2"
+      >
+        My Bookings
+      </motion.h2>
       
-      {/* Tabs */}
-      <div className="flex space-x-4 mb-4 border-b">
-        <button 
-          className={`pb-2 px-1 font-medium text-sm ${activeTab === 'all' 
-            ? 'text-[#b9a089] border-b-2 border-[#b9a089]' 
-            : 'text-gray-500 hover:text-gray-700'}`}
-          onClick={() => setActiveTab('all')}
-        >
-          All Bookings
-        </button>
-        <button 
-          className={`pb-2 px-1 font-medium text-sm ${activeTab === 'Completed' 
-            ? 'text-[#b9a089] border-b-2 border-[#b9a089]' 
-            : 'text-gray-500 hover:text-gray-700'}`}
-          onClick={() => setActiveTab('Completed')}
-        >
-          Completed
-        </button>
-        <button 
-          className={`pb-2 px-1 font-medium text-sm ${activeTab === 'pending' 
-            ? 'text-[#b9a089] border-b-2 border-[#b9a089]' 
-            : 'text-gray-500 hover:text-gray-700'}`}
-          onClick={() => setActiveTab('pending')}
-        >
-          Pending
-        </button>
-      </div>
+      {/* Tabs with animations */}
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="flex space-x-4 mb-4 border-b"
+      >
+        {['all', 'Completed', 'pending'].map((tab, index) => (
+          <motion.button 
+            key={tab}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 + (index * 0.1) }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`pb-2 px-1 font-medium text-sm ${
+              activeTab === tab 
+                ? 'text-[#b9a089] border-b-2 border-[#b9a089]' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab(tab as "all" | "Completed" | "pending")}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)} {tab === 'all' ? 'Bookings' : ''}
+          </motion.button>
+        ))}
+      </motion.div>
       
-      {/* Bookings List */}
+      {/* Bookings List with animations */}
       {filteredBookings.length === 0 ? (
-        <div className="text-center py-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center py-10"
+        >
           <h3 className="text-xl font-medium text-gray-500">No bookings found</h3>
           <p className="mt-2 text-gray-400">
             You haven't made any bookings yet or no bookings match your filter.
           </p>
-        </div>
+        </motion.div>
       ) : (
         <div className="h-[420px] overflow-y-auto pr-2 custom-scrollbar flex flex-col justify-between">
           <div className="space-y-4">
-            {currentBookings.map((booking) => (
-              <div key={booking._id} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
-                {/* Compact Header with Summary Info */}
-                <div className="bg-gradient-to-r from-[#b9a089]/10 to-white border-b px-4 py-3">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="bg-[#b9a089]/5 p-2 rounded-full mr-3">
-                        <Building className="text-[#b9a089]" size={18} />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-base">{getHostelName(booking)}</h3>
-                        <div className="text-xs text-gray-500">
-                          ID: #{booking._id.substring(booking._id.length - 8)}
+            <AnimatePresence>
+              {currentBookings.map((booking, index) => (
+                <motion.div 
+                  key={booking._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  {/* Compact Header with Summary Info */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 + (index * 0.1) }}
+                    className="bg-gradient-to-r from-[#b9a089]/10 to-white border-b px-4 py-3"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className="bg-[#b9a089]/5 p-2 rounded-full mr-3">
+                          <Building className="text-[#b9a089]" size={18} />
                         </div>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.paymentStatus)}`}>
-                      {booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Compact Summary - Horizontal Layout */}
-                <div className="p-3 bg-white">
-                  <div className="flex flex-wrap border-b border-gray-100 pb-3 mb-3">
-                    <div className="flex items-center px-3 py-1">
-                      <Calendar className="text-[#b9a089] mr-2" size={14} />
-                      <div>
-                        <div className="text-xs text-gray-500">Check-in</div>
-                        <div className="text-sm font-medium">{formatDate(booking.checkIn)}</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center px-3 py-1">
-                      <Clock className="text-[#b9a089] mr-2" size={14} />
-                      <div>
-                        <div className="text-xs text-gray-500">Duration</div>
-                        <div className="text-sm font-medium">{booking.stayDurationInMonths} months</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center px-3 py-1">
-                      <CreditCard className="text-[#b9a089] mr-2" size={14} />
-                      <div>
-                        <div className="text-xs text-gray-500">Total Amount</div>
-                        <div className="text-sm font-medium">${booking.totalPrice}</div>
-                      </div>
-                    </div>
-                    
-                    {getHostelAddress(booking) && (
-                      <div className="flex items-center px-3 py-1">
-                        <MapPin className="text-[#b9a089] mr-2" size={14} />
                         <div>
-                          <div className="text-xs text-gray-500">Address</div>
-                          <div className="text-sm font-medium truncate max-w-[200px]">{getHostelAddress(booking)}</div>
+                          <h3 className="font-semibold text-base">{getHostelName(booking)}</h3>
+                          <div className="text-xs text-gray-500">
+                            ID: #{booking._id.substring(booking._id.length - 8)}
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.paymentStatus)}`}>
+                        {booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
+                      </span>
+                    </div>
+                  </motion.div>
                   
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs text-gray-500">Booked on: {formatDate(booking.bookingDate)}</div>
-                    <button 
-                      onClick={() => toggleBookingDetails(booking._id)}
-                      className="flex items-center justify-center px-3 py-1 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors text-xs font-medium text-gray-600"
-                    >
-                      {expandedBookingId === booking._id ? (
-                        <>Hide Details <ChevronUp className="ml-1" size={14} /></>
-                      ) : (
-                        <>View Details <ChevronDown className="ml-1" size={14} /></>
+                  {/* Compact Summary - Horizontal Layout */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.3 + (index * 0.1) }}
+                    className="p-3 bg-white"
+                  >
+                    <div className="flex flex-wrap border-b border-gray-100 pb-3 mb-3">
+                      <div className="flex items-center px-3 py-1">
+                        <Calendar className="text-[#b9a089] mr-2" size={14} />
+                        <div>
+                          <div className="text-xs text-gray-500">Check-in</div>
+                          <div className="text-sm font-medium">{formatDate(booking.checkIn)}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center px-3 py-1">
+                        <Clock className="text-[#b9a089] mr-2" size={14} />
+                        <div>
+                          <div className="text-xs text-gray-500">Duration</div>
+                          <div className="text-sm font-medium">{booking.stayDurationInMonths} months</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center px-3 py-1">
+                        <CreditCard className="text-[#b9a089] mr-2" size={14} />
+                        <div>
+                          <div className="text-xs text-gray-500">Total Amount</div>
+                          <div className="text-sm font-medium">${booking.totalPrice}</div>
+                        </div>
+                      </div>
+                      
+                      {getHostelAddress(booking) && (
+                        <div className="flex items-center px-3 py-1">
+                          <MapPin className="text-[#b9a089] mr-2" size={14} />
+                          <div>
+                            <div className="text-xs text-gray-500">Address</div>
+                            <div className="text-sm font-medium truncate max-w-[200px]">{getHostelAddress(booking)}</div>
+                          </div>
+                        </div>
                       )}
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Detailed View Component */}
-                {expandedBookingId === booking._id && (
-                  <BookingDetails booking={booking} />
-                )}
-              </div>
-            ))}
+                    </div>
+                    
+                    <motion.div 
+                      className="flex justify-between items-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3, delay: 0.4 + (index * 0.1) }}
+                    >
+                      <div className="text-xs text-gray-500">Booked on: {formatDate(booking.bookingDate)}</div>
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleBookingDetails(booking._id)}
+                        className="flex items-center justify-center px-3 py-1 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors text-xs font-medium text-gray-600"
+                      >
+                        {expandedBookingId === booking._id ? (
+                          <>Hide Details <ChevronUp className="ml-1" size={14} /></>
+                        ) : (
+                          <>View Details <ChevronDown className="ml-1" size={14} /></>
+                        )}
+                      </motion.button>
+                    </motion.div>
+                  </motion.div>
+                  
+                  {/* Detailed View Component with animation */}
+                  <AnimatePresence>
+                    {expandedBookingId === booking._id && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <BookingDetails booking={booking} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
           
-          {/* Pagination */}
+          {/* Pagination with animations */}
           {totalPages > 1 && (
-            <div className="mt-4 flex justify-center items-center space-x-2 pt-3 border-t border-gray-200">
-              <button 
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-4 flex justify-center items-center space-x-2 pt-3 border-t border-gray-200"
+            >
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={goToPreviousPage}
                 disabled={currentPage === 1}
                 className={`p-2 rounded-full ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100'}`}
               >
                 <ChevronLeft size={18} />
-              </button>
+              </motion.button>
               
               {getPageNumbers().map(pageNumber => (
-                <button
+                <motion.button
                   key={pageNumber}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => goToPage(pageNumber)}
                   className={`h-8 w-8 rounded-full flex items-center justify-center text-sm ${
                     currentPage === pageNumber 
@@ -353,22 +406,24 @@ export const MyBookings = () => {
                   }`}
                 >
                   {pageNumber}
-                </button>
+                </motion.button>
               ))}
               
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={goToNextPage}
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-full ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100'}`}
               >
                 <ChevronRight size={18} />
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           )}
         </div>
       )}
       
-      <style jsx>{`
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }
@@ -384,7 +439,7 @@ export const MyBookings = () => {
           background: #a58e77;
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 };
 

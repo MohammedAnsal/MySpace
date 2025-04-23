@@ -9,6 +9,7 @@ import SignUp from "./pages/user/Auth/SignUp";
 import HomePage from "./pages/user/Home/Home";
 import AdminSignIn from "./pages/admin/Auth/SignIn";
 import UserProfile from "./pages/user/Home/profile/UserProfile";
+import { Landing } from "./components/global/Landing";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
               {/* <AdminSignUp /> */}
               {/* <UserProfile/> */}
         {/* <AdminSignIn /> */}
+        <Landing/>
       </BrowserRouter>
       {/* <SignIn/> */}
       {/* <SignUp/> */}

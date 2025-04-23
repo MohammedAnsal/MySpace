@@ -1,52 +1,60 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function Footer() {
+  const navigate = useNavigate();
+
+  const handleRoleSelection = (role: 'user' | 'provider') => {
+    if (role === 'user') {
+      navigate('/auth/signIn');
+    } else {
+      navigate('/provider/signIn');
+    }
+  };
+
   return (
-    <footer className="font-dm_sans bg-[#E2E1DF] py-10 border-t-2 border-black">
-      <div className="container w-[90%] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-8 text-[#333]">
-        {/* Left Section */}
-        <div className="max-w-sm">
-          <h2 className="text-xl">My Space</h2>
-          <p className="mt-2 text-sm leading-relaxed">
-            WDM&Co is a premier hotel booking website that offers a seamless and
-            convenient way to find and book accommodations worldwide.
-          </p>
+    <footer className="bg-black text-white py-12 px-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between">
+          <div className="mb-8 md:mb-0">
+            <h3 className="font-italiana text-3xl mb-4">MySpace</h3>
+            <p className="text-gray-400 max-w-xs">
+              Your trusted platform for finding the perfect accommodations that feel like home.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+            <div>
+              <h4 className="text-lg font-semibold mb-4">For Users</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><button onClick={() => handleRoleSelection('user')} className="hover:text-white transition-colors">Find Accommodation</button></li>
+                <li><button className="hover:text-white transition-colors">How It Works</button></li>
+                <li><button className="hover:text-white transition-colors">FAQs</button></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-semibold mb-4">For Providers</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><button onClick={() => handleRoleSelection('provider')} className="hover:text-white transition-colors">List Property</button></li>
+                <li><button className="hover:text-white transition-colors">Owner Dashboard</button></li>
+                <li><button className="hover:text-white transition-colors">Resources</button></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><button className="hover:text-white transition-colors">About Us</button></li>
+                <li><button className="hover:text-white transition-colors">Contact</button></li>
+                <li><button className="hover:text-white transition-colors">Privacy Policy</button></li>
+              </ul>
+            </div>
+          </div>
         </div>
-
-        {/* Company Section */}
-        <div className="text-left">
-          <h3 className="text-base font-normal">Company</h3>
-          <ul className="mt-2 space-y-2 text-sm">
-            <li>About Us</li>
-            <li>Our Team</li>
-            <li>Blog</li>
-            <li>Book</li>
-            <li>Contact Us</li>
-          </ul>
+        
+        <div className="mt-12 pt-6 border-t border-gray-800 text-center text-gray-500">
+          <p>© {new Date().getFullYear()} MySpace. All rights reserved.</p>
         </div>
-
-        {/* Legal Section */}
-        <div className="text-left">
-          <h3 className="text-base font-normal">Legal</h3>
-          <ul className="mt-2 space-y-2 text-sm">
-            <li>FAQs</li>
-            <li>Terms & Conditions</li>
-            <li>Privacy Policy</li>
-          </ul>
-        </div>
-
-        {/* Resources Section */}
-        <div className="text-left">
-          <h3 className="text-base font-normal">Resources</h3>
-          <ul className="mt-2 space-y-3 text-sm">
-            <li>Social Media</li>
-            <li>Help Center</li>
-            <li>Partnerships</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Copyright Section */}
-      <div className="mt-6 text-center lg:text-right pr-4 text-sm text-[#333]">
-        Copyright © 2024 All rights reserved.
       </div>
     </footer>
   );

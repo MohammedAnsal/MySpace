@@ -156,16 +156,13 @@ export class BookingService implements IBookingService {
 
   async getProviderBookings(providerId: string): Promise<IBooking[]> {
     try {
-      // Get bookings from repository
       const bookings = await this.bookingRepository.getProviderBookings(
         providerId
       );
 
-      // Generate signed URLs for proof documents
       const bookingsWithSignedUrls = await Promise.all(
         bookings.map(async (booking) => {
           if (booking.proof) {
-            // Generate signed URL for the proof document
             booking.proof = await this.s3Service.generateSignedUrl(
               booking.proof
             );
@@ -173,8 +170,6 @@ export class BookingService implements IBookingService {
           return booking;
         })
       );
-
-      console.log(bookingsWithSignedUrls, "m");
 
       return bookingsWithSignedUrls;
     } catch (error) {
@@ -185,14 +180,11 @@ export class BookingService implements IBookingService {
 
   async getUserBookings(userId: string): Promise<IBooking[]> {
     try {
-      // Get bookings from repository
       const bookings = await this.bookingRepository.getUserBookings(userId);
 
-      // Generate signed URLs for proof documents
       const bookingsWithSignedUrls = await Promise.all(
         bookings.map(async (booking) => {
           if (booking.proof) {
-            // Generate signed URL for the proof document
             booking.proof = await this.s3Service.generateSignedUrl(
               booking.proof
             );
@@ -210,14 +202,11 @@ export class BookingService implements IBookingService {
 
   async getAllBookings(): Promise<IBooking[]> {
     try {
-      // Get bookings from repository
       const bookings = await this.bookingRepository.getAllBookings();
 
-      // Generate signed URLs for proof documents
       const bookingsWithSignedUrls = await Promise.all(
         bookings.map(async (booking) => {
           if (booking.proof) {
-            // Generate signed URL for the proof document
             booking.proof = await this.s3Service.generateSignedUrl(
               booking.proof
             );

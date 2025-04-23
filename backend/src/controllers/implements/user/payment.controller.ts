@@ -68,17 +68,14 @@ export class PaymentController {
 
   async handleWebhook(req: Request, res: Response): Promise<void> {
     try {
-      console.log("aaaapapappa")
       const signature = req.headers["stripe-signature"] as string;
-      console.log(signature,'sigg')
       if (!signature) {
         throw new AppError(
           "No stripe signature found",
           StatusCodes.BAD_REQUEST
         );
       }
-      console.log("Received webhook with signature:", signature);
-      console.log("Webhook body:", req.body);
+ 
       if (!this.stripeService.validateWebhookSignature(req.body, signature)) {
         throw new AppError(
           "Invalid webhook signature",

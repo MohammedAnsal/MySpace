@@ -19,6 +19,9 @@ import Checkout from "@/pages/user/Home/booking/BookingHostel";
 import { SuccessPayment } from "@/components/client/payment/SuccessPayment";
 import { CancelPayment } from "@/components/client/payment/CancelPayment";
 import { MyBookings } from "@/pages/user/Home/profile/bookings/MyBookings";
+import RootPage from "./Rootpage";
+import Contact from "@/pages/user/Home/contact/Contact";
+import About from "@/pages/user/Home/about/About";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -26,10 +29,10 @@ export const UserRoutes: RouteObject[] = [
     path: "/auth",
     element: <Auth />,
     children: [
-      {
-        path: "",
-        element: <Navigate to="/auth/signUp" replace />,
-      },
+      // {
+      //   path: "",
+      //   element: <Navigate to="/auth/signUp" replace />,
+      // },
       {
         path: "signUp",
         element: (
@@ -156,13 +159,30 @@ export const UserRoutes: RouteObject[] = [
     ],
   },
 
+  // {
+  //   path: "/",
+  //   element: (
+  //     <PublicRoute routeType={Role.USER}>
+  //       <HomePage />
+  //     </PublicRoute>
+  //   ),
+  // },
+
+  {
+    path: "/contact",
+    element: <Contact />,
+  },
+
+  {
+    path: "/about",
+    element: <About />,
+  },
+
+  //  Landing Page
+
   {
     path: "/",
-    element: (
-      <PublicRoute routeType={Role.USER}>
-        <HomePage />
-      </PublicRoute>
-    ),
+    element: <RootPage />,
   },
 
   // NOT FOUND PAGE

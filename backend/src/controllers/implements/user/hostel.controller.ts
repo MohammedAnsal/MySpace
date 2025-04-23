@@ -19,6 +19,8 @@ interface FilteredRequest extends Request {
     amenities?: string;
     search?: string;
     sortBy?: "asc" | "desc";
+    minRating?: string;
+    sortByRating?: string;
   };
 }
 
@@ -42,6 +44,8 @@ class HostelController {
           : undefined,
         search: req.query.search as string,
         sortBy: req.query.sortBy as "asc" | "desc",
+        minRating: req.query.minRating ? Number(req.query.minRating) : undefined,
+        sortByRating: req.query.sortByRating === 'true',
       };
 
       const result = await this.hostelServicee.getVerifiedHostels(filters);
@@ -49,13 +53,18 @@ class HostelController {
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
+            const hostelData = typeof hostel.toObject === 'function' 
+              ? hostel.toObject() 
+              : { ...hostel };
+            
             const signedPhotos = await Promise.all(
-              (hostel.photos || []).map((photo) =>
+              (hostelData.photos || []).map((photo: string) =>
                 this.s3ServiceInstance.generateSignedUrl(photo)
               )
             );
+            
             return {
-              ...hostel.toObject(),
+              ...hostelData,
               photos: signedPhotos,
             };
           })
@@ -93,18 +102,21 @@ class HostelController {
     try {
       const result = await this.hostelServicee.getVerifiedHostelsForHome();
 
-      console.log(result , 'from controllerrrrrrrrrrr')
-
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
+            const hostelData = typeof hostel.toObject === 'function' 
+              ? hostel.toObject() 
+              : { ...hostel };
+            
             const signedPhotos = await Promise.all(
-              (hostel.photos || []).map((photo) =>
+              (hostelData.photos || []).map((photo: string) =>
                 this.s3ServiceInstance.generateSignedUrl(photo)
               )
             );
+            
             return {
-              ...hostel.toObject(),
+              ...hostelData,
               photos: signedPhotos,
             };
           })
@@ -181,13 +193,18 @@ class HostelController {
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
+            const hostelData = typeof hostel.toObject === 'function' 
+              ? hostel.toObject() 
+              : { ...hostel };
+            
             const signedPhotos = await Promise.all(
-              (hostel.photos || []).map((photo) =>
+              (hostelData.photos || []).map((photo:string) =>
                 this.s3ServiceInstance.generateSignedUrl(photo)
               )
             );
+            
             return {
-              ...hostel.toObject(),
+              ...hostelData,
               photos: signedPhotos,
             };
           })

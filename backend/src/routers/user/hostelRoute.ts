@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { hostelController } from "../../controllers/implements/user/hostel.controller";
+import { ratingController } from "../../controllers/implements/user/rating.controller";
 
 const hostelRoute = Router();
 
@@ -16,6 +17,11 @@ hostelRoute.get(
 hostelRoute.get(
   "/hostel/:hostelId",
   hostelController.getHostelById.bind(hostelController)
+);
+
+hostelRoute.get(
+  "/hostel/:hostelId/ratings",
+  ratingController.getHostelRatings.bind(ratingController)
 );
 
 hostelRoute.get(
