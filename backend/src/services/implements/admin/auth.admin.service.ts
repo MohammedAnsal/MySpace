@@ -30,8 +30,6 @@ export class AdminAuthService implements IAdminAuthService {
         );
       }
 
-      console.log(email,password)
-
       const exists = await this.adminRepo.findByEmail(email);
 
       if (!exists) {
@@ -45,13 +43,12 @@ export class AdminAuthService implements IAdminAuthService {
       }
 
       const accessToken = generateAccessToken({
-        id: exists.id,
-        email: exists.email,
+        id: exists._id,
+        role: "admin",
       });
 
       const refreshToken = generateRefreshToken({
-        id: exists.id,
-        email: exists.email,
+        id: exists._id,
       });
 
       return {
@@ -74,31 +71,31 @@ export class AdminAuthService implements IAdminAuthService {
   }
 
   async checkToken(token: string) {
-      try {
-        const response = verifyRefreshToken(token);
-        if (
-          typeof response === "object" &&
-          response !== null &&
-          "id" in response
-        ) {
-          const newAccessToken = generateAccessToken({
-            email: response.email,
-            id: response.id,
-          });
-          return {
-            success: true,
-            message: "new token created",
-            token: newAccessToken,
-          };
-        }
-      } catch (error) {
-        if (error instanceof AppError) {
-          throw error;
-        }
-        throw new AppError(
-          "An error occurred while verifying refresh token.",
-          HttpStatus.INTERNAL_SERVER_ERROR
-        );
+    try {
+      const response = verifyRefreshToken(token);
+      if (
+        typeof response === "object" &&
+        response !== null &&
+        "id" in response
+      ) {
+        const newAccessToken = generateAccessToken({
+          email: response.email,
+          id: response.id,
+        });
+        return {
+          success: true,
+          message: "new token created",
+          token: newAccessToken,
+        };
       }
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while verifying refresh token.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
+  }
 }

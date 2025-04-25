@@ -16,6 +16,7 @@ import { z } from "zod";
 import { createHostel } from "@/services/Api/providerApi";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface PropertyForm {
   hostel_name: string;
@@ -37,7 +38,6 @@ interface PropertyForm {
 }
 
 export const AddHostel: React.FC = () => {
-
   const [showInstructions, setShowInstructions] = useState(true);
   const [formData, setFormData] = useState<PropertyForm>({
     hostel_name: "",
@@ -59,6 +59,7 @@ export const AddHostel: React.FC = () => {
   });
 
   const [images, setImages] = useState<File[]>([]);
+  const navigate = useNavigate();
   // const [firstTimeUser, setFirstTimeUser] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -396,6 +397,7 @@ export const AddHostel: React.FC = () => {
               <div className="flex flex-col mt-6 sm:flex-row sm:justify-end sm:space-x-4 sm:space-y-0 space-y-3">
                 <button
                   type="button"
+                  onClick={() => {navigate(-1)}}
                   className="border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 px-6 py-3 transition-colors"
                 >
                   Cancel

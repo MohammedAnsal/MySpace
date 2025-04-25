@@ -51,8 +51,6 @@ app.use("/user/payments", paymentRoute);
 app.use(
   "/user",
   userTokenBlackList,
-  authMiddleWare,
-  autherization,
   userRoute,
   hostelRoute,
   bookingRoute,

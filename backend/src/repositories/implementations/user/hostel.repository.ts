@@ -4,6 +4,7 @@ import { IHostelRepository } from "../../interfaces/user/hostel.Irepository";
 import { FilterQuery, ObjectId } from "mongoose";
 import { Rating } from "../../../models/rating.model";
 import mongoose from "mongoose";
+import { Location } from "../../../models/provider/location.model";
 
 @Service()
 export class HostelRepository implements IHostelRepository {
@@ -57,19 +58,25 @@ export class HostelRepository implements IHostelRepository {
 
       if (filters.search) {
         query = {
-          ...query,
           $or: [
             { hostel_name: { $regex: filters.search, $options: "i" } },
-            // { 'location.address': { $regex: filters.search, $options: 'i' } },
+            {
+              location: {
+                $in: await this.findLocationsBySearch(filters.search),
+              },
+            },
           ],
         };
       }
 
       let hostelsQuery = Hostel.find(query)
+        .populate({
+          path: "location",
+          select: "address latitude longitude",
+        })
         .populate("provider_id", "fullName email phone")
-        .populate("location")
         .populate("facilities");
-      
+
       //  Price , Rating Sorting :-
 
       if (filters.sortBy && !filters.sortByRating) {
@@ -86,7 +93,7 @@ export class HostelRepository implements IHostelRepository {
 
       const hostelIds = hostels.map((hostel) => hostel._id);
 
-      // Fetch ratings for all hostels :- 
+      // Fetch ratings for all hostels :-
 
       const ratingsAggregation = await Rating.aggregate([
         { $match: { hostel_id: { $in: hostelIds } } },
@@ -99,7 +106,7 @@ export class HostelRepository implements IHostelRepository {
         },
       ]);
 
-      // Create a map for easy lookup :-
+      // Create a map for easy lookup :- (Rating Filter)
 
       const ratingsMap = new Map<
         string,
@@ -159,42 +166,46 @@ export class HostelRepository implements IHostelRepository {
         .populate("location")
         .populate("facilities");
 
-      const hostelIds = hostels.map(hostel => hostel._id);
-      
+      const hostelIds = hostels.map((hostel) => hostel._id);
+
       const ratingsAggregation = await Rating.aggregate([
         { $match: { hostel_id: { $in: hostelIds } } },
-        { 
-          $group: { 
-            _id: "$hostel_id", 
+        {
+          $group: {
+            _id: "$hostel_id",
             averageRating: { $avg: "$rating" },
-            count: { $sum: 1 }
-          }
-        }
+            count: { $sum: 1 },
+          },
+        },
       ]);
-      
-      const ratingsMap = new Map<string, { averageRating: number; count: number }>();
-      ratingsAggregation.forEach(item => {
-        ratingsMap.set(item._id.toString(), { 
+
+      const ratingsMap = new Map<
+        string,
+        { averageRating: number; count: number }
+      >();
+      ratingsAggregation.forEach((item) => {
+        ratingsMap.set(item._id.toString(), {
           averageRating: item.averageRating,
-          count: item.count 
+          count: item.count,
         });
       });
-      
-      const hostelsWithRatings: IHostel[] = hostels.map(hostel => {
-        const hostelObj = typeof hostel.toObject === 'function' 
-          ? hostel.toObject() 
-          : { ...hostel };
-        
+
+      const hostelsWithRatings: IHostel[] = hostels.map((hostel) => {
+        const hostelObj =
+          typeof hostel.toObject === "function"
+            ? hostel.toObject()
+            : { ...hostel };
+
         const hostelId = (hostel._id as mongoose.Types.ObjectId).toString();
         const ratingInfo = ratingsMap.get(hostelId);
-        
+
         return {
           ...hostelObj,
           averageRating: ratingInfo ? ratingInfo.averageRating : 0,
-          ratingCount: ratingInfo ? ratingInfo.count : 0
+          ratingCount: ratingInfo ? ratingInfo.count : 0,
         } as unknown as IHostel;
       });
-      
+
       return hostelsWithRatings;
     } catch (error) {
       throw error;
@@ -220,72 +231,96 @@ export class HostelRepository implements IHostelRepository {
     }
   }
 
-  async getNearbyHostels(latitude: number, longitude: number, maxDistance: number = 5000): Promise<IHostel[]> {
+  async updateHostelAvailableSpace(hostelId: string): Promise<IHostel | null> {
+    return await Hostel.findByIdAndUpdate(
+      hostelId,
+      { $inc: { available_space: -1 } },
+      { new: true }
+    );
+  }
+
+  async getNearbyHostels(
+    latitude: number,
+    longitude: number,
+    maxDistance: number = 5000
+  ): Promise<IHostel[]> {
     try {
       const hostels = await Hostel.find({
         is_verified: true,
         is_rejected: false,
       })
-      .populate({
-        path: 'location',
-        match: {
-          location: {
-            $near: {
-              $geometry: {
-                type: 'Point',
-                coordinates: [longitude, latitude] // MongoDB uses [lng, lat] order
+        .populate({
+          path: "location",
+          match: {
+            location: {
+              $near: {
+                $geometry: {
+                  type: "Point",
+                  coordinates: [longitude, latitude], // MongoDB uses [lng, lat] order
+                },
+                $maxDistance: maxDistance, // in meters
               },
-              $maxDistance: maxDistance // in meters
-            }
-          }
-        }
-      })
-      .populate("provider_id", "fullName email phone")
-      .populate("facilities");
-      
+            },
+          },
+        })
+        .populate("provider_id", "fullName email phone")
+        .populate("facilities");
+
       // Filter out hostels whose location didn't match (will be null)
-      const filteredHostels = hostels.filter(hostel => hostel.location);
-      
-      const hostelIds = filteredHostels.map(hostel => hostel._id);
-      
+      const filteredHostels = hostels.filter((hostel) => hostel.location);
+
+      const hostelIds = filteredHostels.map((hostel) => hostel._id);
+
       const ratingsAggregation = await Rating.aggregate([
         { $match: { hostel_id: { $in: hostelIds } } },
-        { 
-          $group: { 
-            _id: "$hostel_id", 
+        {
+          $group: {
+            _id: "$hostel_id",
             averageRating: { $avg: "$rating" },
-            count: { $sum: 1 }
-          }
-        }
+            count: { $sum: 1 },
+          },
+        },
       ]);
-      
-      const ratingsMap = new Map<string, { averageRating: number; count: number }>();
-      ratingsAggregation.forEach(item => {
-        ratingsMap.set(item._id.toString(), { 
+
+      const ratingsMap = new Map<
+        string,
+        { averageRating: number; count: number }
+      >();
+      ratingsAggregation.forEach((item) => {
+        ratingsMap.set(item._id.toString(), {
           averageRating: item.averageRating,
-          count: item.count 
+          count: item.count,
         });
       });
-      
-      const hostelsWithRatings: IHostel[] = filteredHostels.map(hostel => {
-        const hostelObj = typeof hostel.toObject === 'function' 
-          ? hostel.toObject() 
-          : { ...hostel };
-        
+
+      const hostelsWithRatings: IHostel[] = filteredHostels.map((hostel) => {
+        const hostelObj =
+          typeof hostel.toObject === "function"
+            ? hostel.toObject()
+            : { ...hostel };
+
         const hostelId = (hostel._id as mongoose.Types.ObjectId).toString();
         const ratingInfo = ratingsMap.get(hostelId);
-        
+
         return {
           ...hostelObj,
           averageRating: ratingInfo ? ratingInfo.averageRating : 0,
-          ratingCount: ratingInfo ? ratingInfo.count : 0
+          ratingCount: ratingInfo ? ratingInfo.count : 0,
         } as unknown as IHostel;
       });
-      
+
       return hostelsWithRatings;
     } catch (error) {
       throw error;
     }
+  }
+
+  private async findLocationsBySearch(searchTerm: string): Promise<ObjectId[]> {
+    const locations = await Location.find({
+      address: { $regex: searchTerm, $options: "i" },
+    }).select("_id");
+
+    return locations.map((loc) => loc._id);
   }
 }
 

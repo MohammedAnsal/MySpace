@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, CreditCard, Home, MapPin, Phone, User, FileCheck, AlertCircle, Building, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, CreditCard, Home, MapPin, Phone, User, FileCheck, AlertCircle, Building, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { useUserBookings } from '@/hooks/user/useUserQueries';
 import Loading from '@/components/global/Loading';
 import BookingDetails from './components/BookingDetails';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface Facility {
   facilityId: {
@@ -342,18 +343,28 @@ export const MyBookings = () => {
                       transition={{ duration: 0.3, delay: 0.4 + (index * 0.1) }}
                     >
                       <div className="text-xs text-gray-500">Booked on: {formatDate(booking.bookingDate)}</div>
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => toggleBookingDetails(booking._id)}
-                        className="flex items-center justify-center px-3 py-1 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors text-xs font-medium text-gray-600"
-                      >
-                        {expandedBookingId === booking._id ? (
-                          <>Hide Details <ChevronUp className="ml-1" size={14} /></>
-                        ) : (
-                          <>View Details <ChevronDown className="ml-1" size={14} /></>
-                        )}
-                      </motion.button>
+                      <div className="flex items-center gap-2">
+                        <motion.button 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => toggleBookingDetails(booking._id)}
+                          className="flex items-center justify-center px-3 py-1 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors text-xs font-medium text-gray-600"
+                        >
+                          {expandedBookingId === booking._id ? (
+                            <>Hide Details <ChevronUp className="ml-1" size={14} /></>
+                          ) : (
+                            <>Quick View <ChevronDown className="ml-1" size={14} /></>
+                          )}
+                        </motion.button>
+                        
+                        <Link 
+                          to={`/user/bookings/${booking._id}`}
+                          className="flex items-center justify-center px-3 py-1 bg-[#b9a089]/10 hover:bg-[#b9a089]/20 rounded-md transition-colors text-xs font-medium text-[#b9a089]"
+                        >
+                          <ExternalLink size={14} className="mr-1" />
+                          Full Details
+                        </Link>
+                      </div>
                     </motion.div>
                   </motion.div>
                   

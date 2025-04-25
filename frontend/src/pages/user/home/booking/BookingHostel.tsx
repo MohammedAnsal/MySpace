@@ -156,7 +156,7 @@ const Checkout: React.FC = () => {
       
       toast.success("Redirecting to payment...");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error processing your request");
+      // toast.error(error.response?.data?.message || "Error processing your request");
     } finally {
       setIsSubmitting(false);
     }

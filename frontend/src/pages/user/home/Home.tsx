@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHostelsHome } from "@/hooks/user/useUserQueries";
-import Navbar from "@/components/layouts/Navbar";
+import Navbar from "@/components/layouts/Navbar";  
 import Footer from "@/components/layouts/Footer";
 import HeroSection from "./components/HeroSection";
 import FeaturesSection from "./components/FeaturesSection";

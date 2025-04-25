@@ -369,7 +369,7 @@ const HostelDetails = () => {
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Available Beds</span>
-                    <span className="font-semibold">
+                    <span className={`font-semibold ${hostel.available_space === 0 ? 'text-red-500' : ''}`}>
                       {hostel.available_space} of {hostel.total_space}
                     </span>
                   </div>
@@ -380,27 +380,42 @@ const HostelDetails = () => {
                     </span>
                   </div>
                 </div>
-                <motion.button
-                  onClick={() =>
-                    navigate("/checkout", {
-                      state: {
-                        hostelId: hostel._id,
-                        providerId: hostel.provider_id._id,
-                        monthlyRent: hostel.monthly_rent,
-                        depositAmount: hostel.deposit_amount,
-                      },
-                    })
-                  }
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-main-color text-white py-3 px-4 rounded-lg transition-all duration-300 font-semibold relative overflow-hidden group"
-                >
-                  <span className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
-                  <div className="flex items-center justify-center relative z-10">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    Book Now
+                {hostel.available_space > 0 ? (
+                  <motion.button
+                    onClick={() =>
+                      navigate("/checkout", {
+                        state: {
+                          hostelId: hostel._id,
+                          providerId: hostel.provider_id._id,
+                          monthlyRent: hostel.monthly_rent,
+                          depositAmount: hostel.deposit_amount,
+                        },
+                      })
+                    }
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-main-color text-white py-3 px-4 rounded-lg transition-all duration-300 font-semibold relative overflow-hidden group"
+                  >
+                    <span className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+                    <div className="flex items-center justify-center relative z-10">
+                      <Calendar className="w-5 h-5 mr-2" />
+                      Book Now
+                    </div>
+                  </motion.button>
+                ) : (
+                  <div className="w-full text-center">
+                    <p className="text-red-500 font-medium mb-2">No beds available</p>
+                    <button
+                      disabled
+                      className="w-full bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold cursor-not-allowed opacity-70"
+                    >
+                      <div className="flex items-center justify-center">
+                        <Calendar className="w-5 h-5 mr-2" />
+                        Fully Booked
+                      </div>
+                    </button>
                   </div>
-                </motion.button>
+                )}
               </div>
               {/* Map */}
               <div className="bg-white rounded-xl shadow-sm p-6">

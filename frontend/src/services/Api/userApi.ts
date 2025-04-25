@@ -20,6 +20,7 @@ const handleError = (error: any) => {
 export const signUpRequest = async (formData: object) => {
   try {
     const response = await publicApi.post("/auth/sign-up", formData);
+    console.log(response)
     return handleResponse(response, "Error in sign-up request");
   } catch (error) {
     handleError(error);
@@ -295,5 +296,25 @@ export const getUserRating = async (userId: string, hostelId: string) => {
   } catch (error) {
     handleError(error);
     return { success: false, data: null };
+  }
+};
+
+export const reprocessBookingPayment = async (bookingId: string) => {
+  try {
+    const response = await api.post(`/user/payments/reprocess-payment/${bookingId}`);
+    return handleResponse(response.data, "Error reprocessing payment");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const cancelBooking = async (bookingId: string, reason: string) => {
+  try {
+    const response = await api.delete(`/user/cancel/${bookingId}`, {
+      data: { reason },
+    });
+    return handleResponse(response.data, "Error cancelling booking");
+  } catch (error) {
+    handleError(error);
   }
 };

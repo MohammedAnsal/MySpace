@@ -12,7 +12,7 @@ class UserController implements IUserController {
 
   async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
-      const user = req.user;
+      const user = req.user?.id;
       const { success, data } = await this.userService.findUser(user as string);
       if (success) {
         res.status(HttpStatus.OK).json({ success: true, data });
@@ -76,13 +76,17 @@ class UserController implements IUserController {
       const formData = req.body;
       const profileImage = req.file;
 
-      const userId = req.user;
+      const userId = req.user?.id;
 
       if (!formData) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "User data is required.",
         });
+      }
+
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
       }
 
       await this.userService.editProfile(

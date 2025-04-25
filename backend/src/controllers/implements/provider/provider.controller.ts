@@ -12,7 +12,7 @@ export class ProviderController implements IProviderController {
 
   async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
-      const user = req.user;
+      const user = req.user?.id;
 
       const { success, data } = await this.providerService.findProvider(
         user as string
@@ -79,7 +79,11 @@ export class ProviderController implements IProviderController {
       const formData = req.body;
       const profileImage = req.file;
 
-      const userId = req.user;
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("User not authenticated", 401);
+      }
 
       if (!formData) {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -90,7 +94,7 @@ export class ProviderController implements IProviderController {
 
       await this.providerService.editProfile(
         formData,
-        userId,
+        providerId,
         profileImage ? profileImage : undefined
       );
 
@@ -116,7 +120,7 @@ export class ProviderController implements IProviderController {
 
   async getDashboard(req: AuthRequset, res: Response): Promise<any> {
     try {
-      const providerId = req.user;
+      const providerId = req.user?.id;
 
       const getDashboardData = await this.providerService.getProviderDashboard(
         providerId as string

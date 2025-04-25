@@ -22,6 +22,7 @@ import { MyBookings } from "@/pages/user/Home/profile/bookings/MyBookings";
 import RootPage from "./Rootpage";
 import Contact from "@/pages/user/Home/contact/Contact";
 import About from "@/pages/user/Home/about/About";
+import BookingDetailsPage from "@/pages/user/Home/profile/bookings/BookingDetailsPage";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -104,6 +105,14 @@ export const UserRoutes: RouteObject[] = [
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
             <MyBookings />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "bookings/:bookingId",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <BookingDetailsPage />
           </ProtecteddRoute>
         ),
       },

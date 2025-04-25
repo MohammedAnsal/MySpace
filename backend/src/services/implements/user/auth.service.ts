@@ -38,7 +38,7 @@ export class AuthService implements IAuthService {
 
   async signUp(userData: IUser): Promise<AuthResponse> {
     try {
-      const { fullName, email, phone, password, role, gender } = userData;
+      const { fullName, email, phone, password, gender } = userData;
 
       const existingUser = await this.userRepo.findUserByEmail(email);
 
@@ -83,7 +83,6 @@ export class AuthService implements IAuthService {
         email,
         phone,
         password: hashedPasswordd,
-        role,
         gender,
       } as IUser);
 
@@ -137,8 +136,6 @@ export class AuthService implements IAuthService {
         id: existingUser._id,
         role: existingUser.role,
       });
-
-      console.log(accessToken,'from serviceee')
 
       const refreshToken = generateRefreshToken({ id: existingUser._id });
 
@@ -402,7 +399,7 @@ export class AuthService implements IAuthService {
       id: user._id,
       role: user.role,
     });
-    const refreshToken = generateRefreshToken({ userId: user._id });
+    const refreshToken = generateRefreshToken({ id: user._id });
 
     return {
       success: true,

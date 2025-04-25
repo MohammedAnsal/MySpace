@@ -187,7 +187,7 @@ const Hostels = () => {
                     <div className="relative flex-1 group">
                       <input
                         type="text"
-                        placeholder="Search hostels"
+                        placeholder="Search by hostel name or location"
                         value={filters.search}
                         onChange={(e) =>
                           handleFilterChange({ search: e.target.value })

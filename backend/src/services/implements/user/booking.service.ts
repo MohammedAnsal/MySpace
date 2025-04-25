@@ -42,10 +42,12 @@ export class BookingService implements IBookingService {
       if (!hostel) {
         throw new AppError("Hostel not found", 404);
       }
+      // Check if beds are available
+      if (hostel.available_space !== null && hostel.available_space <= 0) {
+        throw new AppError("No beds available in this hostel", 400);
+      }
 
-      console.log(selectedFacilitiess);
-
-      // // Check availability
+      // Check date availability
       // const isAvailable = await this.checkAvailability(
       //   bookingData.hostelId,
       //   bookingData.checkIn,
@@ -54,7 +56,7 @@ export class BookingService implements IBookingService {
 
       // if (!isAvailable) {
       //   throw new AppError(
-      //     "Selected space is not available for the given dates",
+      //     "Selected dates are not available for booking",
       //     400
       //   );
       // }
@@ -136,23 +138,27 @@ export class BookingService implements IBookingService {
     }
   }
 
-  // async getBookingDetails(bookingId: string): Promise<IBooking> {
-  //   const booking = await this.bookingRepository.getBookingById(bookingId);
-  //   if (!booking) {
-  //     throw new AppError("Booking not found", 404);
-  //   }
+  async getBookingById(bookingId: string): Promise<IBooking> {
+    try {
+      const booking = await this.bookingRepository.getBookingById(bookingId);
+      if (!booking) {
+        throw new AppError("Booking not found", 404);
+      }
 
-  //   // Generate signed URL for proof if it exists
-  //   if (booking.proof) {
-  //     const signedUrl = await this.s3Service.generateSignedUrl(booking.proof);
-  //     return {
-  //       ...booking.toObject(),
-  //       proof: signedUrl,
-  //     };
-  //   }
+      // Generate signed URL for proof if it exists
+      if (booking.proof) {
+        booking.proof = await this.s3Service.generateSignedUrl(booking.proof);
+      }
 
-  //   return booking;
-  // }
+      return booking;
+    } catch (error) {
+      console.error("Error in getBookingById:", error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError("Error retrieving booking details", 500);
+    }
+  }
 
   async getProviderBookings(providerId: string): Promise<IBooking[]> {
     try {

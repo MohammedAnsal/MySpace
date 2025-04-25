@@ -16,6 +16,8 @@ export const ProtectedRoute = ({
     (state: RootState) => state.admin
   );
 
+  console.log(role , 'roleeeeee')
+
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -23,7 +25,8 @@ export const ProtectedRoute = ({
   }
 
   if (role != allowedRole) {
-    const rePath = role == Role.PROVIDER ? "/provider/dashboard" : "/home";
+    const rePath =
+      role == Role.PROVIDER ? "/provider/dashboard" : "/admin/dashboard";
 
     return <Navigate to={rePath} replace />;
   }

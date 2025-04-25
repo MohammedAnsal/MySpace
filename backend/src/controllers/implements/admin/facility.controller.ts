@@ -192,5 +192,4 @@ export class AdminFacilityController {
   }
 }
 
-// Create and export a singleton instance
 export const adminFacilityController = Container.get(AdminFacilityController); 
