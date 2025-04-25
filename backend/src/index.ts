@@ -20,6 +20,7 @@ import providerRoute from "./routers/provider/provider.routes";
 import hostelRoute from "./routers/user/hostelRoute";
 import bookingRoute from "./routers/user/bookingRoute";
 import paymentRoute from "./routers/user/paymentRoute";
+import ratingRoute from "./routers/user/ratingRoutes";
 
 dotenv.config();
 dbConnect();
@@ -50,12 +51,10 @@ app.use("/user/payments", paymentRoute);
 app.use(
   "/user",
   userTokenBlackList,
-  authMiddleWare,
-  autherization,
   userRoute,
   hostelRoute,
-  bookingRoute
-  // paymentRoute
+  bookingRoute,
+  ratingRoute
 );
 app.use(
   "/provider",

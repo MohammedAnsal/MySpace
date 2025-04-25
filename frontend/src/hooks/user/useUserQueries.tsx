@@ -6,6 +6,8 @@ import {
   listHostelsHome,
   listUserBookings,
   findNearbyHostels,
+  getHostelRatings,
+  getUserRating,
 } from "@/services/Api/userApi";
 import { HostelFilters } from "@/types/api.types";
 import UserProfile from "@/pages/user/Home/profile/UserProfile";
@@ -13,18 +15,15 @@ import UserProfile from "@/pages/user/Home/profile/UserProfile";
 const fetchUserProfile = async (): Promise<UserProfile | null> => {
   try {
     const response = await findUser();
-    // Adjust based on the actual structure of the response from findUser()
     return response?.data || null;
   } catch (error) {
     console.error("Error fetching user profile:", error);
-    // Return null or throw error depending on how you want useQuery to handle it
     return null;
   }
 };
 
 const fetchHostels = async (filters: HostelFilters) => {
   const response = await listAllHostels(filters);
-  // Ensure we return an empty array if response is undefined, matching useQuery's expected return type
   return response ?? [];
 };
 
@@ -43,9 +42,9 @@ const fetchUserBookings = async () => {
   return response ?? [];
 };
 
-const fetchNearbyHostels = async (params: { 
-  latitude: number; 
-  longitude: number; 
+const fetchNearbyHostels = async (params: {
+  latitude: number;
+  longitude: number;
   radius?: number;
 }) => {
   const { latitude, longitude, radius } = params;
@@ -53,10 +52,32 @@ const fetchNearbyHostels = async (params: {
   return response ?? [];
 };
 
-// New hook for user profile
+const fetchHostelRatings = async (hostelId: string | undefined) => {
+  if (!hostelId) return { ratings: [], averageRating: 0, totalRatings: 0 };
+
+  try {
+    const response = await getHostelRatings(hostelId);
+    return response?.data || { ratings: [], averageRating: 0, totalRatings: 0 };
+  } catch (error) {
+    console.error("Error fetching hostel ratings:", error);
+    return { ratings: [], averageRating: 0, totalRatings: 0 };
+  }
+};
+
+const fetchUserRating = async (userId: string, hostelId: string) => {
+  if (!userId || !hostelId) return null;
+  
+  try {
+    const response = await getUserRating(userId, hostelId);
+    return response?.data || null;
+  } catch (error) {
+    console.error("Error fetching user rating:", error);
+    return null;
+  }
+};
+
 export const useUserProfile = () => {
   return useQuery<UserProfile | null>({
-    // Specify the return type
     queryKey: ["userProfile"],
     queryFn: fetchUserProfile,
     // Optional: Add staleTime or cacheTime if needed
@@ -71,12 +92,10 @@ export const useHostels = (filters: HostelFilters) => {
   });
 };
 
-// New hook for hostel details
 export const useHostelDetails = (id: string | undefined) => {
   return useQuery({
     queryKey: ["hostel", id],
-    queryFn: () => fetchHostelDetails(id!), // Use non-null assertion as 'enabled' handles undefined id
-    // Only run the query if the id is present and valid
+    queryFn: () => fetchHostelDetails(id!),
     enabled: !!id,
   });
 };
@@ -95,7 +114,6 @@ export const useUserBookings = () => {
   });
 };
 
-// Hook for nearby hostels
 export const useNearbyHostels = (
   latitude: number | null,
   longitude: number | null,
@@ -103,11 +121,28 @@ export const useNearbyHostels = (
 ) => {
   return useQuery({
     queryKey: ["nearby-hostels", { latitude, longitude, radius }],
-    queryFn: () => fetchNearbyHostels({ 
-      latitude: latitude!, 
-      longitude: longitude!,
-      radius 
-    }),
-    enabled: !!latitude && !!longitude, // Only run query if coordinates are provided
+    queryFn: () =>
+      fetchNearbyHostels({
+        latitude: latitude!,
+        longitude: longitude!,
+        radius,
+      }),
+    enabled: !!latitude && !!longitude,
+  });
+};
+
+export const useHostelRatings = (hostelId: string | undefined) => {
+  return useQuery({
+    queryKey: ["hostel-ratings", hostelId],
+    queryFn: () => fetchHostelRatings(hostelId),
+    enabled: !!hostelId,
+  });
+};
+
+export const useUserRating = (userId: string, hostelId: string) => {
+  return useQuery({
+    queryKey: ["user-rating", userId, hostelId],
+    queryFn: () => fetchUserRating(userId, hostelId),
+    enabled: !!userId && !!hostelId,
   });
 };

@@ -1,5 +1,8 @@
-import React from 'react';
-import { Calendar, Clock, CreditCard, FileCheck, AlertCircle, MapPin, Calendar as CalendarIcon, Timer, Coffee, Wind, Shirt } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Clock, CreditCard, FileCheck, AlertCircle, MapPin, Calendar as CalendarIcon, Timer, Coffee, Wind, Shirt, Star } from 'lucide-react';
+import RatingModal from './RatingModal';
+import { createRating } from '@/services/Api/userApi';
+import { useUserRating } from '@/hooks/user/useUserQueries';
 
 interface Facility {
   facilityId: {
@@ -50,6 +53,12 @@ interface BookingDetailsProps {
 }
 
 const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+
+  // Fetch user's existing rating for this hostel
+  const { data: userRating, isLoading: isRatingLoading, refetch: refetchUserRating } = 
+    useUserRating(booking.userId, booking.hostelId._id);
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -141,6 +150,25 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
       return 'bg-purple-500';
     } else {
       return 'bg-[#b9a089]';
+    }
+  };
+
+  const handleSubmitRating = async (rating: number, comment: string) => {
+    try {
+      const ratingData = {
+        user_id: booking.userId,
+        hostel_id: booking.hostelId._id,
+        rating,
+        comment
+      };
+      
+      await createRating(ratingData);
+      // Refetch rating after submission
+      refetchUserRating();
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      return Promise.reject(error);
     }
   };
 
@@ -348,6 +376,58 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
           </span>
         </div>
       </div>
+      
+      {/* Rating Button - Only show for completed bookings */}
+      {booking.paymentStatus === 'completed' && (
+        <div className="mt-6 pt-4 border-t flex justify-between items-center">
+          <div>
+            <h4 className="text-sm uppercase font-semibold text-gray-500 flex items-center">
+              <Star className="text-[#b9a089] mr-2" size={16} />
+              {userRating ? 'Your Rating' : 'Rate Your Stay'}
+            </h4>
+            <p className="text-xs text-gray-500 mt-1">
+              {userRating 
+                ? 'Thank you for sharing your experience' 
+                : 'Share your experience to help other users'}
+            </p>
+          </div>
+          
+          {isRatingLoading ? (
+            <div className="px-4 py-2 text-sm text-gray-500">
+              Loading...
+            </div>
+          ) : userRating ? (
+            <div className="flex items-center space-x-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star 
+                  key={star}
+                  size={18}
+                  className={star <= userRating.rating ? "text-amber-400 fill-amber-400" : "text-gray-300"} 
+                />
+              ))}
+              <span className="ml-2 text-sm font-medium text-gray-700">
+                {userRating.rating}/5
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsRatingModalOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-white bg-[#b9a089] rounded-md hover:bg-[#a58e77] transition-colors"
+            >
+              Rate Hostel
+            </button>
+          )}
+          
+          {/* Rating Modal */}
+          <RatingModal
+            isOpen={isRatingModalOpen}
+            onClose={() => setIsRatingModalOpen(false)}
+            hostelId={booking.hostelId._id}
+            userId={booking.userId}
+            onSubmit={handleSubmitRating}
+          />
+        </div>
+      )}
     </div>
   );
 };

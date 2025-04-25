@@ -11,7 +11,7 @@ export const authMiddleWare = async (
 ) => {
   try {
     const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1]; 
+    const token = authHeader && authHeader.split(" ")[1];
 
     if (!token)
       res
@@ -20,8 +20,9 @@ export const authMiddleWare = async (
     else {
       const decodedToken = verifyAccessToken(token) as JwtPayload;
       const userId = decodedToken.id;
+      const role = decodedToken.role;
       if (userId) {
-        req.user = userId;
+        req.user = { id: userId, role: role };
         next();
       } else
         res

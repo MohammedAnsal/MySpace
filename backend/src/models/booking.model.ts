@@ -18,7 +18,6 @@ export interface IBooking extends Document {
   checkIn: Date;
   checkOut: Date;
   stayDurationInMonths: number;
-
   // selectedSpace: string;
   selectedFacilities: IFacilitySelection[];
 
@@ -30,7 +29,7 @@ export interface IBooking extends Document {
   paymentStatus: "pending" | "completed" | "cancelled";
 
   proof: string;
-
+  reason: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,7 +56,7 @@ const BookingSchema: Schema<IBooking> = new Schema(
     checkOut: { type: Date, required: true },
     stayDurationInMonths: { type: Number, required: true },
 
-    // selectedSpace: { type: String },
+    reason: { type: String, default: "" },
     selectedFacilities: [FacilitySelectionSchema],
 
     bookingDate: { type: Date, default: Date.now },

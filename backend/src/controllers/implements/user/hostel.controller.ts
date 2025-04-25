@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { IAdminController } from "../../interface/admin/admin.controller.interface";import Container, { Service } from "typedi";
+import { IAdminController } from "../../interface/admin/admin.controller.interface";
+import Container, { Service } from "typedi";
 import { HttpStatus } from "../../../enums/http.status";
 import { AuthRequset } from "../../../types/api";
 import { AppError } from "../../../utils/error";
@@ -19,6 +20,8 @@ interface FilteredRequest extends Request {
     amenities?: string;
     search?: string;
     sortBy?: "asc" | "desc";
+    minRating?: string;
+    sortByRating?: string;
   };
 }
 
@@ -33,6 +36,10 @@ class HostelController {
 
   async getVerifiedHostels(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
       const filters = {
         minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
         maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
@@ -42,6 +49,10 @@ class HostelController {
           : undefined,
         search: req.query.search as string,
         sortBy: req.query.sortBy as "asc" | "desc",
+        minRating: req.query.minRating
+          ? Number(req.query.minRating)
+          : undefined,
+        sortByRating: req.query.sortByRating === "true",
       };
 
       const result = await this.hostelServicee.getVerifiedHostels(filters);
@@ -49,13 +60,19 @@ class HostelController {
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
+            const hostelData =
+              typeof hostel.toObject === "function"
+                ? hostel.toObject()
+                : { ...hostel };
+
             const signedPhotos = await Promise.all(
-              (hostel.photos || []).map((photo) =>
+              (hostelData.photos || []).map((photo: string) =>
                 this.s3ServiceInstance.generateSignedUrl(photo)
               )
             );
+
             return {
-              ...hostel.toObject(),
+              ...hostelData,
               photos: signedPhotos,
             };
           })
@@ -91,20 +108,28 @@ class HostelController {
 
   async getVerifiedHostelsForHome(req: AuthRequset, res: Response) {
     try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
       const result = await this.hostelServicee.getVerifiedHostelsForHome();
-
-      console.log(result , 'from controllerrrrrrrrrrr')
 
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
+            const hostelData =
+              typeof hostel.toObject === "function"
+                ? hostel.toObject()
+                : { ...hostel };
+
             const signedPhotos = await Promise.all(
-              (hostel.photos || []).map((photo) =>
+              (hostelData.photos || []).map((photo: string) =>
                 this.s3ServiceInstance.generateSignedUrl(photo)
               )
             );
+
             return {
-              ...hostel.toObject(),
+              ...hostelData,
               photos: signedPhotos,
             };
           })
@@ -140,6 +165,10 @@ class HostelController {
 
   async getHostelById(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
       const { hostelId } = req.params;
       const result = await this.hostelServicee.getHostelById(hostelId);
 
@@ -166,12 +195,19 @@ class HostelController {
 
   async getNearbyHostels(req: AuthRequset, res: Response): Promise<void> {
     try {
-      const { latitude, longitude, radius = 5 } = req.query;
-      
-      if (!latitude || !longitude) {
-        throw new AppError("Latitude and longitude are required", HttpStatus.BAD_REQUEST);
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
       }
-      
+      const { latitude, longitude, radius = 5 } = req.query;
+
+      if (!latitude || !longitude) {
+        throw new AppError(
+          "Latitude and longitude are required",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
       const result = await this.hostelServicee.getNearbyHostels(
         parseFloat(latitude as string),
         parseFloat(longitude as string),
@@ -181,13 +217,19 @@ class HostelController {
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
+            const hostelData =
+              typeof hostel.toObject === "function"
+                ? hostel.toObject()
+                : { ...hostel };
+
             const signedPhotos = await Promise.all(
-              (hostel.photos || []).map((photo) =>
+              (hostelData.photos || []).map((photo: string) =>
                 this.s3ServiceInstance.generateSignedUrl(photo)
               )
             );
+
             return {
-              ...hostel.toObject(),
+              ...hostelData,
               photos: signedPhotos,
             };
           })

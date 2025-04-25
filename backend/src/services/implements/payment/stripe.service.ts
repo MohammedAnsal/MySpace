@@ -7,6 +7,8 @@ import { Service } from "typedi";
 import { paymentRepository } from "../../../repositories/implementations/user/payment.repository";
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
+import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
+import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
 
 interface CreateCheckoutSessionParams {
   hostelId: Types.ObjectId;
@@ -24,11 +26,13 @@ interface CreateCheckoutSessionParams {
 export class StripeService {
   private stripe!: Stripe;
   private bookingRepo: IBookingRepository;
+  private hostelRepo: IHostelRepository;
   private paymentRepo: IPaymentRepository;
 
   constructor() {
     this.paymentRepo = paymentRepository;
     this.bookingRepo = bookingRepository;
+    this.hostelRepo = hostelRepository;
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error("STRIPE_SECRET_KEY is missing in environment variables");
     }
@@ -47,12 +51,15 @@ export class StripeService {
     params: CreateCheckoutSessionParams
   ): Promise<string> {
     try {
+      console.log("o");
       if (!this.stripe) {
         throw new AppError(
           "Stripe is not initialized. Please check your environment variables.",
           StatusCodes.INTERNAL_SERVER_ERROR
         );
       }
+
+      console.log(params, "alalalla");
 
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -129,6 +136,8 @@ export class StripeService {
         process.env.STRIPE_WEBHOOK_SECRET!
       );
 
+      console.log(payload, "paauauaua");
+
       switch (event.type) {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
@@ -145,11 +154,13 @@ export class StripeService {
             );
           }
 
-          console.log(payment, "from stripe payment");
-
           await this.bookingRepo.updatePaymentStatus(
             payment.bookingId.toString(),
             "completed"
+          );
+
+          await this.hostelRepo.updateHostelAvailableSpace(
+            payment.hostelId.toString()
           );
 
           await this.paymentRepo.updateStatus(payment._id, "completed");

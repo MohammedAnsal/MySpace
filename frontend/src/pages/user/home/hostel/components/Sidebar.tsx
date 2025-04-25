@@ -1,5 +1,6 @@
 import React from 'react';
 import { Slider } from '@/components/ui/slider';
+import { Star } from 'lucide-react';
 
 interface SidebarProps {
   filters: {
@@ -7,6 +8,7 @@ interface SidebarProps {
     maxPrice: number;
     gender: string;
     amenities: string[];
+    minRating?: number;
   };
   onFilterChange: (filters: Partial<FilterState>) => void;
 }
@@ -18,9 +20,15 @@ interface FilterState {
   amenities: string[];
   search: string;
   sortBy: 'asc' | 'desc';
+  minRating?: number;
+  sortByRating?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
+  const handleRatingChange = (rating: number) => {
+    onFilterChange({ minRating: rating === 0 ? undefined : rating });
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <h2 className="text-xl font-medium mb-6">Filters</h2>
@@ -104,25 +112,47 @@ const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
         </div>
       </div>
 
-      {/* Review Score */}
-      {/* <div>
-        <h3 className="text-sm font-medium mb-4">Review Score</h3>
+      {/* Rating Filter */}
+      <div className="border-t border-gray-200 pt-4 mt-4">
+        <h3 className="font-medium text-gray-900 mb-3">Rating</h3>
         <div className="space-y-2">
-          {[
-            { label: "Superb: 5", value: "5" },
-            { label: "Very good: 4", value: "4" },
-            { label: "Good: 3", value: "3" },
-          ].map((score) => (
-            <label key={score.value} className="flex items-center space-x-2">
+          {[0, 3, 4, 5].map((rating) => (
+            <div 
+              key={rating} 
+              className="flex items-center"
+            >
               <input
-                type="checkbox"
-                className="rounded text-amber-500 focus:ring-amber-500"
+                type="radio"
+                id={`rating-${rating}`}
+                name="rating"
+                checked={filters.minRating === rating || (rating === 0 && filters.minRating === undefined)}
+                onChange={() => handleRatingChange(rating)}
+                className="h-4 w-4 text-amber-500 focus:ring-amber-500 border-gray-300 rounded"
               />
-              <span>{score.label}</span>
-            </label>
+              <label 
+                htmlFor={`rating-${rating}`} 
+                className="ml-2 text-gray-700 flex items-center"
+              >
+                {rating === 0 ? (
+                  "Any Rating"
+                ) : (
+                  <>
+                    <span className="flex">
+                      {[...Array(rating)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      ))}
+                      {[...Array(5-rating)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 text-gray-300" />
+                      ))}
+                    </span>
+                    <span className="ml-1">& above</span>
+                  </>
+                )}
+              </label>
+            </div>
           ))}
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };

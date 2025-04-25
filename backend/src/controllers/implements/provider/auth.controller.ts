@@ -40,6 +40,8 @@ export class AuthController implements IAuthController {
     try {
       const { email, password } = req.body;
 
+      console.log(email , password , 'from pro signIn')
+
       if (!email || !password) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -48,6 +50,8 @@ export class AuthController implements IAuthController {
       }
 
       const response = await this.providerService.signIn(email, password);
+
+      console.log(response,'from con')
 
       setCookie(res, "provider_rfr", String(response.refreshToken));
       setCookie(res, "token", String(response.accessToken));

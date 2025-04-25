@@ -26,7 +26,7 @@ class BookingController implements IBookingController {
 
       const proof = req.file;
 
-      const userId = req.user;
+      const userId = req.user?.id;
       if (!userId) {
         throw new AppError("User not authenticated", 401);
       }
@@ -104,7 +104,7 @@ class BookingController implements IBookingController {
 
   async getProviderBookings(req: AuthRequset, res: Response): Promise<void> {
     try {
-      const providerId = req.user;
+      const providerId = req.user?.id;
       if (!providerId) {
         throw new AppError("User not authenticated", 401);
       }
@@ -134,7 +134,7 @@ class BookingController implements IBookingController {
 
   async getUserBookings(req: AuthRequset, res: Response): Promise<void> {
     try {
-      const userId = req.user;
+      const userId = req.user?.id;
       if (!userId) {
         throw new AppError("User not authenticated", 401);
       }
@@ -160,11 +160,11 @@ class BookingController implements IBookingController {
     }
   }
 
-  async getAllBookings(req: Request, res: Response): Promise<void> {
+  async getAllBookings(req: AuthRequset, res: Response): Promise<void> {
     try {
-      // const userId = req.user;
+      // const userId = req.user?.id;
       // if (!userId) {
-      //   throw new AppError("Admin not authenticated", 401);
+      //   throw new AppError("User not authenticated", 401);
       // }
 
       const bookings = await this.bookingService.getAllBookings();
@@ -247,8 +247,17 @@ class BookingController implements IBookingController {
   //   }
   // }
 
-  async cancelBooking(req: Request, res: Response): Promise<void> {
+  async updateBooking(req: AuthRequset, res: Response): Promise<void> {
     try {
+    } catch (error) {}
+  }
+
+  async cancelBooking(req: AuthRequset, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
       const { bookingId } = req.params;
       const cancelledBooking = await this.bookingService.cancelBooking(
         bookingId
@@ -273,8 +282,12 @@ class BookingController implements IBookingController {
     }
   }
 
-  async processPayment(req: Request, res: Response): Promise<void> {
+  async processPayment(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
       const { bookingId } = req.params;
       const paymentDetails = req.body;
 
@@ -302,8 +315,12 @@ class BookingController implements IBookingController {
     }
   }
 
-  async checkAvailability(req: Request, res: Response): Promise<void> {
+  async checkAvailability(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
       const { hostelId, checkIn, checkOut, selectedSpace } = req.query;
 
       if (!hostelId || !checkIn || !checkOut || !selectedSpace) {

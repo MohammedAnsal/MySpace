@@ -83,7 +83,6 @@ const ProviderDashboard: React.FC = () => {
     },
   ];
 
-  // Distribution data for pie chart
   const distributionData = [
     { name: "Bookings", value: dashboardData?.bookings || 0 },
     { name: "Hostels", value: dashboardData?.hostels || 0 },

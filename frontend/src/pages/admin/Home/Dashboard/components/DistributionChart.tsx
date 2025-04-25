@@ -18,16 +18,14 @@ interface DistributionChartProps {
 }
 
 const DistributionChart = ({ data }: DistributionChartProps) => {
-  // Admin UI theme colors matching with the attached file
   const COLORS = [
-    "#3b82f6", // blue-500
-    "#8b5cf6", // purple-500
-    "#10b981", // green-500
-    "#C8ED4F", // lime-green from theme
-    "#ef4444", // red-500
+    "#3b82f6", 
+    "#8b5cf6", 
+    "#10b981", 
+    "#C8ED4F", 
+    "#ef4444", 
   ];
 
-  // Custom label for pie chart
   const renderCustomLabel = ({
     cx,
     cy,
@@ -98,7 +96,7 @@ const DistributionChart = ({ data }: DistributionChartProps) => {
             <Tooltip 
               formatter={(value, name) => [value, name]}
               contentStyle={{
-                backgroundColor: "#2A2B2F",
+                backgroundColor: "#fff",
                 borderRadius: "8px",
                 border: "1px solid #444",
                 color: "#fff"

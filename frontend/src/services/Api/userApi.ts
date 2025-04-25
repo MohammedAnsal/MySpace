@@ -20,6 +20,7 @@ const handleError = (error: any) => {
 export const signUpRequest = async (formData: object) => {
   try {
     const response = await publicApi.post("/auth/sign-up", formData);
+    console.log(response)
     return handleResponse(response, "Error in sign-up request");
   } catch (error) {
     handleError(error);
@@ -153,6 +154,10 @@ export const listAllHostels = async (
         queryParams.append("amenities", filters.amenities.join(","));
       if (filters.search) queryParams.append("search", filters.search);
       if (filters.sortBy) queryParams.append("sortBy", filters.sortBy);
+      if (filters.minRating !== undefined)
+        queryParams.append("minRating", filters.minRating.toString());
+      if (filters.sortByRating !== undefined)
+        queryParams.append("sortByRating", filters.sortByRating.toString());
     }
 
     const response = await api.get<ApiResponse<Hostel[]>>(
@@ -190,7 +195,6 @@ export const hostelDetails = async (hostelId: string) => {
 
 export const bookingHostel = async (bookingData: FormData) => {
   try {
-    // First create the booking
     const bookingResponse = await api.post(
       "/user/create-booking",
       bookingData,
@@ -205,7 +209,6 @@ export const bookingHostel = async (bookingData: FormData) => {
       throw new Error("Booking creation failed");
     }
 
-    // Then create the payment session
     const paymentResponse = await api.post(`/user/payments/booking`, {
       hostelId: bookingResponse.data.data.hostelId._id,
       userId: bookingResponse.data.data.userId._id,
@@ -219,7 +222,6 @@ export const bookingHostel = async (bookingData: FormData) => {
       },
     });
 
-    // Redirect to Stripe checkout
     if (paymentResponse.data?.data?.checkoutUrl) {
       window.location.href = paymentResponse.data.data.checkoutUrl;
     } else {
@@ -260,5 +262,59 @@ export const findNearbyHostels = async (
   } catch (error) {
     handleError(error);
     return undefined;
+  }
+};
+
+export const createRating = async (ratingData: {
+  user_id: string;
+  hostel_id: string;
+  rating: number;
+  comment?: string;
+}) => {
+  try {
+    const response = await api.post("/user/create-rating", ratingData);
+    return handleResponse(response.data, "Error in creating rating");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getHostelRatings = async (hostelId: string) => {
+  try {
+    const response = await api.get(`/user/hostel/${hostelId}/ratings`);
+    return handleResponse(response.data, "Error fetching hostel ratings");
+  } catch (error) {
+    handleError(error);
+    return { ratings: [], averageRating: 0, totalRatings: 0 };
+  }
+};
+
+export const getUserRating = async (userId: string, hostelId: string) => {
+  try {
+    const response = await api.get(`/user/${hostelId}/${userId}`);
+    return handleResponse(response.data, "Error fetching user rating");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: null };
+  }
+};
+
+export const reprocessBookingPayment = async (bookingId: string) => {
+  try {
+    const response = await api.post(`/user/payments/reprocess-payment/${bookingId}`);
+    return handleResponse(response.data, "Error reprocessing payment");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const cancelBooking = async (bookingId: string, reason: string) => {
+  try {
+    const response = await api.delete(`/user/cancel/${bookingId}`, {
+      data: { reason },
+    });
+    return handleResponse(response.data, "Error cancelling booking");
+  } catch (error) {
+    handleError(error);
   }
 };
