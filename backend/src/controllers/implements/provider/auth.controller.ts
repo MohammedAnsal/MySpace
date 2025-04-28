@@ -40,8 +40,6 @@ export class AuthController implements IAuthController {
     try {
       const { email, password } = req.body;
 
-      console.log(email , password , 'from pro signIn')
-
       if (!email || !password) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,

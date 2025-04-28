@@ -176,3 +176,30 @@ export const getAdminDashboard = async () => {
     handleError(error);
   }
 };
+
+export const getAdminWallet = async () => {
+  try {
+    const response = await private_api.get("/wallet/admin-wallet");
+    return handleResponse(response.data, "Error fetching admin wallet");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getAdminTransactions = async () => {
+  try {
+    const response = await private_api.get("/wallet/transactions");
+    return handleResponse(response.data, "Error fetching wallet transactions");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const processPayouts = async (payoutData: any) => {
+  try {
+    const response = await private_api.post("/wallet/process-payout", payoutData);
+    return handleResponse(response.data, "Error processing payout");
+  } catch (error) {
+    handleError(error);
+  }
+};

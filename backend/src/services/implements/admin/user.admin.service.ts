@@ -14,6 +14,8 @@ import { IHostelRepository } from "../../../repositories/interfaces/provider/hos
 import { hostelRepository } from "../../../repositories/implementations/provider/hostel.repository";
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
+import { walletService } from "../wallet/wallet.service";
+import { IWalletService } from "../../interface/wallet/wallet.service.interface";
 
 @Service()
 export class AdminUserService implements IAdminUserService {
@@ -27,6 +29,23 @@ export class AdminUserService implements IAdminUserService {
     this.s3ServiceInstance = s3Service;
     this.hostelRepo = hostelRepository;
     this.bookingRepo = bookingRepository;
+  }
+
+  async createWallet(adminId: string) {
+    try {
+      // Create admin wallet
+      try {
+        const adminWallet = await walletService.createAdminWallet(adminId);
+        if (adminWallet) {
+          return adminWallet;
+        } else {
+          throw new AppError("faild to add admin wallet");
+        }
+      } catch (walletError) {
+        console.error("Error creating wallet for provider:", walletError);
+        // Don't fail the verification process if wallet creation fails
+      }
+    } catch (error) {}
   }
 
   async findAllUser(): Promise<{ success: boolean; data: IUser[] }> {
@@ -72,8 +91,6 @@ export class AdminUserService implements IAdminUserService {
       if (findUser) {
         findUser.is_active = !findUser.is_active;
         await findUser.save();
-
-        console.log(findUser, "afterrrr");
 
         return { success: true, message: "User status updated" };
       } else {

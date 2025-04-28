@@ -23,6 +23,7 @@ import RootPage from "./Rootpage";
 import Contact from "@/pages/user/Home/contact/Contact";
 import About from "@/pages/user/Home/about/About";
 import BookingDetailsPage from "@/pages/user/Home/profile/bookings/BookingDetailsPage";
+import Wallet from "@/pages/user/Home/profile/wallet/Wallet";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -113,6 +114,14 @@ export const UserRoutes: RouteObject[] = [
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
             <BookingDetailsPage />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "wallet",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <Wallet />
           </ProtecteddRoute>
         ),
       },

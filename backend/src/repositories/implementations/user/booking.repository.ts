@@ -95,12 +95,16 @@ export class BookingRepository implements IBookingRepository {
   //   );
   // }
 
-  async cancelBooking(bookingId: string): Promise<IBooking | null> {
+  async cancelBooking(
+    bookingId: string,
+    reason: string
+  ): Promise<IBooking | null> {
     return await Booking.findByIdAndUpdate(
       bookingId,
       {
         $set: {
           paymentStatus: "cancelled",
+          reason: reason,
           updatedAt: new Date(),
         },
       },

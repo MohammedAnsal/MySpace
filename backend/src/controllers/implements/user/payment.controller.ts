@@ -102,8 +102,6 @@ export class PaymentController {
   async reprocessPayment(req: Request, res: Response) {
     try {
       const { bookingId } = req.params;
-
-      const {} = req.body
       
 
       if (!bookingId) {
@@ -131,8 +129,6 @@ export class PaymentController {
         );
       }
 
-      console.log("kkkkkk")
-
       // Create success and cancel URLs
       const successUrl = `${process.env.CLIENT_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${process.env.CLIENT_URL}/booking/cancel`;
@@ -151,8 +147,6 @@ export class PaymentController {
           stayDuration: booking.stayDurationInMonths,
         },
       });
-
-      console.log(checkoutUrl)
 
       res.status(StatusCodes.OK).json({
         status: "success",

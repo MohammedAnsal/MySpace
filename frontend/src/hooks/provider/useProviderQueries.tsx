@@ -4,6 +4,8 @@ import {
   getProviderDashboard,
   listAllHostels,
   listProviderBookings,
+  getProviderWallet,
+  getWalletTransactions
 } from "@/services/Api/providerApi";
 // Import UserProfile from the correct location
 import { ProviderProfile } from "@/pages/provider/Profile/Profile";
@@ -99,6 +101,40 @@ export const useProviderDashboard = () => {
   return useQuery<DashboardData>({
     queryKey: ["provider-dashboard"],
     queryFn: fetchProviderDashboard,
+  });
+};
+
+const fetchProviderWallet = async () => {
+  try {
+    const response = await getProviderWallet();
+    return response?.data || null;
+  } catch (error) {
+    console.error("Error fetching provider wallet:", error);
+    return null;
+  }
+};
+
+const fetchWalletTransactions = async () => {
+  try {
+    const response = await getWalletTransactions();
+    return response?.data || [];
+  } catch (error) {
+    console.error("Error fetching wallet transactions:", error);
+    return [];
+  }
+};
+
+export const useProviderWallet = () => {
+  return useQuery({
+    queryKey: ["provider-wallet"],
+    queryFn: fetchProviderWallet,
+  });
+};
+
+export const useWalletTransactions = () => {
+  return useQuery({
+    queryKey: ["wallet-transactions"],
+    queryFn: fetchWalletTransactions,
   });
 };
  

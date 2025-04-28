@@ -15,6 +15,7 @@ import {
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { AuthResponse, SignInResult } from "../../../types/types";
+import { walletService } from "../wallet/wallet.service";
 
 @Service()
 export class AuthProviderService implements IAuthService {
@@ -185,6 +186,15 @@ export class AuthProviderService implements IAuthService {
       }
 
       await this.providerRepo.verifyProvider(email, true);
+      
+      // Create wallet for provider after verification
+      try {
+        await walletService.createProviderWallet(validUser._id.toString());
+      } catch (walletError) {
+        console.error("Error creating wallet for provider:", walletError);
+        // Don't fail the verification process if wallet creation fails
+      }
+      
       await this.otpRepo.deleteOtpByEmail(email);
 
       return { success: true, message: "Verification complete" };

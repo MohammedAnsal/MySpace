@@ -7,6 +7,7 @@ import {
   HomeIcon,
   House,
   NotebookTabs,
+  DollarSign
 } from "lucide-react";
 import { NavMain } from "../../components/admin/nav-main";
 import { TeamSwitcher } from "@/components/admin/team-switcher";
@@ -67,6 +68,12 @@ const data = {
       title: "Bookings",
       url: "/admin/bookings",
       icon: NotebookTabs,
+      isActive: true,
+    },
+    {
+      title: "Wallet",
+      url: "/admin/wallet",
+      icon: DollarSign,
       isActive: true,
     },
   ],

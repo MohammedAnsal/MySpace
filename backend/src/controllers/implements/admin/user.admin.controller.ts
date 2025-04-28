@@ -15,6 +15,8 @@ import {
 } from "../../../services/implements/s3/s3.service";
 import { IHostel } from "../../../models/provider/hostel.model";
 
+const AdminId = process.env.ADMIN_ID;
+
 @Service()
 class AdminUserController implements IAdminController {
   private adminServicee: IAdminUserService;
@@ -22,6 +24,24 @@ class AdminUserController implements IAdminController {
 
   constructor(private userService: AdminUserService) {
     this.adminServicee = adminService;
+  }
+
+  async createWallet(req: AuthRequset, res: Response): Promise<any> {
+    // Create wallet for provider after verification
+    try {
+      if (!AdminId) {
+        throw new AppError("Admin not authenticated", 401);
+      }
+      const adminWallet = await this.userService.createWallet(AdminId);
+       if (adminWallet) {
+         return res.status(200).json(adminWallet);
+       } else {
+         throw new Error("failed to  fetch user");
+       }
+    } catch (walletError) {
+      console.error("Error creating wallet for provider:", walletError);
+      // Don't fail the verification process if wallet creation fails
+    }
   }
 
   async fetchUsers(req: AuthRequset, res: Response): Promise<any> {

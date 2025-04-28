@@ -85,23 +85,23 @@ export const editProfile = async (formData: FormData) => {
   }
 };
 
-export const createFacility = async (facilityData: any) => {
-  try {
-    const response = await privateApi.post(
-      "/provider/add-facility",
-      facilityData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+// export const createFacility = async (facilityData: any) => {
+//   try {
+//     const response = await privateApi.post(
+//       "/provider/add-facility",
+//       facilityData,
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
 
-    return handleResponse(response.data, "Error in provider add facility.");
-  } catch (error) {
-    handleError(error);
-  }
-};
+//     return handleResponse(response.data, "Error in provider add facility.");
+//   } catch (error) {
+//     handleError(error);
+//   }
+// };
 
 export const findAllFacilities = async () => {
   try {
@@ -113,31 +113,31 @@ export const findAllFacilities = async () => {
   }
 };
 
-export const updateFacilityStatus = async (
-  facilityId: string,
-  status: boolean
-) => {
-  try {
-    const response = await privateApi.put("/provider/facility/status", {
-      facilityId,
-      status,
-    });
-    return handleResponse(response.data, "Error updating facility status");
-  } catch (error) {
-    handleError(error);
-  }
-};
+// export const updateFacilityStatus = async (
+//   facilityId: string,
+//   status: boolean
+// ) => {
+//   try {
+//     const response = await privateApi.put("/provider/facility/status", {
+//       facilityId,
+//       status,
+//     });
+//     return handleResponse(response.data, "Error updating facility status");
+//   } catch (error) {
+//     handleError(error);
+//   }
+// };
 
-export const deleteFacility = async (facilityId: string) => {
-  try {
-    const response = await privateApi.delete(
-      `/provider/facility/${facilityId}`
-    );
-    return handleResponse(response.data, "Error deleting facility");
-  } catch (error) {
-    handleError(error);
-  }
-};
+// export const deleteFacility = async (facilityId: string) => {
+//   try {
+//     const response = await privateApi.delete(
+//       `/provider/facility/${facilityId}`
+//     );
+//     return handleResponse(response.data, "Error deleting facility");
+//   } catch (error) {
+//     handleError(error);
+//   }
+// };
 
 export const createHostel = async (formData: FormData) => {
   try {
@@ -236,5 +236,25 @@ export const getProviderDashboard = async () => {
     );
   } catch (error) {
     handleError(error);
+  }
+};
+
+export const getProviderWallet = async () => {
+  try {
+    const response = await privateApi.get("/wallet/provider-wallet");
+    return handleResponse(response.data, "Error fetching provider wallet");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: null };
+  }
+};
+
+export const getWalletTransactions = async () => {
+  try {
+    const response = await privateApi.get('/wallet/transactions');
+    return handleResponse(response.data, "Error fetching wallet transactions");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: [] };
   }
 };

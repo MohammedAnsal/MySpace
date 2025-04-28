@@ -31,7 +31,7 @@ const CancelBookingModal: React.FC<CancelBookingModalProps> = ({
       setReasonError("Please provide a reason for cancellation");
       return false;
     }
-    if (reason.trim().length < 10) {
+    if (reason.trim().length < 5) {
       setReasonError("Reason must be at least 10 characters long");
       return false;
     }

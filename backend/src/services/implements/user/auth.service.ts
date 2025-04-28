@@ -23,6 +23,7 @@ import { HttpStatus } from "../../../enums/http.status";
 import { IAuthService } from "../../interface/user/auth.service.interface";
 import { StatusCodes } from "http-status-codes";
 import { OAuth2Client } from "google-auth-library";
+import { walletService } from "../wallet/wallet.service";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -200,6 +201,14 @@ export class AuthService implements IAuthService {
       }
 
       await this.userRepo.verifyUser(email, true);
+
+      // Create wallet for the user after verification
+      try {
+        await walletService.createUserWallet(validUser._id.toString());
+      } catch (walletError) {
+        console.error("Error creating wallet:", walletError);
+        // Don't fail the verification process if wallet creation fails
+      }
 
       try {
         await this.otpRepo.deleteOtpByEmail(email);
@@ -393,6 +402,14 @@ export class AuthService implements IAuthService {
         role: "user",
         is_verified: true,
       } as IUser);
+      
+      // Create wallet for Google sign-in users
+      try {
+        await walletService.createUserWallet(user._id.toString());
+      } catch (walletError) {
+        console.error("Error creating wallet for Google user:", walletError);
+        // Don't fail the sign-in process if wallet creation fails
+      }
     }
 
     const accessToken = generateAccessToken({

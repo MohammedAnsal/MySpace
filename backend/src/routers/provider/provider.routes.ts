@@ -41,10 +41,10 @@ providerRoute.put(
 //   facilityController.createFacility.bind(facilityController)
 // );
 
-// providerRoute.get(
-//   "/facilities",
-//   facilityController.findAllFacilities.bind(facilityController)
-// );
+providerRoute.get(
+  "/facilities",
+  providerController.findAllFacilities.bind(providerController)
+);
 
 // providerRoute.put(
 //   "/facility/status",

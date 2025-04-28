@@ -144,6 +144,38 @@ export class ProviderController implements IProviderController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  async findAllFacilities(req: AuthRequset, res: Response): Promise<any> {
+    try {
+      // // Validate admin is authenticated
+      // if (!req.user) {
+      //   return res.status(401).json({
+      //     success: false,
+      //     message: "Admin authentication required",
+      //   });
+      // }
+
+      const facilities = await this.providerService.findAllFacilities();
+
+      return res.status(200).json({
+        success: true,
+        message: "Facilities fetched successfully",
+        data: facilities,
+      });
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch facilities",
+      });
+    }
+  }
 }
 
 export const providerController = Container.get(ProviderController);
