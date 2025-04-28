@@ -7,6 +7,8 @@ import {
   getVerifiedHostels,
   listAdminBookings,
   getAdminDashboard,
+  getAdminWallet,
+  getAdminTransactions,
 } from "@/services/Api/admin/adminApi";
 
 const fetchUsers = async () => {
@@ -115,5 +117,48 @@ export const useAdminDashboard = () => {
   return useQuery<DashboardData>({
     queryKey: ["admin-dashboard"],
     queryFn: fetchAdminDashboard,
+  });
+};
+
+interface Transaction {
+  _id: string;
+  amount: number;
+  type: 'credit' | 'debit';
+  status: 'completed' | 'pending' | 'failed';
+  description: string;
+  bookingId?: string;
+  createdAt: string;
+}
+
+interface WalletData {
+  _id: string;
+  adminId: string;
+  balance: number;
+  transactions: Transaction[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+const fetchAdminWallet = async (): Promise<WalletData | null> => {
+  const response = await getAdminWallet();
+  return response?.data || null;
+};
+
+const fetchAdminTransactions = async (): Promise<Transaction[]> => {
+  const response = await getAdminTransactions();
+  return response?.data || [];
+};
+
+export const useAdminWallet = () => {
+  return useQuery<WalletData | null>({
+    queryKey: ["admin-wallet"],
+    queryFn: fetchAdminWallet,
+  });
+};
+
+export const useAdminTransactions = () => {
+  return useQuery<Transaction[]>({
+    queryKey: ["admin-transactions"],
+    queryFn: fetchAdminTransactions,
   });
 };

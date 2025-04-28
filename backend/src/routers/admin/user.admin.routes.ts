@@ -9,6 +9,13 @@ import Roles from "../../enums/roles";
 
 const adminUserRoute = Router();
 
+adminUserRoute.post(
+  "/create-wallet",
+  // authMiddleWare,
+  // autherization,
+  // authorizeRoles(Roles.ADMIN),
+  adminUserControllerr.createWallet.bind(adminUserControllerr)
+);
 adminUserRoute.get(
   "/users",
   authMiddleWare,

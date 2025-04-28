@@ -48,7 +48,7 @@ bookingRoute.get(
 // );
 
 // // Cancel booking
-bookingRoute.delete(
+bookingRoute.post(
   "/cancel/:bookingId",
   authMiddleWare,
   autherization,

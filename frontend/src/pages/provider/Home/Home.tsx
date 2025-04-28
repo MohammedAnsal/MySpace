@@ -8,6 +8,8 @@ import { useProviderDashboard } from "@/hooks/provider/useProviderQueries";
 import Loading from "@/components/global/Loading";
 import RevenueAnalytics from "@/pages/provider/Home/components/RevenueAnalytics";
 import DistributionChart from "@/pages/provider/Home/components/DistributionChart";
+import WalletTransactionsChart from "@/pages/provider/Home/components/WalletTransactionsChart";
+import WalletSummary from "@/pages/provider/Home/components/WalletSummary";
 
 interface Metric {
   title: string;
@@ -153,6 +155,12 @@ const ProviderDashboard: React.FC = () => {
                   ))
                 )}
               </div>
+            </div>
+
+            {/* Wallet Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <WalletSummary />
+              <WalletTransactionsChart />
             </div>
 
             {/* Charts Section */}

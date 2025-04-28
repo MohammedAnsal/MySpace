@@ -15,6 +15,7 @@ import {
   NotebookPen,
   House,
   BookCheck,
+  Wallet,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
@@ -64,6 +65,12 @@ const navItems: NavItem[] = [
     title: "Notifications",
     icon: <Bell size={20} className="text-gray-700" />,
     path: "/provider/notifications",
+  },
+  {
+    id: "wallet",
+    title: "Wallet",
+    icon: <Wallet size={20} className="text-gray-700" />,
+    path: "/provider/wallet",
   },
   {
     id: "profile",

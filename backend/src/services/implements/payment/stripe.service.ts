@@ -9,6 +9,12 @@ import { IBookingRepository } from "../../../repositories/interfaces/user/bookin
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
+import {
+  walletService,
+  WalletService,
+} from "../../../services/implements/wallet/wallet.service";
+import { Container } from "typedi";
+import { IWalletService } from "../../interface/wallet/wallet.service.interface";
 
 interface CreateCheckoutSessionParams {
   hostelId: Types.ObjectId;
@@ -28,11 +34,13 @@ export class StripeService {
   private bookingRepo: IBookingRepository;
   private hostelRepo: IHostelRepository;
   private paymentRepo: IPaymentRepository;
+  private walletService: IWalletService;
 
   constructor() {
     this.paymentRepo = paymentRepository;
     this.bookingRepo = bookingRepository;
     this.hostelRepo = hostelRepository;
+    this.walletService = walletService;
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error("STRIPE_SECRET_KEY is missing in environment variables");
     }
@@ -58,8 +66,6 @@ export class StripeService {
           StatusCodes.INTERNAL_SERVER_ERROR
         );
       }
-
-      console.log(params, "alalalla");
 
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -136,8 +142,6 @@ export class StripeService {
         process.env.STRIPE_WEBHOOK_SECRET!
       );
 
-      console.log(payload, "paauauaua");
-
       switch (event.type) {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
@@ -165,31 +169,25 @@ export class StripeService {
 
           await this.paymentRepo.updateStatus(payment._id, "completed");
 
-          // const adminWallet = await this.walletRepository.findByAdminId(
-          //   process.env.ADMIN_ID!
-          // );
+          // Get booking details to access the amount
+          const booking = await this.bookingRepo.getBookingById(
+            payment.bookingId.toString()
+          );
+          if (!booking) {
+            throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
+          }
 
-          // if (!adminWallet) {
-          //   throw new AppError("Admin wallet not found", StatusCodes.NOT_FOUND);
-          // }
-
-          // await this.walletRepository.addTransaction(adminWallet._id, {
-          //   amount,
-          //   type: "credit",
-          //   status: "completed",
-          //   description: "Payment received for session booking",
-          //   sessionId,
-          //   metadata: { stripeSessionId: session.id },
-          // });
-
-          // await this.sessionRepository.updatePaymentStatus(
-          //   sessionId,
-          //   "completed"
-          // );
-          // await this.sessionRepository.updateSessionStatus(
-          //   sessionId,
-          //   "scheduled"
-          // );
+          // Distribute the booking amount between provider and admin (70/30 split)
+          try {
+            await walletService.distributeBookingAmount(
+              payment.bookingId.toString(),
+              payment.providerId.toString(),
+              booking.firstMonthRent || amount // Use firstMonthRent if available, otherwise use the amount from Stripe
+            );
+          } catch (error) {
+            console.error("Error distributing booking amount:", error);
+            // Don't throw here - just log the error to avoid disrupting the payment flow
+          }
 
           break;
         }

@@ -2,6 +2,10 @@ import { Service } from "typedi";
 import { IUser, User } from "../../../models/user.model";
 import { BaseRepository } from "../../base.repository";
 import { IProviderRepository } from "../../interfaces/provider/provider.Irepository";
+import {
+  AdminFacility,
+  IAdminFacility,
+} from "../../../models/admin/facility.model";
 
 @Service()
 export class ProviderRepository
@@ -65,5 +69,11 @@ export class ProviderRepository
     }
   }
 
-
+  async findAllFacilities(): Promise<IAdminFacility[]> {
+    try {
+      return await AdminFacility.find();
+    } catch (error) {
+      throw new Error(`Error finding all facilities: ${error}`);
+    }
+  }
 }

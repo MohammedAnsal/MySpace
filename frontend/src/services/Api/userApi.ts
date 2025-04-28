@@ -20,7 +20,6 @@ const handleError = (error: any) => {
 export const signUpRequest = async (formData: object) => {
   try {
     const response = await publicApi.post("/auth/sign-up", formData);
-    console.log(response)
     return handleResponse(response, "Error in sign-up request");
   } catch (error) {
     handleError(error);
@@ -301,7 +300,9 @@ export const getUserRating = async (userId: string, hostelId: string) => {
 
 export const reprocessBookingPayment = async (bookingId: string) => {
   try {
-    const response = await api.post(`/user/payments/reprocess-payment/${bookingId}`);
+    const response = await api.post(
+      `/user/payments/reprocess-payment/${bookingId}`
+    );
     return handleResponse(response.data, "Error reprocessing payment");
   } catch (error) {
     handleError(error);
@@ -310,11 +311,29 @@ export const reprocessBookingPayment = async (bookingId: string) => {
 
 export const cancelBooking = async (bookingId: string, reason: string) => {
   try {
-    const response = await api.delete(`/user/cancel/${bookingId}`, {
-      data: { reason },
-    });
+    const response = await api.post(`/user/cancel/${bookingId}`, { reason });
     return handleResponse(response.data, "Error cancelling booking");
   } catch (error) {
     handleError(error);
+  }
+};
+
+export const getUserWallet = async () => {
+  try {
+    const response = await api.get("/user/user-wallet");
+    return handleResponse(response.data, "Error fetching user wallet");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: null };
+  }
+};
+
+export const getWalletTransactions = async () => {
+  try {
+    const response = await api.get("/user/transactions");
+    return handleResponse(response.data, "Error fetching wallet transactions");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: [] };
   }
 };

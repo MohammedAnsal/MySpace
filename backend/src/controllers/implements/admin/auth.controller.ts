@@ -5,6 +5,8 @@ import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import { AppError } from "../../../utils/error";
 import { setCookie } from "../../../utils/cookies.util";
 
+const AdminId = process.env.ADMIN_ID;
+
 @Service()
 export class AdminController {
   constructor(private readonly adminService: AdminAuthService) {}

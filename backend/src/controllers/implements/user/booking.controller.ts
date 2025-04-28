@@ -5,13 +5,20 @@ import { AppError } from "../../../utils/error";
 import { AuthRequset } from "../../../types/api";
 import Container, { Service } from "typedi";
 import { bookingService } from "../../../services/implements/user/booking.service";
+import {
+  walletService,
+  WalletService,
+} from "../../../services/implements/wallet/wallet.service";
+import { IWalletService } from "../../../services/interface/wallet/wallet.service.interface";
 // import { validateBookingData, validateUpdateData } from "../../../utils/validators/bookingValidator";
 @Service()
 class BookingController implements IBookingController {
   private bookingService: IBookingService;
+  private walletService: IWalletService;
 
   constructor() {
     this.bookingService = bookingService;
+    this.walletService = walletService;
   }
 
   async createBooking(req: AuthRequset, res: Response): Promise<void> {
@@ -162,10 +169,10 @@ class BookingController implements IBookingController {
 
   async getAllBookings(req: AuthRequset, res: Response): Promise<void> {
     try {
-      // const userId = req.user?.id;
-      // if (!userId) {
-      //   throw new AppError("User not authenticated", 401);
-      // }
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
 
       const bookings = await this.bookingService.getAllBookings();
 
@@ -259,12 +266,55 @@ class BookingController implements IBookingController {
         throw new AppError("User not authenticated", 401);
       }
       const { bookingId } = req.params;
+      const { reason } = req.body;
+
+      if (!reason) {
+        throw new AppError("Cancellation reason is required", 400);
+      }
+
+      // Get the booking to check the check-in date
+      const booking = await this.bookingService.getBookingById(bookingId);
+
+      // Check if the booking belongs to the user
+      // if (booking.userId.toString() !== userId) {
+      //   throw new AppError(
+      //     "You are not authorized to cancel this booking",
+      //     403
+      //   );
+      // }
+
+      // Check if today is before the check-in date
+      const today = new Date();
+      const checkInDate = new Date(booking.checkIn);
+
+      if (today >= checkInDate) {
+        throw new AppError(
+          "Cancellation is only allowed before the check-in date",
+          400
+        );
+      }
+
+      // First cancel the booking with reason
       const cancelledBooking = await this.bookingService.cancelBooking(
-        bookingId
+        bookingId,
+        reason
       );
+
+      
+      // Then initiate refund process if payment was completed
+      if (cancelledBooking.paymentStatus === "cancelled") {
+        // Process the refund
+        try {
+          await this.walletService.processRefund(bookingId);
+        } catch (refundError) {
+          console.error("Refund processing error:", refundError);
+          // Don't fail the cancellation if refund fails, just log it
+        }
+      }
 
       res.status(200).json({
         status: "success",
+        message: "Booking cancelled successfully",
         data: cancelledBooking,
       });
     } catch (error) {

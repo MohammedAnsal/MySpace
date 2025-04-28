@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useAdminFacilities } from "@/hooks/admin/useAdminFacilities";
+import { useFacilities } from "@/hooks/provider/useFacilities";
 import Loading from "@/components/global/Loading";
 
 interface FacilitiesSectionProps {
@@ -20,7 +20,7 @@ export const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
   // availableFacilities
 }) => {
   const navigate = useNavigate();
-  const { facilities, isLoading, error } = useAdminFacilities();
+  const { facilities, isLoading, error } = useFacilities();
 
   // Filter only available (unblocked) facilities
   const availableFacilities = facilities.filter(

@@ -10,16 +10,13 @@ import {
   User,
   Calendar,
   Shield,
-  MapPin,
-  Building
+  DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  editProfile,
-  findProvider,
-} from "@/services/Api/providerApi";
+import { editProfile } from "@/services/Api/providerApi";
 import Loading from "@/components/global/Loading";
 import ChangePasswordModal from "./components/ChangePasswordModal";
+import WalletSummary from "../wallet/components/WalletSummary";
 import { useProviderProfile } from "@/hooks/provider/useProviderQueries";
 
 export interface ProviderProfile {
@@ -27,11 +24,15 @@ export interface ProviderProfile {
   email: string;
   phone: string;
   profile_picture: string;
-  businessName?: string;
 }
 
 const Profile: React.FC = () => {
-  const { data: profile, isLoading: isProfileLoading, error, refetch } = useProviderProfile();
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    error,
+    refetch,
+  } = useProviderProfile();
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false);
@@ -39,7 +40,7 @@ const Profile: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tempProfile, setTempProfile] = useState<ProviderProfile | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [activeTab, setActiveTab] = useState<'personal' | 'business'>('personal');
+  const [activeTab, setActiveTab] = useState<"personal" | "wallet">("personal");
 
   useEffect(() => {
     if (profile) {
@@ -56,8 +57,8 @@ const Profile: React.FC = () => {
 
   const handleSave = async () => {
     if (!tempProfile) {
-       toast.error("Profile data is not available to save.");
-       return;
+      toast.error("Profile data is not available to save.");
+      return;
     }
 
     setIsLoading(true);
@@ -65,7 +66,6 @@ const Profile: React.FC = () => {
       const formData = new FormData();
       formData.append("fullName", tempProfile.fullName || "");
       formData.append("phone", tempProfile.phone || "");
-      formData.append("businessName", tempProfile.businessName || "");
 
       if (imageFile) {
         formData.append("profile", imageFile);
@@ -91,7 +91,7 @@ const Profile: React.FC = () => {
 
   const handleCancel = () => {
     if (profile) {
-        setTempProfile(profile);
+      setTempProfile(profile);
     }
     setIsEditing(false);
     setImageFile(null);
@@ -105,7 +105,11 @@ const Profile: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          setTempProfile((prev) => (prev ? { ...prev, profile_picture: event.target?.result as string } : null));
+          setTempProfile((prev) =>
+            prev
+              ? { ...prev, profile_picture: event.target?.result as string }
+              : null
+          );
         }
       };
       reader.readAsDataURL(file);
@@ -140,7 +144,9 @@ const Profile: React.FC = () => {
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
-          <p className="text-gray-600">Manage your personal information and account settings</p>
+          <p className="text-gray-600">
+            Manage your personal information and wallet
+          </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-amber-100">
@@ -190,13 +196,14 @@ const Profile: React.FC = () => {
           <div className="px-6 py-4 flex flex-col md:flex-row">
             <div className="relative -mt-16 mb-4 md:mb-0 flex-shrink-0 self-center md:self-start">
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white bg-gray-100 shadow-md">
-                {(tempProfile?.profile_picture) ? (
+                {tempProfile?.profile_picture ? (
                   <img
                     src={tempProfile.profile_picture}
                     alt="Profile"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = "https://via.placeholder.com/150?text=Profile";
+                      e.currentTarget.src =
+                        "https://via.placeholder.com/150?text=Profile";
                     }}
                   />
                 ) : (
@@ -245,46 +252,59 @@ const Profile: React.FC = () => {
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Phone size={16} className="mr-2 text-amber-500" />
-                  <span>{isEditing ? (tempProfile?.phone || 'Not provided') : (profile.phone || 'Not provided')}</span>
+                  <span>
+                    {isEditing
+                      ? tempProfile?.phone || "Not provided"
+                      : profile.phone || "Not provided"}
+                  </span>
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Calendar size={16} className="mr-2 text-amber-500" />
-                  <span>Joined {new Date().toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long'
-                  })}</span>
+                  <span>
+                    Joined{" "}
+                    {new Date().toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                    })}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="border-t border-gray-200">
-            <div className="flex">
+            <div className="flex flex-wrap">
               <button
                 className={`flex-1 py-3 px-4 font-medium text-center ${
-                  activeTab === 'personal' 
-                    ? 'text-amber-600 border-b-2 border-amber-400' 
-                    : 'text-gray-600 hover:text-amber-500'
+                  activeTab === "personal"
+                    ? "text-amber-600 border-b-2 border-amber-400"
+                    : "text-gray-600 hover:text-amber-500"
                 }`}
-                onClick={() => setActiveTab('personal')}
+                onClick={() => setActiveTab("personal")}
               >
-                Personal Information
+                <div className="flex items-center justify-center">
+                  <User size={16} className="mr-2" />
+                  <span>Personal Information</span>
+                </div>
               </button>
               <button
                 className={`flex-1 py-3 px-4 font-medium text-center ${
-                  activeTab === 'business' 
-                    ? 'text-amber-600 border-b-2 border-amber-400' 
-                    : 'text-gray-600 hover:text-amber-500'
+                  activeTab === "wallet"
+                    ? "text-amber-600 border-b-2 border-amber-400"
+                    : "text-gray-600 hover:text-amber-500"
                 }`}
-                onClick={() => setActiveTab('business')}
+                onClick={() => setActiveTab("wallet")}
               >
-                Business Details
+                <div className="flex items-center justify-center">
+                  <DollarSign size={16} className="mr-2" />
+                  <span>Wallet</span>
+                </div>
               </button>
             </div>
           </div>
 
           <div className="p-6">
-            {activeTab === 'personal' && (
+            {activeTab === "personal" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
                   <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
@@ -293,17 +313,24 @@ const Profile: React.FC = () => {
                   </h3>
                   <div className="space-y-6">
                     <div>
-                      <p className="text-sm text-gray-500 font-medium mb-1">Email Address</p>
+                      <p className="text-sm text-gray-500 font-medium mb-1">
+                        Email Address
+                      </p>
                       <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200">
                         <Mail className="text-amber-500 mr-3" size={18} />
                         <p className="text-gray-800">{profile.email}</p>
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 font-medium mb-1">Phone Number</p>
+                      <p className="text-sm text-gray-500 font-medium mb-1">
+                        Phone Number
+                      </p>
                       {isEditing ? (
                         <div className="flex items-center bg-white p-2 rounded-lg border border-gray-200">
-                          <Phone className="text-amber-500 ml-1 mr-3" size={18} />
+                          <Phone
+                            className="text-amber-500 ml-1 mr-3"
+                            size={18}
+                          />
                           <input
                             type="tel"
                             name="phone"
@@ -316,13 +343,15 @@ const Profile: React.FC = () => {
                       ) : (
                         <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200">
                           <Phone className="text-amber-500 mr-3" size={18} />
-                          <p className="text-gray-800">{profile.phone || "Not provided"}</p>
+                          <p className="text-gray-800">
+                            {profile.phone || "Not provided"}
+                          </p>
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
                   <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
                     <Shield size={20} className="mr-2 text-amber-500" />
@@ -330,7 +359,9 @@ const Profile: React.FC = () => {
                   </h3>
                   <div className="space-y-6">
                     <div>
-                      <p className="text-sm text-gray-500 font-medium mb-1">Password</p>
+                      <p className="text-sm text-gray-500 font-medium mb-1">
+                        Password
+                      </p>
                       <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
                         <div className="flex items-center">
                           <Lock className="text-amber-500 mr-3" size={18} />
@@ -345,7 +376,9 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 font-medium mb-1">Account Status</p>
+                      <p className="text-sm text-gray-500 font-medium mb-1">
+                        Account Status
+                      </p>
                       <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200">
                         <div className="flex items-center">
                           <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-3"></span>
@@ -354,14 +387,16 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 font-medium mb-1">Member Since</p>
+                      <p className="text-sm text-gray-500 font-medium mb-1">
+                        Member Since
+                      </p>
                       <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200">
                         <Calendar className="text-amber-500 mr-3" size={18} />
                         <p className="text-gray-800">
-                          {new Date().toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                          {new Date().toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
                           })}
                         </p>
                       </div>
@@ -371,73 +406,16 @@ const Profile: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'business' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
-                    <Building size={20} className="mr-2 text-amber-500" />
-                    Business Information
-                  </h3>
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-sm text-gray-500 font-medium mb-1">Business Name</p>
-                      {isEditing ? (
-                        <div className="flex items-center bg-white p-2 rounded-lg border border-gray-200">
-                          <Building className="text-amber-500 ml-1 mr-3" size={18} />
-                          <input
-                            type="text"
-                            name="businessName"
-                            value={tempProfile?.businessName || ""}
-                            onChange={handleInputChange}
-                            className="flex-1 px-2 py-1 focus:outline-none"
-                            placeholder="Your Business Name"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200">
-                          <Building className="text-amber-500 mr-3" size={18} />
-                          <p className="text-gray-800">{profile.businessName || "Not provided"}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
-                    <Shield size={20} className="mr-2 text-amber-500" />
-                    Account Statistics
-                  </h3>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
-                        <p className="text-3xl font-bold text-amber-500">0</p>
-                        <p className="text-gray-600 text-sm mt-1">Properties Listed</p>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
-                        <p className="text-3xl font-bold text-amber-500">0</p>
-                        <p className="text-gray-600 text-sm mt-1">Active Bookings</p>
-                      </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border border-gray-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-gray-700 font-medium">Profile Completion</p>
-                        <p className="text-amber-600 font-medium">70%</p>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div className="bg-amber-400 h-2.5 rounded-full" style={{ width: '70%' }}></div>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-2">Complete your profile to improve visibility</p>
-                    </div>
-                  </div>
-                </div>
+            {activeTab === "wallet" && (
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                <WalletSummary />
               </div>
             )}
           </div>
         </div>
       </div>
 
-      <ChangePasswordModal 
+      <ChangePasswordModal
         isOpen={isChangingPassword}
         onClose={() => setIsChangingPassword(false)}
         email={profile.email}

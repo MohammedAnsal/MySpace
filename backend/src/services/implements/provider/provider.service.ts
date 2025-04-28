@@ -11,6 +11,7 @@ import { hostelRepository } from "../../../repositories/implementations/provider
 import { UserRepository } from "../../../repositories/implementations/user/user.repository";
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
+import { AdminFacilityResult } from "../../interface/admin/facility.service.interface";
 
 @Service()
 export class ProviderService implements IProviderService {
@@ -180,13 +181,13 @@ export class ProviderService implements IProviderService {
 
       // Calculate total revenue (from completed bookings only)
       const totalRevenue = totalBookings
-        .filter(booking => booking.paymentStatus === "completed")
+        .filter((booking) => booking.paymentStatus === "completed")
         .reduce((sum, booking) => sum + booking.totalPrice, 0);
 
       // Get current date
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      
+
       // Calculate weekly revenue (last 7 weeks)
       const weeklyRevenue = [];
       for (let i = 6; i >= 0; i--) {
@@ -194,68 +195,72 @@ export class ProviderService implements IProviderService {
         weekStart.setDate(currentDate.getDate() - (i * 7 + 7));
         const weekEnd = new Date();
         weekEnd.setDate(currentDate.getDate() - i * 7);
-        
+
         const weeklyBookings = totalBookings.filter(
-          (booking) => 
-            new Date(booking.bookingDate) >= weekStart && 
+          (booking) =>
+            new Date(booking.bookingDate) >= weekStart &&
             new Date(booking.bookingDate) < weekEnd &&
             booking.paymentStatus === "completed"
         );
-        
+
         const weekRevenue = weeklyBookings.reduce(
-          (sum, booking) => sum + booking.totalPrice, 
+          (sum, booking) => sum + booking.totalPrice,
           0
         );
-        
+
         weeklyRevenue.push({
-          week: `Week ${6-i+1}`,
-          revenue: weekRevenue
+          week: `Week ${6 - i + 1}`,
+          revenue: weekRevenue,
         });
       }
 
       // Calculate monthly revenue (for current year)
-      const monthlyRevenue = Array(12).fill(0).map((_, index) => {
-        const monthBookings = totalBookings.filter(booking => {
-          const bookingDate = new Date(booking.bookingDate);
-          return (
-            bookingDate.getMonth() === index && 
-            bookingDate.getFullYear() === currentYear &&
-            booking.paymentStatus === "completed"
+      const monthlyRevenue = Array(12)
+        .fill(0)
+        .map((_, index) => {
+          const monthBookings = totalBookings.filter((booking) => {
+            const bookingDate = new Date(booking.bookingDate);
+            return (
+              bookingDate.getMonth() === index &&
+              bookingDate.getFullYear() === currentYear &&
+              booking.paymentStatus === "completed"
+            );
+          });
+
+          const monthRevenue = monthBookings.reduce(
+            (sum, booking) => sum + booking.totalPrice,
+            0
           );
+
+          return {
+            month: new Date(currentYear, index).toLocaleString("default", {
+              month: "short",
+            }),
+            revenue: monthRevenue,
+          };
         });
-        
-        const monthRevenue = monthBookings.reduce(
-          (sum, booking) => sum + booking.totalPrice, 
-          0
-        );
-        
-        return {
-          month: new Date(currentYear, index).toLocaleString('default', { month: 'short' }),
-          revenue: monthRevenue
-        };
-      });
 
       // Calculate yearly revenue (last 3 years)
       const yearlyRevenue = [];
       for (let i = 2; i >= 0; i--) {
         const year = currentYear - i;
-        
-        const yearBookings = totalBookings.filter(booking => {
+
+        const yearBookings = totalBookings.filter((booking) => {
           const bookingDate = new Date(booking.bookingDate);
           return (
             bookingDate.getFullYear() === year &&
             booking.paymentStatus === "completed"
           );
         });
-        
+
         const yearRevenue = yearBookings.reduce(
-          (sum, booking) => sum + booking.totalPrice, 
+          (sum, booking) => sum + booking.totalPrice,
           0
         );
-        
+
         yearlyRevenue.push({
           year,
-          revenue: yearRevenue
+          revenue: yearRevenue,
         });
       }
 
@@ -267,8 +272,8 @@ export class ProviderService implements IProviderService {
         revenueData: {
           weekly: weeklyRevenue,
           monthly: monthlyRevenue,
-          yearly: yearlyRevenue
-        }
+          yearly: yearlyRevenue,
+        },
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -277,6 +282,26 @@ export class ProviderService implements IProviderService {
 
       throw new AppError(
         "An unexpected error occurred while fetching the provider dashboard. Please try again.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async findAllFacilities(): Promise<AdminFacilityResult> {
+    try {
+      const facilities = await this.providerRepo.findAllFacilities();
+
+      return {
+        success: true,
+        message: "Facilities fetched successfully",
+        facilityData: facilities,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while fetching facilities. Please try again.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

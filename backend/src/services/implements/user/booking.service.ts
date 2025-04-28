@@ -302,7 +302,7 @@ export class BookingService implements IBookingService {
   //   return updatedBooking;
   // }
 
-  async cancelBooking(bookingId: string): Promise<IBooking> {
+  async cancelBooking(bookingId: string, reason: string): Promise<IBooking> {
     const booking = await this.bookingRepository.getBookingById(bookingId);
     if (!booking) {
       throw new AppError("Booking not found", 404);
@@ -313,7 +313,8 @@ export class BookingService implements IBookingService {
     }
 
     const cancelledBooking = await this.bookingRepository.cancelBooking(
-      bookingId
+      bookingId,
+      reason
     );
     if (!cancelledBooking) {
       throw new AppError("Failed to cancel booking", 500);

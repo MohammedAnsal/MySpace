@@ -42,8 +42,8 @@ export interface IBookingService {
 
   // updateBooking(bookingId: string, updateData: BookingUpdateDTO): Promise<IBooking>;
 
-  cancelBooking(bookingId: string): Promise<IBooking>;
-
+  cancelBooking(bookingId: string , reason:string): Promise<IBooking>;
+  getBookingById(bookingId: string): Promise<IBooking>;
   processPayment(bookingId: string, paymentDetails: any): Promise<IBooking>;
 
   checkAvailability(

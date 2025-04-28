@@ -21,6 +21,7 @@ import hostelRoute from "./routers/user/hostelRoute";
 import bookingRoute from "./routers/user/bookingRoute";
 import paymentRoute from "./routers/user/paymentRoute";
 import ratingRoute from "./routers/user/ratingRoutes";
+import walletRoute from "./routers/wallet/walletRoutes";
 
 dotenv.config();
 dbConnect();
@@ -54,15 +55,11 @@ app.use(
   userRoute,
   hostelRoute,
   bookingRoute,
-  ratingRoute
+  ratingRoute,
+  walletRoute
 );
-app.use(
-  "/provider",
-  providerTokenBlackList,
-  authMiddleWare,
-  autherization,
-  providerRoute
-);
+app.use("/provider", providerRoute);
+app.use("/wallet", walletRoute);
 
 const PORT = process.env.PORT || 7001;
 
