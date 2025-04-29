@@ -9,10 +9,10 @@ import Container, { Service } from "typedi";
 
 @Service()
 export class RatingController {
-  private ratingServiceInstance: IRatingService;
+  private ratingService: IRatingService;
 
   constructor() {
-    this.ratingServiceInstance = ratingService;
+    this.ratingService = ratingService;
   }
 
   async createRating(req: AuthRequset, res: Response): Promise<any> {
@@ -24,10 +24,7 @@ export class RatingController {
         throw new AppError("User not authenticated", StatusCodes.UNAUTHORIZED);
       }
 
-      const result = await this.ratingServiceInstance.createRating(
-        userId,
-        ratingData
-      );
+      const result = await this.ratingService.createRating(userId, ratingData);
 
       res.status(StatusCodes.CREATED).json({
         success: true,
@@ -59,9 +56,7 @@ export class RatingController {
         throw new AppError("Hostel ID is required", StatusCodes.BAD_REQUEST);
       }
 
-      const result = await this.ratingServiceInstance.getHostelRatings(
-        hostelId
-      );
+      const result = await this.ratingService.getHostelRatings(hostelId);
 
       res.status(StatusCodes.OK).json({
         success: true,
@@ -99,7 +94,7 @@ export class RatingController {
         );
       }
 
-      const existingRating = await this.ratingServiceInstance.getUserRating(
+      const existingRating = await this.ratingService.getUserRating(
         userId,
         hostelId
       );

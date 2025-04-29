@@ -24,23 +24,22 @@ export class WalletService implements IWalletService {
 
   constructor(private userRepo: UserRepository) {
     this.walletRepo = walletRepository;
-    // Get adminId from environment variables
     this.adminId = process.env.ADMIN_ID || "";
     if (!this.adminId) {
       console.warn("ADMIN_ID is not defined in environment variables");
     }
   }
 
-  async createWallet(bookingId: string, walletData: IWallet): Promise<IWallet> {
-    try {
-      return await this.walletRepo.createWallet(walletData);
-    } catch (error) {
-      throw new AppError(
-        "Failed to create wallet",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
+  // async createWallet(walletData: IWallet): Promise<IWallet> {
+  //   try {
+  //     return await this.walletRepo.createWallet(walletData);
+  //   } catch (error) {
+  //     throw new AppError(
+  //       "Failed to create wallet",
+  //       HttpStatus.INTERNAL_SERVER_ERROR
+  //     );
+  //   }
+  // }
 
   async createUserWallet(userId: string): Promise<IWallet> {
     try {
@@ -187,11 +186,6 @@ export class WalletService implements IWalletService {
         );
       }
 
-      console.log(bookingId, "bbbb");
-      console.log(providerId, "pppp");
-      console.log(amount, "amamam");
-
-      // Check if provider wallet exists, if not create one
       const providerWallet = await this.walletRepo.findWalletByUserId(
         providerId
       );
@@ -199,7 +193,6 @@ export class WalletService implements IWalletService {
         await this.createProviderWallet(providerId);
       }
 
-      // Check if admin wallet exists, if not create one
       const adminWallet = await this.walletRepo.findWalletByAdminId(
         this.adminId
       );
@@ -207,7 +200,6 @@ export class WalletService implements IWalletService {
         await this.createAdminWallet(this.adminId);
       }
 
-      // Distribute the booking amount
       await this.walletRepo.distributeBookingAmount(
         bookingId,
         providerId,
@@ -234,13 +226,11 @@ export class WalletService implements IWalletService {
         );
       }
 
-      // 1. Get the booking details to find userId, providerId and amount
       const booking = await bookingRepository.getBookingById(bookingId);
       if (!booking) {
         throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
       }
 
-      // Check if booking is already cancelled
       if (booking.paymentStatus !== "cancelled") {
         throw new AppError(
           "Refund can only be processed for cancelled bookings",
@@ -252,12 +242,10 @@ export class WalletService implements IWalletService {
       const userId = (booking.userId as unknown as PopulatedId)._id;
       const providerId = (booking.providerId as unknown as PopulatedId)._id;
 
-      // 2. Check if all wallets exist
       const userWallet = await this.walletRepo.findWalletByUserId(
         userId.toString()
       );
       if (!userWallet) {
-        // Create user wallet if it doesn't exist
         await this.createUserWallet(userId.toString());
       }
 
@@ -275,7 +263,6 @@ export class WalletService implements IWalletService {
         throw new AppError("Admin wallet not found", HttpStatus.NOT_FOUND);
       }
 
-      // 3. Process the refund by reverting the distribution (70% from provider, 30% from admin)
       await this.walletRepo.processRefund(
         bookingId,
         userId.toString(),

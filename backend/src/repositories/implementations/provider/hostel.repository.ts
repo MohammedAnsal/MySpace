@@ -59,8 +59,6 @@ class HostelRepository implements IHostelRepository {
         { path: "facilities" }
       ]);
 
-      // console.log(hostel,'from ahhahah')
-
       return hostel;
     } catch (error) {
       console.error("Error updating hostel:", error);

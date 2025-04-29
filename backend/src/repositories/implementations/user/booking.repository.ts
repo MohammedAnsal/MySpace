@@ -12,7 +12,6 @@ export class BookingRepository implements IBookingRepository {
     try {
       const booking = await Booking.create(bookingData);
 
-      // Use the correct field names for population
       const populatedBooking = await booking.populate([
         { path: "userId", model: "User" },
         { path: "hostelId", model: "Hostel" },

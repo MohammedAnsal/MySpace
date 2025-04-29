@@ -15,7 +15,6 @@ export class AdminController {
     try {
       const { email, password } = req.body;
 
-      // Validate input
       if (!email || !password) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,

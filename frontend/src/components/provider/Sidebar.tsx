@@ -12,8 +12,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  NotebookPen,
-  House,
+  MessageCircle,
   BookCheck,
   Wallet,
 } from "lucide-react";
@@ -71,6 +70,12 @@ const navItems: NavItem[] = [
     title: "Wallet",
     icon: <Wallet size={20} className="text-gray-700" />,
     path: "/provider/wallet",
+  },
+  {
+    id: "chat",
+    title: "Chat",
+    icon: <MessageCircle size={20} className="text-gray-700" />,
+    path: "/provider/chat",
   },
   {
     id: "profile",

@@ -1,7 +1,7 @@
 import { IWallet, IWalletTransaction } from "../../../models/wallet.model";
 
 export interface IWalletService {
-  createWallet(bookingId: string, walletData: IWallet): Promise<IWallet>;
+  // createWallet(walletData: IWallet): Promise<IWallet>;
   createUserWallet(userId: string): Promise<IWallet>;
   createProviderWallet(providerId: string): Promise<IWallet>;
   createAdminWallet(adminId: string): Promise<IWallet>;

@@ -5,36 +5,47 @@ import { IUserService } from "../../interface/user/user.service.interface";
 import { comparePassword, hashPassword } from "../../../utils/password.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
-import { s3Service } from "../s3/s3.service";
+import { S3Service, s3Service } from "../s3/s3.service";
 import Container from "typedi";
+import { IWalletService } from "../../interface/wallet/wallet.service.interface";
+import { walletService } from "../wallet/wallet.service";
+import IS3service from "../../interface/s3/s3.service.interface";
 
 @Service()
 export class UserService implements IUserService {
   private userRepo: UserRepository;
-  private s3Service: s3Service;
+  private s3Service: IS3service;
+  private walletService: IWalletService;
 
   constructor() {
     this.userRepo = new UserRepository();
-    this.s3Service = Container.get(s3Service);
+    this.s3Service = S3Service;
+    this.walletService = walletService;
   }
 
-  async findUser(
-    userId: string
-  ): Promise<{ success: boolean; message?: string; data?: IUser[] }> {
+  async findUser(userId: string): Promise<{
+    success: boolean;
+    message?: string;
+    data?: IUser[];
+    wallet: number;
+  }> {
     try {
       const currentUser = await this.userRepo.findById(userId);
 
       if (currentUser) {
-        currentUser.profile_picture = await this.s3Service.generateSignedUrl(currentUser.profile_picture)
+        currentUser.profile_picture = await this.s3Service.generateSignedUrl(
+          currentUser.profile_picture
+        );
+        const walletData = await this.walletService.getUserWallet(userId);
         const { password, ...rest } = currentUser.toObject();
-        return { success: true, data: rest };
+        return { success: true, data: rest, wallet: walletData.balance };
       } else throw new Error("failed to fetch");
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
       }
       throw new AppError(
-        "An error occurred while findUser in. Please try again .",
+        "An error occurred while findUser in. Please try again.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -105,9 +116,10 @@ export class UserService implements IUserService {
       }
       if (image) {
         try {
-
-          const uploadResult = await this.s3Service.uploadFile(image, 'user-profile');
-          
+          const uploadResult = await this.s3Service.uploadFile(
+            image,
+            "user-profile"
+          );
 
           if (Array.isArray(uploadResult)) {
             if (uploadResult[0]?.success) {
@@ -118,14 +130,16 @@ export class UserService implements IUserService {
               data.profile_picture = uploadResult.Location;
             }
           }
-          
+
           if (user.profile_picture) {
             try {
               await this.s3Service.delete_File([user.profile_picture]);
               console.log("Previous profile image deleted successfully");
             } catch (deleteError) {
-              console.error("Error deleting previous profile image:", deleteError);
-              
+              console.error(
+                "Error deleting previous profile image:",
+                deleteError
+              );
             }
           }
         } catch (uploadError) {

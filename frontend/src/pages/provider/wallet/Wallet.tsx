@@ -17,6 +17,7 @@ import {
   Filter,
 } from "lucide-react";
 import { format } from "date-fns";
+import Loading from "@/components/global/Loading";
 
 interface Transaction {
   _id: string;
@@ -35,7 +36,6 @@ export const Wallet: React.FC = () => {
     "transactions"
   );
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filteredTransactions, setFilteredTransactions] = useState<
@@ -46,10 +46,8 @@ export const Wallet: React.FC = () => {
     status: "all",
   });
 
-  // Effect to prepare transaction data
   useEffect(() => {
     if (wallet?.transactions?.length) {
-      // Apply filters
       let filtered = [...wallet.transactions].reverse();
 
       if (filters.type !== "all") {
@@ -66,7 +64,6 @@ export const Wallet: React.FC = () => {
     }
   }, [wallet, filters]);
 
-  // Animation variants
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -108,7 +105,6 @@ export const Wallet: React.FC = () => {
   //   toast.info("Statement download functionality will be available soon.");
   // };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredTransactions.slice(
@@ -132,9 +128,11 @@ export const Wallet: React.FC = () => {
         exit="exit"
         variants={pageVariants}
       >
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading wallet data...</p>
+        <div
+          className="p-4 sm:p-8 mt-4 sm:mt-20 max-w-4xl mx-auto flex items-center justify-center"
+          style={{ minHeight: "300px" }}
+        >
+          <Loading text="Loading wallet..." color="#FFB300" />
         </div>
       </motion.div>
     );

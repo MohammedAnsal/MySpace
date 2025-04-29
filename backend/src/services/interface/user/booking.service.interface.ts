@@ -33,9 +33,7 @@ export interface IBookingService {
   // getBookingDetails(bookingId: string): Promise<IBooking>;
 
   getUserBookings(userId: string): Promise<IBooking[]>;
-
   getProviderBookings(providerId: string): Promise<IBooking[]>;
-
   getAllBookings(): Promise<IBooking[]>;
 
   // getHostelBookings(hostelId: string): Promise<IBooking[]>;
@@ -44,14 +42,14 @@ export interface IBookingService {
 
   cancelBooking(bookingId: string , reason:string): Promise<IBooking>;
   getBookingById(bookingId: string): Promise<IBooking>;
-  processPayment(bookingId: string, paymentDetails: any): Promise<IBooking>;
+  // processPayment(bookingId: string, paymentDetails: any): Promise<IBooking>;
 
-  checkAvailability(
-    hostelId: string,
-    checkIn: Date,
-    checkOut: Date,
-    selectedSpace: string
-  ): Promise<boolean>;
+  // checkAvailability(
+  //   hostelId: string,
+  //   checkIn: Date,
+  //   checkOut: Date,
+  //   selectedSpace: string
+  // ): Promise<boolean>;
 
   calculateBookingCost(
     hostelId: string,

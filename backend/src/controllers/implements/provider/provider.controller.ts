@@ -12,10 +12,14 @@ export class ProviderController implements IProviderController {
 
   async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
-      const user = req.user?.id;
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
 
       const { success, data } = await this.providerService.findProvider(
-        user as string
+        providerId as string
       );
       if (success) {
         res.status(HttpStatus.OK).json({ success: true, data });
@@ -36,8 +40,14 @@ export class ProviderController implements IProviderController {
     }
   }
 
-  async changePassword(req: Request, res: Response): Promise<any> {
+  async changePassword(req: AuthRequset, res: Response): Promise<any> {
     try {
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
+
       const { email, currentPassword, newPassword } = req.body;
 
       if (!email || !currentPassword || !newPassword) {
@@ -82,7 +92,7 @@ export class ProviderController implements IProviderController {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("Provider not authenticated", 401);
       }
 
       if (!formData) {
@@ -122,6 +132,10 @@ export class ProviderController implements IProviderController {
     try {
       const providerId = req.user?.id;
 
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
+
       const getDashboardData = await this.providerService.getProviderDashboard(
         providerId as string
       );
@@ -147,13 +161,11 @@ export class ProviderController implements IProviderController {
 
   async findAllFacilities(req: AuthRequset, res: Response): Promise<any> {
     try {
-      // // Validate admin is authenticated
-      // if (!req.user) {
-      //   return res.status(401).json({
-      //     success: false,
-      //     message: "Admin authentication required",
-      //   });
-      // }
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
 
       const facilities = await this.providerService.findAllFacilities();
 

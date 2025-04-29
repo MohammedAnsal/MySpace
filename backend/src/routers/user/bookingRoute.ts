@@ -57,13 +57,13 @@ bookingRoute.post(
 );
 
 // // Process payment
-bookingRoute.post(
-  "/:bookingId/payment",
-  authMiddleWare,
-  autherization,
-  authorizeRoles(Roles.USER),
-  bookingContrller.processPayment.bind(bookingContrller)
-);
+// bookingRoute.post(
+//   "/:bookingId/payment",
+//   authMiddleWare,
+//   autherization,
+//   authorizeRoles(Roles.USER),
+//   bookingContrller.processPayment.bind(bookingContrller)
+// );
 
 // // Check availability (public route)
 // router.get(

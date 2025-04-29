@@ -10,6 +10,7 @@ import { AppError } from "../../../utils/error";
 
 @Service()
 export class PaymentRepository implements IPaymentRepository {
+  
   async create(payment: Partial<IHostelPayment>): Promise<IHostelPayment> {
     try {
       const newPayment = new HostelPaymentModel(payment);

@@ -9,11 +9,7 @@ import { IBookingRepository } from "../../../repositories/interfaces/user/bookin
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
-import {
-  walletService,
-  WalletService,
-} from "../../../services/implements/wallet/wallet.service";
-import { Container } from "typedi";
+import { walletService } from "../../../services/implements/wallet/wallet.service";
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
 
 interface CreateCheckoutSessionParams {
@@ -41,6 +37,7 @@ export class StripeService {
     this.bookingRepo = bookingRepository;
     this.hostelRepo = hostelRepository;
     this.walletService = walletService;
+
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error("STRIPE_SECRET_KEY is missing in environment variables");
     }
@@ -59,7 +56,6 @@ export class StripeService {
     params: CreateCheckoutSessionParams
   ): Promise<string> {
     try {
-      console.log("o");
       if (!this.stripe) {
         throw new AppError(
           "Stripe is not initialized. Please check your environment variables.",
@@ -93,6 +89,8 @@ export class StripeService {
           ...params.metadata,
         },
       });
+
+      // Payment Creation Section :-
 
       await this.paymentRepo.create({
         userId: params.userId,
@@ -158,18 +156,25 @@ export class StripeService {
             );
           }
 
+          //  Update Payment Status :-
+
           await this.bookingRepo.updatePaymentStatus(
             payment.bookingId.toString(),
             "completed"
           );
 
+          //  Update Hostel Availablespace Status :-
+
           await this.hostelRepo.updateHostelAvailableSpace(
             payment.hostelId.toString()
           );
 
+          //  Update Payment Status :-
+
           await this.paymentRepo.updateStatus(payment._id, "completed");
 
-          // Get booking details to access the amount
+          // Get booking details to access the amount:-
+
           const booking = await this.bookingRepo.getBookingById(
             payment.bookingId.toString()
           );
@@ -177,16 +182,16 @@ export class StripeService {
             throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
           }
 
-          // Distribute the booking amount between provider and admin (70/30 split)
+          // Distribute the booking amount between provider and admin (70/30 split) :-
+
           try {
-            await walletService.distributeBookingAmount(
+            await this.walletService.distributeBookingAmount(
               payment.bookingId.toString(),
               payment.providerId.toString(),
               booking.firstMonthRent || amount // Use firstMonthRent if available, otherwise use the amount from Stripe
             );
           } catch (error) {
             console.error("Error distributing booking amount:", error);
-            // Don't throw here - just log the error to avoid disrupting the payment flow
           }
 
           break;

@@ -202,12 +202,12 @@ export class AuthService implements IAuthService {
 
       await this.userRepo.verifyUser(email, true);
 
-      // Create wallet for the user after verification
+      //  Create Wallet While User SignUp :-
+
       try {
         await walletService.createUserWallet(validUser._id.toString());
       } catch (walletError) {
         console.error("Error creating wallet:", walletError);
-        // Don't fail the verification process if wallet creation fails
       }
 
       try {
@@ -402,7 +402,7 @@ export class AuthService implements IAuthService {
         role: "user",
         is_verified: true,
       } as IUser);
-      
+
       // Create wallet for Google sign-in users
       try {
         await walletService.createUserWallet(user._id.toString());

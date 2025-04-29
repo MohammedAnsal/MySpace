@@ -15,6 +15,7 @@ import Hostels from "../pages/provider/Hostels/Hostels";
 import EditHostel from "@/pages/provider/Hostels/components/EditHostel";
 import { Bookings } from "@/pages/provider/Bookings/Bookings";
 import Wallet from "@/pages/provider/wallet/Wallet";
+import { Chat } from "@/pages/provider/Chat/Chat";
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes
@@ -71,6 +72,10 @@ export const ProviderRouter: RouteObject[] = [
       {
         path: "wallet",
         element: <Wallet />,
+      },
+      {
+        path: "chat",
+        element: <Chat />,
       },
       {
         path: "profile",

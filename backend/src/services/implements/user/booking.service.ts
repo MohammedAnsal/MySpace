@@ -1,14 +1,13 @@
 import {
   IBookingService,
   BookingCreateDTO,
-  BookingUpdateDTO,
   FacilityI,
 } from "../../interface/user/booking.service.interface";
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { IBooking, IFacilitySelection } from "../../../models/booking.model";
 import { AppError } from "../../../utils/error";
-import mongoose, { Types, Schema } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { s3Service } from "../s3/s3.service";
 import Container, { Service } from "typedi";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
@@ -35,14 +34,12 @@ export class BookingService implements IBookingService {
     selectedFacilitiess: FacilityI[]
   ): Promise<IBooking> {
     try {
-      // Check if hostel exists
       const hostel = await this.hostelRepository.getHostelById(
         bookingData.hostelId
       );
       if (!hostel) {
         throw new AppError("Hostel not found", 404);
       }
-      // Check if beds are available
       if (hostel.available_space !== null && hostel.available_space <= 0) {
         throw new AppError("No beds available in this hostel", 400);
       }
@@ -61,7 +58,6 @@ export class BookingService implements IBookingService {
       //   );
       // }
 
-      // Validate proof file
       if (!bookingData.proof || !bookingData.proof.buffer) {
         throw new AppError("Proof document is required", 400);
       }
@@ -92,7 +88,7 @@ export class BookingService implements IBookingService {
         bookingData.hostelId,
         bookingData.stayDurationInMonths,
         selectedFacilitiess.map((facility) => ({
-          id: facility.id.toString(), // Convert ObjectId to string
+          id: facility.id.toString(),
           duration: String(facility.duration),
         }))
       );
@@ -121,10 +117,8 @@ export class BookingService implements IBookingService {
 
       return booking;
     } catch (error) {
-      // If anything fails after uploading to S3, try to clean up the uploaded file
       if (error instanceof AppError && bookingData.proof) {
         try {
-          // Delete the uploaded file if it exists
           await this.s3Service.delete_File([String(bookingData.proof)]);
         } catch (deleteError) {
           console.error(
@@ -323,48 +317,50 @@ export class BookingService implements IBookingService {
     return cancelledBooking;
   }
 
-  async processPayment(
-    bookingId: string,
-    paymentDetails: any
-  ): Promise<IBooking> {
-    const booking = await this.bookingRepository.getBookingById(bookingId);
-    if (!booking) {
-      throw new AppError("Booking not found", 404);
-    }
+  // async processPayment(
+  //   bookingId: string,
+  //   paymentDetails: any
+  // ): Promise<IBooking> {
+  //   const booking = await this.bookingRepository.getBookingById(bookingId);
+  //   if (!booking) {
+  //     throw new AppError("Booking not found", 404);
+  //   }
 
-    if (booking.paymentStatus === "completed") {
-      throw new AppError("Booking is already paid", 400);
-    }
+  //   if (booking.paymentStatus === "completed") {
+  //     throw new AppError("Booking is already paid", 400);
+  //   }
 
-    if (booking.paymentStatus === "cancelled") {
-      throw new AppError("Cannot process payment for cancelled booking", 400);
-    }
+  //   if (booking.paymentStatus === "cancelled") {
+  //     throw new AppError("Cannot process payment for cancelled booking", 400);
+  //   }
 
-    // Process payment logic here
-    // ... payment gateway integration
+  //   // Process payment logic here
+  //   // ... payment gateway integration
 
-    const updatedBooking = await this.bookingRepository.updatePaymentStatus(
-      bookingId,
-      "completed"
-    );
-    if (!updatedBooking) {
-      throw new AppError("Failed to update payment status", 500);
-    }
+  //   const updatedBooking = await this.bookingRepository.updatePaymentStatus(
+  //     bookingId,
+  //     "completed"
+  //   );
+  //   if (!updatedBooking) {
+  //     throw new AppError("Failed to update payment status", 500);
+  //   }
 
-    return updatedBooking;
-  }
+  //   return updatedBooking;
+  // }
 
-  async checkAvailability(
-    hostelId: string,
-    checkIn: Date,
-    checkOut: Date
-  ): Promise<boolean> {
-    return await this.bookingRepository.checkBookingAvailability(
-      hostelId,
-      checkIn,
-      checkOut
-    );
-  }
+  // async checkAvailability(
+  //   hostelId: string,
+  //   checkIn: Date,
+  //   checkOut: Date
+  // ): Promise<boolean> {
+  //   return await this.bookingRepository.checkBookingAvailability(
+  //     hostelId,
+  //     checkIn,
+  //     checkOut
+  //   );
+  // }
+
+  //  Calculate Booking Charges :- (Fun)
 
   async calculateBookingCost(
     hostelId: string,
@@ -393,7 +389,6 @@ export class BookingService implements IBookingService {
 
       // Process each selected facility
       for (const selected of selectedFacilities) {
-        // Find facility by ID
         const facility = await this.facilityRepository.findFacilityById(
           selected.id
         );
@@ -420,7 +415,7 @@ export class BookingService implements IBookingService {
           endDate: new Date(
             Date.now() + parseInt(selected.duration) * 30 * 24 * 60 * 60 * 1000
           ), // duration months later
-          duration: selected.duration,
+          duration: Number(selected.duration),
           ratePerMonth: facility.price,
           totalCost: totalCost,
         };
@@ -428,14 +423,14 @@ export class BookingService implements IBookingService {
         transformedFacilities.push(facilitySelection);
       }
 
+      console.log(transformedFacilities, "last look facility");
+
       if (!monthlyRent || !depositAmount) {
         throw new AppError("Invalid hostel pricing data", 400);
       }
 
       const firstMonthRent =
         monthlyRent + depositAmount + facilityInitialCharge;
-
-      console.log(firstMonthRent);
 
       const totalPrice =
         monthlyRent * stayDurationInMonths + depositAmount + facilityCharges;

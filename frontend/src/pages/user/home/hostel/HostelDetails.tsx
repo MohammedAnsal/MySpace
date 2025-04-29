@@ -337,9 +337,7 @@ const HostelDetails = () => {
                     Have questions? Chat directly with the property owner.
                   </p>
                   <motion.button
-                    onClick={() => {
-                      /* Add your chat functionality here */
-                    }}
+                    onClick={() => navigate("/user/chat")}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full bg-main-color text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center font-semibold relative overflow-hidden group"
@@ -369,7 +367,11 @@ const HostelDetails = () => {
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Available Beds</span>
-                    <span className={`font-semibold ${hostel.available_space === 0 ? 'text-red-500' : ''}`}>
+                    <span
+                      className={`font-semibold ${
+                        hostel.available_space === 0 ? "text-red-500" : ""
+                      }`}
+                    >
                       {hostel.available_space} of {hostel.total_space}
                     </span>
                   </div>
@@ -404,7 +406,9 @@ const HostelDetails = () => {
                   </motion.button>
                 ) : (
                   <div className="w-full text-center">
-                    <p className="text-red-500 font-medium mb-2">No beds available</p>
+                    <p className="text-red-500 font-medium mb-2">
+                      No beds available
+                    </p>
                     <button
                       disabled
                       className="w-full bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold cursor-not-allowed opacity-70"

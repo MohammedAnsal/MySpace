@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 
 @Service()
 export class WalletRepository implements IWalletRepository {
+
   async createWallet(walletData: IWallet): Promise<IWallet> {
     try {
       const wallet = new WalletModel(walletData);
@@ -84,11 +85,9 @@ export class WalletRepository implements IWalletRepository {
     session.startTransaction();
 
     try {
-      // Calculate distribution amounts (70% provider, 30% admin)
       const providerAmount = amount * 0.7;
       const adminAmount = amount * 0.3;
 
-      // Get provider wallet
       const providerWallet = await this.findWalletByUserId(providerId);
       if (!providerWallet) {
         throw new Error(
@@ -96,13 +95,11 @@ export class WalletRepository implements IWalletRepository {
         );
       }
 
-      // Get admin wallet
       const adminWallet = await this.findWalletByAdminId(adminId);
       if (!adminWallet) {
         throw new Error(`Admin wallet not found for admin ID: ${adminId}`);
       }
 
-      // Add transaction and update balance for provider
       await this.addTransaction(providerWallet._id.toString(), {
         amount: providerAmount,
         type: "credit",
@@ -112,7 +109,6 @@ export class WalletRepository implements IWalletRepository {
         createdAt: new Date(),
       });
 
-      // Add transaction and update balance for admin
       await this.addTransaction(adminWallet._id.toString(), {
         amount: adminAmount,
         type: "credit",
@@ -144,7 +140,6 @@ export class WalletRepository implements IWalletRepository {
     session.startTransaction();
 
     try {
-      // Get all wallets
       const userWallet = await this.findWalletByUserId(userId);
       if (!userWallet) {
         throw new Error(`User wallet not found for user ID: ${userId}`);
@@ -157,7 +152,6 @@ export class WalletRepository implements IWalletRepository {
         );
       }
 
-      // Find the provider's transaction for this booking
       const providerTransaction = providerWallet.transactions.find(
         (tx) =>
           tx.bookingId &&
@@ -187,7 +181,6 @@ export class WalletRepository implements IWalletRepository {
       }
       const adminAmount = adminTransaction.amount;
 
-      // 1. Deduct from provider wallet (debit transaction)
       await this.addTransaction(providerWallet._id.toString(), {
         amount: providerAmount,
         type: "debit",
@@ -197,7 +190,6 @@ export class WalletRepository implements IWalletRepository {
         createdAt: new Date(),
       });
 
-      // 2. Deduct from admin wallet (debit transaction)
       await this.addTransaction(adminWallet._id.toString(), {
         amount: adminAmount,
         type: "debit",
@@ -207,7 +199,6 @@ export class WalletRepository implements IWalletRepository {
         createdAt: new Date(),
       });
 
-      // 3. Add to user wallet (credit transaction)
       await this.addTransaction(userWallet._id.toString(), {
         amount: amount,
         type: "re-fund",

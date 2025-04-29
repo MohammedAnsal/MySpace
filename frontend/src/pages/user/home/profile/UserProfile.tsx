@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { SquarePen, Mail, Phone, Wallet, User } from "lucide-react";
 import { toast } from "sonner";
@@ -6,6 +6,7 @@ import Loading from "@/components/global/Loading";
 import EditProfileModal from "./components/EditProfileModal";
 import ChangePasswordModal from "./components/ChangePasswordModal";
 import { useUserProfile } from "@/hooks/user/useUserQueries";
+import { findUser } from "@/services/Api/userApi";
 
 interface UserProfile {
   fullName: string;
@@ -19,10 +20,16 @@ const DEFAULT_AVATAR =
   "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg";
 
 const UserProfile: React.FC = () => {
-  const { data: profile, isLoading: isProfileLoading, error, refetch } = useUserProfile();
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    error,
+    refetch,
+  } = useUserProfile();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [wallet, setwallet] = useState("");
 
   const openEditModal = () => {
     if (profile) {
@@ -31,6 +38,15 @@ const UserProfile: React.FC = () => {
       toast.error("Profile data not available yet.");
     }
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const getWallet = await findUser();
+      setwallet(getWallet.wallet);
+    };
+
+    fetchUser();
+  }, []);
 
   const openPasswordModal = () => {
     if (profile) {
@@ -61,7 +77,7 @@ const UserProfile: React.FC = () => {
         className="p-4 sm:p-8 mt-4 sm:mt-20 max-w-4xl mx-auto flex items-center justify-center"
         style={{ minHeight: "300px" }}
       >
-        <Loading text="Loading profile..." />
+        <Loading text="Loading profile..." color="#b9a089" />
       </div>
     );
   }
@@ -79,7 +95,7 @@ const UserProfile: React.FC = () => {
 
   return (
     <>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -87,13 +103,13 @@ const UserProfile: React.FC = () => {
       >
         <div className="flex flex-col md:flex-row">
           {/* Left side - profile photo and name */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="w-full md:w-auto md:flex-shrink-0 p-4 sm:p-6 flex flex-col items-center justify-center bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 rounded-t-lg md:rounded-tr-none md:rounded-l-lg"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -117,7 +133,7 @@ const UserProfile: React.FC = () => {
                 <SquarePen className="h-4 w-4" />
               </motion.button>
             </motion.div>
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.4 }}
@@ -125,7 +141,7 @@ const UserProfile: React.FC = () => {
             >
               {profile.fullName}
             </motion.h2>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
@@ -136,13 +152,13 @@ const UserProfile: React.FC = () => {
           </motion.div>
 
           {/* Right side - profile information */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex-1 p-4 sm:p-6"
           >
-            <motion.h3 
+            <motion.h3
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
@@ -157,13 +173,17 @@ const UserProfile: React.FC = () => {
                   { icon: User, label: "name", value: profile.fullName },
                   { icon: Mail, label: "email", value: profile.email },
                   { icon: Phone, label: "phone", value: profile.phone },
-                  { icon: Wallet, label: "wallet", value: `₹ ${profile.wallet || 0}` }
+                  {
+                    icon: Wallet,
+                    label: "wallet",
+                    value: `₹ ${wallet || 0}`,
+                  },
                 ].map((item, index) => (
-                  <motion.div 
+                  <motion.div
                     key={item.label}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 + (index * 0.1) }}
+                    transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                     className="flex items-center font-dm_sans"
                   >
                     <item.icon
@@ -182,7 +202,7 @@ const UserProfile: React.FC = () => {
                 ))}
               </div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.9 }}
