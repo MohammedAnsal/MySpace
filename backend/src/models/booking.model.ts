@@ -5,7 +5,7 @@ export interface IFacilitySelection {
   type: "Catering Service" | "Laundry Service" | "Deep Cleaning Service";
   startDate: Date;
   endDate: Date;
-  duration: string;
+  duration: number;
   ratePerMonth: number;
   totalCost: number;
 }
@@ -18,7 +18,6 @@ export interface IBooking extends Document {
   checkIn: Date;
   checkOut: Date;
   stayDurationInMonths: number;
-  // selectedSpace: string;
   selectedFacilities: IFacilitySelection[];
 
   bookingDate: Date;
@@ -42,6 +41,7 @@ const FacilitySelectionSchema: Schema<IFacilitySelection> = new Schema({
   },
   startDate: { type: Date },
   endDate: { type: Date },
+  duration: { type: Number },
   ratePerMonth: { type: Number },
   totalCost: { type: Number },
 });

@@ -152,13 +152,13 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           <FileText className="mr-2 text-[#C8ED4F]" size={20} />
           Transaction History
         </h3>
-        <button
+        {/* <button
           onClick={downloadTransactionsCSV}
           className="flex items-center px-3 py-1.5 bg-[#C8ED4F]/10 text-[#C8ED4F] rounded-lg text-sm hover:bg-[#C8ED4F]/20 transition-colors"
         >
           <Download size={16} className="mr-1" />
           Export CSV
-        </button>
+        </button> */}
       </div>
 
       {/* Filters */}

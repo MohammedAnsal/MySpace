@@ -20,12 +20,11 @@ export class AdminFacilityController {
       const formData = req.body;
       const { name, price, description } = formData;
 
-      // Validate admin is authenticated
-      // if (!req.user) {
-      //   return res
-      //     .status(401)
-      //     .json({ success: false, message: "Admin authentication required" });
-      // }
+      const adminId = req.user?.id;
+
+      if (!adminId) {
+        throw new AppError("Admin not authenticated", 401);
+      }
 
       if (!name) {
         return res
@@ -67,13 +66,11 @@ export class AdminFacilityController {
 
   async findAllFacilities(req: AuthRequset, res: Response): Promise<any> {
     try {
-      // // Validate admin is authenticated
-      // if (!req.user) {
-      //   return res.status(401).json({
-      //     success: false,
-      //     message: "Admin authentication required",
-      //   });
-      // }
+      const adminId = req.user?.id;
+
+      if (!adminId) {
+        throw new AppError("Admin not authenticated", 401);
+      }
 
       const facilities = await this.adminFacilityService.findAllFacilities();
 
@@ -99,16 +96,16 @@ export class AdminFacilityController {
 
   async getFacilityById(req: AuthRequset, res: Response): Promise<any> {
     try {
-      // Validate admin is authenticated
-      // if (!req.user) {
-      //   return res.status(401).json({
-      //     success: false,
-      //     message: "Admin authentication required",
-      //   });
-      // }
+      const adminId = req.user?.id;
+
+      if (!adminId) {
+        throw new AppError("Admin not authenticated", 401);
+      }
 
       const { facilityId } = req.params;
-      const facility = await this.adminFacilityService.findFacilityById(facilityId);
+      const facility = await this.adminFacilityService.findFacilityById(
+        facilityId
+      );
 
       return res.status(200).json({
         success: true,
@@ -133,15 +130,11 @@ export class AdminFacilityController {
   async updateFacilityStatus(req: AuthRequset, res: Response): Promise<any> {
     try {
       const { facilityId, status } = req.body;
-      
-      // // Validate admin is authenticated
-      // if (!req.user) {
-      //   return res.status(401).json({
-      //     success: false,
-      //     message: "Admin authentication required",
-      //   });
-      // }
+      const adminId = req.user?.id;
 
+      if (!adminId) {
+        throw new AppError("Admin not authenticated", 401);
+      }
       const result = await this.adminFacilityService.updateFacilityStatus(
         facilityId,
         status
@@ -165,14 +158,12 @@ export class AdminFacilityController {
   async deleteFacility(req: AuthRequset, res: Response): Promise<any> {
     try {
       const { facilityId } = req.params;
-      
-      // // Validate admin is authenticated
-      // if (!req.user) {
-      //   return res.status(401).json({
-      //     success: false,
-      //     message: "Admin authentication required",
-      //   });
-      // }
+
+      const adminId = req.user?.id;
+
+      if (!adminId) {
+        throw new AppError("Admin not authenticated", 401);
+      }
 
       const result = await this.adminFacilityService.deleteFacility(facilityId);
       return res.status(200).json(result);
@@ -192,4 +183,4 @@ export class AdminFacilityController {
   }
 }
 
-export const adminFacilityController = Container.get(AdminFacilityController); 
+export const adminFacilityController = Container.get(AdminFacilityController);

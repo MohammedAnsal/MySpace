@@ -1,7 +1,5 @@
 import express from "express";
-import {
-  walletController,
-} from "../../controllers/implements/wallet/wallet.controller";
+import { walletController } from "../../controllers/implements/wallet/wallet.controller";
 import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
@@ -16,6 +14,7 @@ const walletRoute = express.Router();
 //   authorizeRoles(Roles.USER),
 //   walletController.createWallet.bind(walletController)
 // );
+
 walletRoute.get(
   "/user-wallet",
   authMiddleWare,

@@ -4,8 +4,8 @@ export interface IMessage {
   _id?: Types.ObjectId;
   chatRoomId: Types.ObjectId;
   senderId: Types.ObjectId;
-  receiverId: Types.ObjectId;
-  text?: string;
+  senderType: "user" | "provider";
+  content?: string;
   image?: string;
   replyToMessageId?: Types.ObjectId;
   isSeen: boolean;
@@ -25,17 +25,19 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    receiverId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    senderType: {
+      type: String,
+      enu: ["user", "provider"],
       required: true,
     },
-    text: {
+    content: {
       type: String,
-      default: "",
+      required: true,
+      trim: true,
     },
     image: {
       type: String,
+      required: false,
     },
     replyToMessageId: {
       type: mongoose.Schema.Types.ObjectId,

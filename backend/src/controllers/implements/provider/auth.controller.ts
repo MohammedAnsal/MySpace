@@ -49,8 +49,6 @@ export class AuthController implements IAuthController {
 
       const response = await this.providerService.signIn(email, password);
 
-      console.log(response,'from con')
-
       setCookie(res, "provider_rfr", String(response.refreshToken));
       setCookie(res, "token", String(response.accessToken));
 

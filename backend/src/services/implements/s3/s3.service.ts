@@ -5,14 +5,14 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { IuploadServise } from "../../interface/s3/s3.service.interface";
+import IS3service from "../../interface/s3/s3.service.interface";
 import { NodeHttpHandler } from "@aws-sdk/node-http-handler";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 
 @Service()
-export class s3Service implements IuploadServise {
+export class s3Service implements IS3service {
   private s3Service: S3Client;
   private bucket: string;
 
@@ -35,12 +35,18 @@ export class s3Service implements IuploadServise {
 
   private validate_Files(file: Express.Multer.File) {
     if (file.size > 5 * 1024 * 1024)
-      throw new AppError("File size too large. Maximum size is 5MB", HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        "File size too large. Maximum size is 5MB",
+        HttpStatus.BAD_REQUEST
+      );
 
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
     if (!allowedTypes.includes(file.mimetype))
-      throw new AppError("Only image files are allowed", HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        "Only image files are allowed",
+        HttpStatus.BAD_REQUEST
+      );
   }
 
   async uploadMultipleFiles(files: Express.Multer.File[], folder: string) {
@@ -49,7 +55,7 @@ export class s3Service implements IuploadServise {
         throw new AppError("No files provided", HttpStatus.BAD_REQUEST);
       }
 
-      files.forEach(file => this.validate_Files(file));
+      files.forEach((file) => this.validate_Files(file));
 
       const uploadPromises = files.map(async (file) => {
         const params = {
@@ -73,7 +79,10 @@ export class s3Service implements IuploadServise {
       if (error instanceof AppError) {
         throw error;
       }
-      throw new AppError("Failed to upload files", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to upload files",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 

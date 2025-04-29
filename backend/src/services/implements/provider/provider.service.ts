@@ -5,7 +5,7 @@ import { ProviderRepository } from "../../../repositories/implementations/provid
 import { AppError } from "../../../utils/error";
 import { IProviderService } from "../../interface/provider/provider.service.interface";
 import { comparePassword, hashPassword } from "../../../utils/password.utils";
-import { s3Service } from "../s3/s3.service";
+import { S3Service, s3Service } from "../s3/s3.service";
 import { IHostelRepository } from "../../../repositories/interfaces/provider/hostel.Irepository";
 import { hostelRepository } from "../../../repositories/implementations/provider/hostel.repository";
 import { UserRepository } from "../../../repositories/implementations/user/user.repository";
@@ -15,14 +15,15 @@ import { AdminFacilityResult } from "../../interface/admin/facility.service.inte
 
 @Service()
 export class ProviderService implements IProviderService {
-  private providerRepo: ProviderRepository;
   private s3Service: s3Service;
   private hostelRepo: IHostelRepository;
   private bookingRepo: IBookingRepository;
 
-  constructor(private userRepo: UserRepository) {
-    this.providerRepo = new ProviderRepository();
-    this.s3Service = new s3Service();
+  constructor(
+    private userRepo: UserRepository,
+    private providerRepo: ProviderRepository
+  ) {
+    this.s3Service = S3Service;
     this.hostelRepo = hostelRepository;
     this.bookingRepo = bookingRepository;
   }

@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { IChatRoom } from "../../../models/chat/chat.chatRoom";
+import { IChatRoom } from "../../../models/chat/chatRoom.model";
 
 export interface IChatRoomRepository {
   createChatRoom(

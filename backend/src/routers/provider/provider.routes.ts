@@ -43,6 +43,9 @@ providerRoute.put(
 
 providerRoute.get(
   "/facilities",
+  authMiddleWare,
+  autherization,
+  authorizeRoles(Roles.PROVIDER),
   providerController.findAllFacilities.bind(providerController)
 );
 

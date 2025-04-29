@@ -8,6 +8,7 @@ import { Location } from "../../../models/provider/location.model";
 
 @Service()
 export class HostelRepository implements IHostelRepository {
+  
   async getVerifiedHostels(filters: {
     minPrice?: number;
     maxPrice?: number;

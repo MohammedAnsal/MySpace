@@ -3,7 +3,6 @@ import Container, { Service } from "typedi";
 import { StatusCodes } from "http-status-codes";
 import { Types } from "mongoose";
 import { StripeService } from "../../../services/implements/payment/stripe.service";
-import { IPaymentService } from "../../../services/interface/user/payment.service.interface";
 import { AppError } from "../../../utils/error";
 import { BookingService } from "../../../services/implements/user/booking.service";
 
@@ -14,7 +13,6 @@ interface PopulatedId {
 @Service()
 export class PaymentController {
   constructor(
-    private paymentService: IPaymentService,
     private stripeService: StripeService,
     private bookingService: BookingService
   ) {}
@@ -31,7 +29,6 @@ export class PaymentController {
         metadata,
       } = req.body;
 
-      // Validate required fields
       if (!hostelId || !userId || !providerId || !bookingId || !amount) {
         throw new AppError(
           "Missing required payment information",
@@ -39,7 +36,6 @@ export class PaymentController {
         );
       }
 
-      // Create success and cancel URLs
       const successUrl = `${process.env.CLIENT_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${process.env.CLIENT_URL}/booking/cancel`;
 
@@ -102,14 +98,12 @@ export class PaymentController {
   async reprocessPayment(req: Request, res: Response) {
     try {
       const { bookingId } = req.params;
-      
 
       if (!bookingId) {
         throw new AppError("Booking ID is required", StatusCodes.BAD_REQUEST);
       }
 
-      // Get booking details from the booking service
-      const booking = await this.bookingService.getBookingById(bookingId);      
+      const booking = await this.bookingService.getBookingById(bookingId);
 
       if (!booking) {
         throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
@@ -129,7 +123,6 @@ export class PaymentController {
         );
       }
 
-      // Create success and cancel URLs
       const successUrl = `${process.env.CLIENT_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${process.env.CLIENT_URL}/booking/cancel`;
 

@@ -2,25 +2,33 @@ import Container, { Service } from "typedi";
 import { HttpStatus } from "../../../enums/http.status";
 import { hostelService } from "../../../services/implements/provider/hostel.service";
 import { locationService } from "../../../services/implements/provider/location.service";
-import { s3Service } from "../../../services/implements/s3/s3.service";
+import { S3Service } from "../../../services/implements/s3/s3.service";
+import IS3Service from "../../../services/interface/s3/s3.service.interface";
 import { IHostelService } from "../../../services/interface/provider/hostel.service.interface";
 import { ILocationService } from "../../../services/interface/provider/location.service.interface";
 import { AuthRequset } from "../../../types/api";
 import { AppError } from "../../../utils/error";
-import { Request, Response } from "express";
+import { Response } from "express";
 @Service()
 export class HostelController {
   private hostelServicee: IHostelService;
   private locationServicee: ILocationService;
-  private s3ServiceInstance = Container.get(s3Service);
+  private s3Service: IS3Service;
 
   constructor() {
     this.hostelServicee = hostelService;
     this.locationServicee = locationService;
+    this.s3Service = S3Service;
   }
 
   async createHostel(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
+
       const files = req.files as Express.Multer.File[];
 
       if (!files || files.length === 0) {
@@ -48,7 +56,7 @@ export class HostelController {
         throw new AppError("Failed to create location", HttpStatus.BAD_REQUEST);
       }
 
-      const uploadResults = await this.s3ServiceInstance.uploadMultipleFiles(
+      const uploadResults = await this.s3Service.uploadMultipleFiles(
         files,
         "hostels"
       );
@@ -57,7 +65,7 @@ export class HostelController {
       const hostelData = {
         ...req.body,
         photos: imageUrls,
-        provider_id: req.user,
+        provider_id: req.user?.id,
         location: locationResult.locationData,
         amenities: req.body.amenities ? req.body.amenities : [],
         facilities: req.body.facilities
@@ -90,6 +98,12 @@ export class HostelController {
 
   async getAllHostels(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
+
       const result = await this.hostelServicee.getAllHostels();
 
       if (result.hostelData && Array.isArray(result.hostelData)) {
@@ -97,7 +111,7 @@ export class HostelController {
           result.hostelData.map(async (hostel) => {
             const signedPhotos = await Promise.all(
               (hostel.photos || []).map((photo) =>
-                this.s3ServiceInstance.generateSignedUrl(photo)
+                this.s3Service.generateSignedUrl(photo)
               )
             );
 
@@ -138,6 +152,12 @@ export class HostelController {
 
   async getHostelById(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
+
       const { hostelId } = req.params;
 
       if (!hostelId) {
@@ -147,7 +167,6 @@ export class HostelController {
       const result = await this.hostelServicee.getHostelById(hostelId);
 
       if (result.hostelData) {
-        // Generate signed URLs for photos
         const hostelWithSignedUrls = {
           ...(Array.isArray(result.hostelData)
             ? result.hostelData[0]
@@ -157,9 +176,7 @@ export class HostelController {
               (Array.isArray(result.hostelData)
                 ? result.hostelData[0].photos
                 : result.hostelData.photos) || []
-            ).map((photo: string) =>
-              this.s3ServiceInstance.generateSignedUrl(photo)
-            )
+            ).map((photo: string) => this.s3Service.generateSignedUrl(photo))
           ),
         };
 
@@ -192,6 +209,12 @@ export class HostelController {
 
   async editHostel(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
+
       const { hostelId } = req.params;
       const files = req.files as Express.Multer.File[];
 
@@ -223,14 +246,12 @@ export class HostelController {
         }
       });
 
-      // First, get the existing hostel to access its location ID
       const existingHostel = await this.hostelServicee.getHostelById(hostelId);
 
       if (!existingHostel.success || !existingHostel.hostelData) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
 
-      // Extract the location ID from the hostel data
       let locationId;
       if (Array.isArray(existingHostel.hostelData)) {
         const location = existingHostel.hostelData[0].location as any;
@@ -244,7 +265,6 @@ export class HostelController {
         throw new AppError("Location ID not found", HttpStatus.NOT_FOUND);
       }
 
-      // If location data is provided, update the existing location instead of creating a new one
       if (req.body.latitude && req.body.longitude && req.body.address) {
         const locationData = {
           latitude: Number(req.body.latitude),
@@ -252,7 +272,6 @@ export class HostelController {
           address: req.body.address,
         };
 
-        // Now update the existing location
         await this.locationServicee.updateLocation(locationId, locationData);
       }
 
@@ -281,7 +300,7 @@ export class HostelController {
       }
 
       if (files && files.length > 0) {
-        const uploadResults = await this.s3ServiceInstance.uploadMultipleFiles(
+        const uploadResults = await this.s3Service.uploadMultipleFiles(
           files,
           "hostels"
         );
@@ -324,8 +343,14 @@ export class HostelController {
     }
   }
 
-  async deleteHostel(req: Request, res: Response): Promise<void> {
+  async deleteHostel(req: AuthRequset, res: Response): Promise<void> {
     try {
+      const providerId = req.user?.id;
+
+      if (!providerId) {
+        throw new AppError("Provider not authenticated", 401);
+      }
+
       const { hostelId } = req.params;
       const result = await this.hostelServicee.deleteHostelById(hostelId);
 

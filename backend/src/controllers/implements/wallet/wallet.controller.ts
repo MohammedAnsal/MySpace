@@ -13,49 +13,44 @@ export class WalletController {
     this.walletService = walletService;
   }
 
-  async createWallet(req: AuthRequset, res: Response): Promise<any> {
-    try {
-      const { bookingId } = req.params;
-      const walletData = req.body;
+  // async createWallet(req: AuthRequset, res: Response): Promise<any> {
+  //   try {
+  //     const { bookingId } = req.params;
+  //     const walletData = req.body;
 
-      if (!bookingId) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Booking ID is required",
-        });
-      }
+  //     if (!bookingId) {
+  //       return res.status(HttpStatus.BAD_REQUEST).json({
+  //         success: false,
+  //         message: "Booking ID is required",
+  //       });
+  //     }
 
-      if (!req.user) {
-        return res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: "User not authenticated",
-        });
-      }
+  //     if (!req.user) {
+  //       return res.status(HttpStatus.UNAUTHORIZED).json({
+  //         success: false,
+  //         message: "User not authenticated",
+  //       });
+  //     }
 
-      const userId = req.user.id;
+  //     const wallet = await this.walletService.createWallet(walletData);
 
-      const wallet = await this.walletService.createWallet(
-        bookingId,
-        walletData
-      );
-
-      return res.status(HttpStatus.CREATED).json({
-        success: true,
-        message: "Wallet created successfully",
-        data: wallet,
-      });
-    } catch (error) {
-      if (error instanceof AppError) {
-        return res
-          .status(error.statusCode)
-          .json({ message: error.message, success: false });
-      }
-      console.error("Error creating wallet:", error);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Internal server error" });
-    }
-  }
+  //     return res.status(HttpStatus.CREATED).json({
+  //       success: true,
+  //       message: "Wallet created successfully",
+  //       data: wallet,
+  //     });
+  //   } catch (error) {
+  //     if (error instanceof AppError) {
+  //       return res
+  //         .status(error.statusCode)
+  //         .json({ message: error.message, success: false });
+  //     }
+  //     console.error("Error creating wallet:", error);
+  //     return res
+  //       .status(HttpStatus.INTERNAL_SERVER_ERROR)
+  //       .json({ success: false, message: "Internal server error" });
+  //   }
+  // }
 
   async getUserWallet(req: AuthRequset, res: Response): Promise<any> {
     try {
@@ -119,14 +114,14 @@ export class WalletController {
 
   async getAdminWallet(req: AuthRequset, res: Response): Promise<any> {
     try {
-      if (!req.user) {
+      const adminId = req.user?.id;
+
+      if (!adminId) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Admin not authenticated",
+          message: "Provider not authenticated",
         });
       }
-
-      const adminId = req.user.id;
 
       const wallet = await this.walletService.getAdminWallet(adminId);
 

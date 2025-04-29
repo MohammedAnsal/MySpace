@@ -71,7 +71,7 @@ export const MyBookings = () => {
   if (isLoading) {
     return (
       <div className="p-4 sm:p-8 mt-4 max-w-6xl mx-auto flex items-center justify-center h-[600px]">
-        <Loading text="Loading bookings..." />
+        <Loading text="Loading bookings..." color="#b9a089" />
       </div>
     );
   }

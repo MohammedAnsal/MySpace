@@ -6,14 +6,13 @@ import { ILocationRepository } from "../../interfaces/provider/location.Ireposit
 class LocationRepository implements ILocationRepository {
   async createLocation(locationData: Partial<ILocation>): Promise<ILocation> {
     try {
-      // Ensure we have coordinates for GeoJSON
       if (locationData.latitude && locationData.longitude) {
         locationData.location = {
           type: "Point",
-          coordinates: [locationData.longitude, locationData.latitude] // Note: GeoJSON uses [lng, lat]
+          coordinates: [locationData.longitude, locationData.latitude],
         };
       }
-      
+
       return await Location.create(locationData);
     } catch (error) {
       console.error("Error creating location:", error);
@@ -30,16 +29,18 @@ class LocationRepository implements ILocationRepository {
     }
   }
 
-  async updateLocation(locationId: string, locationData: Partial<ILocation>): Promise<ILocation | null> {
+  async updateLocation(
+    locationId: string,
+    locationData: Partial<ILocation>
+  ): Promise<ILocation | null> {
     try {
-      // Ensure we have coordinates for GeoJSON if lat/lng are provided
       if (locationData.latitude && locationData.longitude) {
         locationData.location = {
           type: "Point",
-          coordinates: [locationData.longitude, locationData.latitude] // Note: GeoJSON uses [lng, lat]
+          coordinates: [locationData.longitude, locationData.latitude],
         };
       }
-      
+
       return await Location.findByIdAndUpdate(
         locationId,
         { $set: locationData },

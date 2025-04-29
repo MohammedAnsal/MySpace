@@ -94,7 +94,7 @@ export class PaymentService implements IPaymentService {
     status: string
   ): Promise<IHostelPayment> {
     try {
-      // Validate status
+      
       const validStatuses = ["pending", "completed", "failed", "refunded"];
       if (!validStatuses.includes(status)) {
         throw new AppError("Invalid payment status", StatusCodes.BAD_REQUEST);

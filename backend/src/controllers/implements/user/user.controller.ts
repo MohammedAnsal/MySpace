@@ -13,9 +13,14 @@ class UserController implements IUserController {
   async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
       const user = req.user?.id;
-      const { success, data } = await this.userService.findUser(user as string);
+      if (!user) {
+        throw new AppError("User not authenticated", 401);
+      }
+      const { success, data, wallet } = await this.userService.findUser(
+        user as string
+      );
       if (success) {
-        res.status(HttpStatus.OK).json({ success: true, data });
+        res.status(HttpStatus.OK).json({ success: true, data, wallet });
       } else
         res
           .status(HttpStatus.BAD_REQUEST)

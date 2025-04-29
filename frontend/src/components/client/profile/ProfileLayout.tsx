@@ -24,7 +24,7 @@ const menuItems = [
   { name: "My Bookings", path: "/user/bookings", icon: <Calendar /> },
   { name: "My Wallet", path: "/user/wallet", icon: <Wallet /> },
   { name: "My Facility", path: "/user/facility", icon: <SquareLibrary /> },
-  { name: "My Chat", path: "/chat", icon: <MessageSquareText /> },
+  { name: "My Chat", path: "/user/chat", icon: <MessageSquareText /> },
 ];
 
 const ProfileLayout: React.FC = () => {

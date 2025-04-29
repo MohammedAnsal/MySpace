@@ -1,37 +1,21 @@
-import { Request, Response } from "express";
-import { IAdminController } from "../../interface/admin/admin.controller.interface";
+import { Response } from "express";
 import Container, { Service } from "typedi";
 import { HttpStatus } from "../../../enums/http.status";
 import { AuthRequset } from "../../../types/api";
 import { AppError } from "../../../utils/error";
-import {
-  s3Service,
-  S3Service,
-} from "../../../services/implements/s3/s3.service";
+import { S3Service } from "../../../services/implements/s3/s3.service";
+import IS3service from "../../../services/interface/s3/s3.service.interface";
 import { IHostelService } from "../../../services/interface/user/hostel.service.interface";
 import { hostelService } from "../../../services/implements/user/hostel.service";
-import { HostelFilters } from "../../../types/filters";
-
-interface FilteredRequest extends Request {
-  query: {
-    minPrice?: string;
-    maxPrice?: string;
-    gender?: string;
-    amenities?: string;
-    search?: string;
-    sortBy?: "asc" | "desc";
-    minRating?: string;
-    sortByRating?: string;
-  };
-}
 
 @Service()
 class HostelController {
   private hostelServicee: IHostelService;
-  private s3ServiceInstance = Container.get(s3Service);
+  private s3Service: IS3service;
 
   constructor() {
     this.hostelServicee = hostelService;
+    this.s3Service = S3Service;
   }
 
   async getVerifiedHostels(req: AuthRequset, res: Response): Promise<void> {
@@ -67,7 +51,7 @@ class HostelController {
 
             const signedPhotos = await Promise.all(
               (hostelData.photos || []).map((photo: string) =>
-                this.s3ServiceInstance.generateSignedUrl(photo)
+                this.s3Service.generateSignedUrl(photo)
               )
             );
 
@@ -124,7 +108,7 @@ class HostelController {
 
             const signedPhotos = await Promise.all(
               (hostelData.photos || []).map((photo: string) =>
-                this.s3ServiceInstance.generateSignedUrl(photo)
+                this.s3Service.generateSignedUrl(photo)
               )
             );
 
@@ -224,7 +208,7 @@ class HostelController {
 
             const signedPhotos = await Promise.all(
               (hostelData.photos || []).map((photo: string) =>
-                this.s3ServiceInstance.generateSignedUrl(photo)
+                this.s3Service.generateSignedUrl(photo)
               )
             );
 
