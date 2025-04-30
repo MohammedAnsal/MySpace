@@ -28,6 +28,7 @@ import {
   Star,
   ChevronDown,
   ChevronUp,
+  Maximize2,
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
@@ -62,6 +63,15 @@ interface ImageGalleryPopupProps {
   selectedImage: string | null;
 }
 
+interface MapModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  latitude: number;
+  longitude: number;
+  hostelName: string;
+  address: string;
+}
+
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -89,6 +99,7 @@ const HostelDetails = () => {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
 
   const navigate = useNavigate();
@@ -427,40 +438,48 @@ const HostelDetails = () => {
                   <MapPin className="w-6 h-6 text-main-color mr-2" />
                   Location
                 </h3>
-                <div className="h-[200px] rounded-lg overflow-hidden mb-4">
+                <div 
+                  className="h-[200px] rounded-lg overflow-hidden mb-4 relative group cursor-pointer" 
+                  onClick={() => setIsMapModalOpen(true)}
+                >
                   {hostel.location?.latitude && hostel.location?.longitude && (
-                    <MapContainer
-                      center={[
-                        hostel.location.latitude,
-                        hostel.location.longitude,
-                      ]}
-                      zoom={15}
-                      style={{ height: "100%", width: "100%" }}
-                      scrollWheelZoom={false}
-                      className="rounded-lg"
-                    >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      <Marker
-                        position={[
+                    <>
+                      <div className="absolute top-2 right-2 bg-white/80 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Maximize2 className="w-5 h-5 text-gray-700" />
+                      </div>
+                      <MapContainer
+                        center={[
                           hostel.location.latitude,
                           hostel.location.longitude,
                         ]}
+                        zoom={15}
+                        style={{ height: "100%", width: "100%" }}
+                        scrollWheelZoom={false}
+                        className="rounded-lg z-10"
                       >
-                        <Popup>
-                          <div className="p-2">
-                            <h3 className="font-medium text-gray-900">
-                              {hostel.hostel_name}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {hostel.location.address}
-                            </p>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    </MapContainer>
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <Marker
+                          position={[
+                            hostel.location.latitude,
+                            hostel.location.longitude,
+                          ]}
+                        >
+                          <Popup>
+                            <div className="p-2">
+                              <h3 className="font-medium text-gray-900">
+                                {hostel.hostel_name}
+                              </h3>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {hostel.location.address}
+                              </p>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      </MapContainer>
+                    </>
                   )}
                 </div>
                 <div className="flex items-start">
@@ -486,6 +505,20 @@ const HostelDetails = () => {
             onClose={() => setIsGalleryOpen(false)}
             hostel={hostel}
             selectedImage={selectedImage}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Map Modal */}
+      <AnimatePresence>
+        {isMapModalOpen && hostel.location?.latitude && hostel.location?.longitude && (
+          <MapModal
+            isOpen={isMapModalOpen}
+            onClose={() => setIsMapModalOpen(false)}
+            latitude={hostel.location.latitude}
+            longitude={hostel.location.longitude}
+            hostelName={hostel.hostel_name}
+            address={hostel.location.address}
           />
         )}
       </AnimatePresence>
@@ -603,6 +636,68 @@ const ImageGalleryPopup: React.FC<ImageGalleryPopupProps> = ({
               />
             </motion.div>
           ))}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const MapModal: React.FC<MapModalProps> = ({
+  isOpen,
+  onClose,
+  latitude,
+  longitude,
+  hostelName,
+  address,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/80 z-20 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-6xl bg-white rounded-xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="absolute top-0 right-0 m-4 z-[400]">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-black/10 rounded-full transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Map Container */}
+        <div className="h-[80vh]">
+          <MapContainer
+            center={[latitude, longitude]}
+            zoom={16}
+            style={{ height: "100%", width: "100%" }}
+            scrollWheelZoom={true}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[latitude, longitude]}>
+              <Popup>
+                <div className="p-2">
+                  <h3 className="font-medium text-gray-900">{hostelName}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{address}</p>
+                </div>
+              </Popup>
+            </Marker>
+          </MapContainer>
         </div>
       </motion.div>
     </motion.div>
