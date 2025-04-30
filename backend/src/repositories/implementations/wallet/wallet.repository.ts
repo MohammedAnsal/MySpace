@@ -85,8 +85,8 @@ export class WalletRepository implements IWalletRepository {
     session.startTransaction();
 
     try {
-      const providerAmount = amount * 0.7;
-      const adminAmount = amount * 0.3;
+      const providerAmount = amount * 0.9;
+      const adminAmount = amount * 0.1;
 
       const providerWallet = await this.findWalletByUserId(providerId);
       if (!providerWallet) {
@@ -104,7 +104,7 @@ export class WalletRepository implements IWalletRepository {
         amount: providerAmount,
         type: "credit",
         status: "completed",
-        description: `Received 70% payment for booking #${bookingId}`,
+        description: `Received 90% payment for booking #${bookingId}`,
         bookingId: new mongoose.Types.ObjectId(bookingId),
         createdAt: new Date(),
       });
@@ -113,7 +113,7 @@ export class WalletRepository implements IWalletRepository {
         amount: adminAmount,
         type: "credit",
         status: "completed",
-        description: `Received 30% commission for booking #${bookingId}`,
+        description: `Received 10% commission for booking #${bookingId}`,
         bookingId: new mongoose.Types.ObjectId(bookingId),
         createdAt: new Date(),
       });
@@ -156,7 +156,7 @@ export class WalletRepository implements IWalletRepository {
         (tx) =>
           tx.bookingId &&
           tx.bookingId.toString() === bookingId &&
-          tx.description.includes("70%")
+          tx.description.includes("90%")
       );
 
       if (!providerTransaction) {
@@ -173,7 +173,7 @@ export class WalletRepository implements IWalletRepository {
         (tx) =>
           tx.bookingId &&
           tx.bookingId.toString() === bookingId &&
-          tx.description.includes("30%")
+          tx.description.includes("10%")
       );
 
       if (!adminTransaction) {

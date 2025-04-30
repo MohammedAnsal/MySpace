@@ -7,5 +7,9 @@ export interface IRatingService {
     averageRating: number;
     totalRatings: number;
   }>;
-  getUserRating(userId: string, hostelId: string): Promise<IRating | null>;
+  getUserRating(
+    userId: string,
+    hostelId: string,
+    bookingId: string
+  ): Promise<IRating | null>;
 }

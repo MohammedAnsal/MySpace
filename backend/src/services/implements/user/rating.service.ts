@@ -43,7 +43,8 @@ export class RatingService implements IRatingService {
 
       const existingRating = await this.ratingRepo.findRatingByUserAndHostel(
         userId,
-        ratingData.hostel_id
+        ratingData.hostel_id,
+        ratingData.booking_id
       );
 
       if (existingRating) {
@@ -56,6 +57,7 @@ export class RatingService implements IRatingService {
       const newRatingData = {
         user_id: new mongoose.Types.ObjectId(userId),
         hostel_id: new mongoose.Types.ObjectId(ratingData.hostel_id),
+        booking_id: new mongoose.Types.ObjectId(ratingData.booking_id),
         rating: ratingData.rating,
         comment: ratingData.comment || undefined,
       } as any;
@@ -74,9 +76,7 @@ export class RatingService implements IRatingService {
     }
   }
 
-  async getHostelRatings(
-    hostelId: string,
-  ): Promise<{
+  async getHostelRatings(hostelId: string): Promise<{
     ratings: IRating[];
     averageRating: number;
     totalRatings: number;
@@ -132,13 +132,24 @@ export class RatingService implements IRatingService {
     }
   }
 
-  async getUserRating(userId: string, hostelId: string): Promise<IRating | null> {
+  async getUserRating(
+    userId: string,
+    hostelId: string,
+    bookingId: string
+  ): Promise<IRating | null> {
     try {
-      if (!userId || !hostelId) {
-        throw new AppError("User ID and Hostel ID are required", StatusCodes.BAD_REQUEST);
+      if (!userId || !hostelId || !bookingId) {
+        throw new AppError(
+          "User ID and Hostel ID and Booking ID are required",
+          StatusCodes.BAD_REQUEST
+        );
       }
 
-      const existingRating = await this.ratingRepo.findRatingByUserAndHostel(userId, hostelId);
+      const existingRating = await this.ratingRepo.findRatingByUserAndHostel(
+        userId,
+        hostelId,
+        bookingId
+      );
       return existingRating;
     } catch (error) {
       if (error instanceof AppError) {

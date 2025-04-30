@@ -16,7 +16,7 @@ ratingRoute.post(
 );
 
 ratingRoute.get(
-  "/:hostelId/:userId",
+  "/:hostelId/:bookingId",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
