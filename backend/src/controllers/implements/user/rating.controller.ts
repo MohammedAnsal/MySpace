@@ -20,11 +20,14 @@ export class RatingController {
       const userId = req.user?.id;
       const ratingData = req.body;
 
+      console.log(ratingData, "dataaa");
+
       if (!userId) {
         throw new AppError("User not authenticated", StatusCodes.UNAUTHORIZED);
       }
 
       const result = await this.ratingService.createRating(userId, ratingData);
+      console.log(result, "finalll");
 
       res.status(StatusCodes.CREATED).json({
         success: true,
@@ -85,7 +88,7 @@ export class RatingController {
       if (!userId) {
         throw new AppError("User not authenticated", 401);
       }
-      const { hostelId } = req.params;
+      const { hostelId, bookingId } = req.params;
 
       if (!hostelId || !userId) {
         throw new AppError(
@@ -96,8 +99,11 @@ export class RatingController {
 
       const existingRating = await this.ratingService.getUserRating(
         userId,
-        hostelId
+        hostelId,
+        bookingId
       );
+
+      console.log(existingRating)
 
       res.status(StatusCodes.OK).json({
         success: true,

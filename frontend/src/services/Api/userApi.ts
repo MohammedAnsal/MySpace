@@ -288,9 +288,9 @@ export const getHostelRatings = async (hostelId: string) => {
   }
 };
 
-export const getUserRating = async (userId: string, hostelId: string) => {
+export const getUserRating = async (hostelId: string, bookingId: string) => {
   try {
-    const response = await api.get(`/user/${hostelId}/${userId}`);
+    const response = await api.get(`/user/${hostelId}/${bookingId}`);
     return handleResponse(response.data, "Error fetching user rating");
   } catch (error) {
     handleError(error);

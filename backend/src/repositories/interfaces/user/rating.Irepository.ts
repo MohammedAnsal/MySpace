@@ -5,6 +5,7 @@ export interface IRatingRepository {
   findRatingsByHostelId(hostelId: string): Promise<IRating[]>;
   findRatingByUserAndHostel(
     userId: string,
-    hostelId: string
+    hostelId: string,
+    bookingId: string
   ): Promise<IRating | null>;
 }

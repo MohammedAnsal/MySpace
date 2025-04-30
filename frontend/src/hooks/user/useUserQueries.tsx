@@ -66,11 +66,11 @@ const fetchHostelRatings = async (hostelId: string | undefined) => {
   }
 };
 
-const fetchUserRating = async (userId: string, hostelId: string) => {
-  if (!userId || !hostelId) return null;
-  
+const fetchUserRating = async (hostelId: string, bookingId: string) => {
+  if (!bookingId || !hostelId) return null;
+
   try {
-    const response = await getUserRating(userId, hostelId);
+    const response = await getUserRating(hostelId, bookingId);
     return response?.data || null;
   } catch (error) {
     console.error("Error fetching user rating:", error);
@@ -161,11 +161,11 @@ export const useHostelRatings = (hostelId: string | undefined) => {
   });
 };
 
-export const useUserRating = (userId: string, hostelId: string) => {
+export const useUserRating = (hostelId: string, bookingId: string) => {
   return useQuery({
-    queryKey: ["user-rating", userId, hostelId],
-    queryFn: () => fetchUserRating(userId, hostelId),
-    enabled: !!userId && !!hostelId,
+    queryKey: ["user-rating", bookingId, hostelId],
+    queryFn: () => fetchUserRating(hostelId, bookingId),
+    enabled: !!bookingId && !!hostelId,
   });
 };
 

@@ -39,12 +39,14 @@ export class RatingRepository implements IRatingRepository {
 
   async findRatingByUserAndHostel(
     userId: string,
-    hostelId: string
+    hostelId: string,
+    bookingId: string
   ): Promise<IRating | null> {
     try {
       const existingRating = await Rating.findOne({
         user_id: userId,
         hostel_id: hostelId,
+        booking_id: bookingId,
       });
 
       return existingRating;
