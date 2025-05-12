@@ -105,7 +105,7 @@ export class s3Service implements IS3service {
           };
 
           const command = new PutObjectCommand(params);
-          let s = await this.s3Service.send(command);
+          await this.s3Service.send(command);
 
           // const getObjectCommand = new GetObjectCommand({
           //   Bucket: process.env.BUCKET_NAME,

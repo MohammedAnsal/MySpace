@@ -84,6 +84,7 @@ userAxiosInstance.interceptors.response.use(
 
       // **Handle Other Client Errors (4xx)**
       if (status >= 400 && status < 500 && status !== 401) {
+        console.log(error.response.data)
         toast.error(error.response.data.message || 'An error occured');
       }
     } else if (error.request) {

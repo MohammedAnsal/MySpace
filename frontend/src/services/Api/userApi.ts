@@ -337,3 +337,154 @@ export const getWalletTransactions = async () => {
     return { success: false, data: [] };
   }
 };
+
+//  Food Facility :-
+
+export const getFoodMenu = async (facilityId: string, hostelId: string) => {
+  try {
+    console.log(facilityId);
+    console.log(hostelId);
+
+    const response = await api.get(
+      `/facility/food-menu/${facilityId}/${hostelId}`
+    );
+    return handleResponse(response.data, "Error fetching food menu");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const cancelMeal = async (
+  menuId: string,
+  day: string,
+  mealType: string,
+  isAvailable: boolean
+) => {
+  try {
+    const response = await api.put(
+      `/facility/food-menu/${menuId}/cancel-meal`,
+      {
+        day,
+        mealType,
+        isAvailable,
+      }
+    );
+    return handleResponse(response.data, "Error updating meal availability");
+  } catch (error) {
+    handleError(error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+};
+
+//  Washing Facility
+
+export const createWashingRequest = async (data: {
+  providerId: string;
+  hostelId: string;
+  facilityId: string;
+  requestedDate: string;
+  preferredTimeSlot: string;
+  itemsCount: number;
+  specialInstructions?: string;
+}) => {
+  try {
+    const response = await api.post("/facility/washing/create", data);
+    return handleResponse(response.data, "Error creating washing request");
+  } catch (error) {
+    handleError(error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+};
+
+export const getUserWashingRequests = async () => {
+  try {
+    const response = await api.get("/facility/washing/user");
+    return handleResponse(response.data, "Error fetching washing requests");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: [] };
+  }
+};
+
+export const cancelWashingRequest = async (id: string) => {
+  try {
+    const response = await api.post(`/facility/washing/${id}/cancel`);
+    return handleResponse(response.data, "Error cancelling washing request");
+  } catch (error) {
+    handleError(error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+};
+
+// Cleaning Facility
+export const createCleaningRequest = async (data: {
+  providerId: string;
+  hostelId: string;
+  facilityId: string;
+  requestedDate: string;
+  preferredTimeSlot: string;
+  specialInstructions?: string;
+}) => {
+  try {
+    const response = await api.post("/facility/cleaning/create", data);
+    return handleResponse(response.data, "Error creating cleaning request");
+  } catch (error) {
+    handleError(error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+};
+
+export const getUserCleaningRequests = async () => {
+  try {
+    const response = await api.get("/facility/cleaning/user");
+    return handleResponse(response.data, "Error fetching cleaning requests");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: [] };
+  }
+};
+
+export const cancelCleaningRequest = async (id: string) => {
+  try {
+    const response = await api.post(`/facility/cleaning/${id}/cancel`);
+    return handleResponse(response.data, "Error cancelling cleaning request");
+  } catch (error) {
+    handleError(error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+};
+
+export const addCleaningFeedback = async (
+  id: string,
+  rating: number,
+  comment?: string
+) => {
+  try {
+    const response = await api.post(`/facility/cleaning/${id}/feedback`, {
+      rating,
+      comment,
+    });
+    return handleResponse(response.data, "Error adding cleaning feedback");
+  } catch (error) {
+    handleError(error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+};

@@ -28,6 +28,7 @@ import WalletSummary from "./components/WalletSummary";
 import WalletStats from "./components/WalletStats";
 import TransactionHistory from "./components/TransactionHistory";
 import WalletInfo from "./components/WalletInfo";
+import Loading from "@/components/global/Loading";
 
 interface Transaction {
   _id: string;
@@ -251,8 +252,13 @@ export const Wallet = () => {
     return (
       <div className="flex items-center justify-center h-96 bg-[#2A2B2F] text-white">
         <div className="flex flex-col items-center">
-          <RefreshCw className="animate-spin h-10 w-10 text-[#C8ED4F] mb-4" />
-          <p className="text-gray-300">Loading wallet data...</p>
+          <div className="col-span-2 lg:col-span-5 flex justify-center items-center py-8">
+            <Loading
+              text="Loading wallet..."
+              color="#6366f1"
+              className="text-white"
+            />
+          </div>
         </div>
       </div>
     );

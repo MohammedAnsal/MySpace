@@ -4,13 +4,12 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   Calendar,
   LogOut,
-  MapPin,
-  MessageCircle,
   MessageSquareText,
   SquareLibrary,
   User,
   Wallet,
 } from "lucide-react";
+import Scroll from "@/components/global/Scroll";
 import { userLogout } from "@/services/Api/userApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
@@ -131,6 +130,7 @@ const ProfileLayout: React.FC = () => {
           </main>
         </div>
       </div>
+      <Scroll />
       <Footer />
     </>
   );

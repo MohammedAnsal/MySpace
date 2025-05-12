@@ -219,12 +219,12 @@ export class AdminUserService implements IAdminUserService {
 
   async getAdminDashboard(): Promise<any> {
     try {
-      const totalHostels = await this.hostelRepo.getAllHostels();
+      // const totalHostels = await this.hostelRepo.getAllHostels();
       const totalUsers = await this.userRepo.findUserByRole("user");
       const totalProviders = await this.userRepo.findUserByRole("provider");
       const totalBookings = await this.bookingRepo.getAllBookings();
 
-      const hostels = totalHostels.length;
+      // const hostels = totalHostels.length;
       const bookings = totalBookings.length;
       const users = totalUsers.length;
       const providers = totalProviders.length;
@@ -315,7 +315,7 @@ export class AdminUserService implements IAdminUserService {
       }
 
       return {
-        hostels,
+        // hostels,
         bookings,
         users,
         providers,

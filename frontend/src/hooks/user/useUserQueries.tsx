@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   listAllHostels,
   hostelDetails,
@@ -10,6 +10,15 @@ import {
   getUserRating,
   getUserWallet,
   getWalletTransactions,
+  getFoodMenu,
+  getUserWashingRequests,
+  createWashingRequest,
+  cancelWashingRequest,
+  getUserCleaningRequests,
+  createCleaningRequest,
+  cancelCleaningRequest,
+  addCleaningFeedback,
+  // getWashingRequestById,
 } from "@/services/Api/userApi";
 import { HostelFilters } from "@/types/api.types";
 import UserProfile from "@/pages/user/Home/profile/UserProfile";
@@ -180,5 +189,121 @@ export const useWalletTransactions = () => {
   return useQuery({
     queryKey: ["wallet-transactions"],
     queryFn: fetchWalletTransactions,
+  });
+};
+
+export const useFoodMenu = (facilityId: string, hostelId: string) => {
+  return useQuery({
+    queryKey: ["food-menu", facilityId],
+    queryFn: async () => {
+      try {
+        const response = await getFoodMenu(facilityId, hostelId);
+        return response?.data;
+      } catch (error: any) {
+        // Check if it's the specific "Food menu not found" error
+        if (error.response?.data?.message === "Food menu not found") {
+          return null; // Return null instead of throwing error
+        }
+        throw error; // Throw other errors
+      }
+    },
+    enabled: !!facilityId,
+    // refetchOnMount: true,
+    // staleTime: 0
+  });
+};
+
+export const useUserWashingRequests = () => {
+  return useQuery({
+    queryKey: ["washing-requests"],
+    queryFn: () => getUserWashingRequests(),
+    refetchOnWindowFocus: true
+  });
+};
+
+// export const useWashingRequestById = (id: string | undefined) => {
+//   return useQuery({
+//     queryKey: ["washing-request", id],
+//     queryFn: () => getWashingRequestById(id!),
+//     enabled: !!id
+//   });
+// };
+
+export const useCreateWashingRequest = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (data: {
+      providerId: string;
+      hostelId: string;
+      facilityId: string;
+      requestedDate: string;
+      preferredTimeSlot: string;
+      itemsCount: number;
+      specialInstructions?: string;
+    }) => createWashingRequest(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["washing-requests"] });
+    }
+  });
+};
+
+export const useCancelWashingRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => cancelWashingRequest(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["washing-requests"] });
+    },
+  });
+};
+
+export const useUserCleaningRequests = () => {
+  return useQuery({
+    queryKey: ["cleaning-requests"],
+    queryFn: () => getUserCleaningRequests(),
+    refetchOnWindowFocus: true
+  });
+};
+
+export const useCreateCleaningRequest = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (data: {
+      providerId: string;
+      hostelId: string;
+      facilityId:string
+      requestedDate: string;
+      preferredTimeSlot: string;
+      specialInstructions?: string;
+    }) => createCleaningRequest(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cleaning-requests"] });
+    }
+  });
+};
+
+export const useCancelCleaningRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => cancelCleaningRequest(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cleaning-requests"] });
+    },
+  });
+};
+
+export const useAddCleaningFeedback = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, rating, comment }: { id: string; rating: number; comment?: string }) => 
+      addCleaningFeedback(id, rating, comment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cleaning-requests"] });
+    },
   });
 };

@@ -23,7 +23,7 @@ import ViewHostel from "./components/ViewHostel";
 import { useProviderHostels } from "@/hooks/provider/useProviderQueries";
 import { Hostel } from "@/types/api.types";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 4;
 
 const Hostels = () => {
   const navigate = useNavigate();

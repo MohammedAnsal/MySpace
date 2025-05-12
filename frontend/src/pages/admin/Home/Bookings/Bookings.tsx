@@ -76,7 +76,11 @@ export const Bookings = () => {
   if (isLoading) {
     return (
       <div className="p-6 mt-4 max-w-7xl mx-auto flex items-center justify-center h-[600px] bg-[#242529]">
-        <Loading text="Loading bookings..." color="#C8ED4F" />
+        <Loading
+          text="Loading bookings..."
+          color="#6366f1"
+          className="text-white"
+        />
       </div>
     );
   }
@@ -99,7 +103,7 @@ export const Bookings = () => {
   }
 
   // Filter bookings based on active tab and search term
-  const filteredBookings = bookings.filter(booking => {
+  const filteredBookings = bookings.filter((booking: { paymentStatus: string; userId: { fullName: string; }; hostelId: { hostel_name: string; }; providerId: { fullName: string; }; _id: string; }) => {
     // First, ensure the booking object and its expected properties exist
     if (!booking || !booking.paymentStatus) return false;
     

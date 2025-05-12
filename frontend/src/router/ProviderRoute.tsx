@@ -10,12 +10,15 @@ import { Role } from "@/types/types";
 import { PublicRoute } from "./authRoutes/user/publicRoute";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import ProviderDashboard from "../pages/provider/Home/Home";
-import { ManageFacilities } from "@/pages/provider/Facilities/ManageFacilities";
 import Hostels from "../pages/provider/Hostels/Hostels";
 import EditHostel from "@/pages/provider/Hostels/components/EditHostel";
 import { Bookings } from "@/pages/provider/Bookings/Bookings";
 import Wallet from "@/pages/provider/wallet/Wallet";
 import { Chat } from "@/pages/provider/Chat/Chat";
+import { ListHostelFacility } from "@/pages/provider/Facilities/ListHostelFacility";
+import { Food } from "@/pages/provider/Facilities/components/Food";
+import { Cleaning } from "@/pages/provider/Facilities/components/Cleaning";
+import { Washing } from "@/pages/provider/Facilities/components/Washing";
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes
@@ -64,6 +67,27 @@ export const ProviderRouter: RouteObject[] = [
       {
         path: "bookings",
         element: <Bookings />,
+      },
+      {
+        path: "manage-facility",
+        children: [
+          {
+            path: "",
+            element: <ListHostelFacility />,
+          },
+          {
+            path: ":hostelId/:facilityId/catering-service",
+            element: <Food />,
+          },
+          {
+            path: ":hostelId/deep-cleaning-service",
+            element: <Cleaning />,
+          },
+          {
+            path: ":hostelId/laundry-service",
+            element: <Washing />,
+          },
+        ],
       },
       {
         path: "notifications",

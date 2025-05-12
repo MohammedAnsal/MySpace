@@ -49,6 +49,7 @@ export class AdminAuthService implements IAdminAuthService {
 
       const refreshToken = generateRefreshToken({
         id: exists._id,
+        role: "admin",
       });
 
       return {
