@@ -103,6 +103,13 @@ const Checkout: React.FC = () => {
   };
 
   const handleFacilityDurationChange = (facilityId: string, duration: number) => {
+    // Don't allow facility duration to exceed stay duration
+    if (duration > formData.selectedMonths) {
+      toast.error("Facility duration cannot exceed your stay duration");
+      // Set the duration to match the stay duration instead
+      duration = formData.selectedMonths;
+    }
+    
     const updatedFacilities = formData.selectedFacilities.map(facility => 
       facility.id === facilityId 
         ? { ...facility, duration: duration }
@@ -286,12 +293,23 @@ const Checkout: React.FC = () => {
                     </label>
                     <select
                       value={formData.selectedMonths}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const newDuration = parseInt(e.target.value);
+                        
+                        // Update any facility durations that exceed the new stay duration
+                        const updatedFacilities = formData.selectedFacilities.map(facility => {
+                          if (facility.duration > newDuration) {
+                            return { ...facility, duration: newDuration };
+                          }
+                          return facility;
+                        });
+                        
                         setFormData({
                           ...formData,
-                          selectedMonths: parseInt(e.target.value),
-                        })
-                      }
+                          selectedMonths: newDuration,
+                          selectedFacilities: updatedFacilities,
+                        });
+                      }}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => (
@@ -368,7 +386,8 @@ const Checkout: React.FC = () => {
                                   }
                                   className="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm"
                                 >
-                                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(
+                                  {/* Only show options up to the selected stay duration */}
+                                  {Array.from({ length: formData.selectedMonths }, (_, i) => i + 1).map(
                                     (month) => (
                                       <option key={month} value={month}>
                                         {month}{" "}

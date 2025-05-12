@@ -22,6 +22,11 @@ import bookingRoute from "./routers/user/bookingRoute";
 import paymentRoute from "./routers/user/paymentRoute";
 import ratingRoute from "./routers/user/ratingRoutes";
 import walletRoute from "./routers/wallet/walletRoutes";
+import menuItemRoute from "./routers/facility/food/foodMenu.routes";
+import foodMenuRoute from "./routers/facility/food/menuItem.routes";
+import washingRoute from "./routers/facility/washing/washing.routes";
+import cleaningRoute from "./routers/facility/cleaning/cleaning.routes";
+import chatRoute from "./routers/chat/chat.routes";
 
 dotenv.config();
 dbConnect();
@@ -60,6 +65,8 @@ app.use(
 );
 app.use("/provider", providerRoute);
 app.use("/wallet", walletRoute);
+app.use("/facility", menuItemRoute, foodMenuRoute, washingRoute, cleaningRoute);
+app.use("/chat", chatRoute);
 
 const PORT = process.env.PORT || 7001;
 

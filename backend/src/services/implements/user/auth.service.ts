@@ -138,7 +138,10 @@ export class AuthService implements IAuthService {
         role: existingUser.role,
       });
 
-      const refreshToken = generateRefreshToken({ id: existingUser._id });
+      const refreshToken = generateRefreshToken({
+        id: existingUser._id,
+        role: existingUser.role,
+      });
 
       return {
         success: true,
@@ -416,7 +419,10 @@ export class AuthService implements IAuthService {
       id: user._id,
       role: user.role,
     });
-    const refreshToken = generateRefreshToken({ id: user._id });
+    const refreshToken = generateRefreshToken({
+      id: user._id,
+      role: user.role,
+    });
 
     return {
       success: true,
@@ -432,6 +438,7 @@ export class AuthService implements IAuthService {
   async checkToken(token: string) {
     try {
       const response = verifyRefreshToken(token);
+
       if (
         typeof response === "object" &&
         response !== null &&

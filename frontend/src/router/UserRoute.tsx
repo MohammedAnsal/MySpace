@@ -1,4 +1,4 @@
-import { Navigate, RouteObject } from "react-router-dom";
+import { RouteObject } from "react-router-dom";
 import SignUp from "../pages/user/Auth/SignUp";
 import SignIn from "../pages/user/Auth/SignIn";
 import HomePage from "../pages/user/Home/Home";
@@ -25,6 +25,10 @@ import About from "@/pages/user/Home/about/About";
 import BookingDetailsPage from "@/pages/user/Home/profile/bookings/BookingDetailsPage";
 import Wallet from "@/pages/user/Home/profile/wallet/Wallet";
 import Chat from "@/pages/user/Home/profile/chat/Chat";
+import { MyFacility } from "@/pages/user/Home/profile/facility/MyFacility";
+import Food from "@/pages/user/Home/profile/facility/components/food/Food";
+import Washing from "@/pages/user/Home/profile/facility/components/washing/Washing";
+import Cleaning from "@/pages/user/Home/profile/facility/components/cleaning/Cleaning";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -131,6 +135,38 @@ export const UserRoutes: RouteObject[] = [
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
             <Chat />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "facility",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <MyFacility />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "facility/food/:facilityId/:hostelId",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <Food />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "facility/washing/:facilityId/:hostelId/:providerId",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <Washing />
+          </ProtecteddRoute>
+        ),
+      },
+      {
+        path: "facility/cleaning/:facilityId/:hostelId/:providerId",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <Cleaning />
           </ProtecteddRoute>
         ),
       },

@@ -104,7 +104,7 @@ export class HostelController {
         throw new AppError("Provider not authenticated", 401);
       }
 
-      const result = await this.hostelServicee.getAllHostels();
+      const result = await this.hostelServicee.getAllHostels(providerId);
 
       if (result.hostelData && Array.isArray(result.hostelData)) {
         const hostelsWithSignedUrls = await Promise.all(

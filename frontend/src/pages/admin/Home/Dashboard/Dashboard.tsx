@@ -95,7 +95,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
               {isDashboardLoading ? (
                 <div className="col-span-2 lg:col-span-5 flex justify-center items-center py-8">
-                  <Loading text="Loading dashboard" color="#C8ED4F" />
+                  <Loading text="Loading dashboard..." color="#6366f1" className="text-white" />
                 </div>
               ) : (
                 metrics.map((metric, index) => (

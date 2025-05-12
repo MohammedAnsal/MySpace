@@ -3,7 +3,6 @@ import { Hostel, IHostel } from "../../../models/provider/hostel.model";
 import { IHostelRepository } from "../../interfaces/provider/hostel.Irepository";
 @Service()
 class HostelRepository implements IHostelRepository {
-  
   async createHostel(hostelData: Partial<IHostel>): Promise<IHostel> {
     try {
       const hostel = await Hostel.create(hostelData);
@@ -19,9 +18,9 @@ class HostelRepository implements IHostelRepository {
     }
   }
 
-  async getAllHostels(): Promise<IHostel[]> {
+  async getAllHostels(providerId: string): Promise<IHostel[]> {
     try {
-      const hostels = await Hostel.find()
+      const hostels = await Hostel.find({ provider_id: providerId })
         .populate("provider_id", "fullName email")
         .populate("location")
         .populate("facilities")
@@ -46,9 +45,11 @@ class HostelRepository implements IHostelRepository {
     }
   }
 
-  async updateHostel(hostelId: string, updateData: Partial<IHostel>): Promise<IHostel | null> {
+  async updateHostel(
+    hostelId: string,
+    updateData: Partial<IHostel>
+  ): Promise<IHostel | null> {
     try {
-      
       const hostel = await Hostel.findByIdAndUpdate(
         hostelId,
         { $set: updateData },
@@ -56,7 +57,7 @@ class HostelRepository implements IHostelRepository {
       ).populate([
         { path: "provider_id", select: "-password" },
         { path: "location" },
-        { path: "facilities" }
+        { path: "facilities" },
       ]);
 
       return hostel;

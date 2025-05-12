@@ -251,10 +251,192 @@ export const getProviderWallet = async () => {
 
 export const getWalletTransactions = async () => {
   try {
-    const response = await privateApi.get('/wallet/transactions');
+    const response = await privateApi.get("/wallet/transactions");
     return handleResponse(response.data, "Error fetching wallet transactions");
   } catch (error) {
     handleError(error);
     return { success: false, data: [] };
+  }
+};
+
+export const createMenuItem = async (formData: FormData) => {
+  try {
+    const response = await privateApi.post(
+      "/facility/menu-item/create",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return handleResponse(response.data, "Error creating menu item");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getAllMenuItems = async () => {
+  try {
+    const response = await privateApi.get("/facility/menu-item/all");
+    return handleResponse(response.data, "Error fetching menu items");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getMenuItemsByCategory = async (category: string) => {
+  try {
+    const response = await privateApi.get(
+      `/facility/menu-item/category/${category}`
+    );
+    return handleResponse(
+      response.data,
+      "Error fetching menu items by category"
+    );
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const updateMenuItem = async (id: string, formData: FormData) => {
+  try {
+    const response = await privateApi.put(
+      `/facility/menu-item/${id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return handleResponse(response.data, "Error updating menu item");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteMenuItem = async (id: string) => {
+  try {
+    const response = await privateApi.delete(`/facility/menu-item/${id}`);
+    return handleResponse(response.data, "Error deleting menu item");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+// export const createFoodMenu = async (
+//   providerId: string,
+//   facilityId: string
+// ) => {
+//   try {
+//     const response = await privateApi.post("/facility/food-menu/create", {
+//       providerId,
+//       facilityId,
+//     });
+//     return handleResponse(response.data, "Error creating food menu");
+//   } catch (error) {
+//     handleError(error);
+//   }
+// };
+
+export const getFoodMenu = async (facilityId: string, hostelId: string) => {
+  try {
+    const response = await privateApi.get(
+      `/facility/food-menu/${facilityId}/${hostelId}`
+    );
+    return handleResponse(response.data, "Error fetching food menu");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const updateFoodMenu = async (id: string, menuData: any) => {
+  try {
+    const response = await privateApi.put(
+      `/facility/food-menu/${id}`,
+      menuData
+    );
+    return handleResponse(response.data, "Error updating food menu");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteFoodMenu = async (
+  id: string,
+  day: string,
+  mealType: "morning" | "noon" | "night"
+) => {
+  try {
+    const response = await privateApi.delete(`/facility/food-menu/${id}`, {
+      data: { day, mealType },
+    });
+    return handleResponse(response.data, "Error deleting food menu");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const addSingleDayMenu = async (
+  facilityId: string,
+  hostelId: string,
+  day: string,
+  meals: {
+    morning?: string[];
+    noon?: string[];
+    night?: string[];
+  }
+) => {
+  try {
+    const response = await privateApi.post("/facility/food-menu/day", {
+      facilityId,
+      hostelId,
+      day,
+      meals,
+    });
+    return handleResponse(response.data, "Error adding day menu");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getProviderWashingRequests = async () => {
+  try {
+    const response = await privateApi.get("/facility/washing/provider/requests");
+    return handleResponse(response.data, "Error fetching washing requests");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: [] };
+  }
+};
+
+export const updateWashingRequestStatus = async (id: string, status: string) => {
+  try {
+    const response = await privateApi.put(`/facility/washing/${id}/status`, { status });
+    return handleResponse(response.data, "Error updating washing request status");
+  } catch (error) {
+    handleError(error);
+    return { success: false, message: "Failed to update request status" };
+  }
+};
+
+export const getProviderCleaningRequests = async () => {
+  try {
+    const response = await privateApi.get("/facility/cleaning/provider/requests");
+    return handleResponse(response.data, "Error fetching cleaning requests");
+  } catch (error) {
+    handleError(error);
+    return { success: false, data: [] };
+  }
+};
+
+export const updateCleaningRequestStatus = async (id: string, status: string) => {
+  try {
+    const response = await privateApi.put(`/facility/cleaning/${id}/status`, { status });
+    return handleResponse(response.data, "Error updating cleaning request status");
+  } catch (error) {
+    handleError(error);
+    return { success: false, message: "Failed to update request status" };
   }
 };

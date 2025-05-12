@@ -213,7 +213,6 @@ export class AuthController implements IAuthController {
         email,
         success: true,
         token: accessToken,
-        
       });
     } catch (error: any) {
       console.error("Google login error: ", error);

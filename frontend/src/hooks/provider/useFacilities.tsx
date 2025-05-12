@@ -1,16 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { findAllFacilities } from '@/services/Api/providerApi';
+import { useQuery } from "@tanstack/react-query";
+import { findAllFacilities } from "@/services/Api/providerApi";
 
 export const useFacilities = () => {
-  const queryClient = useQueryClient();
-
   // Query for fetching all facilities
   const {
     data: facilities,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['facilities'],
+    queryKey: ["facilities"],
     queryFn: findAllFacilities,
   });
   // Mutation for creating a facility
@@ -48,4 +46,4 @@ export const useFacilities = () => {
     // removeFacility,
     // isDeleting,
   };
-}; 
+};

@@ -170,13 +170,14 @@ export class ProviderService implements IProviderService {
 
   async getProviderDashboard(providerId: string): Promise<any> {
     try {
-      const totalHostels = await this.hostelRepo.getAllHostels();
+      // const totalHostels = await this.hostelRepo.getAllHostels();
       const totalUsers = await this.userRepo.findUserByRole("user");
       const totalBookings = await this.bookingRepo.getProviderBookings(
         providerId
       );
+      const hostels = (await this.hostelRepo.getAllHostels(providerId)).length;
 
-      const hostels = totalHostels.length;
+      // const hostels = totalHostels.length;
       const bookings = totalBookings.length;
       const users = totalUsers.length;
 

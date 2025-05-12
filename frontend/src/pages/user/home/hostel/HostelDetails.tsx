@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -13,9 +12,6 @@ import {
   Home,
   CheckCircle,
   Info,
-  X,
-  ChevronLeft,
-  ChevronRight,
   MessageCircle,
   MessageSquare,
   User,
@@ -25,9 +21,7 @@ import {
   WashingMachine,
   Cctv,
   GlassWaterIcon,
-  Star,
-  ChevronDown,
-  ChevronUp,
+  Maximize2,
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
@@ -41,8 +35,10 @@ import {
   useHostelDetails,
   useHostelRatings,
 } from "@/hooks/user/useUserQueries";
-import RatingStars from "@/components/global/RatingStars";
 import RatingSection from "@/pages/user/Home/hostel/components/RatingSection";
+import Scroll from "@/components/global/Scroll";
+import ImageGalleryPopup from "./components/ImageGalleryPopup";
+import MapModal from "./components/MapModal";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -54,13 +50,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
-
-interface ImageGalleryPopupProps {
-  isOpen: boolean;
-  onClose: () => void;
-  hostel: any;
-  selectedImage: string | null;
-}
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -86,10 +75,9 @@ const HostelDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: hostel, isLoading } = useHostelDetails(id);
   const { data: ratingData, isLoading: ratingsLoading } = useHostelRatings(id);
-
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [showAllReviews, setShowAllReviews] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -427,40 +415,48 @@ const HostelDetails = () => {
                   <MapPin className="w-6 h-6 text-main-color mr-2" />
                   Location
                 </h3>
-                <div className="h-[200px] rounded-lg overflow-hidden mb-4">
+                <div
+                  className="h-[200px] rounded-lg overflow-hidden mb-4 relative group cursor-pointer"
+                  onClick={() => setIsMapModalOpen(true)}
+                >
                   {hostel.location?.latitude && hostel.location?.longitude && (
-                    <MapContainer
-                      center={[
-                        hostel.location.latitude,
-                        hostel.location.longitude,
-                      ]}
-                      zoom={15}
-                      style={{ height: "100%", width: "100%" }}
-                      scrollWheelZoom={false}
-                      className="rounded-lg"
-                    >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      <Marker
-                        position={[
+                    <>
+                      <div className="absolute top-2 right-2 bg-white/80 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Maximize2 className="w-5 h-5 text-gray-700" />
+                      </div>
+                      <MapContainer
+                        center={[
                           hostel.location.latitude,
                           hostel.location.longitude,
                         ]}
+                        zoom={15}
+                        style={{ height: "100%", width: "100%" }}
+                        scrollWheelZoom={false}
+                        className="rounded-lg z-10"
                       >
-                        <Popup>
-                          <div className="p-2">
-                            <h3 className="font-medium text-gray-900">
-                              {hostel.hostel_name}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {hostel.location.address}
-                            </p>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    </MapContainer>
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <Marker
+                          position={[
+                            hostel.location.latitude,
+                            hostel.location.longitude,
+                          ]}
+                        >
+                          <Popup>
+                            <div className="p-2">
+                              <h3 className="font-medium text-gray-900">
+                                {hostel.hostel_name}
+                              </h3>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {hostel.location.address}
+                              </p>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      </MapContainer>
+                    </>
                   )}
                 </div>
                 <div className="flex items-start">
@@ -490,122 +486,25 @@ const HostelDetails = () => {
         )}
       </AnimatePresence>
 
+      {/* Map Modal */}
+      <AnimatePresence>
+        {isMapModalOpen &&
+          hostel.location?.latitude &&
+          hostel.location?.longitude && (
+            <MapModal
+              isOpen={isMapModalOpen}
+              onClose={() => setIsMapModalOpen(false)}
+              latitude={hostel.location.latitude}
+              longitude={hostel.location.longitude}
+              hostelName={hostel.hostel_name}
+              address={hostel.location.address}
+            />
+          )}
+      </AnimatePresence>
+      <Scroll />
+
       <Footer />
     </>
-  );
-};
-
-const ImageGalleryPopup: React.FC<ImageGalleryPopupProps> = ({
-  isOpen,
-  onClose,
-  hostel,
-  selectedImage,
-}) => {
-  const [currentImage, setCurrentImage] = useState(selectedImage);
-
-  if (!isOpen) return null;
-
-  const handlePrevious = () => {
-    const currentIndex = hostel.photos.indexOf(currentImage);
-    const newIndex =
-      currentIndex > 0 ? currentIndex - 1 : hostel.photos.length - 1;
-    setCurrentImage(hostel.photos[newIndex]);
-  };
-
-  const handleNext = () => {
-    const currentIndex = hostel.photos.indexOf(currentImage);
-    const newIndex =
-      currentIndex < hostel.photos.length - 1 ? currentIndex + 1 : 0;
-    setCurrentImage(hostel.photos[newIndex]);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="relative max-w-7xl w-full mx-4 flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="absolute top-0 right-0 m-4 z-10">
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-full text-white transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Main Image */}
-        <div className="relative h-[80vh] flex items-center justify-center">
-          <motion.img
-            key={currentImage}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            src={currentImage || ""}
-            alt={hostel?.hostel_name}
-            className="max-h-full max-w-full object-contain rounded-lg"
-          />
-
-          {/* Navigation Buttons */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handlePrevious();
-            }}
-            className="absolute left-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/75 transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNext();
-            }}
-            className="absolute right-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/75 transition-colors"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Thumbnails */}
-        <div className="mt-4 flex justify-center gap-2 px-4">
-          {hostel?.photos.map((photo: string, index: number) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className={`w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 transition-all
-                ${
-                  photo === currentImage
-                    ? "border-amber-500 scale-110"
-                    : "border-transparent opacity-50 hover:opacity-100"
-                }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrentImage(photo);
-              }}
-            >
-              <img
-                src={photo}
-                alt={`${hostel?.hostel_name} ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </motion.div>
   );
 };
 

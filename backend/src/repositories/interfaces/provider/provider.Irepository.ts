@@ -10,5 +10,5 @@ export interface IProviderRepository extends IRepository<IUser> {
     is_verified: boolean
   ): Promise<IUser | null | never>;
     findAllFacilities(): Promise<IAdminFacility[]>;
-  
+
 }

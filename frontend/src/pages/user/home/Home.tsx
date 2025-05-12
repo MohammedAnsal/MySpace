@@ -8,10 +8,10 @@ import FeaturesSection from "./components/FeaturesSection";
 import RoomOptionsSection from "./components/RoomOptionsSection";
 import FeaturedStaysSection from "./components/FeaturedStaysSection";
 import CTASection from "./components/CTASection";
+import Scroll from "@/components/global/Scroll";
 
 export default function HomePage() {
   const { data } = useHostelsHome();
-  console.log(data)
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const navigate = useNavigate();
 
@@ -40,6 +40,7 @@ export default function HomePage() {
           handleHostelClick={handleHostelClick}
         />
         <CTASection />
+        <Scroll />
       </main>
       <Footer />
     </>

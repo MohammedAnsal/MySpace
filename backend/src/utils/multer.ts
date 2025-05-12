@@ -14,12 +14,20 @@ export const upload = multer({
       return cb(null, true);
     }
 
-    if (file.fieldname == "photos") {
+    if (file.fieldname === "photos") {
       if (!file.mimetype.startsWith("image/")) {
         return cb(new Error("Only images are allowed for hostel picture"));
       }
       return cb(null, true);
     }
+
+    if (file.fieldname === "menuImage") {
+      if (!file.mimetype.startsWith("image/")) {
+        return cb(new Error("Only images are allowed for menu item"));
+      }
+      return cb(null, true);
+    }
+
     if (file.fieldname === "proof") {
       const allowedMimeTypes = [
         "application/pdf",

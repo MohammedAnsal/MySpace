@@ -72,9 +72,9 @@ class HostelService {
     }
   }
 
-  async getAllHostels(): Promise<hostelResult> {
+  async getAllHostels(providerId: string): Promise<hostelResult> {
     try {
-      const hostels = await this.hostelRepositoryy.getAllHostels();
+      const hostels = await this.hostelRepositoryy.getAllHostels(providerId);
 
       return {
         success: true,
@@ -92,26 +92,37 @@ class HostelService {
     }
   }
 
-  async editHostelById(hostelId: string, updateData: Partial<IHostel>): Promise<hostelResult> {
+  async editHostelById(
+    hostelId: string,
+    updateData: Partial<IHostel>
+  ): Promise<hostelResult> {
     try {
       if (!hostelId) {
         throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
       }
 
-      const existingHostel = await this.hostelRepositoryy.findHostelById(hostelId);
+      const existingHostel = await this.hostelRepositoryy.findHostelById(
+        hostelId
+      );
       if (!existingHostel) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-      const updatedHostel = await this.hostelRepositoryy.updateHostel(hostelId, updateData);
+
+      const updatedHostel = await this.hostelRepositoryy.updateHostel(
+        hostelId,
+        updateData
+      );
       if (!updatedHostel) {
-        throw new AppError("Failed to update hostel", HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new AppError(
+          "Failed to update hostel",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       }
-      
+
       return {
         success: true,
         message: "Hostel updated successfully",
-        hostelData: updatedHostel
+        hostelData: updatedHostel,
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -130,19 +141,24 @@ class HostelService {
         throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
       }
 
-      const existingHostel = await this.hostelRepositoryy.findHostelById(hostelId);
+      const existingHostel = await this.hostelRepositoryy.findHostelById(
+        hostelId
+      );
       if (!existingHostel) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
 
       const isDeleted = await this.hostelRepositoryy.deleteHostel(hostelId);
       if (!isDeleted) {
-        throw new AppError("Failed to delete hostel", HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new AppError(
+          "Failed to delete hostel",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       }
 
       return {
         success: true,
-        message: "Hostel deleted successfully"
+        message: "Hostel deleted successfully",
       };
     } catch (error) {
       if (error instanceof AppError) {

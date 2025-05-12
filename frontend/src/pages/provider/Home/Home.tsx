@@ -27,7 +27,7 @@ const ProviderDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { data: dashboardData, isLoading: isDashboardLoading } =
     useProviderDashboard();
-
+  
   const [profile, setProfile] = useState<UserProfile>({
     fullName: "",
     profile_picture: "",
