@@ -55,6 +55,7 @@ export class AuthController implements IAuthController {
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Sign in successfully completed",
+        userId: response.userId,
         fullName: response.fullName,
         email: response.email,
         role: response.role,

@@ -11,7 +11,8 @@ export interface SignInResult extends AuthResponse {
   refreshToken?: string;
   fullName?: string;
   role?: string;
-  pic?:string
+  userId?: string;
+  pic?: string;
 }
 
 export interface OtpVerificationData {

@@ -151,6 +151,7 @@ export class AuthService implements IAuthService {
         role: existingUser.role,
         fullName: existingUser.fullName,
         email: existingUser.email,
+        userId: existingUser._id,
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -427,6 +428,7 @@ export class AuthService implements IAuthService {
     return {
       success: true,
       message: "Sign in successfully completed",
+      userId: user._id,
       accessToken: accessToken,
       refreshToken: refreshToken,
       role: user.role,

@@ -43,12 +43,14 @@ export default function SignIn() {
     setLoading(true);
     try {
       const response = await signInRequest(data);
+      console.log(response);
       if (response.data.success) {
         localStorage.setItem("role", response.data.role);
         localStorage.setItem("access-token", response.data.token);
         toast.success(response.data.message);
         dispatch(
           loginSuccess({
+            userId: response.data.userId,
             email: response.data.email,
             fullName: response.data.username,
             role: response.data.role,

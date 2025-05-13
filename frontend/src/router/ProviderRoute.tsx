@@ -14,7 +14,7 @@ import Hostels from "../pages/provider/Hostels/Hostels";
 import EditHostel from "@/pages/provider/Hostels/components/EditHostel";
 import { Bookings } from "@/pages/provider/Bookings/Bookings";
 import Wallet from "@/pages/provider/wallet/Wallet";
-import { Chat } from "@/pages/provider/Chat/Chat";
+import ProviderChat from "@/pages/provider/Chat/Chat";
 import { ListHostelFacility } from "@/pages/provider/Facilities/ListHostelFacility";
 import { Food } from "@/pages/provider/Facilities/components/Food";
 import { Cleaning } from "@/pages/provider/Facilities/components/Cleaning";
@@ -99,7 +99,7 @@ export const ProviderRouter: RouteObject[] = [
       },
       {
         path: "chat",
-        element: <Chat />,
+        element: <ProviderChat />,
       },
       {
         path: "profile",

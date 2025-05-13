@@ -20,6 +20,7 @@ export const useGoogle = () => {
         localStorage.setItem("access-token", response.token);
         dispatch(
           loginSuccess({
+            userId: response.userId,
             fullName: response.fullName,
             email: response.email,
             role: response.role,

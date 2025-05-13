@@ -27,8 +27,24 @@ import foodMenuRoute from "./routers/facility/food/menuItem.routes";
 import washingRoute from "./routers/facility/washing/washing.routes";
 import cleaningRoute from "./routers/facility/cleaning/cleaning.routes";
 import chatRoute from "./routers/chat/chat.routes";
+import { createServer } from "http";
+import socketService from "./services/implements/socket/socket.service";
+import redisClient from "./config/redisConfig";
+import notificationRouter from "./routers/notification/notification.routes";
 
 dotenv.config();
+
+// Initialize Redis connection
+const connectRedis = async () => {
+  try {
+    await redisClient.connect();
+    console.log("Connected to Redis");
+  } catch (error) {
+    console.error("Redis connection error:", error);
+  }
+};
+
+connectRedis();
 dbConnect();
 
 const morganFormat = ":method :url :status :response-time ms";
@@ -38,7 +54,7 @@ const app = express();
 const corsOptions = {
   origin: process.env.CLIENT_URL,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
@@ -67,9 +83,14 @@ app.use("/provider", providerRoute);
 app.use("/wallet", walletRoute);
 app.use("/facility", menuItemRoute, foodMenuRoute, washingRoute, cleaningRoute);
 app.use("/chat", chatRoute);
+app.use("/notofication",notificationRouter)
 
 const PORT = process.env.PORT || 7001;
 
-app.listen(PORT, () => {
-  `Server running on port ${PORT}`;
+const httpServer = createServer(app);
+
+socketService.initialize(httpServer);
+
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
