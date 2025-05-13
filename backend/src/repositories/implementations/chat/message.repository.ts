@@ -1,8 +1,10 @@
 import { Types } from "mongoose";
 import Message, { IMessage } from "../../../models/chat/message.model";
 import { IMessageRepository } from "../../interfaces/chat/message.Irepository";
-
+import Container, { Service } from "typedi";
+@Service()
 export class MessageRepository implements IMessageRepository {
+
   async createMessage(messageData: IMessage): Promise<IMessage> {
     const message = new Message(messageData);
     const savedMessage = await message.save();
@@ -12,7 +14,8 @@ export class MessageRepository implements IMessageRepository {
   async findMessageById(
     messageId: string | Types.ObjectId
   ): Promise<IMessage | null> {
-    return await Message.findById(messageId);
+    const message = await Message.findById(messageId);
+    return message ? (message.toObject() as IMessage) : null;
   }
 
   async getMessagesByChatRoom(
@@ -24,7 +27,7 @@ export class MessageRepository implements IMessageRepository {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate("senderId", "name email profilePicture")
+      .populate("senderId", "fullName email profile_picture")
       .populate("replyToMessageId");
 
     return messages.map((msg) => msg.toObject()) as IMessage[];
@@ -81,6 +84,14 @@ export class MessageRepository implements IMessageRepository {
   async getReplyMessage(
     messageId: string | Types.ObjectId
   ): Promise<IMessage | null> {
-    return await Message.findOne({ replyToMessageId: messageId });
+    const message = await Message.findOne({
+      replyToMessageId: messageId,
+    }).populate(
+      "replyToMessageId",
+      "_id chatRoomId senderId senderType content isSeen"
+    );
+    return message ? (message.toObject() as IMessage) : null;
   }
 }
+
+export const messageRepository = Container.get(MessageRepository);

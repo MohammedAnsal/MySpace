@@ -44,6 +44,7 @@ const ProviderLogin = () => {
         toast.success(response.data.message);
         dispatch(
           loginSuccess({
+            userId: response.data.userId,
             email: response.data.email,
             fullName: response.data.fullName,
             role: response.data.role,

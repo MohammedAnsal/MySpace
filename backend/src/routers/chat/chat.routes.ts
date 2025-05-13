@@ -6,8 +6,8 @@ import { autherization } from "../../middlewares/auth/autherization.middlware";
 
 const chatRoute = express.Router();
 
-chatRoute.use(authMiddleWare);
-chatRoute.use(autherization);
+// chatRoute.use(authMiddleWare);
+// chatRoute.use(autherization);
 
 // Chat Room routes
 chatRoute.post(

@@ -140,6 +140,7 @@ export class AuthProviderService implements IAuthService {
         message: "Sign in successfully completed",
         accessToken,
         refreshToken,
+        userId: existingUser._id,
         fullName: existingUser.fullName,
         email: existingUser.email,
         role: existingUser.role,

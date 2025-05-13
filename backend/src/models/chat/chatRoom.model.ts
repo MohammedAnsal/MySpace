@@ -4,7 +4,7 @@ export interface IChatRoom {
   _id?: Types.ObjectId;
   userId: Types.ObjectId;
   providerId: Types.ObjectId;
-  lastMessageId?: Types.ObjectId;
+  lastMessage?: string;
   userUnreadCount: number;
   providerUnreadCount: number;
   lastMessageTime: Date;
@@ -24,9 +24,9 @@ const chatRoomSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    lastMessageId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Message",
+    lastMessage: {
+      type: String,
+      default: "",
     },
     userUnreadCount: {
       type: Number,

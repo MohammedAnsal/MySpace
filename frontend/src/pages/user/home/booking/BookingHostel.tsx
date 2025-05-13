@@ -102,11 +102,11 @@ const Checkout: React.FC = () => {
     setFormData({ ...formData, selectedFacilities: updatedFacilities });
   };
 
+  //  Facility Duration Check & Add :-
+
   const handleFacilityDurationChange = (facilityId: string, duration: number) => {
-    // Don't allow facility duration to exceed stay duration
     if (duration > formData.selectedMonths) {
       toast.error("Facility duration cannot exceed your stay duration");
-      // Set the duration to match the stay duration instead
       duration = formData.selectedMonths;
     }
     

@@ -60,6 +60,7 @@ export class AuthController implements IAuthController {
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Sign in successfully completed",
+        userId: response.userId,
         fullName: response.fullName,
         email: response.email,
         role: response.role,
@@ -200,7 +201,7 @@ export class AuthController implements IAuthController {
   async googleSign(req: Request, res: Response): Promise<any> {
     const { token } = req.body;
     try {
-      const { fullName, accessToken, refreshToken, email, role } =
+      const { fullName, accessToken, refreshToken, email, role, userId } =
         await this.authSrvice.signInGoogle(token);
 
       setCookie(res, "refreshToken", String(refreshToken));
@@ -208,6 +209,7 @@ export class AuthController implements IAuthController {
 
       return res.status(StatusCodes.OK).json({
         message: "Google login successful",
+        userId,
         fullName,
         role,
         email,
