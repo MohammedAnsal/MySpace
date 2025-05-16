@@ -99,7 +99,7 @@ export const MyFacility = () => {
   // Always show header first
   return (
     <motion.div
-      className="min-h-screen bg-gray-50 rounded-2xl overflow-hidden shadow-lg mt-4 max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8"
+      className="min-h-[600px] bg-gray-50 rounded-2xl overflow-hidden shadow-lg mt-4 max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8"
       initial="initial"
       animate="animate"
       variants={pageVariants}

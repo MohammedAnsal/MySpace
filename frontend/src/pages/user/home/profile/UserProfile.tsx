@@ -99,7 +99,7 @@ const UserProfile: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="bg-white p-4 sm:p-8 space-y-6 sm:space-y-8 mt-4 sm:mt-20 rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto"
+        className="bg-white p-4 sm:p-8 space-y-6 sm:space-y-8 mt-4 sm:mt-14 rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto"
       >
         <div className="flex flex-col md:flex-row">
           {/* Left side - profile photo and name */}

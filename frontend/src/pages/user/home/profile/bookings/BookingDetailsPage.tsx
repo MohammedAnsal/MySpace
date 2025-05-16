@@ -5,7 +5,6 @@ import BookingDetails from './components/BookingDetails';
 import { 
   ArrowLeft, 
   CreditCard, 
-  AlertTriangle,
   XCircle,
   Loader2
 } from 'lucide-react';
@@ -120,9 +119,6 @@ const BookingDetailsPage: React.FC = () => {
     
     try {
       // Use the API function from userApi
-      console.log(reason , 'ooooooooooooooo')
-      console.log(bookingId , 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-      await cancelBooking(bookingId, reason);
       
       refetch(); // Refresh the bookings data
       navigate('/user/bookings');

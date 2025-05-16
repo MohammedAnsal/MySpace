@@ -7,7 +7,7 @@ import { generateOtp } from "../../../utils/otp.utils";
 import { IAuthService } from "../../interface/provider/auth.p.service.interface";
 import { ProviderRepository } from "../../../repositories/implementations/provider/provider.repository";
 import { IUser } from "../../../models/user.model";
-import { hashPassword } from "../../../utils/password.utils";
+import { hashPassword, RandomPassword } from "../../../utils/password.utils";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -16,6 +16,11 @@ import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { AuthResponse, SignInResult } from "../../../types/types";
 import { walletService } from "../wallet/wallet.service";
+import { addMinutes, isAfter } from "date-fns";
+import { OAuth2Client } from "google-auth-library";
+import { StatusCodes } from "http-status-codes";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Service()
 export class AuthProviderService implements IAuthService {
@@ -187,7 +192,7 @@ export class AuthProviderService implements IAuthService {
       }
 
       await this.providerRepo.verifyProvider(email, true);
-      
+
       // Create wallet for provider after verification
       try {
         await walletService.createProviderWallet(validUser._id.toString());
@@ -195,7 +200,7 @@ export class AuthProviderService implements IAuthService {
         console.error("Error creating wallet for provider:", walletError);
         // Don't fail the verification process if wallet creation fails
       }
-      
+
       await this.otpRepo.deleteOtpByEmail(email);
 
       return { success: true, message: "Verification complete" };
@@ -244,5 +249,143 @@ export class AuthProviderService implements IAuthService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  async forgotPassword(email: string): Promise<AuthResponse> {
+    try {
+      const existingUser = await this.providerRepo.findProviderByEmail(email);
+
+      if (!existingUser) {
+        throw new AppError(
+          "You are not a verified provider.",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      return {
+        success: true,
+        message: "OTP sent for resetting your password.",
+      };
+    } catch (error) {
+      console.error("Error during forgot password process:", error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while forgot password.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async resetPassword(
+    email: string,
+    newPassword: string
+  ): Promise<AuthResponse> {
+    try {
+      const findUser = await this.providerRepo.findProviderByEmail(email);
+
+      console.log("the provider from db in resetpassword", findUser);
+
+      if (!findUser)
+        throw new AppError("Invalide Provider details", HttpStatus.BAD_REQUEST);
+
+      const hashedPassword = await hashPassword(newPassword);
+
+      const changedPassword = await this.providerRepo.updatePassword(
+        email,
+        hashedPassword
+      );
+
+      if (!changedPassword) {
+        throw new AppError(
+          "failed to update the password",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      return { success: true, message: "password successfully changed" };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while re-setpassword.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async signInGoogle(token: string): Promise<SignInResult> {
+    let user;
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) {
+      throw new AppError("Invalid token", StatusCodes.BAD_REQUEST);
+    }
+
+    const { email, name, picture, sub } = payload;
+    if (!email) {
+      throw new AppError(
+        "Google account does not have an email",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    user = await this.providerRepo.findProviderByEmail(email);
+
+    if (user && user.is_active === false) {
+      throw new AppError("Provider account is blocked", StatusCodes.FORBIDDEN);
+    }
+
+    if (!user) {
+      const pass = await RandomPassword();
+
+      user = await this.providerRepo.create({
+        email,
+        fullName: name,
+        google_id: sub,
+        password: pass,
+        phone: "",
+        profile_picture: picture,
+        role: "provider",
+        is_verified: true,
+      } as IUser);
+
+      // Create wallet for Google sign-in users
+      try {
+        await walletService.createProviderWallet(user._id.toString());
+      } catch (walletError) {
+        console.error(
+          "Error creating wallet for Google provider:",
+          walletError
+        );
+        // Don't fail the sign-in process if wallet creation fails
+      }
+    }
+
+    const accessToken = generateAccessToken({
+      id: user._id,
+      role: user.role,
+    });
+    const refreshToken = generateRefreshToken({
+      id: user._id,
+      role: user.role,
+    });
+
+    return {
+      success: true,
+      message: "Sign in successfully completed",
+      userId: user._id,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      role: user.role,
+      fullName: user.fullName,
+      email: user.email,
+    };
   }
 }

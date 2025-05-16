@@ -24,6 +24,30 @@ export const signIn_Request = async (adminData: Object) => {
   return response;
 };
 
+export const forgotPssword = async (email: string) => {
+  try {
+
+    const response = await public_api.post("/auth/admin/forgot-password", {
+      email,
+    });
+    return handleResponse(response, "Forgot-password not recevied correctly");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const resetPassword = async (email: string, newPassword: string) => {
+  try {
+    const response = await public_api.put("/auth/admin/reset-password", {
+      email,
+      newPassword,
+    });
+    return handleResponse(response, "Error in reset password request");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const getAllUsers = async () => {
   const response = await private_api.get("/admin/users");
 
@@ -171,7 +195,10 @@ export const getAdminDashboard = async () => {
     const response = await private_api.get("/admin/dashboard");
     console.log(response, "from admin api");
 
-    return handleResponse(response.data.getDashboardData, "Error in admin dashboard");
+    return handleResponse(
+      response.data.getDashboardData,
+      "Error in admin dashboard"
+    );
   } catch (error) {
     handleError(error);
   }
@@ -197,7 +224,10 @@ export const getAdminTransactions = async () => {
 
 export const processPayouts = async (payoutData: any) => {
   try {
-    const response = await private_api.post("/wallet/process-payout", payoutData);
+    const response = await private_api.post(
+      "/wallet/process-payout",
+      payoutData
+    );
     return handleResponse(response.data, "Error processing payout");
   } catch (error) {
     handleError(error);

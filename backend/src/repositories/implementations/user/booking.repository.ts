@@ -40,7 +40,7 @@ export class BookingRepository implements IBookingRepository {
         select: "hostel_name location", // Include location field
         populate: {
           path: "location", // Then populate this field
-          select: "address", // Select needed fields from the location document
+          select: "latitude longitude address", // Select needed fields from the location document
         },
       })
       .populate("providerId", "fullName email phone");
@@ -53,7 +53,7 @@ export class BookingRepository implements IBookingRepository {
         select: "hostel_name location", // Include location field
         populate: {
           path: "location", // Then populate this field
-          select: "address", // Select needed fields from the location document
+          select: "latitude longitude address", // Select needed fields from the location document
         },
       })
       .sort({ createdAt: -1 });

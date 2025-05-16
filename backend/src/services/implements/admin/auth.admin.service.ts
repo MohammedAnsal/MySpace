@@ -4,7 +4,7 @@ import {
   IAdminAuthService,
   SignInResult,
 } from "../../interface/admin/auth.admin.service.interface";
-import { comparePassword } from "../../../utils/password.utils";
+import { comparePassword, hashPassword } from "../../../utils/password.utils";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -12,6 +12,7 @@ import {
 } from "../../../utils/jwt.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
+import { AuthResponse } from "../../../types/types";
 
 @Service()
 export class AdminAuthService implements IAdminAuthService {
@@ -66,6 +67,71 @@ export class AdminAuthService implements IAdminAuthService {
       }
       throw new AppError(
         "An error occurred while signing in. Please try again later.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async forgotPassword(email: string): Promise<AuthResponse> {
+    try {
+      const existingAdmin = await this.adminRepo.findByEmail(email);
+
+      if (!existingAdmin) {
+        throw new AppError(
+          "You are not a verified admin.",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      return {
+        success: true,
+        message: "OTP sent for resetting your password.",
+      };
+    } catch (error) {
+      console.error("Error during forgot password process:", error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while forgot password.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async resetPassword(
+    email: string,
+    newPassword: string
+  ): Promise<AuthResponse> {
+    try {
+      const findUser = await this.adminRepo.findByEmail(email);
+
+      console.log("the admin from db in resetpassword", findUser);
+
+      if (!findUser)
+        throw new AppError("Invalide Admin details", HttpStatus.BAD_REQUEST);
+
+      const hashedPassword = await hashPassword(newPassword);
+
+      const changedPassword = await this.adminRepo.updatePassword(
+        email,
+        hashedPassword
+      );
+
+      if (!changedPassword) {
+        throw new AppError(
+          "failed to update the password",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      return { success: true, message: "password successfully changed" };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "An error occurred while re-setpassword.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

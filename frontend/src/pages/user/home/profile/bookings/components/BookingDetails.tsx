@@ -16,6 +16,8 @@ import {
 import RatingModal from "./RatingModal";
 import { createRating } from "@/services/Api/userApi";
 import { useUserRating } from "@/hooks/user/useUserQueries";
+import MapModal from "./MapModal";
+import { motion } from "framer-motion";
 
 interface Facility {
   facilityId: {
@@ -37,6 +39,8 @@ interface Location {
   city?: string;
   state?: string;
   zipCode?: string;
+  latitude?: string;
+  longitude?: string;
 }
 
 interface Booking {
@@ -67,6 +71,7 @@ interface BookingDetailsProps {
 
 const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   // Fetch user's existing rating for this hostel
   const {
@@ -284,28 +289,30 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-2">
-                {booking.hostelId.location.city && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {booking.hostelId.location.city}
-                  </span>
-                )}
-
-                {booking.hostelId.location.state && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                    {booking.hostelId.location.state}
-                  </span>
-                )}
-
-                {booking.hostelId.location.zipCode && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    {booking.hostelId.location.zipCode}
-                  </span>
-                )}
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsMapModalOpen(true)}
+                className="mt-2 px-3 py-1 text-sm bg-[#b9a089] text-white rounded-md hover:bg-[#a58e77]"
+              >
+                View on Map
+              </motion.button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Map Modal */}
+      {isMapModalOpen && booking.hostelId.location && (
+        <MapModal
+          location={{
+            latitude: parseFloat(booking.hostelId.location.latitude || "0"),
+            longitude: parseFloat(booking.hostelId.location.longitude || "0"),
+            address: booking.hostelId.location.address || "Unknown Address",
+            hostelName:booking.hostelId.hostel_name
+          }}
+          onClose={() => setIsMapModalOpen(false)}
+        />
       )}
 
       {/* Selected facilities - ENHANCED VERSION */}

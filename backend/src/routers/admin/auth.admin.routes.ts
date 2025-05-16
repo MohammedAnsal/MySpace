@@ -7,7 +7,21 @@ authAdminRoute.post(
   "/admin/sign-in",
   authController.signIn.bind(authController)
 );
-authAdminRoute.post("/admin/logout", authController.logout.bind(authController));
+
+authAdminRoute.post(
+  "/admin/forgot-password",
+  authController.forgetPassword.bind(authController)
+);
+
+authAdminRoute.put(
+  "/admin/reset-password",
+  authController.resetPassword.bind(authController)
+);
+
+authAdminRoute.post(
+  "/admin/logout",
+  authController.logout.bind(authController)
+);
 
 authAdminRoute.get(
   "/admin-refresh-token",

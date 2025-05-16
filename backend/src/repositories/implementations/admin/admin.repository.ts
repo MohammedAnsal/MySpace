@@ -23,6 +23,25 @@ export class AdminRepository
     }
   }
 
+  async updatePassword(
+    email: string,
+    newPassword: string
+  ): Promise<IAdmin | null> {
+    try {
+      const updatePassword = await Admin.findOneAndUpdate(
+        { email },
+        { $set: { password: newPassword } },
+        { new: true }
+      );
+
+      return updatePassword;
+    } catch (error) {
+      return Promise.reject(
+        new Error(`Error updating admin password: ${error}`)
+      );
+    }
+  }
+
   async verifyHostel(
     hostelId: string,
     reason: string,

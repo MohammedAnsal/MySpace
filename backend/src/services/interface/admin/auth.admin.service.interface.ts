@@ -1,3 +1,5 @@
+import { AuthResponse } from "../../../types/types";
+
 export interface SignInResult {
   success: boolean;
   message: string;
@@ -10,4 +12,6 @@ export interface SignInResult {
 
 export interface IAdminAuthService {
   admin_signIn(email: string, password: string): Promise<SignInResult>;
+   forgotPassword(email: string): Promise<AuthResponse>;
+    resetPassword(email: string, newPassword: string): Promise<AuthResponse>;
 }
