@@ -22,6 +22,24 @@ authProviderRoute.post(
   authController.resendOtp.bind(authController)
 );
 
-authProviderRoute.post("/provider/logout", authController.logout.bind(authController));
+authProviderRoute.post(
+  "/provider/forgot-password",
+  authController.forgetPassword.bind(authController)
+);
+
+authProviderRoute.put(
+  "/provider/reset-password",
+  authController.resetPassword.bind(authController)
+);
+
+authProviderRoute.post(
+  "/provider/google-signIn",
+  authController.googleSign.bind(authController)
+);
+
+authProviderRoute.post(
+  "/provider/logout",
+  authController.logout.bind(authController)
+);
 
 export default authProviderRoute;

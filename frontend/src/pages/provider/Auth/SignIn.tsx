@@ -12,12 +12,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { signInRequest } from "../../../services/Api/providerApi";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slice/userSlice";
+import { GoogleLogin } from "@react-oauth/google";
+import { useProviderGoogle } from "@/hooks/provider/useProviderGoogle";
 
 const ProviderLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { handleGoogleSuccess, handleGoogleError } = useProviderGoogle();
 
   const {
     register,
@@ -37,7 +40,7 @@ const ProviderLogin = () => {
     setLoading(true);
     try {
       const response = await signInRequest(data);
-      
+
       if (response.data.success) {
         localStorage.setItem("role", response.data.role);
         localStorage.setItem("access-token", response.data.token);
@@ -135,6 +138,27 @@ const ProviderLogin = () => {
             )}
           </button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-[#E2E1DF] text-gray-500">
+              Or sign in with
+            </span>
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            size="large"
+            text="signup_with"
+            theme="filled_black"
+            width={50}
+          />
+        </div>
 
         <p className="mt-4 text-sm md:text-base">
           Don't have an account?{" "}

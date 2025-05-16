@@ -1,5 +1,5 @@
 // ProfilePage.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   Calendar,
@@ -28,8 +28,29 @@ const menuItems = [
 
 const ProfileLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isFullWidthChat, setIsFullWidthChat] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
+
+  // Check if we're on the chat page
+  const isChatPage = location.pathname === "/user/chat";
+
+  // Add window resize effect to handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      // Set full width chat when screen width is below 1080px and on chat page
+      setIsFullWidthChat(window.innerWidth < 1080 && isChatPage);
+    };
+    
+    // Initialize on mount
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isChatPage]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -44,6 +65,23 @@ const ProfileLayout: React.FC = () => {
       dispatch(logout());
     }
   };
+
+  // If we're on chat page and screen is smaller than 1080px, use a different layout
+  if (isFullWidthChat) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-[#E2E1DF]">
+          <div className="flex flex-col max-w-screen-2xl mx-auto">
+            <main className="flex-1 p-0 sm:p-2">
+              <Outlet />
+            </main>
+          </div>
+        </div>
+        <Scroll />
+      </>
+    );
+  }
 
   return (
     <>
@@ -79,7 +117,7 @@ const ProfileLayout: React.FC = () => {
           </div>
 
           {/* Sidebar - Fixed height and position */}
-          <div className="md:w-64 md:ml-10 md:mt-10 md:sticky md:top-4 flex-shrink-0">
+          <div className="md:w-64 md:ml-10 md:mt-10 md:sticky md:top-4 flex-shrink-0 mb-4">
             <aside
               className={`
                 bg-[#b9a089] text-white w-full rounded-lg h-full

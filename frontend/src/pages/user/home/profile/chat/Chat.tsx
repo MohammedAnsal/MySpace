@@ -89,6 +89,8 @@ export const Chat = () => {
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
+
+
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -232,7 +234,7 @@ export const Chat = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="h-[calc(100vh-6rem)] mt-4 relative"
+      className="h-[calc(100vh-6rem)] md:h-[calc(100vh)] [@media(min-width:500px)]:h-[100vh] p-2 mt-4 relative"
     >
       {/* Mobile Header */}
       {isMobile && (
@@ -751,7 +753,7 @@ export const Chat = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 }}
-                  className="text-xl font-medium text-gray-900 mb-2"
+                  className="text-lg sm:text-xl font-medium text-gray-900 mb-2"
                 >
                   Welcome to Chat
                 </motion.h3>
@@ -759,7 +761,7 @@ export const Chat = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 }}
-                  className="text-gray-500"
+                  className="text-sm sm:text-base text-gray-500"
                 >
                   Select a user to start chatting
                 </motion.p>

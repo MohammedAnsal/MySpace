@@ -12,6 +12,7 @@ import { signIn_Request } from "../../../services/Api/admin/adminApi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slice/adminSlice";
+import { Link } from "react-router-dom";
 
 const AdminSignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -53,7 +54,6 @@ const AdminSignIn = () => {
       }
     } catch (error: any) {
       console.error("SignIn error:", error);
-
       const errorMessage = error.response.data?.message;
       toast.error(errorMessage);
     } finally {
@@ -91,7 +91,7 @@ const AdminSignIn = () => {
               <input
                 type="email"
                 placeholder="Your Email"
-                className="w-full p-3 bg-[#D9D9D9] focus:ring-2 focus:ring-lime-400 text-black border border-gray-300 rounded-lg focus:outline-none"
+                className="w-full p-3 bg-[#D9D9D9] focus:ring-2 focus:ring-[#C8ED4F] text-black border border-gray-300 rounded-lg focus:outline-none"
                 {...register("email")}
                 disabled={loading}
               />
@@ -105,7 +105,7 @@ const AdminSignIn = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Your Password"
-                  className="w-full p-3 bg-[#D9D9D9] focus:ring-2 focus:ring-lime-400 border border-gray-300 rounded-lg focus:outline-none pr-10"
+                  className="w-full p-3 bg-[#D9D9D9] focus:ring-2 focus:ring-[#C8ED4F] border border-gray-300 rounded-lg focus:outline-none pr-10"
                   {...register("password")}
                   disabled={loading}
                 />
@@ -154,6 +154,16 @@ const AdminSignIn = () => {
               )}
             </button>
           </form>
+
+          {/* Forgot Password Link */}
+          <div className="text-center">
+            <Link
+              to="/admin/forgot-password"
+              className="text-[#C8ED4F] hover:underline text-sm"
+            >
+              Forgot Password?
+            </Link>
+          </div>
         </div>
       </div>
     </div>

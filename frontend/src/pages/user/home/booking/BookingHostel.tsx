@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/global/Loading";
 import { motion } from "framer-motion";
+import { addDays, format } from "date-fns";
 
 interface BookingFormData {
   startDate: string;
@@ -55,6 +56,10 @@ const Checkout: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Calculate min date (tomorrow)
+  const tomorrow = addDays(new Date(), 1);
+  const minDate = format(tomorrow, "yyyy-MM-dd");
+
   const calculateEndDate = () => {
     const startDate = new Date(formData.startDate);
     const endDate = new Date(startDate);
@@ -70,48 +75,66 @@ const Checkout: React.FC = () => {
   const calculateTotalPrice = () => {
     const monthlyRent = state?.monthlyRent || 0;
     const depositAmount = state?.depositAmount || 0;
-    
-    const facilityCost = hostel?.facilities
-      ?.filter((facility: { _id: string; }) => 
-        formData.selectedFacilities.some(f => f.id === facility._id))
-      .reduce((total: number, facility: { _id: string; price: number; }) => {
-        const selectedFacility = formData.selectedFacilities.find(f => f.id === facility._id);
-        return total + (facility.price * (selectedFacility?.duration || 1));
-      }, 0) || 0;
 
-    return (monthlyRent * formData.selectedMonths) + facilityCost + depositAmount;
+    const facilityCost =
+      hostel?.facilities
+        ?.filter((facility: { _id: string }) =>
+          formData.selectedFacilities.some((f) => f.id === facility._id)
+        )
+        .reduce((total: number, facility: { _id: string; price: number }) => {
+          const selectedFacility = formData.selectedFacilities.find(
+            (f) => f.id === facility._id
+          );
+          return total + facility.price * (selectedFacility?.duration || 1);
+        }, 0) || 0;
+
+    return monthlyRent * formData.selectedMonths + facilityCost + depositAmount;
   };
 
   const calculatePaymentTotal = () => {
     const monthlyRent = state?.monthlyRent || 0;
     const depositAmount = state?.depositAmount || 0;
-    
-    const firstMonthFacilityCost = hostel?.facilities
-      ?.filter((facility: { _id: string; }) => 
-        formData.selectedFacilities.some(f => f.id === facility._id))
-      .reduce((total: number, facility: { price: number; }) => total + facility.price, 0) || 0;
+
+    const firstMonthFacilityCost =
+      hostel?.facilities
+        ?.filter((facility: { _id: string }) =>
+          formData.selectedFacilities.some((f) => f.id === facility._id)
+        )
+        .reduce(
+          (total: number, facility: { price: number }) =>
+            total + facility.price,
+          0
+        ) || 0;
 
     return monthlyRent + firstMonthFacilityCost + depositAmount;
   };
 
   const handleFacilityToggle = (facilityId: string, facilityName: string) => {
-    const updatedFacilities = formData.selectedFacilities.some(f => f.id === facilityId)
+    const updatedFacilities = formData.selectedFacilities.some(
+      (f) => f.id === facilityId
+    )
       ? formData.selectedFacilities.filter((item) => item.id !== facilityId)
-      : [...formData.selectedFacilities, { id: facilityId, name: facilityName, duration: 1 }];
+      : [
+          ...formData.selectedFacilities,
+          { id: facilityId, name: facilityName, duration: 1 },
+        ];
 
     setFormData({ ...formData, selectedFacilities: updatedFacilities });
   };
 
   //  Facility Duration Check & Add :-
 
-  const handleFacilityDurationChange = (facilityId: string, duration: number) => {
+  const handleFacilityDurationChange = (
+    facilityId: string,
+    duration: number
+  ) => {
     if (duration > formData.selectedMonths) {
       toast.error("Facility duration cannot exceed your stay duration");
       duration = formData.selectedMonths;
     }
-    
-    const updatedFacilities = formData.selectedFacilities.map(facility => 
-      facility.id === facilityId 
+
+    const updatedFacilities = formData.selectedFacilities.map((facility) =>
+      facility.id === facilityId
         ? { ...facility, duration: duration }
         : facility
     );
@@ -147,20 +170,26 @@ const Checkout: React.FC = () => {
       bookingFormData.append("hostelId", state.hostelId);
       bookingFormData.append("providerId", state.providerId);
       bookingFormData.append("checkIn", formData.startDate);
-      bookingFormData.append("checkOut", new Date(calculateEndDate()).toISOString());
-      bookingFormData.append("stayDurationInMonths", formData.selectedMonths.toString());
-      
+      bookingFormData.append(
+        "checkOut",
+        new Date(calculateEndDate()).toISOString()
+      );
+      bookingFormData.append(
+        "stayDurationInMonths",
+        formData.selectedMonths.toString()
+      );
+
       const facilitiesData = JSON.stringify(
-        formData.selectedFacilities.map(f => ({
+        formData.selectedFacilities.map((f) => ({
           id: f.id,
-          duration: f.duration
+          duration: f.duration,
         }))
       );
       bookingFormData.append("selectedFacilities", facilitiesData);
       bookingFormData.append("proof", formData.userProof);
 
       await bookingHostel(bookingFormData);
-      
+
       toast.success("Redirecting to payment...");
     } catch (error: any) {
       // toast.error(error.response?.data?.message || "Error processing your request");
@@ -280,6 +309,7 @@ const Checkout: React.FC = () => {
                     </label>
                     <input
                       type="date"
+                      min={minDate}
                       value={formData.startDate}
                       onChange={(e) =>
                         setFormData({ ...formData, startDate: e.target.value })
@@ -295,15 +325,16 @@ const Checkout: React.FC = () => {
                       value={formData.selectedMonths}
                       onChange={(e) => {
                         const newDuration = parseInt(e.target.value);
-                        
+
                         // Update any facility durations that exceed the new stay duration
-                        const updatedFacilities = formData.selectedFacilities.map(facility => {
-                          if (facility.duration > newDuration) {
-                            return { ...facility, duration: newDuration };
-                          }
-                          return facility;
-                        });
-                        
+                        const updatedFacilities =
+                          formData.selectedFacilities.map((facility) => {
+                            if (facility.duration > newDuration) {
+                              return { ...facility, duration: newDuration };
+                            }
+                            return facility;
+                          });
+
                         setFormData({
                           ...formData,
                           selectedMonths: newDuration,
@@ -387,14 +418,14 @@ const Checkout: React.FC = () => {
                                   className="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm"
                                 >
                                   {/* Only show options up to the selected stay duration */}
-                                  {Array.from({ length: formData.selectedMonths }, (_, i) => i + 1).map(
-                                    (month) => (
-                                      <option key={month} value={month}>
-                                        {month}{" "}
-                                        {month === 1 ? "Month" : "Months"}
-                                      </option>
-                                    )
-                                  )}
+                                  {Array.from(
+                                    { length: formData.selectedMonths },
+                                    (_, i) => i + 1
+                                  ).map((month) => (
+                                    <option key={month} value={month}>
+                                      {month} {month === 1 ? "Month" : "Months"}
+                                    </option>
+                                  ))}
                                 </select>
                               </div>
                             </div>
@@ -627,9 +658,25 @@ const Checkout: React.FC = () => {
                   <span className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
                   {isSubmitting ? (
                     <div className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                       Processing...
                     </div>
@@ -638,8 +685,18 @@ const Checkout: React.FC = () => {
                       {formData.acceptedRules ? (
                         <>
                           Pay Now: ${calculatePaymentTotal()}
-                          <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          <svg
+                            className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M14 5l7 7m0 0l-7 7m7-7H3"
+                            />
                           </svg>
                         </>
                       ) : (

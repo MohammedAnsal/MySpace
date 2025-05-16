@@ -34,6 +34,46 @@ export const signInRequest = async (data: Object) => {
   }
 };
 
+export const forgotPssword = async (email: string) => {
+  try {
+
+    const response = await publicApi.post("/auth/provider/forgot-password", {
+      email,
+    });
+    return handleResponse(response, "Forgot-password not recevied correctly");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const resetPassword = async (email: string, newPassword: string) => {
+  try {
+    const response = await publicApi.put("/auth/provider/reset-password", {
+      email,
+      newPassword,
+    });
+    return handleResponse(response, "Error in reset password request");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const googleRequest = async (token: string) => {
+  try {
+    const response = await privateApi.post(
+      "/auth/provider/google-signIn",
+      { token },
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const providerLogout = async () => {
   try {
     const response = await publicApi.post("/auth/provider/logout");
@@ -403,7 +443,9 @@ export const addSingleDayMenu = async (
 
 export const getProviderWashingRequests = async () => {
   try {
-    const response = await privateApi.get("/facility/washing/provider/requests");
+    const response = await privateApi.get(
+      "/facility/washing/provider/requests"
+    );
     return handleResponse(response.data, "Error fetching washing requests");
   } catch (error) {
     handleError(error);
@@ -411,10 +453,18 @@ export const getProviderWashingRequests = async () => {
   }
 };
 
-export const updateWashingRequestStatus = async (id: string, status: string) => {
+export const updateWashingRequestStatus = async (
+  id: string,
+  status: string
+) => {
   try {
-    const response = await privateApi.put(`/facility/washing/${id}/status`, { status });
-    return handleResponse(response.data, "Error updating washing request status");
+    const response = await privateApi.put(`/facility/washing/${id}/status`, {
+      status,
+    });
+    return handleResponse(
+      response.data,
+      "Error updating washing request status"
+    );
   } catch (error) {
     handleError(error);
     return { success: false, message: "Failed to update request status" };
@@ -423,7 +473,9 @@ export const updateWashingRequestStatus = async (id: string, status: string) => 
 
 export const getProviderCleaningRequests = async () => {
   try {
-    const response = await privateApi.get("/facility/cleaning/provider/requests");
+    const response = await privateApi.get(
+      "/facility/cleaning/provider/requests"
+    );
     return handleResponse(response.data, "Error fetching cleaning requests");
   } catch (error) {
     handleError(error);
@@ -431,10 +483,18 @@ export const getProviderCleaningRequests = async () => {
   }
 };
 
-export const updateCleaningRequestStatus = async (id: string, status: string) => {
+export const updateCleaningRequestStatus = async (
+  id: string,
+  status: string
+) => {
   try {
-    const response = await privateApi.put(`/facility/cleaning/${id}/status`, { status });
-    return handleResponse(response.data, "Error updating cleaning request status");
+    const response = await privateApi.put(`/facility/cleaning/${id}/status`, {
+      status,
+    });
+    return handleResponse(
+      response.data,
+      "Error updating cleaning request status"
+    );
   } catch (error) {
     handleError(error);
     return { success: false, message: "Failed to update request status" };

@@ -13,12 +13,19 @@ import HostelDetails from "@/pages/admin/Home/Hostel/HostelDetails";
 import AdminManageFacilities from "@/pages/admin/Home/Facility/ManageFacilities";
 import { Bookings } from "@/pages/admin/Home/Bookings/Bookings";
 import { Wallet } from "@/pages/admin/Home/Wallet/Wallet";
+import { ForgotPassword } from "@/pages/admin/Auth/ForgotPassword";
 
 export const AdminRouter: RouteObject[] = [
   {
     path: "/admin/signIn",
     element: <PublicRoute element={<AdminSignIn />} route="/admin/dashboard" />,
   },
+
+  {
+    path: "/admin/forgot-password",
+    element: <PublicRoute element={<ForgotPassword />} route="/admin/signIn" />,
+  },
+
   {
     element: (
       <ProtectedRoute allowedRole={Role.ADMIN}>{<Home />}</ProtectedRoute>

@@ -19,6 +19,7 @@ import { ListHostelFacility } from "@/pages/provider/Facilities/ListHostelFacili
 import { Food } from "@/pages/provider/Facilities/components/Food";
 import { Cleaning } from "@/pages/provider/Facilities/components/Cleaning";
 import { Washing } from "@/pages/provider/Facilities/components/Washing";
+import { ForgotPassword } from "@/pages/provider/Auth/ForgotPassword";
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes
@@ -35,6 +36,14 @@ export const ProviderRouter: RouteObject[] = [
     element: (
       <PublicRoute routeType={Role.PROVIDER}>
         <ProviderSignIn />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/provider/forgot-password",
+    element: (
+      <PublicRoute routeType={Role.PROVIDER}>
+        <ForgotPassword />
       </PublicRoute>
     ),
   },

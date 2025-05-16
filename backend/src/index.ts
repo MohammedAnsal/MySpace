@@ -34,17 +34,6 @@ import notificationRouter from "./routers/notification/notification.routes";
 
 dotenv.config();
 
-// Initialize Redis connection
-const connectRedis = async () => {
-  try {
-    await redisClient.connect();
-    console.log("Connected to Redis");
-  } catch (error) {
-    console.error("Redis connection error:", error);
-  }
-};
-
-connectRedis();
 dbConnect();
 
 const morganFormat = ":method :url :status :response-time ms";
@@ -83,7 +72,7 @@ app.use("/provider", providerRoute);
 app.use("/wallet", walletRoute);
 app.use("/facility", menuItemRoute, foodMenuRoute, washingRoute, cleaningRoute);
 app.use("/chat", chatRoute);
-app.use("/notofication",notificationRouter)
+app.use("/notofication", notificationRouter);
 
 const PORT = process.env.PORT || 7001;
 
