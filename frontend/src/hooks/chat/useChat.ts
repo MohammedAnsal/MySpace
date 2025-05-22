@@ -137,15 +137,16 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     async (content: string, image?: string, replyToMessageId?: string) => {
       if (!selectedChatRoom || !userId) return;
 
+      const tempId = `temp-${Date.now()}`;
+      
       try {
         // Create a temporary message for immediate display
-        const tempId = `temp-${Date.now()}`;
         const tempMessage: IMessage = {
           _id: tempId as any,
           chatRoomId: selectedChatRoom._id as any,
           senderId: userId as any,
           senderType: userType,
-          content: content,
+          content: content || (image ? '📷 Image' : ''),
           image: image,
           isSeen: false,
           createdAt: new Date().toISOString(),
@@ -153,16 +154,16 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           replyToMessageId: replyToMessageId as any,
         };
 
-        // Add temp message to the UI immediately for responsiveness
-        setMessages((prevMessages) => [tempMessage, ...prevMessages]);
+        // Add temp message to the UI immediately
+        setMessages(prevMessages => [tempMessage, ...prevMessages]);
 
-        // Update the local chat rooms list for immediate UI feedback
-        setChatRooms((prevRooms) =>
-          prevRooms.map((room) => {
+        // Update chat rooms list
+        setChatRooms(prevRooms =>
+          prevRooms.map(room => {
             if (room._id === selectedChatRoom._id) {
               return {
                 ...room,
-                lastMessage: content,
+                lastMessage: content || '📷 Image',
                 lastMessageTime: new Date().toISOString(),
               };
             }
@@ -170,53 +171,43 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           })
         );
 
-        // IMPORTANT: Save message to database FIRST, then emit via socket
+        // Send message to server
         const savedMessage = await chatApi.sendMessage(
           selectedChatRoom._id,
           userId,
           userType,
-          content,
+          content || '',
           image,
           replyToMessageId
         );
 
-
-        // Replace the temp message with the real one
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) => (msg._id === tempId ? savedMessage : msg))
+        // Replace temp message with saved message
+        setMessages(prevMessages =>
+          prevMessages.map(msg => 
+            msg._id === tempId ? savedMessage : msg
+          )
         );
 
-        // NOW send message via socket for real-time delivery to other users
-        
+        // Emit socket event
         socketService.sendMessage({
           chatRoomId: selectedChatRoom._id,
           senderId: userId,
           senderType: userType,
-          content,
+          content: content || '',
           image,
           replyToMessageId,
           _id: savedMessage._id, 
         });
 
-        // Clear typing status
-        setTypingStatus((prev) => ({ ...prev, [userId]: false }));
-        if (typingTimeoutRef.current) {
-          clearTimeout(typingTimeoutRef.current);
-        }
-        socketService.sendTypingStatus(selectedChatRoom._id, userId, false);
+        return savedMessage;
       } catch (err: any) {
         console.error("Error sending message:", err);
-
-        // Mark the temp message as failed but leave it visible
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg._id && typeof msg._id === "string" && msg._id.includes("temp-")
-              ? { ...msg, failed: true }
-              : msg
-          )
+        // Remove the temp message on error
+        setMessages(prevMessages =>
+          prevMessages.filter(msg => msg._id !== tempId)
         );
-
         setError(err.message || "Failed to send message");
+        return null;
       }
     },
     [selectedChatRoom, userId, userType]
@@ -496,6 +487,97 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     }
   }, [selectedChatRoomId, selectChatRoom, selectedChatRoom]);
 
+  const uploadImage = useCallback(async (
+    file: File,
+    replyToMessageId?: string
+  ): Promise<IMessage | null> => {
+    if (!selectedChatRoom || !userId) return null;
+
+    const tempId = `temp-${Date.now()}`;
+    
+    try {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please select an image file');
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('Image size should be less than 5MB');
+      }
+
+      // Create temp message immediately
+      const tempMessage: IMessage = {
+        _id: tempId as any,
+        chatRoomId: selectedChatRoom._id as any,
+        senderId: userId as any,
+        senderType: userType,
+        content: '',
+        image: URL.createObjectURL(file), // Temporary URL for preview
+        isSeen: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        replyToMessageId: replyToMessageId as any,
+      };
+
+      // Add temp message to UI
+      setMessages(prev => [tempMessage, ...prev]);
+
+      // Upload image
+      const message = await chatApi.uploadMessageImage(
+        file,
+        selectedChatRoom._id,
+        userId,
+        userType,
+        replyToMessageId
+      );
+
+      if (!message) {
+        throw new Error('Failed to upload image');
+      }
+
+      // Replace temp message with real message
+      setMessages(prev =>
+        prev.map(msg => msg._id === tempId ? message : msg)
+      );
+
+      // Update chat rooms list
+      setChatRooms(prevRooms =>
+        prevRooms.map(room => {
+          if (room._id === selectedChatRoom._id) {
+            return {
+              ...room,
+              lastMessage: '📷 Image',
+              lastMessageTime: message.createdAt,
+            };
+          }
+          return room;
+        })
+      );
+
+      // Emit socket event
+      socketService.sendMessage({
+        chatRoomId: selectedChatRoom._id,
+        senderId: userId,
+        senderType: userType,
+        content: '',
+        image: message.image,
+        replyToMessageId,
+        _id: message._id,
+      });
+
+      return message;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      // Remove temp message on error
+      setMessages(prev =>
+        prev.filter(msg => msg._id !== tempId)
+      );
+      setError(error instanceof Error ? error.message : 'Failed to upload image');
+      return null;
+    }
+  }, [selectedChatRoom, userId, userType]);
+
   return {
     chatRooms,
     messages,
@@ -511,5 +593,6 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     createChatRoom,
     markMessagesAsSeen,
     refreshChatRooms: loadChatRooms,
+    uploadImage,
   };
 };

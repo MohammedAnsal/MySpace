@@ -1,14 +1,15 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { ObjectId , Types } from "mongoose";
 
 export interface INotification extends Document {
-  recipient: mongoose.Types.ObjectId;
-  sender?: mongoose.Types.ObjectId;
+  recipient: Types.ObjectId;
+  sender?: Types.ObjectId;
   title: string;
   message: string;
   type: "message" | "hostel" | "update" | "alert";
   isRead: boolean;
   isDeleted: boolean;
-  relatedId?: mongoose.Types.ObjectId;
+  // relatedId?: String;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,10 +47,10 @@ const notificationSchema = new Schema<INotification>(
       type: Boolean,
       default: false,
     },
-    relatedId: {
-      type: Schema.Types.ObjectId,
-      refPath: "type",
-    },
+    // relatedId: {
+    //   type: Schema.Types.ObjectId,
+    //   refPath: "type",
+    // },
   },
   {
     timestamps: true,

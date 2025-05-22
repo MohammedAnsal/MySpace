@@ -232,6 +232,16 @@ export class HostelRepository implements IHostelRepository {
     }
   }
 
+   async findHostelByIdUnPopulated(hostelId: string): Promise<IHostel | null> {
+      try {
+        const hostel = await Hostel.findById(hostelId);
+        return hostel;
+      } catch (error) {
+        console.error("Error finding hostel:", error);
+        throw new Error("Failed to find hostel");
+      }
+    }
+
   async updateHostelAvailableSpace(hostelId: string): Promise<IHostel | null> {
     return await Hostel.findByIdAndUpdate(
       hostelId,

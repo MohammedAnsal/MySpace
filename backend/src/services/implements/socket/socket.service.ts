@@ -6,18 +6,22 @@ import { chatRoomService } from "../chat/chatRoom.service";
 import redisClient from "../../../config/redisConfig";
 import { IMessageService } from "../../interface/chat/message.service.interface";
 import { IChatRoomService } from "../../interface/chat/chatRoom.service.interface";
+import { notificationService } from "../notification/notification.service";
+import { INotificationService } from "../../interface/notification/notification.service.interface";
 
 @Service()
 export class SocketService {
   private io!: Server;
   private messageService: IMessageService;
   private chatRoomService: IChatRoomService;
+  private notificationService: INotificationService;
   private onlineUsers: Map<string, { role: string; socketId: string }> =
     new Map();
 
   constructor() {
     this.messageService = messageService;
     this.chatRoomService = chatRoomService;
+    this.notificationService = notificationService
   }
 
   initialize(httpServer: HttpServer): void {
@@ -115,7 +119,7 @@ export class SocketService {
           // );
           this.io.to(chatRoomId).emit("receive_message", newMessage);
 
-          // Also notify the other user if they're not in the room
+          // Also notify the other user if they're not in the ro om
           const recipientType = senderType === "user" ? "provider" : "user";
           const chatRoom = await this.chatRoomService.getChatRoomById(
             chatRoomId
@@ -211,6 +215,19 @@ export class SocketService {
         }
       }
     );
+
+    socket.on("user_status", async ({ userId, role, isOnline }) => {
+      console.log(
+        `User ${userId} (${role}) is now ${isOnline ? "online" : "offline"}`
+      );
+      if (isOnline) {
+        this.onlineUsers.set(userId, { role, socketId: socket.id });
+      } else {
+        this.onlineUsers.delete(userId);
+      }
+
+      this.io.emit("user_status_changed", { userId, isOnline });
+    });
 
     // Handle user status (online/offline)
     socket.on(
@@ -345,6 +362,39 @@ export class SocketService {
         console.error("Error handling user disconnection:", error);
       }
     });
+
+    // Handle notification read
+    socket.on("mark_notification_read", async (data: { notificationId: string }) => {
+      try {
+        const { notificationId } = data;
+        await this.notificationService.updateNotification(notificationId, { isRead: true });
+        socket.emit("notification_read", { notificationId });
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+      }
+    });
+
+    // Add these new event handlers
+    socket.on('delete_notification', async ({ notificationId }) => {
+      try {
+        await this.notificationService.updateNotification(notificationId, { isDeleted: true });
+        socket.emit('notification_deleted', { notificationId });
+      } catch (error) {
+        console.error('Error deleting notification:', error);
+      }
+    });
+
+    socket.on('mark_all_notifications_read', async () => {
+      try {
+        const userId = await redisClient.hGet(`socket:${socket.id}`, "userId");
+        if (userId) {
+          await this.notificationService.markAllNotificationsAsRead(userId);
+          socket.emit('all_notifications_read');
+        }
+      } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+      }
+    });
   }
 
   // Method to emit events to specific users or rooms
@@ -361,6 +411,18 @@ export class SocketService {
 
   emitToRoom(roomId: string, event: string, data: any): void {
     this.io.to(roomId).emit(event, data);
+  }
+
+  // Add method to emit notifications
+  emitNotification(recipientId: string, notification: any): void {
+    redisClient
+      .hGet(`user:${recipientId}`, "socketId")
+      .then((socketId) => {
+        if (socketId) {
+          this.io.to(socketId).emit("new_notification", notification);
+        }
+      })
+      .catch((err) => console.error("Error emitting notification:", err));
   }
 }
 

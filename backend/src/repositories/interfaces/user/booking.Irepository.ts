@@ -29,6 +29,7 @@ export interface UpdateBookingData {
 export interface IBookingRepository {
   createBooking(bookingData: CreateBookingData): Promise<IBooking>;
   getBookingById(bookingId: string): Promise<IBooking | null>;
+  getBookingByIdUnPopulated(bookingId: string): Promise<IBooking | null>
   getUserBookings(userId: string): Promise<IBooking[]>;
   getAllBookings(): Promise<IBooking[]>;
   // getHostelBookings(hostelId: string): Promise<IBooking[]>;

@@ -47,6 +47,10 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+const httpServer = createServer(app);
+
+socketService.initialize(httpServer);
+
 app.use("/user/payments/webhook", express.raw({ type: "application/json" }));
 
 app.use(morgan(morganFormat, morganOptions));
@@ -72,13 +76,9 @@ app.use("/provider", providerRoute);
 app.use("/wallet", walletRoute);
 app.use("/facility", menuItemRoute, foodMenuRoute, washingRoute, cleaningRoute);
 app.use("/chat", chatRoute);
-app.use("/notofication", notificationRouter);
+app.use("/notification", notificationRouter);
 
 const PORT = process.env.PORT || 7001;
-
-const httpServer = createServer(app);
-
-socketService.initialize(httpServer);
 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

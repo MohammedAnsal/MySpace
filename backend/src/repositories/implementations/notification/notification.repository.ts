@@ -9,6 +9,7 @@ export class NotificationRepository {
   ): Promise<INotification> {
     try {
       const notification = await Notification.create(notificationData);
+      console.log(notification)
       return notification;
     } catch (error) {
       throw new AppError("Failed to create notification", 500);
@@ -46,9 +47,20 @@ export class NotificationRepository {
 
   async findAllByRecipient(recipientId: string): Promise<INotification[]> {
     try {
-      return await Notification.find({ recipient: recipientId }).exec();
+      return await Notification.find({ recipient: recipientId , isDeleted: false}).exec();
     } catch (error) {
       throw new AppError("Failed to fetch notifications", 500);
+    }
+  }
+
+  async markAllAsRead(userId: string): Promise<void> {
+    try {
+      await Notification.updateMany(
+        { recipient: userId, isRead: false },
+        { $set: { isRead: true } }
+      );
+    } catch (error) {
+      throw new AppError("Failed to mark all notifications as read", 500);
     }
   }
 }

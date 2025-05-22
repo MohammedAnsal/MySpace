@@ -7,6 +7,7 @@ export interface IMessage {
   senderType: "user" | "provider";
   content?: string;
   image?: string;
+  handleSendMessagehandleSendMessagehandleSendMessage?: string;
   replyToMessageId?: Types.ObjectId;
   isSeen: boolean;
   createdAt?: Date;
@@ -32,8 +33,8 @@ const messageSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: true,
-      trim: true,
+      required: false,
+      // trim: true,
     },
     image: {
       type: String,

@@ -254,6 +254,7 @@ class BookingController implements IBookingController {
   async cancelBooking(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
+      
       if (!userId) {
         throw new AppError("User not authenticated", 401);
       }

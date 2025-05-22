@@ -10,4 +10,6 @@ export interface INotificationRepository {
   ): Promise<INotification | null>;
   delete(id: string): Promise<void>;
   findAllByRecipient(recipientId: string): Promise<INotification[]>;
+  markAllAsRead(userId: string): Promise<void> 
+
 }

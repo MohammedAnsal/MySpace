@@ -29,6 +29,7 @@ import { MyFacility } from "@/pages/user/Home/profile/facility/MyFacility";
 import Food from "@/pages/user/Home/profile/facility/components/food/Food";
 import Washing from "@/pages/user/Home/profile/facility/components/washing/Washing";
 import Cleaning from "@/pages/user/Home/profile/facility/components/cleaning/Cleaning";
+import Notification from "@/components/client/notification/Notification";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -131,6 +132,14 @@ export const UserRoutes: RouteObject[] = [
         ),
       },
       {
+        path: "notification",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <Notification />
+          </ProtecteddRoute>
+        ),
+      },
+      {
         path: "chat",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
@@ -162,6 +171,7 @@ export const UserRoutes: RouteObject[] = [
           </ProtecteddRoute>
         ),
       },
+
       {
         path: "facility/cleaning/:facilityId/:hostelId/:providerId",
         element: (

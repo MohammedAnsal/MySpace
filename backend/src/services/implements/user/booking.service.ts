@@ -14,6 +14,8 @@ import { hostelRepository } from "../../../repositories/implementations/user/hos
 import { adminFacilityRepository } from "../../../repositories/implementations/admin/facility.repository";
 import { IFacilityRepository } from "../../../repositories/interfaces/provider/facility.Irepository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
+import { notificationService } from "../notification/notification.service";
+import { INotificationService } from "../../interface/notification/notification.service.interface";
 
 @Service()
 export class BookingService implements IBookingService {
@@ -21,12 +23,14 @@ export class BookingService implements IBookingService {
   private hostelRepository: IHostelRepository;
   private facilityRepository: IFacilityRepository;
   private bookingRepository: IBookingRepository;
+  private notificationService: INotificationService;
 
   constructor(s3Service: s3Service) {
     this.s3Service = s3Service;
     this.hostelRepository = hostelRepository;
     this.facilityRepository = adminFacilityRepository;
     this.bookingRepository = bookingRepository;
+    this.notificationService = notificationService;
   }
 
   async createBooking(
@@ -114,6 +118,16 @@ export class BookingService implements IBookingService {
         monthlyRent,
         selectedFacilities: transformedFacilities, // Use the transformed facilities directly
       });
+
+      // Create notification for the provider
+      // await this.notificationService.createNotification({
+      //   recipient: booking.providerId,
+      //   sender: booking.userId,
+      //   title: "New Booking Request",
+      //   message: `You have received a new booking request for ${hostel.hostel_name}`,
+      //   type: "hostel",
+      //   // relatedId: booking._id
+      // });
 
       return booking;
     } catch (error) {
@@ -297,19 +311,41 @@ export class BookingService implements IBookingService {
   // }
 
   async cancelBooking(bookingId: string, reason: string): Promise<IBooking> {
-    const booking = await this.bookingRepository.getBookingById(bookingId);
+    const booking = await this.bookingRepository.getBookingByIdUnPopulated(bookingId);
     if (!booking) {
       throw new AppError("Booking not found", 404);
     }
 
-    if (booking.paymentStatus === "cancelled") {
-      throw new AppError("Booking is already cancelled", 400);
-    }
+    // if (booking.paymentStatus === "cancelled") {
+    //   throw new AppError("Booking is already cancelled", 400);
+    // }
 
     const cancelledBooking = await this.bookingRepository.cancelBooking(
       bookingId,
       reason
     );
+
+    console.log(bookingId);
+    console.log(booking.hostelId);
+    
+
+    if (booking) {
+      const hostel = await this.hostelRepository.findHostelByIdUnPopulated(
+        String(booking.hostelId)
+      );
+
+      console.log(hostel,'l')
+
+      await this.notificationService.createNotification({
+        recipient: new mongoose.Types.ObjectId(String(hostel?.provider_id)),
+        sender: new mongoose.Types.ObjectId(String(booking?.userId)),
+        title: "Hostel Booking Cancelled",
+        message: `A booking for your hostel "${hostel?.hostel_name}" has been cancelled by the user.`,
+        type: "hostel",
+        // relatedId: booking._id
+      });
+    }
+
     if (!cancelledBooking) {
       throw new AppError("Failed to cancel booking", 500);
     }

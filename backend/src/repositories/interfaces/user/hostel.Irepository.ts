@@ -3,6 +3,7 @@ import { HostelFilters } from "../../../types/filters";
 
 export interface IHostelRepository {
   getHostelById(hostelId: string): Promise<IHostel | null>;
+  findHostelByIdUnPopulated(hostelId: string): Promise<IHostel | null>
   getVerifiedHostelsForHome(): Promise<IHostel[]>;
   getVerifiedHostels(filters: HostelFilters): Promise<IHostel[]>;
   updateHostelAvailableSpace(hostelId: string): Promise<IHostel | null>

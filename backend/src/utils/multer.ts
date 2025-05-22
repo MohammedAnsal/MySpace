@@ -27,6 +27,14 @@ export const upload = multer({
       }
       return cb(null, true);
     }
+console.log(file.fieldname,'m')
+    if (file.fieldname === "image") {
+      
+      if (!file.mimetype.startsWith("image/")) {
+        return cb(new Error("Only images are allowed for menu item"));
+      }
+      return cb(null, true);
+    }
 
     if (file.fieldname === "proof") {
       const allowedMimeTypes = [

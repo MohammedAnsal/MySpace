@@ -8,15 +8,19 @@ import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { IMessageRepository } from "../../../repositories/interfaces/chat/message.Irepository";
 import { IChatRoomRepository } from "../../../repositories/interfaces/chat/chatRoom.Irepository";
+import { S3Service } from "../../../services/implements/s3/s3.service";
+import IS3service from "../../interface/s3/s3.service.interface";
 
 @Service()
 export class MessageService implements IMessageService {
   private messageRepository: IMessageRepository;
   private chatRoomRepository: IChatRoomRepository;
+  private s3Service: IS3service;
 
   constructor() {
     this.messageRepository = messageRepository;
     this.chatRoomRepository = chatRoomRepository;
+    this.s3Service = S3Service;
   }
 
   async sendMessage(
@@ -35,13 +39,18 @@ export class MessageService implements IMessageService {
         throw new AppError("Chat room not found", HttpStatus.NOT_FOUND);
       }
 
-      // Create message :-
+      if (!content && !image) {
+        throw new AppError(
+          "Either message content or image is required",
+          HttpStatus.BAD_REQUEST
+        );
+      }
 
       const messageData: IMessage = {
         chatRoomId: new Types.ObjectId(chatRoomId.toString()),
         senderId: new Types.ObjectId(senderId.toString()),
         senderType,
-        content,
+        content: content || "",
         isSeen: false,
       };
 
@@ -113,11 +122,28 @@ export class MessageService implements IMessageService {
         throw new AppError("Chat room not found", HttpStatus.NOT_FOUND);
       }
 
-      return await this.messageRepository.getMessagesByChatRoom(
+      const messages = await this.messageRepository.getMessagesByChatRoom(
         chatRoomId,
         page,
         limit
       );
+
+      const messagesWithSignedUrls = await Promise.all(
+        messages.map(async (message) => {
+          if (message.image) {
+            const signedUrl = await this.s3Service.generateSignedUrl(
+              message.image
+            );
+            return {
+              ...message,
+              image: signedUrl,
+            };
+          }
+          return message;
+        })
+      );
+
+      return messagesWithSignedUrls;
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(

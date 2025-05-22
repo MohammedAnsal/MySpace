@@ -16,6 +16,13 @@ import { IBookingRepository } from "../../../repositories/interfaces/user/bookin
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 import { walletService } from "../wallet/wallet.service";
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
+import { INotificationService } from "../../interface/notification/notification.service.interface";
+import { notificationService } from "../notification/notification.service";
+import mongoose, { Types } from "mongoose";
+
+interface PopulatedId {
+  _id: Types.ObjectId;
+}
 
 @Service()
 export class AdminUserService implements IAdminUserService {
@@ -23,12 +30,14 @@ export class AdminUserService implements IAdminUserService {
   private s3ServiceInstance: s3Service;
   private hostelRepo: IHostelRepository;
   private bookingRepo: IBookingRepository;
+  private notificationService: INotificationService;
 
   constructor(private userRepo: UserRepository, s3Service: s3Service) {
     this.adminRepositoryy = adminRepository;
     this.s3ServiceInstance = s3Service;
     this.hostelRepo = hostelRepository;
     this.bookingRepo = bookingRepository;
+    this.notificationService = notificationService;
   }
 
   async createWallet(adminId: string) {
@@ -118,6 +127,21 @@ export class AdminUserService implements IAdminUserService {
         isVerified,
         isRejected
       );
+
+      const providerId = await this.hostelRepo
+        .findHostelByIdUnPopulated(hostelId)
+        .then((data) => data?.provider_id);
+
+      if (providerId) {
+        await this.notificationService.createNotification({
+          recipient: new Types.ObjectId(String(providerId)),
+          sender: new Types.ObjectId(process.env.ADMIN_ID)!,
+          title: "Hostel Verification Approved",
+          message: `Your hostel "${result?.hostel_name}" has been successfully verified and is now visible to users.`,
+          type: "hostel",
+          // relatedId: result?._id,
+        });
+      }
 
       if (!result) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
