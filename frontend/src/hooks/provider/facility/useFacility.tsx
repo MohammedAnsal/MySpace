@@ -13,6 +13,7 @@ import {
   updateWashingRequestStatus,
   getProviderCleaningRequests,
   updateCleaningRequestStatus,
+  findAllFacilities,
 } from "@/services/Api/providerApi";
 
 export interface MenuItem {
@@ -185,10 +186,14 @@ export const useUpdateFoodMenu = () => {
 export const useDeleteFoodMenu = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, day, mealType }: { 
-      id: string; 
-      day: string; 
-      mealType: "morning" | "noon" | "night" 
+    mutationFn: ({
+      id,
+      day,
+      mealType,
+    }: {
+      id: string;
+      day: string;
+      mealType: "morning" | "noon" | "night";
     }) => deleteFoodMenu(id, day, mealType),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -245,10 +250,12 @@ export const useProviderWashingRequests = () => {
 export const useUpdateWashingStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => 
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
       updateWashingRequestStatus(id, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["provider-washing-requests"] });
+      queryClient.invalidateQueries({
+        queryKey: ["provider-washing-requests"],
+      });
     },
   });
 };
@@ -274,10 +281,30 @@ export const useProviderCleaningRequests = () => {
 export const useUpdateCleaningStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => 
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
       updateCleaningRequestStatus(id, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["provider-cleaning-requests"] });
+      queryClient.invalidateQueries({
+        queryKey: ["provider-cleaning-requests"],
+      });
     },
   });
+};
+
+export const useFacilities = () => {
+  // Query for fetching all facilities
+  const {
+    data: facilities,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["facilities"],
+    queryFn: findAllFacilities,
+  });
+
+  return {
+    facilities: facilities?.data?.facilityData || [],
+    isLoading,
+    error,
+  };
 };

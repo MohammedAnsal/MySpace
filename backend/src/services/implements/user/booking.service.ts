@@ -38,6 +38,23 @@ export class BookingService implements IBookingService {
     selectedFacilitiess: FacilityI[]
   ): Promise<IBooking> {
     try {
+
+      // Validate IDs before proceeding
+      if (!bookingData.userId || !bookingData.hostelId || !bookingData.providerId) {
+        throw new AppError("Missing required IDs", 400);
+      }
+
+      // Validate ID formats
+      if (!mongoose.Types.ObjectId.isValid(bookingData.userId)) {
+        throw new AppError(`Invalid user ID format: ${bookingData.userId}`, 400);
+      }
+      if (!mongoose.Types.ObjectId.isValid(bookingData.hostelId)) {
+        throw new AppError(`Invalid hostel ID format: ${bookingData.hostelId}`, 400);
+      }
+      if (!mongoose.Types.ObjectId.isValid(bookingData.providerId)) {
+        throw new AppError(`Invalid provider ID format: ${bookingData.providerId}`, 400);
+      }
+
       const hostel = await this.hostelRepository.getHostelById(
         bookingData.hostelId
       );
@@ -95,20 +112,15 @@ export class BookingService implements IBookingService {
           id: facility.id.toString(),
           duration: String(facility.duration),
         }))
-      );
+        );
+      
 
-      // Create booking with S3 URL and transformed facilities
-      const booking = await this.bookingRepository.createBooking({
+      // Create booking with properly formatted ObjectIds
+      const bookingDataToCreate = {
         ...bookingData,
-        userId: new Types.ObjectId(
-          bookingData.userId.toString()
-        ) as unknown as mongoose.Schema.Types.ObjectId,
-        hostelId: new Types.ObjectId(
-          bookingData.hostelId.toString()
-        ) as unknown as mongoose.Schema.Types.ObjectId,
-        providerId: new Types.ObjectId(
-          bookingData.providerId.toString()
-        ) as unknown as mongoose.Schema.Types.ObjectId,
+        userId: new mongoose.Types.ObjectId(bookingData.userId) as unknown as mongoose.Schema.Types.ObjectId,
+        hostelId: new mongoose.Types.ObjectId(bookingData.hostelId) as unknown as mongoose.Schema.Types.ObjectId,
+        providerId: new mongoose.Types.ObjectId(bookingData.providerId) as unknown as mongoose.Schema.Types.ObjectId,
         proof: Array.isArray(uploadResult)
           ? uploadResult[0].Location
           : uploadResult.Location,
@@ -116,8 +128,12 @@ export class BookingService implements IBookingService {
         firstMonthRent,
         depositAmount,
         monthlyRent,
-        selectedFacilities: transformedFacilities, // Use the transformed facilities directly
-      });
+        selectedFacilities: transformedFacilities,
+      };
+
+      console.log('Creating booking with data:', bookingDataToCreate);
+
+      const booking = await this.bookingRepository.createBooking(bookingDataToCreate);
 
       // Create notification for the provider
       // await this.notificationService.createNotification({
@@ -458,8 +474,6 @@ export class BookingService implements IBookingService {
 
         transformedFacilities.push(facilitySelection);
       }
-
-      console.log(transformedFacilities, "last look facility");
 
       if (!monthlyRent || !depositAmount) {
         throw new AppError("Invalid hostel pricing data", 400);

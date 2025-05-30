@@ -1,7 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { IChatRoom } from '../../../types/chat';
-import { OnlineStatusDot } from '../../shared/OnlineStatusDot';
+import React from "react";
+import { motion } from "framer-motion";
+import { IChatRoom } from "@/types/chat";
 
 interface ChatHeaderProps {
   selectedChatRoom: IChatRoom;
@@ -26,20 +25,19 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         animate={{ scale: 1 }}
         src={
           (selectedChatRoom.userId &&
-            typeof selectedChatRoom.userId === 'object' &&
+            typeof selectedChatRoom.userId === "object" &&
             (selectedChatRoom.userId as any).profilePicture) ||
           `https://ui-avatars.com/api/?name=${
             selectedChatRoom.userId &&
-            typeof selectedChatRoom.userId === 'object'
-              ? (selectedChatRoom.userId as any).fullName || 'User'
-              : 'User'
+            typeof selectedChatRoom.userId === "object"
+              ? (selectedChatRoom.userId as any).fullName || "User"
+              : "User"
           }&background=b9a089&color=fff`
         }
         alt={
-          selectedChatRoom.userId &&
-          typeof selectedChatRoom.userId === 'object'
-            ? (selectedChatRoom.userId as any).fullName || 'User'
-            : 'User'
+          selectedChatRoom.userId && typeof selectedChatRoom.userId === "object"
+            ? (selectedChatRoom.userId as any).fullName || "User"
+            : "User"
         }
         className="w-10 h-10 rounded-full"
       />
@@ -51,14 +49,14 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       >
         <h3 className="font-medium text-gray-900">
           {selectedChatRoom.userId &&
-          typeof selectedChatRoom.userId === 'object'
+          typeof selectedChatRoom.userId === "object"
             ? (selectedChatRoom.userId as any).fullName
-            : 'User'}
+            : "User"}
         </h3>
         <div className="flex items-center gap-2">
           <span className="text-xs">
             {selectedChatRoom.userId &&
-            typeof selectedChatRoom.userId === 'object' &&
+            typeof selectedChatRoom.userId === "object" &&
             (selectedChatRoom.userId as any)._id &&
             onlineUsers[(selectedChatRoom.userId as any)._id] ? (
               <span className="text-green-500">Online</span>
@@ -75,4 +73,4 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   );
 };
 
-export default ChatHeader; 
+export default ChatHeader;

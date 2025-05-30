@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Calendar,
   Clock,
   CreditCard,
-  Home,
   MapPin,
   Phone,
   User,
   FileCheck,
-  AlertCircle,
   Building,
   ChevronDown,
   ChevronUp,
@@ -128,12 +126,15 @@ export const Bookings = () => {
   }
 
   // Filter bookings based on active tab
-  const filteredBookings = bookings.filter((booking: { paymentStatus: string; }) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "completed") return booking.paymentStatus === "completed";
-    if (activeTab === "pending") return booking.paymentStatus === "pending";
-    return true;
-  });
+  const filteredBookings = bookings.filter(
+    (booking: { paymentStatus: string }) => {
+      if (activeTab === "all") return true;
+      if (activeTab === "completed")
+        return booking.paymentStatus === "completed";
+      if (activeTab === "pending") return booking.paymentStatus === "pending";
+      return true;
+    }
+  );
 
   // Pagination logic
   const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);

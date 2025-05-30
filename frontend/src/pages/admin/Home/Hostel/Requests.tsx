@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import Loading from "@/components/global/Loading";
 import { useState } from "react";
-import { HostelDetailsDialog } from "@/components/admin/HostelDetailsDialog";
+import { HostelDetailsDialog } from "@/pages/admin/Home/Hostel/components/HostelDetailsDialog";
 import { useUnverifiedHostels } from "@/hooks/admin/useAdminQueries";
 
 interface Hostel {

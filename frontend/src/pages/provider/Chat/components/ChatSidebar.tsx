@@ -1,8 +1,8 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { FaSearch, FaUsers } from 'react-icons/fa';
-import { IChatRoom } from '../../../types/chat';
-import { OnlineStatusDot } from '../../shared/OnlineStatusDot';
+import React from "react";
+import { motion } from "framer-motion";
+import { FaSearch, FaUsers } from "react-icons/fa";
+import { IChatRoom } from "@/types/chat";
+import { OnlineStatusDot } from "@/components/shared/OnlineStatusDot";
 
 interface ChatSidebarProps {
   chatRooms: IChatRoom[];
@@ -25,7 +25,6 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSearchChange,
   onSelectChat,
   isMobile,
-  showUserList,
   onCloseUserList,
   loading,
   onlineUsers,
@@ -178,4 +177,4 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   );
 };
 
-export default ChatSidebar; 
+export default ChatSidebar;

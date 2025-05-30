@@ -379,16 +379,7 @@ const HostelDetails = () => {
                 </div>
                 {hostel.available_space > 0 ? (
                   <motion.button
-                    onClick={() =>
-                      navigate("/checkout", {
-                        state: {
-                          hostelId: hostel._id,
-                          providerId: hostel.provider_id._id,
-                          monthlyRent: hostel.monthly_rent,
-                          depositAmount: hostel.deposit_amount,
-                        },
-                      })
-                    }
+                    onClick={() => navigate(`/checkout/${hostel._id}`)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full bg-main-color text-white py-3 px-4 rounded-lg transition-all duration-300 font-semibold relative overflow-hidden group"

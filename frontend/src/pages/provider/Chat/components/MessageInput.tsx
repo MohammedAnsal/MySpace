@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaRegPaperPlane, FaRegSmile, FaTimes, FaImage } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
-import { IMessage } from '../../../types/chat';
+import { IMessage } from "@/types/chat";
 
 interface MessageInputProps {
   messageInput: string;

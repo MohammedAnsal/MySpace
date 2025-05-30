@@ -13,7 +13,7 @@ import {
   MessageList,
   MessageInput,
   EmptyChat,
-} from "../../../components/provider/chat";
+} from "@/pages/provider/Chat/components";
 import { format } from "date-fns";
 
 const ProviderChat = () => {
@@ -129,13 +129,13 @@ const ProviderChat = () => {
 
   const handleImageUpload = async (file: File) => {
     try {
-      await uploadImage(file, replyToMessage?._id);
+      await uploadImage(file);
       setReplyToMessage(null);
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     } catch (error) {
-      toast.error('Failed to upload image');
+      toast.error("Failed to upload image");
     }
   };
 
@@ -192,9 +192,11 @@ const ProviderChat = () => {
               selectedChatRoom={selectedChatRoom}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
-              onSelectChat={(roomId) => {
+              onSelectChat={(
+                roomId: React.SetStateAction<string | undefined>
+              ) => {
                 setSelectedChatRoomId(roomId);
-                selectChatRoom(roomId);
+                selectChatRoom(String(roomId));
                 setShowUserList(false);
               }}
               isMobile={isMobile}

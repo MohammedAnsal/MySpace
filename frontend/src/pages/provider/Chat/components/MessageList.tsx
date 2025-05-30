@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaReply } from "react-icons/fa";
-import { IMessage, IChatRoom } from "../../../types/chat";
-import ImageModal from "../../shared/ImageModal";
+import { IMessage, IChatRoom } from "@/types/chat";
+import ImageModal from "@/components/shared/ImageModal";
 
 interface MessageListProps {
   messages: IMessage[];
@@ -178,7 +178,7 @@ const MessageList: React.FC<MessageListProps> = ({
       <ImageModal
         isOpen={!!selectedImage}
         onClose={() => setSelectedImage(null)}
-        imageUrl={selectedImage || ''}
+        imageUrl={selectedImage || ""}
       />
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import { IoIosArrowUp } from "react-icons/io";
 
 const Scroll = () => {
@@ -17,14 +17,14 @@ const Scroll = () => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', toggleVisibility);
+    window.addEventListener("scroll", toggleVisibility);
     return () => {
-      window.removeEventListener('scroll', toggleVisibility);
+      window.removeEventListener("scroll", toggleVisibility);
     };
   }, []);
 
@@ -40,7 +40,7 @@ const Scroll = () => {
         </button>
       )}
     </>
-  )
-}
+  );
+};
 
-export default Scroll
+export default Scroll;
