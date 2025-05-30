@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import RatingModal from "./RatingModal";
 import { createRating } from "@/services/Api/userApi";
-import { useUserRating } from "@/hooks/user/useUserQueries";
+import { useUserRating } from "@/hooks/user/hostel/useHostel";
 import MapModal from "./MapModal";
 import { motion } from "framer-motion";
 

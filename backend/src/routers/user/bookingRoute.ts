@@ -25,12 +25,11 @@ bookingRoute.get(
   bookingContrller.getUserBookings.bind(bookingContrller)
 );
 
-// // Get specific booking details
-// router.get(
-//   "/:bookingId",
-//   authMiddleWare,
-//   bookingContrller.getBookingDetails.bind(bookingContrller)
-// );
+bookingRoute.get(
+  "/bookings/:bookingId",
+  authMiddleWare,
+  bookingContrller.getBookingDetails.bind(bookingContrller)
+);
 
 // // Get hostel bookings
 // router.get(

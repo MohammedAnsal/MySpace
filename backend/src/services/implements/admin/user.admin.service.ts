@@ -57,14 +57,14 @@ export class AdminUserService implements IAdminUserService {
     } catch (error) {}
   }
 
-  async findAllUser(): Promise<{ success: boolean; data: IUser[] }> {
+  async findAllUser(searchQuery?: string): Promise<{ success: boolean; data: IUser[] }> {
     try {
-      const allUsers = await this.userRepo.findUserByRole("user");
+      const allUsers = await this.userRepo.findUserByRole("user", searchQuery);
 
       if (allUsers) {
         return { success: true, data: allUsers };
       } else {
-        throw new AppError("faild to fetch user");
+        throw new AppError("failed to fetch user");
       }
     } catch (error: any) {
       if (error instanceof AppError) {
@@ -77,14 +77,14 @@ export class AdminUserService implements IAdminUserService {
     }
   }
 
-  async findAllProvider(): Promise<{ success: boolean; data: IUser[] }> {
+  async findAllProvider(searchQuery?: string): Promise<{ success: boolean; data: IUser[] }> {
     try {
-      const allProviders = await this.userRepo.findUserByRole("provider");
+      const allProviders = await this.userRepo.findUserByRole("provider", searchQuery);
 
       if (allProviders) {
         return { success: true, data: allProviders };
       } else {
-        throw new Error("faild to fetch provider");
+        throw new Error("failed to fetch provider");
       }
     } catch (error) {
       throw new Error((error as Error).message);
@@ -101,12 +101,16 @@ export class AdminUserService implements IAdminUserService {
         findUser.is_active = !findUser.is_active;
         await findUser.save();
 
-        return { success: true, message: "User status updated" };
+        if (findUser.role == "user")
+          return { success: true, message: "User status updated" };
+        else {
+          return { success: true, message: "Provider status updated" };
+        }
       } else {
         return { success: false, message: "User status didn't updated" };
       }
     } catch (error) {
-      throw new Error("internal error");
+      throw new Error("internal error");   
     }
   }
 

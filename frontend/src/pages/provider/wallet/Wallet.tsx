@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   useProviderWallet,
   useWalletTransactions,
-} from "@/hooks/provider/useProviderQueries";
+} from "@/hooks/provider/wallet/useWallet";
 import {
   Wallet as WalletIcon,
   CreditCard,

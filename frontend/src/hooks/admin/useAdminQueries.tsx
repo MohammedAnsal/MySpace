@@ -11,13 +11,13 @@ import {
   getAdminTransactions,
 } from "@/services/Api/admin/adminApi";
 
-const fetchUsers = async () => {
-  const { data } = await getAllUsers();
+const fetchUsers = async (searchQuery?: string) => {
+  const { data } = await getAllUsers(searchQuery);
   return data;
 };
 
-const fetchProviders = async () => {
-  const { data } = await getAllProviders();
+const fetchProviders = async (searchQuery?: string) => {
+  const { data } = await getAllProviders(searchQuery);
   return data;
 };
 
@@ -36,17 +36,17 @@ const fetchVerifiedHostels = async () => {
   return response;
 };
 
-export const useUsers = () => {
+export const useUsers = (searchQuery?: string) => {
   return useQuery({
-    queryKey: ["admin-users"],
-    queryFn: fetchUsers,
+    queryKey: ["admin-users", searchQuery],
+    queryFn: () => fetchUsers(searchQuery),
   });
 };
 
-export const useProviders = () => {
+export const useProviders = (searchQuery?: string) => {
   return useQuery({
-    queryKey: ["admin-providers"],
-    queryFn: fetchProviders,
+    queryKey: ["admin-providers", searchQuery],
+    queryFn: () => fetchProviders(searchQuery),
   });
 };
 

@@ -12,7 +12,7 @@ import {
 import {
   useMenuItems,
   useDeleteMenuItem,
-} from "@/hooks/provider/useProviderQueries";
+} from "@/hooks/provider/facility/useFacility";
 import { toast } from "sonner";
 import { useParams } from "react-router-dom";
 import Modal from "@/components/global/Modal";

@@ -2,7 +2,8 @@ import React, { useState, useRef } from "react";
 import { Loader2, Camera } from "lucide-react";
 import Modal from "@/components/global/Modal";
 import { toast } from "sonner";
-import { editProfile, findUser } from "@/services/Api/userApi";
+import { editProfile } from "@/services/Api/userApi";
+import { profileSchema } from "@/utils/validation/user.z.validation";
 import { z } from "zod";
 
 interface UserProfile {
@@ -20,20 +21,6 @@ interface EditProfileModalProps {
   onProfileUpdate: (updatedProfile: UserProfile) => void;
 }
 
-// Profile validation schema
-const profileEditSchema = z.object({
-  fullName: z.string().trim().min(1, "Full name is required"),
-  phone: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number cannot exceed 15 digits")
-    .regex(/^[0-9]+$/, "Phone number must contain only digits")
-    .transform((val) => val.trim())
-    .refine((val) => !isNaN(Number(val)), {
-      message: "Invalid phone number format",
-    }),
-});
-
 const DEFAULT_AVATAR =
   "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg";
 
@@ -43,14 +30,20 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   profile,
   onProfileUpdate,
 }) => {
+  if (!profile) {
+    return null;
+  }
+
+  console.log("EditProfileModal received profile:", profile);
   const [editableProfile, setEditableProfile] = useState<UserProfile>(profile);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset state when modal opens with new profile data
   React.useEffect(() => {
     if (isOpen) {
       setEditableProfile(profile);
@@ -66,8 +59,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       ...editableProfile,
       [name]: value,
     });
-    
-    // Clear validation error when user types
+
     if (validationErrors[name]) {
       setValidationErrors({
         ...validationErrors,
@@ -77,16 +69,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   };
 
   const handleSaveProfile = async () => {
-    // Validate form before submission
     try {
-      profileEditSchema.parse({
+      profileSchema.parse({
         fullName: editableProfile.fullName,
         phone: editableProfile.phone,
       });
-      
-      // Clear all validation errors
+
       setValidationErrors({});
-      
+
       setIsLoading(true);
       try {
         const formData = new FormData();
@@ -101,11 +91,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         const response = await editProfile(formData);
 
         if (response && response.success) {
-          const updatedUserData = await findUser();
-          if (updatedUserData && updatedUserData.data) {
-            onProfileUpdate(updatedUserData.data);
+          if (response && response.success) {
+            onProfileUpdate(response.data.data);
           }
-          toast.success("Profile updated successfully!");
         } else {
           toast.error(response?.message || "Failed to update profile");
         }
@@ -117,7 +105,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        // Convert Zod errors to a more usable format
         const errors: Record<string, string> = {};
         error.errors.forEach((err) => {
           if (err.path) {
@@ -204,7 +191,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             } rounded-md shadow-sm focus:outline-none focus:ring-[#b9a089] focus:border-[#b9a089]`}
           />
           {validationErrors.fullName && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.fullName}</p>
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.fullName}
+            </p>
           )}
         </div>
 
@@ -236,7 +225,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             } rounded-md shadow-sm focus:outline-none focus:ring-[#b9a089] focus:border-[#b9a089]`}
           />
           {validationErrors.phone && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.phone}
+            </p>
           )}
         </div>
 
@@ -268,4 +259,4 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   );
 };
 
-export default EditProfileModal; 
+export default EditProfileModal;

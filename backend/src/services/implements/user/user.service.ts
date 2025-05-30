@@ -26,8 +26,7 @@ export class UserService implements IUserService {
   async findUser(userId: string): Promise<{
     success: boolean;
     message?: string;
-    data?: IUser[];
-    wallet: number;
+    data?: IUser & { wallet: number };
   }> {
     try {
       const currentUser = await this.userRepo.findById(userId);
@@ -36,16 +35,26 @@ export class UserService implements IUserService {
         currentUser.profile_picture = await this.s3Service.generateSignedUrl(
           currentUser.profile_picture
         );
+
         const walletData = await this.walletService.getUserWallet(userId);
         const { password, ...rest } = currentUser.toObject();
-        return { success: true, data: rest, wallet: walletData.balance };
-      } else throw new Error("failed to fetch");
+
+        // Include wallet inside data
+        const userDataWithWallet = {
+          ...rest,
+          wallet: walletData.balance,
+        };
+
+        return { success: true, data: userDataWithWallet };
+      } else {
+        throw new Error("failed to fetch");
+      }
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
       }
       throw new AppError(
-        "An error occurred while findUser in. Please try again.",
+        "An error occurred while finding the user. Please try again.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -101,18 +110,18 @@ export class UserService implements IUserService {
     data: IUser,
     userId: string,
     image?: Express.Multer.File
-  ): Promise<{ success: boolean; message: string }> {
+  ): Promise<{ success: boolean; message: string; data: IUser }> {
     try {
       if (!data || !userId) {
-        return {
-          success: false,
-          message: !data ? "Data is required." : "UserId is required.",
-        };
+        throw new AppError(
+          !data ? "Data is required." : "UserId is required.",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       const user = await this.userRepo.findById(userId);
       if (!user) {
-        return { success: false, message: "User does not exist." };
+        throw new AppError("User does not exist.", HttpStatus.NOT_FOUND);
       }
       if (image) {
         try {
@@ -151,13 +160,23 @@ export class UserService implements IUserService {
         }
       }
 
-      await this.userRepo.update(userId, data);
-      return { success: true, message: "Profile updated successfully." };
+      const userProfile = await this.userRepo.update(userId, data);
+      if (!userProfile) {
+        throw new AppError("User not found", HttpStatus.NOT_FOUND);
+      }
+      userProfile.profile_picture = await this.s3Service.generateSignedUrl(
+        userProfile.profile_picture
+      );
+      const { password, ...rest } = userProfile.toObject();
+      return {
+        success: true,
+        message: "Profile updated successfully.",
+        data: rest as IUser,
+      };
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
       }
-
       throw new AppError(
         "An unexpected error occurred while updating the profile. Please try again.",
         HttpStatus.INTERNAL_SERVER_ERROR

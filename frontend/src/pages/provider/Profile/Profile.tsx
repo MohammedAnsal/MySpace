@@ -17,7 +17,7 @@ import { editProfile } from "@/services/Api/providerApi";
 import Loading from "@/components/global/Loading";
 import ChangePasswordModal from "./components/ChangePasswordModal";
 import WalletSummary from "../wallet/components/WalletSummary";
-import { useProviderProfile } from "@/hooks/provider/useProviderQueries";
+import { useProviderProfile } from "@/hooks/provider/profile/useProfile";
 
 export interface ProviderProfile {
   fullName: string | null;

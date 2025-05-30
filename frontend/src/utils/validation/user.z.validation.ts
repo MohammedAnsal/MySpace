@@ -50,3 +50,19 @@ export const signInSchema = z.object({
 });
 
 export type SignInFormData = z.infer<typeof signInSchema>;
+
+// Profile validation schema
+export const profileSchema = z.object({
+  fullName: z.string().trim().min(1, "Full name is required"),
+  phone: z
+    .string()
+    .min(10, "Phone number must be at least 10 digits")
+    .max(15, "Phone number cannot exceed 15 digits")
+    .regex(/^[0-9]+$/, "Phone number must contain only digits")
+    .transform((val) => val.trim())
+    .refine((val) => !isNaN(Number(val)), {
+      message: "Invalid phone number format",
+    }),
+});
+
+export type ProfileEditSchema = z.infer<typeof profileSchema>;

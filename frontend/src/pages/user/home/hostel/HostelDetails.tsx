@@ -34,7 +34,7 @@ import Loading from "@/components/global/Loading";
 import {
   useHostelDetails,
   useHostelRatings,
-} from "@/hooks/user/useUserQueries";
+} from "@/hooks/user/hostel/useHostel";
 import RatingSection from "@/pages/user/Home/hostel/components/RatingSection";
 import Scroll from "@/components/global/Scroll";
 import ImageGalleryPopup from "./components/ImageGalleryPopup";
@@ -325,12 +325,14 @@ const HostelDetails = () => {
                     Have questions? Chat directly with the property owner.
                   </p>
                   <motion.button
-                    onClick={() => navigate("/user/chat", {
-                      state: {
-                        providerId: hostel.provider_id._id,
-                        createChat: true
-                      }
-                    })}
+                    onClick={() =>
+                      navigate("/user/chat", {
+                        state: {
+                          providerId: hostel.provider_id._id,
+                          createChat: true,
+                        },
+                      })
+                    }
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full bg-main-color text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center font-semibold relative overflow-hidden group"

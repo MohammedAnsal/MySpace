@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useUserBookings } from "@/hooks/user/useUserQueries";
+import { useUserBookingsDetails } from "@/hooks/user/booking/useBooking";
 import BookingDetails from "./components/BookingDetails";
 import { ArrowLeft, CreditCard, XCircle, Loader2 } from "lucide-react";
 import Loading from "@/components/global/Loading";
@@ -9,60 +9,22 @@ import CancelBookingModal from "./components/CancelBookingModal";
 import { reprocessBookingPayment, cancelBooking } from "@/services/Api/userApi";
 import { toast } from "sonner";
 
-// Use the same Booking interface from the BookingDetails component
-interface Facility {
-  facilityId: {
-    _id: string;
-    name: string;
-    description?: string;
-  };
-  type: string;
-  ratePerMonth: number;
-  totalCost: number;
-  duration: string;
-  startDate: string;
-  endDate: string;
-}
-
-interface Location {
-  _id: string;
-  address: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-}
-
-interface Booking {
-  _id: string;
-  hostelId: {
-    _id: string;
-    hostel_name: string;
-    location: Location;
-  };
-  userId: string;
-  bookingDate: string;
-  checkIn: string;
-  checkOut: string;
-  stayDurationInMonths: number;
-  firstMonthRent: number;
-  monthlyRent: number;
-  totalPrice: number;
-  depositAmount: number;
-  paymentStatus: string;
-  proof: string;
-  providerId: string;
-  selectedFacilities: Facility[];
-}
-
 const BookingDetailsPage: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
+
+  if (!bookingId) {
+    return toast.error("BookingId not valid!");
+  }
   const navigate = useNavigate();
-  const { data: bookingsData, isLoading, error, refetch } = useUserBookings();
-  const [booking, setBooking] = useState<Booking | null>(null);
+  const {
+    data: booking,
+    isLoading,
+    error,
+    refetch,
+  } = useUserBookingsDetails(bookingId);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  // Animation variants
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -73,17 +35,6 @@ const BookingDetailsPage: React.FC = () => {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.2 } },
   };
-
-  useEffect(() => {
-    if (bookingsData && bookingId) {
-      const foundBooking = bookingsData.find(
-        (b: { _id: string }) => b._id === bookingId
-      );
-      if (foundBooking) {
-        setBooking(foundBooking);
-      }
-    }
-  }, [bookingsData, bookingId]);
 
   const handleBack = () => {
     navigate("/user/bookings");
@@ -117,7 +68,7 @@ const BookingDetailsPage: React.FC = () => {
     try {
       await cancelBooking(bookingId, reason);
 
-      refetch(); // Refresh the bookings data 
+      refetch(); // Refresh the bookings data
       navigate("/user/bookings");
       return Promise.resolve();
     } catch (error) {

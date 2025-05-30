@@ -20,9 +20,32 @@ export class UserRepository
     }
   }
 
-  async findUserByRole(role: string): Promise<IUser[] | never> {
+  // async findUserByRole(role: string): Promise<IUser[] | never> {
+  //   try {
+  //     return await User.find({ role }, "-password");
+  //   } catch (error) {
+  //     return Promise.reject(new Error(`Error finding users by role: ${error}`));
+  //   }
+  // }
+
+  async findUserByRole(
+    role: string,
+    searchQuery?: string
+  ): Promise<IUser[] | never> {
     try {
-      return await User.find({ role }, "-password");
+      let query: any = { role };
+
+      if (searchQuery) {
+        query = {
+          ...query,
+          $or: [
+            { fullName: { $regex: searchQuery, $options: "i" } },
+            { email: { $regex: searchQuery, $options: "i" } },
+          ],
+        };
+      }
+
+      return await User.find(query, "-password");
     } catch (error) {
       return Promise.reject(new Error(`Error finding users by role: ${error}`));
     }
@@ -47,7 +70,6 @@ export class UserRepository
     newPassword: string
   ): Promise<IUser | null> {
     try {
-
       const updatePassword = await User.findOneAndUpdate(
         { email },
         { $set: { password: newPassword } },

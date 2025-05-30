@@ -5,11 +5,9 @@ import { autherization } from "../../../middlewares/auth/autherization.middlware
 
 const cleaningRoute = express.Router();
 
-// Apply middleware to all routes
 cleaningRoute.use(authMiddleWare);
 cleaningRoute.use(autherization);
 
-// User routes
 cleaningRoute.post(
   "/cleaning/create",
   cleaningController.createCleaningRequest.bind(cleaningController)

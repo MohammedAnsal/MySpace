@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet, ArrowRight, ArrowDownRight, ArrowUpRight } from 'lucide-react';
-import { useProviderWallet } from '@/hooks/provider/useProviderQueries';
+import { useProviderWallet } from '@/hooks/provider/wallet/useWallet';
 import { format } from 'date-fns';
 
 const WalletSummary: React.FC = () => {

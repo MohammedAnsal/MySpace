@@ -3,7 +3,7 @@ import { X, Loader2 } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { useCreateWashingRequest } from "@/hooks/user/useUserQueries";
+import { useCreateWashingRequest } from "@/hooks/user/facility/useFacility";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -32,7 +32,6 @@ const BookingModal = ({
   // Use mutation hook
   const createWashingMutation = useCreateWashingRequest();
 
-  // Calculate min date (tomorrow)
   const tomorrow = addDays(new Date(), 1);
   const minDate = format(tomorrow, "yyyy-MM-dd");
 

@@ -1,27 +1,59 @@
+import { useState } from "react";
 import DataTable from "@/components/global/DataTable";
 import Loading from "@/components/global/Loading";
 import { useUsers } from "@/hooks/admin/useAdminQueries";
 import { updateStatus } from "@/services/Api/admin/adminApi";
 import { IUser } from "@/types/types";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const Users = () => {
-  const { data, isLoading, isError } = useUsers();
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 1000); // 500ms delay
+  const { data, isLoading, isError } = useUsers(debouncedSearchQuery);
   const queryClient = useQueryClient();
 
-  const toggleUserStatus = async (email: string) => {
-    try {
-      const { data: responseData } = await updateStatus(email);
-      if (responseData) {
-        toast.success(responseData.message);
-        queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      }
-    } catch (error) {
-      toast.error("Failed to update user status");
-    }
-  };
+  const toggleUserStatus = useMutation({
+    mutationFn: (email: string) => updateStatus(email),
+    onSuccess: (responseData, email) => {
+      queryClient.setQueryData(["admin-users", debouncedSearchQuery], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        const updatedUsers = oldData.data.map((user: any) =>
+          user.email === email
+            ? {
+                ...user,
+                is_active: !user.is_active,
+              }
+            : user
+        );
+
+        return {
+          ...oldData,
+          data: updatedUsers,
+        };
+      });
+
+      toast.success(responseData.data.message, {
+        style: {
+          background: "rgb(220 255 228)",
+          color: "#15803d",
+          border: "1px solid #334155",
+        },
+      });
+    },
+    onError: () => {
+      toast.error("Failed to update user status", {
+        style: {
+          background: "#1e293b",
+          color: "#e2e8f0",
+          border: "1px solid #334155",
+        },
+      });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -96,7 +128,7 @@ const Users = () => {
       header: "Details",
       render: (user: IUser) => (
         <button
-          onClick={() => toggleUserStatus(user.email)}
+          onClick={() => toggleUserStatus.mutate(user.email)}
           className={`px-4 py-2 rounded-lg text-white font-semibold transition-all duration-200 ${
             user.is_active
               ? "bg-red-500 hover:bg-red-600"
@@ -111,6 +143,31 @@ const Users = () => {
 
   return (
     <div>
+      <div className="flex justify-end mb-4">
+        <div className="relative w-64">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2 pl-10 rounded-lg bg-[#242529] text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+          <svg
+            className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+      </div>
       <DataTable data={data?.data} columns={columns} />
     </div>
   );

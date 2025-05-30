@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Loader2, Check, X } from "lucide-react";
 import { useAdminFacilities } from "@/hooks/admin/useAdminFacilities";
 import Loading from "@/components/global/Loading";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import { motion, AnimatePresence } from "framer-motion";
+
+const ALLOWED_FACILITIES = [
+  "Catering Service",
+  "Deep Cleaning Service",
+  "Laundry Service",
+];
 
 export const AdminManageFacilities: React.FC = () => {
   const {
@@ -21,13 +27,29 @@ export const AdminManageFacilities: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [facilityToDelete, setFacilityToDelete] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState("");
+  const [canAddMore, setCanAddMore] = useState(true);
+
+  useEffect(() => {
+    if (facilities) {
+      const existingFacilityNames = facilities.map(
+        (f: { name: any }) => f.name
+      );
+      const allAllowedAdded = ALLOWED_FACILITIES.every((facility) =>
+        existingFacilityNames.includes(facility)
+      );
+      setCanAddMore(!allAllowedAdded);
+    }
+  }, [facilities]);
 
   const handleToggleFacility = (id: string, currentStatus: boolean) => {
     updateStatus(
       { facilityId: id, status: !currentStatus },
       {
         onSuccess: () => {
-          setSuccessMessage(`Facility ${currentStatus ? "blocked" : "activated"} successfully!`);
+          setSuccessMessage(
+            `Facility ${currentStatus ? "blocked" : "activated"} successfully!`
+          );
           setTimeout(() => setSuccessMessage(""), 3000);
         },
         onError: (error) => {
@@ -39,13 +61,34 @@ export const AdminManageFacilities: React.FC = () => {
 
   const handleAddFacility = async () => {
     try {
+      setValidationError("");
+
       if (!newFacilityName.trim()) {
+        setValidationError("Facility name is required");
         return;
       }
       if (!newFacilityPrice || parseFloat(newFacilityPrice) <= 0) {
+        setValidationError("Valid price is required");
         return;
       }
       if (!newFacilityDescription.trim()) {
+        setValidationError("Description is required");
+        return;
+      }
+
+      if (!ALLOWED_FACILITIES.includes(newFacilityName.trim())) {
+        setValidationError(
+          "Only specific facilities are allowed: Catering Service, Deep Cleaning Service, Laundry Service"
+        );
+        return;
+      }
+
+      const facilityExists = facilities.some(
+        (f: { name: string }) =>
+          f.name.toLowerCase() === newFacilityName.trim().toLowerCase()
+      );
+      if (facilityExists) {
+        setValidationError("This facility already exists");
         return;
       }
 
@@ -66,10 +109,12 @@ export const AdminManageFacilities: React.FC = () => {
         },
         onError: (error) => {
           console.error("Error adding facility:", error);
+          setValidationError("Failed to add facility. Please try again.");
         },
       });
     } catch (error) {
       console.error("Error:", error);
+      setValidationError("An unexpected error occurred");
     }
   };
 
@@ -142,14 +187,28 @@ export const AdminManageFacilities: React.FC = () => {
                 Add New Facility
               </h2>
 
+              {!canAddMore && (
+                <div className="mb-4 p-3 bg-yellow-900/30 text-yellow-400 rounded-lg text-sm">
+                  All allowed facilities have been added. No more facilities can
+                  be added.
+                </div>
+              )}
+
               <div className="grid grid-cols-1 gap-4 mb-4">
-                <input
-                  type="text"
-                  value={newFacilityName}
-                  onChange={(e) => setNewFacilityName(e.target.value)}
-                  placeholder="Facility name"
-                  className="px-4 py-3 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={newFacilityName}
+                    onChange={(e) => setNewFacilityName(e.target.value)}
+                    placeholder="Facility name"
+                    className="px-4 py-3 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none w-full"
+                    disabled={!canAddMore}
+                  />
+                  <div className="mt-1 text-sm text-gray-400">
+                    Allowed facilities: Catering Service, Deep Cleaning Service,
+                    Laundry Service
+                  </div>
+                </div>
                 <input
                   type="number"
                   value={newFacilityPrice}
@@ -158,6 +217,7 @@ export const AdminManageFacilities: React.FC = () => {
                   min="0"
                   step="0.01"
                   className="px-4 py-3 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none"
+                  disabled={!canAddMore}
                 />
                 <textarea
                   value={newFacilityDescription}
@@ -165,12 +225,16 @@ export const AdminManageFacilities: React.FC = () => {
                   placeholder="Description"
                   rows={3}
                   className="px-4 py-3 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none resize-none"
+                  disabled={!canAddMore}
                 />
+                {validationError && (
+                  <div className="text-red-400 text-sm">{validationError}</div>
+                )}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddFacility}
-                  disabled={isCreating}
+                  disabled={isCreating || !canAddMore}
                   className="px-4 py-3 bg-[#C8ED4F] text-gray-900 font-semibold rounded-lg hover:bg-[#b8dd3f] transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isCreating ? (
@@ -252,7 +316,9 @@ export const AdminManageFacilities: React.FC = () => {
                           </motion.span>
                         </AnimatePresence>
                         <button
-                          onClick={() => handleToggleFacility(facility._id, facility.status)}
+                          onClick={() =>
+                            handleToggleFacility(facility._id, facility.status)
+                          }
                           className={`px-2 py-1 rounded-lg text-white font-semibold transition-all duration-200 flex items-center text-xs ${
                             facility.status
                               ? "bg-red-500 hover:bg-red-600"
@@ -326,4 +392,4 @@ export const AdminManageFacilities: React.FC = () => {
   );
 };
 
-export default AdminManageFacilities; 
+export default AdminManageFacilities;

@@ -15,7 +15,7 @@ import {
   useAddSingleDayMenu,
   useFoodMenu,
   useDeleteFoodMenu,
-} from "@/hooks/provider/useProviderQueries";
+} from "@/hooks/provider/facility/useFacility";
 import { toast } from "sonner";
 import Modal from "@/components/global/Modal";
 

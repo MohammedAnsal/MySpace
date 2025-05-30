@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   useUserWallet,
   useWalletTransactions,
-} from "@/hooks/user/useUserQueries";
+} from "@/hooks/user/wallet/useWallet";
 import {
   FaWallet,
   FaMoneyBillWave,

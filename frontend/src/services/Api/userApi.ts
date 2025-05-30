@@ -243,6 +243,16 @@ export const listUserBookings = async () => {
   }
 };
 
+export const listUserBookingsDetails = async (bookingId: string) => {
+  try {
+    const response = await api.get(`/user/bookings/${bookingId}`);
+
+    return handleResponse(response.data.data, "Error in list user bookings");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const findNearbyHostels = async (
   latitude: number,
   longitude: number,

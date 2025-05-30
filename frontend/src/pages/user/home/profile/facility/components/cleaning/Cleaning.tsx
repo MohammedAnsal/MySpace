@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   useUserCleaningRequests,
   useCancelCleaningRequest,
-} from "@/hooks/user/useUserQueries";
+} from "@/hooks/user/facility/useFacility";
 import BookingModal from "./BookingModal";
 import { FaBroom } from "react-icons/fa";
 

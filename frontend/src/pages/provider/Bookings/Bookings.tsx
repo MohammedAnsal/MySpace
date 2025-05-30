@@ -20,7 +20,7 @@ import {
   Briefcase,
   CheckCircle,
 } from "lucide-react";
-import { useProviderBookings } from "@/hooks/provider/useProviderQueries";
+import { useProviderBookings } from "@/hooks/provider/booking/useBooking";
 import Loading from "@/components/global/Loading";
 
 interface Facility {

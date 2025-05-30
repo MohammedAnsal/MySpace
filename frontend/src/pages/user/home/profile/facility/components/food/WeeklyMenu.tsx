@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { cancelMeal } from "@/services/Api/userApi";
-import { useFoodMenu } from "@/hooks/user/useUserQueries";
 
 interface MenuItem {
   _id: string;
@@ -26,7 +25,6 @@ interface DayMenu {
 }
 
 interface WeeklyMenuProps {
-  facilityId: string;
   onClose: () => void;
   menuData: {
     _id: string;
@@ -35,7 +33,7 @@ interface WeeklyMenuProps {
   } | null;
 }
 
-const WeeklyMenu = ({ facilityId, onClose, menuData }: WeeklyMenuProps) => {
+const WeeklyMenu = ({ onClose, menuData }: WeeklyMenuProps) => {
   const days = [
     "Monday",
     "Tuesday",
@@ -47,7 +45,15 @@ const WeeklyMenu = ({ facilityId, onClose, menuData }: WeeklyMenuProps) => {
   ];
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
-  const { refetch } = useFoodMenu(facilityId, menuData?.hostelId || "");
+  // const { refetch } = useFoodMenu(facilityId, menuData?.hostelId || "");
+
+  // Add a new state to manage the menu data locally
+  const [localMenuData, setLocalMenuData] = useState(menuData);
+
+  // Update localMenuData when menuData prop changes
+  useEffect(() => {
+    setLocalMenuData(menuData);
+  }, [menuData]);
 
   // Get current day of the week
   const getCurrentDay = () => {
@@ -75,7 +81,7 @@ const WeeklyMenu = ({ facilityId, onClose, menuData }: WeeklyMenuProps) => {
     mealTime: string,
     currentStatus: boolean
   ) => {
-    if (!menuData?._id) {
+    if (!localMenuData?._id) {
       toast.error("Menu information is missing");
       return;
     }
@@ -91,20 +97,41 @@ const WeeklyMenu = ({ facilityId, onClose, menuData }: WeeklyMenuProps) => {
 
     try {
       const response = await cancelMeal(
-        menuData._id,
+        localMenuData._id,
         day,
         mealTime,
-        !currentStatus // Toggle the availability
+        !currentStatus
       );
 
       if (response.status === "success") {
+        // Update the local state instead of refetching
+        setLocalMenuData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            menu: prev.menu.map((dayMenu) => {
+              if (dayMenu.day === day) {
+                return {
+                  ...dayMenu,
+                  meals: {
+                    ...dayMenu.meals,
+                    [mealTime]: {
+                      ...dayMenu.meals[mealTime as keyof typeof dayMenu.meals],
+                      isAvailable: !currentStatus,
+                    },
+                  },
+                };
+              }
+              return dayMenu;
+            }),
+          };
+        });
+
         toast.success(
           `${mealTime} for ${day} has been ${
             currentStatus ? "cancelled" : "restored"
           }`
         );
-        // Refetch the menu data to update UI
-        refetch();
       } else {
         toast.error(response.message || "Failed to update meal");
       }
@@ -224,7 +251,7 @@ const WeeklyMenu = ({ facilityId, onClose, menuData }: WeeklyMenuProps) => {
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-10rem)]">
           <div className="space-y-4">
             {days.map((day) => {
-              const dayMenu = menuData?.menu.find((m) => m.day === day);
+              const dayMenu = localMenuData?.menu.find((m) => m.day === day);
               const isExpanded = expandedDay === day;
               const isCurrentDay = day === currentDay;
 

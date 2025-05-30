@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import Loading from "@/components/global/Loading";
 import EditProfileModal from "./components/EditProfileModal";
 import ChangePasswordModal from "./components/ChangePasswordModal";
-import { useUserProfile } from "@/hooks/user/useUserQueries";
-import { findUser } from "@/services/Api/userApi";
+import { useUserProfile } from "@/hooks/user/profile/useProfile";
 
 interface UserProfile {
   fullName: string;
@@ -24,29 +23,37 @@ const UserProfile: React.FC = () => {
     data: profile,
     isLoading: isProfileLoading,
     error,
-    refetch,
   } = useUserProfile();
 
+  const [userProfile, setuserProfile] = useState<UserProfile | null>(null);
+  const [wallet, setwallet] = useState<number>(0);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [wallet, setwallet] = useState("");
+
+
+  useEffect(() => {
+    if (profile) {
+      setuserProfile({
+        fullName: profile.fullName,
+        email: profile.email,
+        phone: profile.phone,
+        profile_picture: profile.profile_picture,
+        wallet: profile.wallet
+      });
+      setwallet(profile.wallet);
+      setProfilePic(profile.profile_picture);
+    }
+  }, [profile]);
 
   const openEditModal = () => {
-    if (profile) {
+    console.log("Opening modal with userProfile:", userProfile);
+    if (userProfile) {
       setIsEditModalOpen(true);
     } else {
       toast.error("Profile data not available yet.");
     }
   };
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const getWallet = await findUser();
-      setwallet(getWallet.wallet);
-    };
-
-    fetchUser();
-  }, []);
 
   const openPasswordModal = () => {
     if (profile) {
@@ -56,8 +63,9 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  const handleProfileUpdate = (updatedProfile: UserProfile) => {
-    refetch();
+  const handleProfileUpdate = (updatedProfile: any) => {
+    setuserProfile(updatedProfile);
+    setProfilePic(updatedProfile.profile_picture);
     setIsEditModalOpen(false);
     toast.success("Profile updated successfully!");
   };
@@ -117,7 +125,7 @@ const UserProfile: React.FC = () => {
             >
               <img
                 className="h-24 w-24 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-white shadow-md"
-                src={getProfileImageSrc(profile.profile_picture)}
+                src={getProfileImageSrc(profilePic)}
                 alt="Profile avatar"
                 onError={(e) => {
                   e.currentTarget.src = DEFAULT_AVATAR;
@@ -139,7 +147,7 @@ const UserProfile: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="mt-4 text-lg sm:text-xl font-dm_sans text-gray-900 text-center"
             >
-              {profile.fullName}
+              {userProfile?.fullName}
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
@@ -170,9 +178,9 @@ const UserProfile: React.FC = () => {
             <div className="space-y-4 sm:space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 sm:gap-y-7 gap-x-4 sm:gap-x-8">
                 {[
-                  { icon: User, label: "name", value: profile.fullName },
-                  { icon: Mail, label: "email", value: profile.email },
-                  { icon: Phone, label: "phone", value: profile.phone },
+                  { icon: User, label: "name", value: userProfile?.fullName },
+                  { icon: Mail, label: "email", value: userProfile?.email },
+                  { icon: Phone, label: "phone", value: userProfile?.phone },
                   {
                     icon: Wallet,
                     label: "wallet",
@@ -231,12 +239,14 @@ const UserProfile: React.FC = () => {
       </motion.div>
 
       {/* Edit Profile Modal Component */}
-      <EditProfileModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        profile={profile}
-        onProfileUpdate={handleProfileUpdate}
-      />
+      {userProfile && (
+        <EditProfileModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          profile={userProfile}
+          onProfileUpdate={handleProfileUpdate}
+        />
+      )}
 
       {/* Change Password Modal Component */}
       <ChangePasswordModal
