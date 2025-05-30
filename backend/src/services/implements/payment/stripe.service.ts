@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { StatusCodes } from "http-status-codes";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { AppError } from "../../../utils/error";
 import { IPaymentRepository } from "../../../repositories/interfaces/user/payment.Irepository";
 import { Service } from "typedi";
@@ -11,6 +11,8 @@ import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
 import { walletService } from "../../../services/implements/wallet/wallet.service";
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
+import { INotificationService } from "../../interface/notification/notification.service.interface";
+import { notificationService } from "../notification/notification.service";
 
 interface CreateCheckoutSessionParams {
   hostelId: Types.ObjectId;
@@ -31,12 +33,14 @@ export class StripeService {
   private hostelRepo: IHostelRepository;
   private paymentRepo: IPaymentRepository;
   private walletService: IWalletService;
+  private notificationService: INotificationService;
 
   constructor() {
     this.paymentRepo = paymentRepository;
     this.bookingRepo = bookingRepository;
     this.hostelRepo = hostelRepository;
     this.walletService = walletService;
+    this.notificationService = notificationService;
 
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error("STRIPE_SECRET_KEY is missing in environment variables");
@@ -158,10 +162,29 @@ export class StripeService {
 
           //  Update Payment Status :-
 
-          await this.bookingRepo.updatePaymentStatus(
+          const bookinData = await this.bookingRepo.updatePaymentStatus(
             payment.bookingId.toString(),
             "completed"
           );
+
+          //  Create Booking Notification :-
+
+          if (bookinData) {
+            const hostel = await this.hostelRepo.getHostelById(
+              String(bookinData.hostelId)
+            );
+
+            await this.notificationService.createNotification({
+              recipient: new mongoose.Types.ObjectId(
+                String(bookinData?.providerId)
+              ),
+              sender: new mongoose.Types.ObjectId(String(bookinData?.userId)),
+              title: "New Booking Request",
+              message: `You have received a new booking request for ${hostel?.hostel_name}`,
+              type: "hostel",
+              // relatedId: booking._id
+            });
+          }
 
           //  Update Hostel Availablespace Status :-
 

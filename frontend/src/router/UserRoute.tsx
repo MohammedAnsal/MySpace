@@ -11,7 +11,7 @@ import { Role } from "@/types/types";
 import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
 import ForgotPassword from "@/pages/user/Auth/ForgotPassword";
 import ResetPassword from "@/pages/user/Auth/ResetPassword";
-import ProfileLayout from "@/components/client/profile/ProfileLayout";
+import ProfileLayout from "@/pages/user/Home/profile/components/ProfileLayout";
 import UserProfile from "@/pages/user/Home/profile/UserProfile";
 import Hostels from "@/pages/user/Home/hostel/Hostels";
 import HostelDetails from "@/pages/user/Home/hostel/HostelDetails";
@@ -29,6 +29,7 @@ import { MyFacility } from "@/pages/user/Home/profile/facility/MyFacility";
 import Food from "@/pages/user/Home/profile/facility/components/food/Food";
 import Washing from "@/pages/user/Home/profile/facility/components/washing/Washing";
 import Cleaning from "@/pages/user/Home/profile/facility/components/cleaning/Cleaning";
+import Notification from "@/pages/user/Home/notification/Notification";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -131,6 +132,14 @@ export const UserRoutes: RouteObject[] = [
         ),
       },
       {
+        path: "notification",
+        element: (
+          <ProtecteddRoute allowedRole={Role.USER}>
+            <Notification />
+          </ProtecteddRoute>
+        ),
+      },
+      {
         path: "chat",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
@@ -162,6 +171,7 @@ export const UserRoutes: RouteObject[] = [
           </ProtecteddRoute>
         ),
       },
+
       {
         path: "facility/cleaning/:facilityId/:hostelId/:providerId",
         element: (
@@ -192,7 +202,7 @@ export const UserRoutes: RouteObject[] = [
   },
 
   {
-    path: "/checkout",
+    path: "/checkout/:hostelId",
     element: (
       <ProtecteddRoute allowedRole={Role.USER}>
         <Checkout />

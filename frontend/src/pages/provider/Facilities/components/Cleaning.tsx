@@ -18,7 +18,7 @@ import { format, isToday, isPast, isFuture, parseISO } from "date-fns";
 import {
   useProviderCleaningRequests,
   useUpdateCleaningStatus,
-} from "@/hooks/provider/useProviderQueries";
+} from "@/hooks/provider/facility/useFacility";
 import { FaBroom } from "react-icons/fa";
 
 export const Cleaning = () => {

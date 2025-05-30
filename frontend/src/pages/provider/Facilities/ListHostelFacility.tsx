@@ -7,7 +7,7 @@ import {
   ChevronRight,
   Info,
 } from "lucide-react";
-import { useProviderHostels } from "@/hooks/provider/useProviderQueries";
+import { useProviderHostels } from "@/hooks/provider/hostel/useHostel";
 import Loading from "@/components/global/Loading";
 
 export const ListHostelFacility = () => {

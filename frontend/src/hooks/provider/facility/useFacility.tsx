@@ -1,17 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  findProvider,
-  getProviderDashboard,
-  listAllHostels,
-  listProviderBookings,
-  getProviderWallet,
-  getWalletTransactions,
   createMenuItem,
   getAllMenuItems,
   getMenuItemsByCategory,
   updateMenuItem,
   deleteMenuItem,
-  // createFoodMenu,
   getFoodMenu,
   updateFoodMenu,
   deleteFoodMenu,
@@ -19,23 +12,9 @@ import {
   getProviderWashingRequests,
   updateWashingRequestStatus,
   getProviderCleaningRequests,
-  updateCleaningRequestStatus as updateCleaningStatus,
+  updateCleaningRequestStatus,
+  findAllFacilities,
 } from "@/services/Api/providerApi";
-// Import UserProfile from the correct location
-import { ProviderProfile } from "@/pages/provider/Profile/Profile";
-import { Hostel } from "@/types/api.types";
-
-interface DashboardData {
-  users: number;
-  hostels: number;
-  bookings: number;
-  totalRevenue: number;
-  revenueData?: {
-    weekly: Array<{ week: string; revenue: number }>;
-    monthly: Array<{ month: string; revenue: number }>;
-    yearly: Array<{ year: number; revenue: number }>;
-  };
-}
 
 export interface MenuItem {
   _id: string;
@@ -119,123 +98,7 @@ export interface CleaningRequest {
   updatedAt: string;
 }
 
-const fetchProviderProfile = async (): Promise<ProviderProfile | null> => {
-  try {
-    const response = await findProvider();
-    // **IMPORTANT:** Check the actual response structure from your 'findProvider' API call.
-    // It might be response.data, response.data.data, or something else.
-    // Adjust the line below accordingly.
-    return response?.data?.data || null;
-  } catch (error) {
-    console.error("Error fetching provider profile:", error);
-    return null;
-  }
-};
-
-export const useProviderProfile = () => {
-  return useQuery<ProviderProfile | null>({
-    queryKey: ["providerProfile"],
-    queryFn: fetchProviderProfile,
-    // Add staleTime if desired, e.g., to avoid refetching too often
-    // staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-};
-
-// Fetch function for provider's hostels
-const fetchProviderHostels = async (): Promise<Hostel[]> => {
-  try {
-    // Call the listAllHostels function from providerApi
-    const response = await listAllHostels();
-    // **IMPORTANT:** Verify the structure returned by your provider `listAllHostels`.
-    // It should return an array of hostels. Adjust if needed.
-    return response || []; // Return the hostel array or an empty array
-  } catch (error) {
-    console.error("Error fetching provider hostels:", error);
-    return []; // Return empty array on error
-  }
-};
-
-// New hook for provider's hostels
-export const useProviderHostels = () => {
-  return useQuery<Hostel[]>({
-    // Specify the return type as Hostel[]
-    queryKey: ["provider-hostels"], // Keep the same query key used before
-    queryFn: fetchProviderHostels,
-    // Optional: Add staleTime or cacheTime if desired
-  });
-};
-
-const fetchProviderBookings = async () => {
-  const response = await listProviderBookings();
-  return response ?? [];
-};
-
-export const useProviderBookings = () => {
-  return useQuery({
-    queryKey: ["provider-bookings"],
-    queryFn: () => fetchProviderBookings(),
-  });
-};
-
-const fetchProviderDashboard = async (): Promise<DashboardData> => {
-  const response = await getProviderDashboard();
-  return (
-    response || {
-      users: 0,
-      hostels: 0,
-      bookings: 0,
-      totalRevenue: 0,
-      revenueData: {
-        weekly: [],
-        monthly: [],
-        yearly: [],
-      },
-    }
-  );
-};
-
-export const useProviderDashboard = () => {
-  return useQuery<DashboardData>({
-    queryKey: ["provider-dashboard"],
-    queryFn: fetchProviderDashboard,
-  });
-};
-
-const fetchProviderWallet = async () => {
-  try {
-    const response = await getProviderWallet();
-    return response?.data || null;
-  } catch (error) {
-    console.error("Error fetching provider wallet:", error);
-    return null;
-  }
-};
-
-const fetchWalletTransactions = async () => {
-  try {
-    const response = await getWalletTransactions();
-    return response?.data || [];
-  } catch (error) {
-    console.error("Error fetching wallet transactions:", error);
-    return [];
-  }
-};
-
-export const useProviderWallet = () => {
-  return useQuery({
-    queryKey: ["provider-wallet"],
-    queryFn: fetchProviderWallet,
-  });
-};
-
-export const useWalletTransactions = () => {
-  return useQuery({
-    queryKey: ["wallet-transactions"],
-    queryFn: fetchWalletTransactions,
-  });
-};
-
-// Query hook for fetching all menu items
+// Menu Items Hooks
 export const useMenuItems = () => {
   return useQuery<MenuItem[]>({
     queryKey: ["menu-items"],
@@ -246,7 +109,6 @@ export const useMenuItems = () => {
   });
 };
 
-// Query hook for fetching menu items by category
 export const useMenuItemsByCategory = (category: string) => {
   return useQuery<MenuItem[]>({
     queryKey: ["menu-items", category],
@@ -258,10 +120,8 @@ export const useMenuItemsByCategory = (category: string) => {
   });
 };
 
-// Mutation hook for creating menu items
 export const useCreateMenuItem = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (formData: FormData) => createMenuItem(formData),
     onSuccess: () => {
@@ -270,10 +130,8 @@ export const useCreateMenuItem = () => {
   });
 };
 
-// Mutation hook for updating menu items
 export const useUpdateMenuItem = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
       updateMenuItem(id, formData),
@@ -283,10 +141,8 @@ export const useUpdateMenuItem = () => {
   });
 };
 
-// Mutation hook for deleting menu items
 export const useDeleteMenuItem = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => deleteMenuItem(id),
     onSuccess: () => {
@@ -295,8 +151,8 @@ export const useDeleteMenuItem = () => {
   });
 };
 
-// Query hook for fetching food menu
-export const useFoodMenu = (facilityId: string , hostelId:string) => {
+// Food Menu Hooks
+export const useFoodMenu = (facilityId: string, hostelId: string) => {
   return useQuery<IFoodMenu>({
     queryKey: ["food-menu", facilityId],
     queryFn: async () => {
@@ -305,34 +161,12 @@ export const useFoodMenu = (facilityId: string , hostelId:string) => {
     },
     enabled: !!facilityId,
     refetchOnMount: true,
-    staleTime: 0, // This ensures data is considered stale immediately
+    staleTime: 0,
   });
 };
 
-// Mutation hook for creating food menu
-// export const useCreateFoodMenu = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: ({
-//       providerId,
-//       facilityId,
-//     }: {
-//       providerId: string;
-//       facilityId: string;
-//     }) => createFoodMenu(providerId, facilityId),
-//     onSuccess: (_, variables) => {
-//       queryClient.invalidateQueries({
-//         queryKey: ["food-menu", variables.facilityId],
-//       });
-//     },
-//   });
-// };
-
-// Mutation hook for updating food menu
 export const useUpdateFoodMenu = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       id,
@@ -343,21 +177,23 @@ export const useUpdateFoodMenu = () => {
     }) => updateFoodMenu(id, menuData),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["food-menu",variables.id],
+        queryKey: ["food-menu", variables.id],
       });
     },
   });
 };
 
-// Mutation hook for deleting food menu
 export const useDeleteFoodMenu = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id, day, mealType }: { 
-      id: string; 
-      day: string; 
-      mealType: "morning" | "noon" | "night" 
+    mutationFn: ({
+      id,
+      day,
+      mealType,
+    }: {
+      id: string;
+      day: string;
+      mealType: "morning" | "noon" | "night";
     }) => deleteFoodMenu(id, day, mealType),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -367,10 +203,8 @@ export const useDeleteFoodMenu = () => {
   });
 };
 
-// Mutation hook for adding single day menu
 export const useAddSingleDayMenu = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       facilityId,
@@ -395,7 +229,7 @@ export const useAddSingleDayMenu = () => {
   });
 };
 
-// Function to fetch provider washing requests
+// Washing Requests Hooks
 const fetchProviderWashingRequests = async (): Promise<WashingRequest[]> => {
   try {
     const response = await getProviderWashingRequests();
@@ -406,7 +240,6 @@ const fetchProviderWashingRequests = async (): Promise<WashingRequest[]> => {
   }
 };
 
-// Query hook for provider washing requests
 export const useProviderWashingRequests = () => {
   return useQuery<WashingRequest[]>({
     queryKey: ["provider-washing-requests"],
@@ -414,20 +247,20 @@ export const useProviderWashingRequests = () => {
   });
 };
 
-// Mutation hook for updating washing request status
 export const useUpdateWashingStatus = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => 
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
       updateWashingRequestStatus(id, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["provider-washing-requests"] });
+      queryClient.invalidateQueries({
+        queryKey: ["provider-washing-requests"],
+      });
     },
   });
 };
 
-// Function to fetch provider cleaning requests
+// Cleaning Requests Hooks
 const fetchProviderCleaningRequests = async (): Promise<CleaningRequest[]> => {
   try {
     const response = await getProviderCleaningRequests();
@@ -438,7 +271,6 @@ const fetchProviderCleaningRequests = async (): Promise<CleaningRequest[]> => {
   }
 };
 
-// Query hook for provider cleaning requests
 export const useProviderCleaningRequests = () => {
   return useQuery<CleaningRequest[]>({
     queryKey: ["provider-cleaning-requests"],
@@ -446,15 +278,33 @@ export const useProviderCleaningRequests = () => {
   });
 };
 
-// Mutation hook for updating cleaning request status
 export const useUpdateCleaningStatus = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => 
-      updateCleaningStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      updateCleaningRequestStatus(id, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["provider-cleaning-requests"] });
+      queryClient.invalidateQueries({
+        queryKey: ["provider-cleaning-requests"],
+      });
     },
   });
+};
+
+export const useFacilities = () => {
+  // Query for fetching all facilities
+  const {
+    data: facilities,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["facilities"],
+    queryFn: findAllFacilities,
+  });
+
+  return {
+    facilities: facilities?.data?.facilityData || [],
+    isLoading,
+    error,
+  };
 };

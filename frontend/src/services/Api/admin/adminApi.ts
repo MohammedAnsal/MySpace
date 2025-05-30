@@ -48,18 +48,22 @@ export const resetPassword = async (email: string, newPassword: string) => {
   }
 };
 
-export const getAllUsers = async () => {
-  const response = await private_api.get("/admin/users");
+export const getAllUsers = async (searchQuery?: string) => {
+  const response = await private_api.get("/admin/users", {
+    params: { search: searchQuery }
+  });
 
-  if (!response) console.log("Somthing Went Wrong in getUser'sss");
+  if (!response) console.log("Something Went Wrong in getUser's");
 
   return response;
 };
 
-export const getAllProviders = async () => {
-  const response = await private_api.get("/admin/providers");
+export const getAllProviders = async (searchQuery?: string) => {
+  const response = await private_api.get("/admin/providers", {
+    params: { search: searchQuery }
+  });
 
-  if (!response) console.log("Failed Getting Providerss");
+  if (!response) console.log("Failed Getting Providers");
 
   return response;
 };

@@ -1,17 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import signIn_image from "../../../assets/user/SignIn.png";
-import {
+import signIn_image from "@/assets/user/SignIn.png";
+import { 
   signInSchema,
   type SignInFormData,
-} from "../../../utils/validation/user.z.validation";
+} from "@/utils/validation/user.z.validation";
 import { useEffect, useState } from "react";
-import { signInRequest } from "../../../services/Api/userApi";
+import { signInRequest } from "@/services/Api/userApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../../redux/store/store";
-import { loginSuccess } from "../../../redux/slice/userSlice";
+import { AppDispatch } from "@/redux/store/store";
+import { loginSuccess } from "@/redux/slice/userSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 import { useGoogle } from "@/hooks/user/useGoogle";
@@ -43,11 +43,11 @@ export default function SignIn() {
     setLoading(true);
     try {
       const response = await signInRequest(data);
-      console.log(response);
       if (response.data.success) {
         localStorage.setItem("role", response.data.role);
         localStorage.setItem("access-token", response.data.token);
         toast.success(response.data.message);
+
         dispatch(
           loginSuccess({
             userId: response.data.userId,

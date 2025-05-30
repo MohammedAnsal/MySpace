@@ -3,6 +3,7 @@ import { chatRoomController } from "../../controllers/implements/chat/chatRoom.c
 import { messageController } from "../../controllers/implements/chat/message.controller";
 import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
+import { upload } from '../../utils/multer';
 
 const chatRoute = express.Router();
 
@@ -51,6 +52,13 @@ chatRoute.delete(
 chatRoute.get(
   "/rooms/:chatRoomId/unread",
   messageController.getUnreadMessageCount.bind(messageController)
+);
+
+// Add new route for image upload
+chatRoute.post(
+  '/messages/upload-image',
+  upload.single('image'),
+  messageController.uploadMessageImage.bind(messageController)
 );
 
 export default chatRoute;

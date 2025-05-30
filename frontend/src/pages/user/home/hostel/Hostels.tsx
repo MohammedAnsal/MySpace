@@ -7,7 +7,7 @@ import main from "@/assets/user/m2.jpg";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Loading from "@/components/global/Loading";
-import { useHostels, useNearbyHostels } from "@/hooks/user/useUserQueries";
+import { useHostels, useNearbyHostels } from "@/hooks/user/hostel/useHostel";
 import { Pagination } from "@/components/global/Pagination";
 import Scroll from "@/components/global/Scroll";
 import { toast } from "sonner";
@@ -51,13 +51,13 @@ const Hostels = () => {
     }
 
     setIsGettingLocation(true);
-    
+
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
       setIsGettingLocation(false);
       return;
     }
-    
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setCoordinates({
@@ -70,7 +70,8 @@ const Hostels = () => {
       (error) => {
         let errorMessage = "Unable to retrieve your location";
         if (error.code === 1) {
-          errorMessage = "Location access denied. Please enable location services.";
+          errorMessage =
+            "Location access denied. Please enable location services.";
         }
         toast.error(errorMessage);
         setIsGettingLocation(false);
@@ -79,25 +80,21 @@ const Hostels = () => {
   };
 
   // Use the regular hostels query if nearby is not active
-  const { 
-    data: regularHostels = [], 
-    isLoading: isLoadingRegular, 
-    error: regularError 
+  const {
+    data: regularHostels = [],
+    isLoading: isLoadingRegular,
+    error: regularError,
   } = useHostels(filters);
-  
+
   // Use the nearby hostels query if nearby is active
-  const { 
-    data: nearbyHostels = [], 
-    isLoading: isLoadingNearby, 
-    error: nearbyError 
-  } = useNearbyHostels(
-    coordinates.latitude, 
-    coordinates.longitude,
-    5 
-  );
+  const {
+    data: nearbyHostels = [],
+    isLoading: isLoadingNearby,
+    error: nearbyError,
+  } = useNearbyHostels(coordinates.latitude, coordinates.longitude, 5);
 
   // Determine which data source to use
-  
+
   const hostels = isNearbyActive ? nearbyHostels : regularHostels;
   const isLoading = isNearbyActive ? isLoadingNearby : isLoadingRegular;
   const error = isNearbyActive ? nearbyError : regularError;

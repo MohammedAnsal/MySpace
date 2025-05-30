@@ -17,7 +17,6 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, userId, role } = useSelector((state: RootState) => state.user);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
-  
   // Connect to socket when user is authenticated
   useEffect(() => {
     if (isAuthenticated && userId) {

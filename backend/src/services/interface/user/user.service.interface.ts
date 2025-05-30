@@ -4,8 +4,7 @@ export interface IUserService {
   findUser(userId: string): Promise<{
     success: boolean;
     message?: string;
-    data?: IUser[];
-    wallet: number;
+    data?: IUser & { wallet: number };
   }>;
   changePassword(
     email: string,
@@ -16,5 +15,5 @@ export interface IUserService {
     data: IUser,
     userId: string,
     image?: Express.Multer.File
-  ): Promise<{ success: boolean; message: string }>;
+  ): Promise<{ success: boolean; message: string; data: IUser }>;
 }

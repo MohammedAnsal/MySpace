@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
+  Bell,
   Calendar,
   LogOut,
   MessageSquareText,
@@ -16,6 +17,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slice/userSlice";
 import Footer from "@/components/layouts/Footer";
 import Navbar from "@/components/layouts/Navbar";
+import socketService from "@/services/socket/socket.service";
 
 // Menu items for the sidebar
 const menuItems = [
@@ -23,6 +25,7 @@ const menuItems = [
   { name: "My Bookings", path: "/user/bookings", icon: <Calendar /> },
   { name: "My Wallet", path: "/user/wallet", icon: <Wallet /> },
   { name: "My Facility", path: "/user/facility", icon: <SquareLibrary /> },
+  { name: "My Notification", path: "/user/notification", icon: <Bell /> },
   { name: "My Chat", path: "/user/chat", icon: <MessageSquareText /> },
 ];
 
@@ -41,15 +44,15 @@ const ProfileLayout: React.FC = () => {
       // Set full width chat when screen width is below 1080px and on chat page
       setIsFullWidthChat(window.innerWidth < 1080 && isChatPage);
     };
-    
+
     // Initialize on mount
     handleResize();
-    
+
     // Add event listener
-    window.addEventListener('resize', handleResize);
-    
+    window.addEventListener("resize", handleResize);
+
     // Clean up
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [isChatPage]);
 
   const toggleMobileMenu = () => {
@@ -61,6 +64,7 @@ const ProfileLayout: React.FC = () => {
     const response = await userLogout();
     if (response.data) {
       toast.success(response.data.message);
+      socketService.disconnect();
       localStorage.removeItem("access-token");
       dispatch(logout());
     }

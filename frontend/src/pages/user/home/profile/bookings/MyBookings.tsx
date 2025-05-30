@@ -11,7 +11,7 @@ import {
   ChevronRight,
   ExternalLink,
 } from "lucide-react";
-import { useUserBookings } from "@/hooks/user/useUserQueries";
+import { useUserBookings } from "@/hooks/user/booking/useBooking";
 import Loading from "@/components/global/Loading";
 import BookingDetails from "./components/BookingDetails";
 import { motion, AnimatePresence } from "framer-motion";

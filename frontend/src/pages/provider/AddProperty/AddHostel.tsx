@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { HostelInstructionModal } from "./components/HostelInstructionModal";
-import MapPicker from "@/components/provider/MapPicker";
+import MapPicker from "@/pages/provider/AddProperty/components/MapPicker";
 import { HouseRules } from "./components/HouseRules";
 import { AmenitiesSection } from "./components/AmenitiesSection";
 import { FacilitiesSection } from "./components/FacilitiesSection";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Camera } from "lucide-react";
-import { useCreateMenuItem } from "@/hooks/provider/useProviderQueries";
+import { useCreateMenuItem } from "@/hooks/provider/facility/useFacility";
 import { toast } from "sonner";
 
 interface MenuItemFormProps {

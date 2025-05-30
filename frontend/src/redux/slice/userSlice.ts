@@ -45,14 +45,12 @@ const userSlice = createSlice({
       state.role = action.payload.role;
       state.isAuthenticated = true;
       
-      // Connect socket when user logs in
       socketService.connect();
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       (state.loading = false), (state.error = action.payload);
     },
     logout: (state) => {
-      // Disconnect socket when logging out
       socketService.disconnect();
       
       (state.loading = false),

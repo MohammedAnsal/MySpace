@@ -49,12 +49,13 @@ class AdminUserController implements IAdminController {
     if (!userId) {
       throw new AppError("Admin not authenticated", 401);
     }
-    const getAllUsers = await this.userService.findAllUser();
+    const searchQuery = req.query.search as string;
+    const getAllUsers = await this.userService.findAllUser(searchQuery);
 
     if (getAllUsers) {
       return res.status(200).json(getAllUsers);
     } else {
-      throw new Error("failed to  fetch user");
+      throw new Error("failed to fetch user");
     }
   }
 
@@ -63,7 +64,8 @@ class AdminUserController implements IAdminController {
     if (!userId) {
       throw new AppError("Admin not authenticated", 401);
     }
-    const getAllProviders = await this.userService.findAllProvider();
+    const searchQuery = req.query.search as string;
+    const getAllProviders = await this.userService.findAllProvider(searchQuery);
 
     if (getAllProviders) {
       return res.status(200).json(getAllProviders);

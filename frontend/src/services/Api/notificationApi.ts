@@ -48,7 +48,7 @@ export const deleteNotification = async (id: string) => {
 export const getNotificationsByRecipient = async (recipientId: string) => {
   try {
     const response = await userAxiosInstance.get(
-      `${API_BASE_URL}/recipient/${recipientId}`
+      `${API_BASE_URL}/recipient/${recipientId}` 
     );
     return response.data;
   } catch (error: any) {

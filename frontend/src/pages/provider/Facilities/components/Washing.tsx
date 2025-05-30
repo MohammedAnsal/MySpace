@@ -20,7 +20,7 @@ import { format, isToday, isPast, isFuture, parseISO } from "date-fns";
 import {
   useProviderWashingRequests,
   useUpdateWashingStatus,
-} from "@/hooks/provider/useProviderQueries";
+} from "@/hooks/provider/facility/useFacility";
 
 export const Washing = () => {
   const { hostelId } = useParams();

@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import Message, { IMessage } from "../../../models/chat/message.model";
 import { IMessageRepository } from "../../interfaces/chat/message.Irepository";
 import Container, { Service } from "typedi";
+import messageModel from "../../../models/chat/message.model";
 @Service()
 export class MessageRepository implements IMessageRepository {
 

@@ -31,7 +31,6 @@ export interface IBookingService {
   ): Promise<IBooking>;
 
   // getBookingDetails(bookingId: string): Promise<IBooking>;
-
   getUserBookings(userId: string): Promise<IBooking[]>;
   getProviderBookings(providerId: string): Promise<IBooking[]>;
   getAllBookings(): Promise<IBooking[]>;

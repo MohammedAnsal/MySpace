@@ -62,8 +62,7 @@ export class WashingController {
         specialInstructions,
       };
 
-      console.log(washingData,'ccc');
-      
+      console.log(washingData, "ccc");
 
       const newRequest = await this.washingService.createWashingRequest(
         washingData
@@ -270,8 +269,8 @@ export class WashingController {
       const { id } = req.params;
       const userId = req.user?.id;
 
-      console.log(id)
-      console.log(userId)
+      console.log(id);
+      console.log(userId);
 
       if (!userId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
@@ -295,7 +294,7 @@ export class WashingController {
       );
 
       res.status(HttpStatus.OK).json({
-        status: "success",
+        status: true,
         message: "Washing request cancelled successfully",
         data: cancelledRequest,
       });

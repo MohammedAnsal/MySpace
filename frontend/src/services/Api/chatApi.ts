@@ -204,4 +204,41 @@ export const chatApi = {
       return handleError(error);
     }
   },
+
+  uploadMessageImage: async (
+    file: File,
+    chatRoomId: string,
+    senderId: string,
+    senderType: "user" | "provider",
+    replyToMessageId?: string
+  ): Promise<IMessage> => {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('chatRoomId', chatRoomId);
+      formData.append('senderId', senderId);
+      formData.append('senderType', senderType);
+      if (replyToMessageId) {
+        formData.append('replyToMessageId', replyToMessageId);
+      }
+
+      const response = await userAxiosInstance.post<{ success: boolean; message: IMessage }>(
+        '/chat/messages/upload-image',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        throw new Error('Failed to upload image');
+      }
+
+      return response.data.message;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
 };

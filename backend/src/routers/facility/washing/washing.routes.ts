@@ -5,7 +5,6 @@ import { autherization } from "../../../middlewares/auth/autherization.middlware
 
 const washingRoute = express.Router();
 
-// Apply middleware to all routes
 washingRoute.use(authMiddleWare);
 washingRoute.use(autherization);
 

@@ -3,7 +3,7 @@ import { X, Loader2 } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { useCreateCleaningRequest } from "@/hooks/user/useUserQueries";
+import { useCreateCleaningRequest } from "@/hooks/user/facility/useFacility";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -28,10 +28,8 @@ const BookingModal = ({
   const [timeSlot, setTimeSlot] = useState("");
   const [instructions, setInstructions] = useState("");
 
-  // Use mutation hook
   const createCleaningMutation = useCreateCleaningRequest();
 
-  // Calculate min date (tomorrow)
   const tomorrow = addDays(new Date(), 1);
   const minDate = format(tomorrow, "yyyy-MM-dd");
 

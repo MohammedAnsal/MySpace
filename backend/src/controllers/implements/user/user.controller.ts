@@ -16,11 +16,9 @@ class UserController implements IUserController {
       if (!user) {
         throw new AppError("User not authenticated", 401);
       }
-      const { success, data, wallet } = await this.userService.findUser(
-        user as string
-      );
+      const { success, data } = await this.userService.findUser(user as string);
       if (success) {
-        res.status(HttpStatus.OK).json({ success: true, data, wallet });
+        res.status(HttpStatus.OK).json({ success: true, data });
       } else
         res
           .status(HttpStatus.BAD_REQUEST)
@@ -94,7 +92,7 @@ class UserController implements IUserController {
         throw new AppError("User not authenticated", 401);
       }
 
-      await this.userService.editProfile(
+      const editProfile = await this.userService.editProfile(
         formData,
         userId,
         profileImage ? profileImage : undefined
@@ -103,6 +101,7 @@ class UserController implements IUserController {
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Profile updated successfully.",
+        data: editProfile,
       });
     } catch (error) {
       if (error instanceof AppError) {

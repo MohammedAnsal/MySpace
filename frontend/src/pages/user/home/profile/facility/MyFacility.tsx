@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useUserBookings } from "@/hooks/user/useUserQueries";
+import { useUserBookings } from "@/hooks/user/booking/useBooking";
 import {
   Building2,
   UtensilsCrossed,
@@ -35,13 +34,8 @@ interface Booking {
 }
 
 export const MyFacility = () => {
-  const { data: bookings, isLoading, refetch } = useUserBookings();
+  const { data: bookings, isLoading } = useUserBookings();
   const navigate = useNavigate();
-
-  // Force refetch when component mounts to ensure fresh data
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
 
   const getFacilityIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -158,7 +152,7 @@ export const MyFacility = () => {
               transition={{ delay: 0.2 }}
               className="text-lg font-semibold text-gray-900 mb-2"
             >
-              No Bookings Found
+              No Hostel Bookings Found
             </motion.h3>
             <motion.p
               initial={{ y: 20, opacity: 0 }}
@@ -203,50 +197,78 @@ export const MyFacility = () => {
                   <h3 className="text-sm font-medium text-gray-500 mb-4">
                     Available Facilities
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                    {booking.selectedFacilities.map(
-                      (facility, facilityIndex) => (
-                        <motion.div
-                          key={facility._id}
-                          variants={facilityVariants}
-                          initial="initial"
-                          animate="animate"
-                          transition={{ delay: facilityIndex * 0.1 }}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="bg-gray-50 rounded-lg p-3 sm:p-4 hover:bg-gray-100 transition-colors cursor-pointer"
-                          onClick={() =>
-                            handleViewFacility(
-                              facility,
-                              booking.hostelId._id,
-                              booking.providerId
-                            )
-                          }
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 sm:space-x-3">
-                              <motion.div
-                                whileHover={{ rotate: 360 }}
-                                transition={{ duration: 0.5 }}
-                                className="p-1.5 sm:p-2 bg-white rounded-lg"
-                              >
-                                {getFacilityIcon(facility.type)}
-                              </motion.div>
-                              <div>
-                                <h4 className="text-xs sm:text-sm font-medium text-gray-900">
-                                  {facility.type}
-                                </h4>
-                                <p className="text-xs text-gray-500">
-                                  {facility.duration} months
-                                </p>
+                  {booking.selectedFacilities.length === 0 ? (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-6"
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 10,
+                        }}
+                        className="mx-auto w-12 h-12 bg-[#f7f4f1] rounded-full flex items-center justify-center mb-3"
+                      >
+                        <UtensilsCrossed className="h-6 w-6 text-[#b9a089]" />
+                      </motion.div>
+                      <h4 className="text-base font-medium text-gray-900 mb-2">
+                        No Facilities Selected
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        You haven't selected any facilities for this hostel yet.
+                        Click on the facilities to start using them.
+                      </p>
+                    </motion.div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {booking.selectedFacilities.map(
+                        (facility, facilityIndex) => (
+                          <motion.div
+                            key={facility._id}
+                            variants={facilityVariants}
+                            initial="initial"
+                            animate="animate"
+                            transition={{ delay: facilityIndex * 0.1 }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="bg-gray-50 rounded-lg p-3 sm:p-4 hover:bg-gray-100 transition-colors cursor-pointer"
+                            onClick={() =>
+                              handleViewFacility(
+                                facility,
+                                booking.hostelId._id,
+                                booking.providerId
+                              )
+                            }
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2 sm:space-x-3">
+                                <motion.div
+                                  whileHover={{ rotate: 360 }}
+                                  transition={{ duration: 0.5 }}
+                                  className="p-1.5 sm:p-2 bg-white rounded-lg"
+                                >
+                                  {getFacilityIcon(facility.type)}
+                                </motion.div>
+                                <div>
+                                  <h4 className="text-xs sm:text-sm font-medium text-gray-900">
+                                    {facility.type}
+                                  </h4>
+                                  <p className="text-xs text-gray-500">
+                                    {facility.duration} months
+                                  </p>
+                                </div>
                               </div>
+                              <ChevronRight className="h-4 w-4 text-gray-400" />
                             </div>
-                            <ChevronRight className="h-4 w-4 text-gray-400" />
-                          </div>
-                        </motion.div>
-                      )
-                    )}
-                  </div>
+                          </motion.div>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}

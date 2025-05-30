@@ -1,8 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { UtensilsCrossed, Clock, Calendar, ChevronRight, ChefHat } from "lucide-react";
+import {
+  UtensilsCrossed,
+  Clock,
+  Calendar,
+  ChevronRight,
+  ChefHat,
+} from "lucide-react";
 import WeeklyMenu from "./WeeklyMenu";
-import { useFoodMenu } from "@/hooks/user/useUserQueries";
+import { useFoodMenu } from "@/hooks/user/facility/useFacility";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MenuItem {
@@ -25,25 +31,20 @@ interface DayMenu {
   };
 }
 
-interface FoodMenuData {
-  _id: string;
-  facilityId: string;
-  hostelId: string;
-  providerId: string;
-  menu: DayMenu[];
-  createdAt: string;
-  updatedAt: string;
-}
+// interface FoodMenuData {
+//   _id: string;
+//   facilityId: string;
+//   hostelId: string;
+//   providerId: string;
+//   menu: DayMenu[];
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
 const Food = () => {
   const { facilityId, hostelId } = useParams();
   const [showWeeklyMenu, setShowWeeklyMenu] = useState(false);
-  const { data: menuData, isLoading, refetch } = useFoodMenu(facilityId!, hostelId!);
-
-  // Force refetch on component mount to ensure fresh data
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  const { data: menuData, isLoading } = useFoodMenu(facilityId!, hostelId!);
 
   // Animation variants
   const pageVariants = {
@@ -63,7 +64,15 @@ const Food = () => {
 
   const getCurrentDayMenu = () => {
     if (!menuData) return null;
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const currentDay = days[new Date().getDay()];
     return menuData.menu.find((day: DayMenu) => day.day === currentDay);
   };
@@ -73,7 +82,7 @@ const Food = () => {
   const renderMealItems = (items: MenuItem[], isAvailable: boolean) => {
     if (!isAvailable) {
       return (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-gray-500 italic bg-gray-50 p-4 rounded-lg text-center"
@@ -85,7 +94,7 @@ const Food = () => {
 
     if (items.length === 0) {
       return (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-gray-500 italic bg-gray-50 p-4 rounded-lg text-center"
@@ -96,15 +105,15 @@ const Food = () => {
     }
 
     return (
-      <motion.ul 
+      <motion.ul
         className="space-y-3"
         variants={cardVariants}
         initial="initial"
         animate="animate"
       >
         {items.map((item) => (
-          <motion.li 
-            key={item._id} 
+          <motion.li
+            key={item._id}
             variants={menuItemVariants}
             className="flex items-center space-x-4 bg-white p-3 sm:p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
             whileHover={{ scale: 1.02 }}
@@ -116,8 +125,12 @@ const Food = () => {
               className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover ring-2 ring-[#f7f4f1]"
             />
             <div className="flex-1">
-              <h4 className="text-sm sm:text-base text-gray-900 font-medium">{item.name}</h4>
-              <p className="text-xs sm:text-sm text-gray-500">Freshly prepared</p>
+              <h4 className="text-sm sm:text-base text-gray-900 font-medium">
+                {item.name}
+              </h4>
+              <p className="text-xs sm:text-sm text-gray-500">
+                Freshly prepared
+              </p>
             </div>
           </motion.li>
         ))}
@@ -145,7 +158,9 @@ const Food = () => {
                   <ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-3xl font-bold">Catering Service</h1>
+                  <h1 className="text-xl sm:text-3xl font-bold">
+                    Catering Service
+                  </h1>
                   <p className="text-white/80 text-sm sm:text-base mt-1">
                     Experience culinary excellence
                   </p>
@@ -235,10 +250,16 @@ const Food = () => {
                   >
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                       className="rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#b9a089] mx-auto"
                     />
-                    <p className="text-sm sm:text-base text-gray-500 mt-4">Loading today's menu...</p>
+                    <p className="text-sm sm:text-base text-gray-500 mt-4">
+                      Loading today's menu...
+                    </p>
                   </motion.div>
                 ) : !menuData ? (
                   <motion.div
@@ -299,7 +320,6 @@ const Food = () => {
       <AnimatePresence>
         {showWeeklyMenu && (
           <WeeklyMenu
-            facilityId={facilityId || ""}
             onClose={() => setShowWeeklyMenu(false)}
             menuData={menuData}
           />

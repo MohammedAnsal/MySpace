@@ -20,7 +20,7 @@ import Loading from "@/components/global/Loading";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import ViewHostel from "./components/ViewHostel";
-import { useProviderHostels } from "@/hooks/provider/useProviderQueries";
+import { useProviderHostels } from "@/hooks/provider/hostel/useHostel";
 import { Hostel } from "@/types/api.types";
 
 const ITEMS_PER_PAGE = 4;

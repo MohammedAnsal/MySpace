@@ -22,7 +22,8 @@ class SocketService {
       return;
     }
 
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:7001";
+    const apiUrl =
+      import.meta.env.VITE_USER_BASE_URL || "http://localhost:7001";
 
     this.socket = io(apiUrl, {
       withCredentials: true,
@@ -124,6 +125,17 @@ class SocketService {
         this.notifyListeners("initial_online_users", onlineUsers);
       }
     );
+
+    // Add notification listeners
+    this.socket.on("new_notification", (notification: any) => {
+      console.log("Socket received notification:", notification);
+      this.notifyListeners("new_notification", notification);
+    });
+
+    this.socket.on("notification_read", (data: { notificationId: string }) => {
+      console.log("Socket notification read:", data);
+      this.notifyListeners("notification_read", data);
+    });
   }
 
   // Methods for online status :-
@@ -278,6 +290,30 @@ class SocketService {
     this.socket?.disconnect();
     this.socket = null;
     this.listeners.clear();
+  }
+
+  markNotificationAsRead(notificationId: string): void {
+    if (!this.socket?.connected) {
+      console.log("Socket not connected when trying to mark notification as read");
+      return;
+    }
+    this.socket.emit('mark_notification_read', { notificationId });
+  }
+
+  deleteNotification(notificationId: string): void {
+    if (!this.socket?.connected) {
+      console.log("Socket not connected when trying to delete notification");
+      return;
+    }
+    this.socket.emit('delete_notification', { notificationId });
+  }
+
+  markAllNotificationsAsRead(): void {
+    if (!this.socket?.connected) {
+      console.log("Socket not connected when trying to mark all notifications as read");
+      return;
+    }
+    this.socket.emit('mark_all_notifications_read');
   }
 }
 

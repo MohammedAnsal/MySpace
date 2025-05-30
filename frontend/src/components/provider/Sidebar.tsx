@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { providerLogout } from "@/services/Api/providerApi";
 import { logout } from "@/redux/slice/userSlice";
+import socketService from "@/services/socket/socket.service";
 
 interface NavItem {
   id: string;
@@ -121,6 +122,7 @@ const Sidebar: React.FC = () => {
       const response = await providerLogout();
       if (response.data) {
         toast.success(response.data.message);
+        socketService.disconnect()
         localStorage.removeItem("access-token");
         dispatch(logout());
         navigate("/provider/signIn");

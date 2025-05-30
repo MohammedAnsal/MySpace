@@ -4,7 +4,7 @@ import { Users, Home, Calendar, IndianRupeeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { findProvider } from "@/services/Api/providerApi";
 import { toast } from "sonner";
-import { useProviderDashboard } from "@/hooks/provider/useProviderQueries";
+import { useProviderDashboard } from "@/hooks/provider/dashboard/useDashboard";
 import Loading from "@/components/global/Loading";
 import RevenueAnalytics from "@/pages/provider/Home/components/RevenueAnalytics";
 import DistributionChart from "@/pages/provider/Home/components/DistributionChart";
@@ -27,7 +27,7 @@ const ProviderDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { data: dashboardData, isLoading: isDashboardLoading } =
     useProviderDashboard();
-  
+
   const [profile, setProfile] = useState<UserProfile>({
     fullName: "",
     profile_picture: "",

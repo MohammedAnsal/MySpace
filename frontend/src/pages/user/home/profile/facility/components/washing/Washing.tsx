@@ -1,5 +1,12 @@
 import { useParams } from "react-router-dom";
-import { WashingMachine, PlusCircle, X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  WashingMachine,
+  PlusCircle,
+  X,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import {
   JSXElementConstructor,
   Key,
@@ -13,20 +20,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   useUserWashingRequests,
   useCancelWashingRequest,
-} from "@/hooks/user/useUserQueries";
+} from "@/hooks/user/facility/useFacility";
 import BookingModal from "./BookingModal";
 
 const Washing = () => {
   const { facilityId, hostelId, providerId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(3); // Show 6 items per page
+  const [itemsPerPage] = useState(3);
 
-  // Use react-query for data fetching
   const { data: washingRequestsData, isLoading: isLoadingRequests } =
     useUserWashingRequests();
 
-  // Use mutation hook for cancellation
   const cancelWashingMutation = useCancelWashingRequest();
 
   const userBookings = washingRequestsData?.data || [];
@@ -34,8 +39,8 @@ const Washing = () => {
   const cancelRequest = async (id: string) => {
     cancelWashingMutation.mutate(id, {
       onSuccess: (response) => {
-        if (response && response.success) {
-          toast.success("Request cancelled successfully");
+        if (response && response.status) {
+          toast.success(response.message);
         } else {
           toast.error(response?.message || "Failed to cancel request");
         }

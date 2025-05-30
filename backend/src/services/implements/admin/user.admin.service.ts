@@ -16,6 +16,13 @@ import { IBookingRepository } from "../../../repositories/interfaces/user/bookin
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 import { walletService } from "../wallet/wallet.service";
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
+import { INotificationService } from "../../interface/notification/notification.service.interface";
+import { notificationService } from "../notification/notification.service";
+import mongoose, { Types } from "mongoose";
+
+interface PopulatedId {
+  _id: Types.ObjectId;
+}
 
 @Service()
 export class AdminUserService implements IAdminUserService {
@@ -23,12 +30,14 @@ export class AdminUserService implements IAdminUserService {
   private s3ServiceInstance: s3Service;
   private hostelRepo: IHostelRepository;
   private bookingRepo: IBookingRepository;
+  private notificationService: INotificationService;
 
   constructor(private userRepo: UserRepository, s3Service: s3Service) {
     this.adminRepositoryy = adminRepository;
     this.s3ServiceInstance = s3Service;
     this.hostelRepo = hostelRepository;
     this.bookingRepo = bookingRepository;
+    this.notificationService = notificationService;
   }
 
   async createWallet(adminId: string) {
@@ -48,14 +57,14 @@ export class AdminUserService implements IAdminUserService {
     } catch (error) {}
   }
 
-  async findAllUser(): Promise<{ success: boolean; data: IUser[] }> {
+  async findAllUser(searchQuery?: string): Promise<{ success: boolean; data: IUser[] }> {
     try {
-      const allUsers = await this.userRepo.findUserByRole("user");
+      const allUsers = await this.userRepo.findUserByRole("user", searchQuery);
 
       if (allUsers) {
         return { success: true, data: allUsers };
       } else {
-        throw new AppError("faild to fetch user");
+        throw new AppError("failed to fetch user");
       }
     } catch (error: any) {
       if (error instanceof AppError) {
@@ -68,14 +77,14 @@ export class AdminUserService implements IAdminUserService {
     }
   }
 
-  async findAllProvider(): Promise<{ success: boolean; data: IUser[] }> {
+  async findAllProvider(searchQuery?: string): Promise<{ success: boolean; data: IUser[] }> {
     try {
-      const allProviders = await this.userRepo.findUserByRole("provider");
+      const allProviders = await this.userRepo.findUserByRole("provider", searchQuery);
 
       if (allProviders) {
         return { success: true, data: allProviders };
       } else {
-        throw new Error("faild to fetch provider");
+        throw new Error("failed to fetch provider");
       }
     } catch (error) {
       throw new Error((error as Error).message);
@@ -92,12 +101,16 @@ export class AdminUserService implements IAdminUserService {
         findUser.is_active = !findUser.is_active;
         await findUser.save();
 
-        return { success: true, message: "User status updated" };
+        if (findUser.role == "user")
+          return { success: true, message: "User status updated" };
+        else {
+          return { success: true, message: "Provider status updated" };
+        }
       } else {
         return { success: false, message: "User status didn't updated" };
       }
     } catch (error) {
-      throw new Error("internal error");
+      throw new Error("internal error");   
     }
   }
 
@@ -118,6 +131,21 @@ export class AdminUserService implements IAdminUserService {
         isVerified,
         isRejected
       );
+
+      const providerId = await this.hostelRepo
+        .findHostelByIdUnPopulated(hostelId)
+        .then((data) => data?.provider_id);
+
+      if (providerId) {
+        await this.notificationService.createNotification({
+          recipient: new Types.ObjectId(String(providerId)),
+          sender: new Types.ObjectId(process.env.ADMIN_ID)!,
+          title: "Hostel Verification Approved",
+          message: `Your hostel "${result?.hostel_name}" has been successfully verified and is now visible to users.`,
+          type: "hostel",
+          // relatedId: result?._id,
+        });
+      }
 
       if (!result) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);

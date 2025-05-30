@@ -32,6 +32,10 @@ export class BookingRepository implements IBookingRepository {
       .populate("providerId", "fullName email phone");
   }
 
+  async getBookingByIdUnPopulated(bookingId: string): Promise<IBooking | null> {
+    return await Booking.findById(bookingId);
+  }
+
   async getAllBookings(): Promise<IBooking[]> {
     return await Booking.find()
       .populate("userId", "fullName email phone")

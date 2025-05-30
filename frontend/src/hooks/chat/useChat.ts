@@ -496,6 +496,27 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     }
   }, [selectedChatRoomId, selectChatRoom, selectedChatRoom]);
 
+  const uploadImage = useCallback(async (file: File): Promise<string | null> => {
+    try {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please select an image file');
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('Image size should be less than 5MB');
+      }
+
+      const imageUrl = await chatApi.uploadMessageImage(file);
+      return imageUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setError(error instanceof Error ? error.message : 'Failed to upload image');
+      return null;
+    }
+  }, []);
+
   return {
     chatRooms,
     messages,
@@ -511,5 +532,6 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     createChatRoom,
     markMessagesAsSeen,
     refreshChatRooms: loadChatRooms,
+    uploadImage,
   };
 };

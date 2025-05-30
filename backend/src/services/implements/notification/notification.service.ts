@@ -81,6 +81,17 @@ export class NotificationService {
       );
     }
   }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    try {
+      await this.repository.markAllAsRead(userId);
+    } catch (error) {
+      throw new AppError(
+        responseMessage.ERROR_MESSAGE,
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 }
 
 export const notificationService = Container.get(NotificationService);
