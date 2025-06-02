@@ -1,33 +1,15 @@
-import { IFoodMenu } from "../../../../models/facility/Food/foodMenu.model";
+import { 
+  UpdateFoodMenuDTO,
+  AddSingleDayMenuDTO,
+  CancelMealDTO,
+  FoodMenuResponseDTO
+} from "../../../../dtos/facility/food/foodMenu.dto";
 
 export interface IFoodMenuService {
-  // createFoodMenu(
-  //   providerId: string,
-  //   facilityId: string,
-  //   menu: IFoodMenu
-  // ): Promise<IFoodMenu>;
-  getFoodMenu(id: string, hostelId: string): Promise<IFoodMenu>;
-  updateFoodMenu(id: string, menu: IFoodMenu): Promise<IFoodMenu>;
-  deleteFoodMenu(
-    id: string,
-    day: string,
-    mealType: "morning" | "noon" | "night"
-  ): Promise<void>;
-  addSingleDayMenu(
-    providerId: string,
-    facilityId: string,
-    hostelId: string,
-    day: string,
-    meals: {
-      morning?: string[];
-      noon?: string[];
-      night?: string[];
-    }
-  ): Promise<IFoodMenu>;
-  cancelMeal(
-    id: string,
-    day: string,
-    mealType: "morning" | "noon" | "night",
-    isAvailable: boolean
-  ): Promise<IFoodMenu>;
+
+  getFoodMenu(facilityId: string, hostelId: string): Promise<FoodMenuResponseDTO>;
+  updateFoodMenu(id: string, data: UpdateFoodMenuDTO): Promise<FoodMenuResponseDTO>;
+  deleteFoodMenu(id: string, day: string, mealType: "morning" | "noon" | "night"): Promise<FoodMenuResponseDTO>;
+  addSingleDayMenu(providerId: string, data: AddSingleDayMenuDTO): Promise<FoodMenuResponseDTO>;
+  cancelMeal(id: string, data: CancelMealDTO): Promise<FoodMenuResponseDTO>;
 }

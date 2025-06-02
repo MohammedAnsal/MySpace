@@ -6,10 +6,14 @@ import { comparePassword, hashPassword } from "../../../utils/password.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { S3Service, s3Service } from "../s3/s3.service";
-import Container from "typedi";
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
 import { walletService } from "../wallet/wallet.service";
 import IS3service from "../../interface/s3/s3.service.interface";
+import {
+  UserResponseDTO,
+  EditProfileDTO,
+  ChangePasswordDTO,
+} from "../../../dtos/user/user.dto";
 
 @Service()
 export class UserService implements IUserService {
@@ -26,7 +30,7 @@ export class UserService implements IUserService {
   async findUser(userId: string): Promise<{
     success: boolean;
     message?: string;
-    data?: IUser & { wallet: number };
+    data?: UserResponseDTO;
   }> {
     try {
       const currentUser = await this.userRepo.findById(userId);
@@ -45,7 +49,10 @@ export class UserService implements IUserService {
           wallet: walletData.balance,
         };
 
-        return { success: true, data: userDataWithWallet };
+        return {
+          success: true,
+          data: userDataWithWallet as UserResponseDTO,
+        };
       } else {
         throw new Error("failed to fetch");
       }
@@ -61,37 +68,38 @@ export class UserService implements IUserService {
   }
 
   async changePassword(
-    email: string,
-    oldPassword: string,
-    newPassword: string
+    data: ChangePasswordDTO
   ): Promise<{ success: boolean; message: string }> {
     try {
-      if (!email) {
+      if (!data.email) {
         return { success: false, message: "Email is required." };
       }
 
-      if (!oldPassword) {
+      if (!data.oldPassword) {
         return { success: false, message: "Old password is required." };
       }
 
-      if (!newPassword) {
+      if (!data.newPassword) {
         return { success: false, message: "New password is required." };
       }
 
-      const user = await this.userRepo.findUserByEmail(email);
+      const user = await this.userRepo.findUserByEmail(data.email);
 
       if (!user) {
         return { success: false, message: "User does not exist." };
       }
 
-      const isPasswordMatch = await comparePassword(oldPassword, user.password);
+      const isPasswordMatch = await comparePassword(
+        data.oldPassword,
+        user.password
+      );
 
       if (!isPasswordMatch) {
         return { success: false, message: "Old password is incorrect." };
       }
 
-      const hashedPassword = await hashPassword(newPassword);
-      await this.userRepo.updatePassword(email, hashedPassword);
+      const hashedPassword = await hashPassword(data.newPassword);
+      await this.userRepo.updatePassword(data.email, hashedPassword);
 
       return { success: true, message: "Password changed successfully." };
     } catch (error) {
@@ -107,10 +115,10 @@ export class UserService implements IUserService {
   }
 
   async editProfile(
-    data: IUser,
+    data: EditProfileDTO,
     userId: string,
     image?: Express.Multer.File
-  ): Promise<{ success: boolean; message: string; data: IUser }> {
+  ): Promise<{ success: boolean; message: string; data: UserResponseDTO }> {
     try {
       if (!data || !userId) {
         throw new AppError(
@@ -123,6 +131,7 @@ export class UserService implements IUserService {
       if (!user) {
         throw new AppError("User does not exist.", HttpStatus.NOT_FOUND);
       }
+
       if (image) {
         try {
           const uploadResult = await this.s3Service.uploadFile(
@@ -160,18 +169,27 @@ export class UserService implements IUserService {
         }
       }
 
-      const userProfile = await this.userRepo.update(userId, data);
+      const userProfile = await this.userRepo.update(userId, data as IUser);
       if (!userProfile) {
         throw new AppError("User not found", HttpStatus.NOT_FOUND);
       }
+
       userProfile.profile_picture = await this.s3Service.generateSignedUrl(
         userProfile.profile_picture
       );
+
+      const walletData = await this.walletService.getUserWallet(userId);
       const { password, ...rest } = userProfile.toObject();
+
+      const userDataWithWallet = {
+        ...rest,
+        wallet: walletData.balance,
+      };
+
       return {
         success: true,
         message: "Profile updated successfully.",
-        data: rest as IUser,
+        data: userDataWithWallet as UserResponseDTO,
       };
     } catch (error) {
       if (error instanceof AppError) {

@@ -37,11 +37,16 @@ export const ListHostelFacility = () => {
 
   const handleManageFacility = (
     hostelId: string,
-    facilityId: string,
+    facility: any,
     facilityType: string
   ) => {
+    // Extract the ID from the facility object
+    const facilityId = facility._id?.toString() || facility._id;
+    
     if (facilityType.includes("Catering Service")) {
-      navigate(`/provider/manage-facility/${hostelId}/${facilityId}/catering-service`);
+      navigate(
+        `/provider/manage-facility/${hostelId}/${facilityId}/catering-service`
+      );
     } else if (facilityType.includes("Deep Cleaning Service")) {
       navigate(`/provider/manage-facility/${hostelId}/deep-cleaning-service`);
     } else {
@@ -122,7 +127,7 @@ export const ListHostelFacility = () => {
                           onClick={() =>
                             handleManageFacility(
                               hostel._id,
-                              facility._id,
+                              { _id: facility._id },
                               facility.name
                             )
                           }

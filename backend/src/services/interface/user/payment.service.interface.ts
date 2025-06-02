@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
-import { IHostelPayment } from "../../../models/payment.model";
+import { PaymentResponseDTO, CreatePaymentDTO, UpdatePaymentStatusDTO } from "../../../dtos/user/payment.dto";
 
 export interface IPaymentService {
-  createPayment(paymentData: Partial<IHostelPayment>): Promise<IHostelPayment>;
-  getPaymentById(paymentId: Types.ObjectId): Promise<IHostelPayment>;
-  getPaymentByHostelId(hostelId: Types.ObjectId): Promise<IHostelPayment>;
-  updatePaymentStatus(paymentId: Types.ObjectId, status: string): Promise<IHostelPayment>;
-  getPaymentByStripeSessionId(stripeSessionId: string): Promise<IHostelPayment>;
+  createPayment(paymentData: CreatePaymentDTO): Promise<PaymentResponseDTO>;
+  getPaymentById(paymentId: Types.ObjectId): Promise<PaymentResponseDTO>;
+  getPaymentByHostelId(hostelId: Types.ObjectId): Promise<PaymentResponseDTO>;
+  updatePaymentStatus(paymentId: Types.ObjectId, status: UpdatePaymentStatusDTO): Promise<PaymentResponseDTO>;
+  getPaymentByStripeSessionId(stripeSessionId: string): Promise<PaymentResponseDTO>;
 }

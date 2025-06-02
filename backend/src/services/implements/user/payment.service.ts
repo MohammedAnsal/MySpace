@@ -3,18 +3,32 @@ import { Types } from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import { IPaymentService } from "../../interface/user/payment.service.interface";
 import { IPaymentRepository } from "../../../repositories/interfaces/user/payment.Irepository";
-import { IHostelPayment } from "../../../models/payment.model";
 import { AppError } from "../../../utils/error";
+import { PaymentResponseDTO, CreatePaymentDTO, UpdatePaymentStatusDTO } from "../../../dtos/user/payment.dto";
 
 @Service()
 export class PaymentService implements IPaymentService {
   constructor(private paymentRepository: IPaymentRepository) {}
 
-  async createPayment(
-    paymentData: Partial<IHostelPayment>
-  ): Promise<IHostelPayment> {
+  private mapToPaymentDTO(payment: any): PaymentResponseDTO {
+    return {
+      _id: payment._id.toString(),
+      userId: payment.userId.toString(),
+      hostelId: payment.hostelId.toString(),
+      bookingId: payment.bookingId.toString(),
+      amount: payment.amount,
+      currency: payment.currency,
+      status: payment.status,
+      stripeSessionId: payment.stripeSessionId,
+      stripePaymentIntentId: payment.stripePaymentIntentId,
+      metadata: payment.metadata,
+      created_at: payment.createdAt,
+      updated_at: payment.updatedAt,
+    };
+  }
+
+  async createPayment(paymentData: CreatePaymentDTO): Promise<PaymentResponseDTO> {
     try {
-      // Validate required fields
       if (!paymentData.userId || !paymentData.hostelId || !paymentData.amount) {
         throw new AppError(
           "Missing required payment information",
@@ -22,8 +36,14 @@ export class PaymentService implements IPaymentService {
         );
       }
 
-      // Create payment record
-      const payment = await this.paymentRepository.create(paymentData);
+      const paymentModelData = {
+        ...paymentData,
+        userId: new Types.ObjectId(paymentData.userId),
+        hostelId: new Types.ObjectId(paymentData.hostelId),
+        bookingId: new Types.ObjectId(paymentData.bookingId)
+      };
+
+      const payment = await this.paymentRepository.create(paymentModelData);
 
       if (!payment) {
         throw new AppError(
@@ -32,7 +52,7 @@ export class PaymentService implements IPaymentService {
         );
       }
 
-      return payment;
+      return this.mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -44,7 +64,7 @@ export class PaymentService implements IPaymentService {
     }
   }
 
-  async getPaymentById(paymentId: Types.ObjectId): Promise<IHostelPayment> {
+  async getPaymentById(paymentId: Types.ObjectId): Promise<PaymentResponseDTO> {
     try {
       const payment = await this.paymentRepository.findById(paymentId);
 
@@ -52,7 +72,7 @@ export class PaymentService implements IPaymentService {
         throw new AppError("Payment not found", StatusCodes.NOT_FOUND);
       }
 
-      return payment;
+      return this.mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -64,9 +84,7 @@ export class PaymentService implements IPaymentService {
     }
   }
 
-  async getPaymentByHostelId(
-    hostelId: Types.ObjectId
-  ): Promise<IHostelPayment> {
+  async getPaymentByHostelId(hostelId: Types.ObjectId): Promise<PaymentResponseDTO> {
     try {
       const payment = await this.paymentRepository.findByHostelId(hostelId);
 
@@ -77,7 +95,7 @@ export class PaymentService implements IPaymentService {
         );
       }
 
-      return payment;
+      return this.mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -91,25 +109,24 @@ export class PaymentService implements IPaymentService {
 
   async updatePaymentStatus(
     paymentId: Types.ObjectId,
-    status: string
-  ): Promise<IHostelPayment> {
+    status: UpdatePaymentStatusDTO
+  ): Promise<PaymentResponseDTO> {
     try {
-      
       const validStatuses = ["pending", "completed", "failed", "refunded"];
-      if (!validStatuses.includes(status)) {
+      if (!validStatuses.includes(status.status)) {
         throw new AppError("Invalid payment status", StatusCodes.BAD_REQUEST);
       }
 
       const updatedPayment = await this.paymentRepository.updateStatus(
         paymentId,
-        status
+        status.status
       );
 
       if (!updatedPayment) {
         throw new AppError("Payment not found", StatusCodes.NOT_FOUND);
       }
 
-      return updatedPayment;
+      return this.mapToPaymentDTO(updatedPayment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -123,7 +140,7 @@ export class PaymentService implements IPaymentService {
 
   async getPaymentByStripeSessionId(
     stripeSessionId: string
-  ): Promise<IHostelPayment> {
+  ): Promise<PaymentResponseDTO> {
     try {
       const payment = await this.paymentRepository.findByStripeSessionId(
         stripeSessionId
@@ -136,7 +153,7 @@ export class PaymentService implements IPaymentService {
         );
       }
 
-      return payment;
+      return this.mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -149,4 +166,4 @@ export class PaymentService implements IPaymentService {
   }
 }
 
-export const paymentService = Container.get(PaymentService)
+export const paymentService = Container.get(PaymentService);

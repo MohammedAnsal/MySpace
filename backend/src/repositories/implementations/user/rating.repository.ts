@@ -47,7 +47,7 @@ export class RatingRepository implements IRatingRepository {
         user_id: userId,
         hostel_id: hostelId,
         booking_id: bookingId,
-      });
+      }).populate("user_id", "fullName profile_picture");
 
       return existingRating;
     } catch (error) {

@@ -1,5 +1,12 @@
 import Container, { Service } from "typedi";
 import { ICleaningService } from "../../../interface/facility/cleaning/cleaning.service.interface";
+import {
+  CreateCleaningRequestDTO,
+  UpdateCleaningStatusDTO,
+  AddFeedbackDTO,
+  CleaningResponseDTO,
+  CleaningRequestDataDTO,
+} from "../../../../dtos/facility/cleaning/cleaning.dto";
 import { ICleaningRepository } from "../../../../repositories/interfaces/facility/cleaning/cleaning.Irepository";
 import { cleaningRepository } from "../../../../repositories/implementations/facility/cleaning/cleaning.repository";
 import { AppError } from "../../../../utils/error";
@@ -15,22 +22,18 @@ export class CleaningService implements ICleaningService {
 
   async createCleaningRequest(
     userId: string,
-    providerId: string,
-    hostelId: string,
-    facilityId: string,
-    requestedDate: string,
-    preferredTimeSlot: string,
-    specialInstructions?: string
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+    data: CreateCleaningRequestDTO
+  ): Promise<CleaningResponseDTO> {
     try {
-      const requestData = {
+      const requestData: CleaningRequestDataDTO = {
         userId: new Types.ObjectId(userId),
-        providerId: new Types.ObjectId(providerId),
-        hostelId: new Types.ObjectId(hostelId),
-        facilityId: new Types.ObjectId(facilityId),
-        requestedDate: new Date(requestedDate),
-        preferredTimeSlot,
-        specialInstructions,
+        providerId: new Types.ObjectId(data.providerId),
+        hostelId: new Types.ObjectId(data.hostelId),
+        facilityId: new Types.ObjectId(data.facilityId),
+        requestedDate: new Date(data.requestedDate),
+        preferredTimeSlot: data.preferredTimeSlot,
+        specialInstructions: data.specialInstructions,
+        status: "Pending"
       };
 
       const cleaningRequest = await this.cleaningRepo.createCleaningRequest(
@@ -43,9 +46,7 @@ export class CleaningService implements ICleaningService {
         data: cleaningRequest,
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while creating the cleaning request",
         500
@@ -53,14 +54,11 @@ export class CleaningService implements ICleaningService {
     }
   }
 
-  async getUserCleaningRequests(
-    userId: string
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+  async getUserCleaningRequests(userId: string): Promise<CleaningResponseDTO> {
     try {
       const cleaningRequests = await this.cleaningRepo.getUserCleaningRequests(
         userId
       );
-
       return {
         success: true,
         message: "Cleaning requests retrieved successfully",
@@ -76,25 +74,21 @@ export class CleaningService implements ICleaningService {
 
   async getCleaningRequestById(
     requestId: string
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+  ): Promise<CleaningResponseDTO> {
     try {
       const cleaningRequest = await this.cleaningRepo.getCleaningRequestById(
         requestId
       );
-
       if (!cleaningRequest) {
         throw new AppError("Cleaning request not found", 404);
       }
-
       return {
         success: true,
         message: "Cleaning request retrieved successfully",
         data: cleaningRequest,
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while retrieving the cleaning request",
         500
@@ -104,8 +98,8 @@ export class CleaningService implements ICleaningService {
 
   async updateCleaningRequestStatus(
     requestId: string,
-    status: string
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+    data: UpdateCleaningStatusDTO
+  ): Promise<CleaningResponseDTO> {
     try {
       const validStatuses = [
         "Pending",
@@ -113,13 +107,15 @@ export class CleaningService implements ICleaningService {
         "Completed",
         "Cancelled",
       ];
-
-      if (!validStatuses.includes(status)) {
+      if (!validStatuses.includes(data.status)) {
         throw new AppError("Invalid status", 400);
       }
 
       const cleaningRequest =
-        await this.cleaningRepo.updateCleaningRequestStatus(requestId, status);
+        await this.cleaningRepo.updateCleaningRequestStatus(
+          requestId,
+          data.status
+        );
 
       if (!cleaningRequest) {
         throw new AppError("Cleaning request not found", 404);
@@ -131,9 +127,7 @@ export class CleaningService implements ICleaningService {
         data: cleaningRequest,
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while updating the cleaning request status",
         500
@@ -144,25 +138,19 @@ export class CleaningService implements ICleaningService {
   async cancelCleaningRequest(
     requestId: string,
     userId: string
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+  ): Promise<CleaningResponseDTO> {
     try {
-      // Get the request to verify ownership
       const cleaningRequest = await this.cleaningRepo.getCleaningRequestById(
         requestId
       );
-
       if (!cleaningRequest) {
         throw new AppError("Cleaning request not found", 404);
       }
 
-      const reqUser = cleaningRequest.userId._id;
-
-      // Check if the user owns this request
-      if (reqUser.toString() !== userId) {
+      if (cleaningRequest.userId._id.toString() !== userId) {
         throw new AppError("Unauthorized to cancel this request", 403);
       }
 
-      // Check if the request is already completed or cancelled
       if (
         cleaningRequest.status === "Completed" ||
         cleaningRequest.status === "Cancelled"
@@ -176,16 +164,13 @@ export class CleaningService implements ICleaningService {
       const cancelledRequest = await this.cleaningRepo.cancelCleaningRequest(
         requestId
       );
-
       return {
         success: true,
         message: "Cleaning request cancelled successfully",
         data: cancelledRequest,
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while cancelling the cleaning request",
         500
@@ -195,11 +180,10 @@ export class CleaningService implements ICleaningService {
 
   async getProviderCleaningRequests(
     providerId: string
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+  ): Promise<CleaningResponseDTO> {
     try {
       const cleaningRequests =
         await this.cleaningRepo.getProviderCleaningRequests(providerId);
-
       return {
         success: true,
         message: "Provider cleaning requests retrieved successfully",
@@ -215,20 +199,16 @@ export class CleaningService implements ICleaningService {
 
   async addFeedback(
     requestId: string,
-    rating: number,
-    comment?: string
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+    data: AddFeedbackDTO
+  ): Promise<CleaningResponseDTO> {
     try {
-      // Validate rating
-      if (rating < 1 || rating > 5) {
+      if (data.rating < 1 || data.rating > 5) {
         throw new AppError("Rating must be between 1 and 5", 400);
       }
 
-      // Check if request exists and is completed
       const cleaningRequest = await this.cleaningRepo.getCleaningRequestById(
         requestId
       );
-
       if (!cleaningRequest) {
         throw new AppError("Cleaning request not found", 404);
       }
@@ -242,8 +222,8 @@ export class CleaningService implements ICleaningService {
 
       const updatedRequest = await this.cleaningRepo.addFeedback(
         requestId,
-        rating,
-        comment
+        data.rating,
+        data.comment
       );
 
       return {
@@ -252,9 +232,7 @@ export class CleaningService implements ICleaningService {
         data: updatedRequest,
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError("An error occurred while adding feedback", 500);
     }
   }

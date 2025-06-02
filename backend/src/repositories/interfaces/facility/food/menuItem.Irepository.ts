@@ -1,4 +1,4 @@
-import { IMenuItem } from "../../../models/facility/Food/menuItem.model";
+import { IMenuItem } from "../../../../models/facility/Food/menuItem.model";
 
 export interface IMenuItemRepository {
   createMenuItem(menuItemData: Partial<IMenuItem>): Promise<IMenuItem>;

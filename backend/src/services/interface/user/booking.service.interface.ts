@@ -1,4 +1,9 @@
-import { IBooking, IFacilitySelection } from "../../../models/booking.model";
+import { IFacilitySelection } from "../../../models/booking.model";
+import {
+  BookingResponseDTO,
+  CreateBookingDTO,
+  CancelBookingDTO,
+} from "../../../dtos/user/booking.dto";
 
 export interface BookingCreateDTO {
   userId: string;
@@ -26,21 +31,24 @@ export interface BookingUpdateDTO {
 
 export interface IBookingService {
   createBooking(
-    bookingData: BookingCreateDTO,
-    selectedFacilitiess: FacilityI[]
-  ): Promise<IBooking>;
+    bookingData: CreateBookingDTO,
+    selectedFacilities: Array<{ id: string; duration: string }>
+  ): Promise<BookingResponseDTO>;
 
   // getBookingDetails(bookingId: string): Promise<IBooking>;
-  getUserBookings(userId: string): Promise<IBooking[]>;
-  getProviderBookings(providerId: string): Promise<IBooking[]>;
-  getAllBookings(): Promise<IBooking[]>;
+  getUserBookings(userId: string): Promise<BookingResponseDTO[]>;
+  getProviderBookings(providerId: string): Promise<BookingResponseDTO[]>;
+  getAllBookings(): Promise<BookingResponseDTO[]>;
 
   // getHostelBookings(hostelId: string): Promise<IBooking[]>;
 
   // updateBooking(bookingId: string, updateData: BookingUpdateDTO): Promise<IBooking>;
 
-  cancelBooking(bookingId: string , reason:string): Promise<IBooking>;
-  getBookingById(bookingId: string): Promise<IBooking>;
+  cancelBooking(
+    bookingId: string,
+    reason: CancelBookingDTO
+  ): Promise<BookingResponseDTO>;
+  getBookingById(bookingId: string): Promise<BookingResponseDTO>;
   // processPayment(bookingId: string, paymentDetails: any): Promise<IBooking>;
 
   // checkAvailability(
@@ -53,12 +61,21 @@ export interface IBookingService {
   calculateBookingCost(
     hostelId: string,
     stayDurationInMonths: number,
-    selectedFacilities: { id: string; duration: string }[]
+    selectedFacilities: Array<{ id: string; duration: string }>
   ): Promise<{
     totalPrice: number;
     depositAmount: number;
     monthlyRent: number;
     facilityCharges: number;
     firstMonthRent: number;
+    transformedFacilities: Array<{
+      facilityId: string;
+      type: "Catering Service" | "Laundry Service" | "Deep Cleaning Service";
+      startDate: Date;
+      endDate: Date;
+      duration: number;
+      ratePerMonth: number;
+      totalCost: number;
+    }>;
   }>;
 }

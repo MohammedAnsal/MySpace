@@ -1,15 +1,15 @@
 import Container, { Service } from "typedi";
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
-import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
-import { UserRepository } from "../../../repositories/implementations/user/user.repository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
-import { IWallet, IWalletTransaction } from "../../../models/wallet.model";
+import { IWallet } from "../../../models/wallet.model";
 import { walletRepository } from "../../../repositories/implementations/wallet/wallet.repository";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import dotenv from "dotenv";
 import { IWalletRepository } from "../../../repositories/interfaces/wallet/wallet.Irepository";
 import { Types } from "mongoose";
+import { WalletResponseDTO } from "../../../dtos/wallet/wallet.dto";
+import { TransactionDTO } from "../../../dtos/wallet/wallet.dto";
 
 dotenv.config();
 
@@ -22,7 +22,7 @@ export class WalletService implements IWalletService {
   private walletRepo: IWalletRepository;
   private adminId: string;
 
-  constructor(private userRepo: UserRepository) {
+  constructor() {
     this.walletRepo = walletRepository;
     this.adminId = process.env.ADMIN_ID || "";
     if (!this.adminId) {
@@ -30,18 +30,7 @@ export class WalletService implements IWalletService {
     }
   }
 
-  // async createWallet(walletData: IWallet): Promise<IWallet> {
-  //   try {
-  //     return await this.walletRepo.createWallet(walletData);
-  //   } catch (error) {
-  //     throw new AppError(
-  //       "Failed to create wallet",
-  //       HttpStatus.INTERNAL_SERVER_ERROR
-  //     );
-  //   }
-  // }
-
-  async createUserWallet(userId: string): Promise<IWallet> {
+  async createUserWallet(userId: string): Promise<WalletResponseDTO> {
     try {
       const walletData: Partial<IWallet> = {
         userId: userId as any,
@@ -49,7 +38,8 @@ export class WalletService implements IWalletService {
         transactions: [] as any,
       };
 
-      return await this.walletRepo.createWallet(walletData as IWallet);
+      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
+      return this.mapToWalletDTO(wallet);
     } catch (error) {
       throw new AppError(
         "Failed to create user wallet",
@@ -58,7 +48,7 @@ export class WalletService implements IWalletService {
     }
   }
 
-  async createProviderWallet(providerId: string): Promise<IWallet> {
+  async createProviderWallet(providerId: string): Promise<WalletResponseDTO> {
     try {
       const walletData: Partial<IWallet> = {
         userId: providerId as any,
@@ -66,7 +56,8 @@ export class WalletService implements IWalletService {
         transactions: [] as any,
       };
 
-      return await this.walletRepo.createWallet(walletData as IWallet);
+      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
+      return this.mapToWalletDTO(wallet);
     } catch (error) {
       throw new AppError(
         "Failed to create provider wallet",
@@ -75,7 +66,7 @@ export class WalletService implements IWalletService {
     }
   }
 
-  async createAdminWallet(adminId: string): Promise<IWallet> {
+  async createAdminWallet(adminId: string): Promise<WalletResponseDTO> {
     try {
       const walletData: Partial<IWallet> = {
         adminId: adminId as any,
@@ -83,7 +74,8 @@ export class WalletService implements IWalletService {
         transactions: [] as any,
       };
 
-      return await this.walletRepo.createWallet(walletData as IWallet);
+      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
+      return this.mapToWalletDTO(wallet);
     } catch (error) {
       throw new AppError(
         "Failed to create admin wallet",
@@ -92,15 +84,40 @@ export class WalletService implements IWalletService {
     }
   }
 
-  async getUserWallet(userId: string): Promise<IWallet> {
+  private mapToWalletDTO(wallet: IWallet): WalletResponseDTO {
+    return {
+      _id: wallet._id.toString(),
+      userId: wallet.userId
+        ? {
+            _id: wallet.userId.toString(),
+            fullName: "",
+            email: "",
+          }
+        : undefined,
+      adminId: wallet.adminId?.toString(),
+      balance: wallet.balance,
+      transactions: wallet.transactions.map((tx) => ({
+        _id: tx._id.toString(),
+        amount: tx.amount,
+        type: tx.type,
+        status: tx.status,
+        description: tx.description,
+        bookingId: tx.bookingId?.toString(),
+        metadata: tx.metadata,
+        created_at: tx.createdAt,
+      })),
+      created_at: wallet.createdAt,
+      updated_at: wallet.updatedAt,
+    };
+  }
+
+  async getUserWallet(userId: string): Promise<WalletResponseDTO> {
     try {
       const wallet = await this.walletRepo.findWalletByUserId(userId);
-
       if (!wallet) {
         throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
       }
-
-      return wallet;
+      return this.mapToWalletDTO(wallet);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -110,7 +127,7 @@ export class WalletService implements IWalletService {
     }
   }
 
-  async getProviderWallet(providerId: string): Promise<IWallet> {
+  async getProviderWallet(providerId: string): Promise<WalletResponseDTO> {
     try {
       const wallet = await this.walletRepo.findWalletByUserId(providerId);
 
@@ -118,7 +135,7 @@ export class WalletService implements IWalletService {
         throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
       }
 
-      return wallet;
+      return this.mapToWalletDTO(wallet);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -128,7 +145,7 @@ export class WalletService implements IWalletService {
     }
   }
 
-  async getAdminWallet(adminId: string): Promise<IWallet> {
+  async getAdminWallet(adminId: string): Promise<WalletResponseDTO> {
     try {
       const wallet = await this.walletRepo.findWalletByAdminId(adminId);
 
@@ -136,7 +153,7 @@ export class WalletService implements IWalletService {
         throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
       }
 
-      return wallet;
+      return this.mapToWalletDTO(wallet);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -149,10 +166,9 @@ export class WalletService implements IWalletService {
   async getTransactions(
     userId: string,
     role: string
-  ): Promise<IWalletTransaction[]> {
+  ): Promise<TransactionDTO[]> {
     try {
       let wallet;
-
       if (role === "admin") {
         wallet = await this.walletRepo.findWalletByAdminId(userId);
       } else {
@@ -163,7 +179,16 @@ export class WalletService implements IWalletService {
         throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
       }
 
-      return wallet.transactions;
+      return wallet.transactions.map((tx) => ({
+        _id: tx._id.toString(),
+        amount: tx.amount,
+        type: tx.type,
+        status: tx.status,
+        description: tx.description,
+        bookingId: tx.bookingId?.toString(),
+        metadata: tx.metadata,
+        created_at: tx.createdAt,
+      }));
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(

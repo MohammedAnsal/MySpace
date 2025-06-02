@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import bcrypt from "bcryptjs";
 import { IOtp } from "../../../interface/otp.Imodel";
-import { IUser, User } from "../../../models/user.model";
+import { IUser } from "../../../models/user.model";
 import { OtpRepository } from "../../../repositories/implementations/user/otp.repository";
 import { UserRepository } from "../../../repositories/implementations/user/user.repository";
 import { sendOtpMail } from "../../../utils/email.utils";
@@ -24,6 +24,13 @@ import { IAuthService } from "../../interface/user/auth.service.interface";
 import { StatusCodes } from "http-status-codes";
 import { OAuth2Client } from "google-auth-library";
 import { walletService } from "../wallet/wallet.service";
+import {
+  GoogleSignInDTO,
+  OtpVerificationDTO,
+  ResetPasswordDTO,
+  SignInDTO,
+  SignUpDTO,
+} from "../../../dtos/user/auth.dto";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -37,7 +44,7 @@ export class AuthService implements IAuthService {
     this.otpRepo = new OtpRepository();
   }
 
-  async signUp(userData: IUser): Promise<AuthResponse> {
+  async signUp(userData: SignUpDTO): Promise<AuthResponse> {
     try {
       const { fullName, email, phone, password, gender } = userData;
 
@@ -102,8 +109,9 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async signIn(email: string, password: string): Promise<SignInResult> {
+  async signIn(data: SignInDTO): Promise<SignInResult> {
     try {
+      const { email, password } = data;
       const existingUser = await this.userRepo.findUserByEmail(email);
 
       if (existingUser?.is_active === false) {
@@ -164,7 +172,7 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async verifyOtp(otpData: OtpVerificationData): Promise<AuthResponse> {
+  async verifyOtp(otpData: OtpVerificationDTO): Promise<AuthResponse> {
     try {
       const { email, otp } = otpData;
 
@@ -328,11 +336,9 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async resetPassword(
-    email: string,
-    newPassword: string
-  ): Promise<AuthResponse> {
+  async resetPassword(data: ResetPasswordDTO): Promise<AuthResponse> {
     try {
+      const { email, newPassword } = data;
       const findUser = await this.userRepo.findUserByEmail(email);
 
       console.log("the user from db in resetpassword", findUser);
@@ -367,7 +373,8 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async signInGoogle(token: string): Promise<SignInResult> {
+  async signInGoogle(data: GoogleSignInDTO): Promise<SignInResult> {
+    const { token } = data;
     let user;
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -407,12 +414,10 @@ export class AuthService implements IAuthService {
         is_verified: true,
       } as IUser);
 
-      // Create wallet for Google sign-in users
       try {
         await walletService.createUserWallet(user._id.toString());
       } catch (walletError) {
         console.error("Error creating wallet for Google user:", walletError);
-        // Don't fail the sign-in process if wallet creation fails
       }
     }
 

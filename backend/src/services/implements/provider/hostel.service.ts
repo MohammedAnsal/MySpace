@@ -3,19 +3,81 @@ import { hostelRepository } from "../../../repositories/implementations/provider
 import { IHostelRepository } from "../../../repositories/interfaces/provider/hostel.Irepository";
 import { IHostel } from "../../../models/provider/hostel.model";
 import { Service } from "typedi";
-import { hostelResult } from "../../interface/provider/hostel.service.interface";
+import {
+  HostelResult,
+  IHostelService,
+} from "../../interface/provider/hostel.service.interface";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
+import {
+  HostelResponseDTO,
+  CreateHostelDTO,
+  UpdateHostelDTO,
+} from "../../../dtos/provider/hostel.dto";
+import mongoose from "mongoose";
 
 @Service()
-class HostelService {
+class HostelService implements IHostelService {
   private hostelRepositoryy: IHostelRepository;
 
   constructor() {
     this.hostelRepositoryy = hostelRepository;
   }
 
-  async createHostel(hostelData: Partial<IHostel>): Promise<hostelResult> {
+  private mapToHostelDTO(hostel: IHostel): HostelResponseDTO {
+    return {
+      _id: (hostel._id as mongoose.Types.ObjectId).toString(),
+      hostel_name: hostel.hostel_name || "",
+      monthly_rent: hostel.monthly_rent || 0,
+      deposit_amount: hostel.deposit_amount || 0,
+      deposit_terms: hostel.deposit_terms || [],
+      maximum_occupancy: hostel.maximum_occupancy || 0,
+      rules: hostel.rules || "",
+      gender: hostel.gender || "",
+      available_space: hostel.available_space || 0,
+      total_space: hostel.total_space || 0,
+      status: hostel.status || false,
+      photos: hostel.photos || [],
+      amenities: hostel.amenities || [],
+      description: hostel.description || "",
+      location: hostel.location
+        ? {
+            _id: (hostel.location._id as mongoose.Types.ObjectId).toString(),
+            latitude: (hostel.location as any).latitude || 0,
+            longitude: (hostel.location as any).longitude || 0,
+            address: (hostel.location as any).address || "",
+          }
+        : {
+            _id: "",
+            latitude: 0,
+            longitude: 0,
+            address: "",
+          },
+      provider_id: hostel.provider_id
+        ? {
+            _id: (hostel.provider_id as mongoose.Types.ObjectId).toString(),
+            fullName: (hostel.provider_id as any).fullName || "",
+            email: (hostel.provider_id as any).email || "",
+          }
+        : {
+            _id: "",
+            fullName: "",
+            email: "",
+          },
+      facilities: (hostel.facilities || []).map((facility) => ({
+        _id: (facility._id as mongoose.Types.ObjectId).toString(),
+        name: (facility as any).name || "",
+        description: (facility as any).description || "",
+        status: (facility as any).status || false,
+      })),
+      is_verified: hostel.is_verified,
+      is_rejected: hostel.is_rejected,
+      created_at: hostel.created_at || new Date(),
+      updated_at: hostel.updated_at || new Date(),
+    };
+  }
+
+  async createHostel(hostelData: CreateHostelDTO): Promise<HostelResult> {
     try {
       const {
         hostel_name,
@@ -45,11 +107,16 @@ class HostelService {
         throw new AppError("Missing required fields", HttpStatus.BAD_REQUEST);
       }
 
-      const newHostelData = {
+      const newHostelData: Partial<IHostel> = {
         ...hostelData,
         available_space: total_space,
         status: true,
         is_verified: false,
+        provider_id: new mongoose.Types.ObjectId(provider_id),
+        location: new mongoose.Types.ObjectId(location._id),
+        facilities: hostelData.facilities?.map(
+          (id) => new mongoose.Types.ObjectId(id)
+        ),
       };
 
       const createdHostel = await this.hostelRepositoryy.createHostel(
@@ -59,34 +126,55 @@ class HostelService {
       return {
         success: true,
         message: "Hostel created successfully",
-        hostelData: createdHostel,
+        hostelData: this.mapToHostelDTO(createdHostel),
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
-        "An error occurred while creating hostel. Please try again.",
+        "Failed to create hostel",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
-  async getAllHostels(providerId: string): Promise<hostelResult> {
+  async getAllHostels(providerId: string): Promise<HostelResult> {
     try {
       const hostels = await this.hostelRepositoryy.getAllHostels(providerId);
+      console.log(hostels, "from service full hostel");
+      return {
+        success: true,
+        message: "Hostels fetched successfully",
+        hostelData: hostels.map((hostel) => this.mapToHostelDTO(hostel)),
+      };
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(
+        "Failed to fetch hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getHostelById(hostelId: string): Promise<HostelResult> {
+    try {
+      if (!hostelId) {
+        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
+      }
+
+      const hostel = await this.hostelRepositoryy.findHostelById(hostelId);
+      if (!hostel) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
 
       return {
         success: true,
-        message: "Unverified hostels fetched successfully",
-        hostelData: hostels,
+        message: "Hostel fetched successfully",
+        hostelData: this.mapToHostelDTO(hostel),
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
-        "An error occurred while fetching unverified hostels",
+        "Failed to fetch hostel",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -94,8 +182,8 @@ class HostelService {
 
   async editHostelById(
     hostelId: string,
-    updateData: Partial<IHostel>
-  ): Promise<hostelResult> {
+    updateData: UpdateHostelDTO
+  ): Promise<HostelResult> {
     try {
       if (!hostelId) {
         throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
@@ -108,9 +196,19 @@ class HostelService {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
 
+      const updateHostelData: Partial<IHostel> = {
+        ...updateData,
+        location: updateData.location
+          ? new mongoose.Types.ObjectId(updateData.location._id)
+          : undefined,
+        facilities: updateData.facilities?.map(
+          (id) => new mongoose.Types.ObjectId(id)
+        ),
+      };
+
       const updatedHostel = await this.hostelRepositoryy.updateHostel(
         hostelId,
-        updateData
+        updateHostelData
       );
       if (!updatedHostel) {
         throw new AppError(
@@ -122,20 +220,18 @@ class HostelService {
       return {
         success: true,
         message: "Hostel updated successfully",
-        hostelData: updatedHostel,
+        hostelData: this.mapToHostelDTO(updatedHostel),
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
-        "An error occurred while updating hostel",
+        "Failed to update hostel",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
-  async deleteHostelById(hostelId: string): Promise<hostelResult> {
+  async deleteHostelById(hostelId: string): Promise<HostelResult> {
     try {
       if (!hostelId) {
         throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
@@ -161,39 +257,9 @@ class HostelService {
         message: "Hostel deleted successfully",
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
-        "An error occurred while deleting hostel",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  async getHostelById(hostelId: string): Promise<hostelResult> {
-    try {
-      if (!hostelId) {
-        throw new AppError("Hostel ID is required", HttpStatus.BAD_REQUEST);
-      }
-
-      const hostel = await this.hostelRepositoryy.findHostelById(hostelId);
-
-      if (!hostel) {
-        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
-      }
-
-      return {
-        success: true,
-        message: "Hostel fetched successfully",
-        hostelData: hostel.toObject(),
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      throw new AppError(
-        "An error occurred while fetching hostel details",
+        "Failed to delete hostel",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

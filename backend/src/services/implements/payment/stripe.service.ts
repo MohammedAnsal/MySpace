@@ -147,7 +147,7 @@ export class StripeService {
       switch (event.type) {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
-          const sessionId = new Types.ObjectId(session.metadata?.sessionId);
+          // const sessionId = new Types.ObjectId(session.metadata?.sessionId);
           const amount = session.amount_total! / 100;
 
           const payment = await this.paymentRepo.findByStripeSessionId(
@@ -219,18 +219,6 @@ export class StripeService {
 
           break;
         }
-
-        // case "charge.refunded": {
-        //   const charge = event.data.object as Stripe.Charge;
-        //   const payment = await this.paymentRepo.findByStripeSessionId(
-        //     charge.payment_intent as string
-        //   );
-
-        //   if (payment) {
-        //     await this.paymentRepo.updateStatus(payment._id, "refunded");
-        //   }
-        //   break;
-        // }
 
         case "payment_intent.payment_failed": {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;

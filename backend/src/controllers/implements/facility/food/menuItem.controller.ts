@@ -75,7 +75,7 @@ export class MenuItemController {
       const menuItems = await this.menuItemService.getAllMenuItems();
 
       const menuItemsWithSignedUrls = await Promise.all(
-        menuItems.map(async (item) => {
+        (menuItems.data as IMenuItem[])?.map(async (item: { image: string; toObject: () => any; }) => {
           const signedUrl = await this.s3Service.generateSignedUrl(item.image);
           return {
             ...item.toObject(),

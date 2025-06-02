@@ -15,7 +15,9 @@ const DAYS_OF_WEEK = [
   "Saturday",
 ];
 
+
 export const WeeklyMenu = ({ facilityId, hostelId }: WeeklyMenuProps) => {
+  console.log(facilityId,'pppppppppppppppp')
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 className="text-xl font-medium text-gray-800 mb-4">Weekly Menu</h2>

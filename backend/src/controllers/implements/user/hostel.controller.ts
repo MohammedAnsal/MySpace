@@ -7,6 +7,7 @@ import { S3Service } from "../../../services/implements/s3/s3.service";
 import IS3service from "../../../services/interface/s3/s3.service.interface";
 import { IHostelService } from "../../../services/interface/user/hostel.service.interface";
 import { hostelService } from "../../../services/implements/user/hostel.service";
+import mongoose from "mongoose";
 
 @Service()
 class HostelController {
@@ -45,7 +46,7 @@ class HostelController {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
             const hostelData =
-              typeof hostel.toObject === "function"
+              hostel instanceof mongoose.Document
                 ? hostel.toObject()
                 : { ...hostel };
 
@@ -102,7 +103,7 @@ class HostelController {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
             const hostelData =
-              typeof hostel.toObject === "function"
+              hostel instanceof mongoose.Document
                 ? hostel.toObject()
                 : { ...hostel };
 
@@ -202,7 +203,7 @@ class HostelController {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
             const hostelData =
-              typeof hostel.toObject === "function"
+              hostel instanceof mongoose.Document
                 ? hostel.toObject()
                 : { ...hostel };
 

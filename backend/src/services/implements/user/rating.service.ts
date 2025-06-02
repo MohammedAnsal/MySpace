@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import { IRating } from "../../../models/rating.model";
 import { hostelRepository } from "../../../repositories/implementations/provider/hostel.repository";
 import { ratingRepository } from "../../../repositories/implementations/user/rating.repository";
 import { IHostelRepository } from "../../../repositories/interfaces/provider/hostel.Irepository";
@@ -7,8 +6,12 @@ import { IRatingRepository } from "../../../repositories/interfaces/user/rating.
 import { AppError } from "../../../utils/error";
 import { IRatingService } from "../../interface/user/rating.service.interface";
 import Container, { Service } from "typedi";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { S3Service } from "../s3/s3.service";
+import {
+  HostelRatingsResponseDTO,
+  RatingResponseDTO,
+} from "../../../dtos/user/rating.dto";
 
 @Service()
 export class RatingService implements IRatingService {
@@ -76,11 +79,7 @@ export class RatingService implements IRatingService {
     }
   }
 
-  async getHostelRatings(hostelId: string): Promise<{
-    ratings: IRating[];
-    averageRating: number;
-    totalRatings: number;
-  }> {
+  async getHostelRatings(hostelId: string): Promise<HostelRatingsResponseDTO> {
     try {
       if (!hostelId) {
         throw new AppError("Hostel ID is required", StatusCodes.BAD_REQUEST);
@@ -136,7 +135,7 @@ export class RatingService implements IRatingService {
     userId: string,
     hostelId: string,
     bookingId: string
-  ): Promise<IRating | null> {
+  ): Promise<RatingResponseDTO | null> {
     try {
       if (!userId || !hostelId || !bookingId) {
         throw new AppError(
@@ -150,7 +149,26 @@ export class RatingService implements IRatingService {
         hostelId,
         bookingId
       );
-      return existingRating;
+
+      if (!existingRating) {
+        return null;
+      }
+
+      // Transform IRating to RatingResponseDTO
+      return {
+        _id: (existingRating._id as Types.ObjectId).toString(),
+        user_id: {
+          _id: userId.toString(),
+          fullName: (existingRating.user_id as any).fullName || "",
+          profile_picture:
+            (existingRating.user_id as any).profile_picture || "",
+        },
+        hostel_id: existingRating.hostel_id.toString(),
+        booking_id: existingRating.booking_id.toString(),
+        rating: existingRating.rating,
+        comment: existingRating.comment,
+        created_at: existingRating.created_at,
+      };
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

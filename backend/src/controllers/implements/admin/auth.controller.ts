@@ -22,7 +22,10 @@ export class AdminController {
         });
       }
 
-      const response = await this.adminService.admin_signIn(email, password);
+      const response = await this.adminService.admin_signIn({
+        email,
+        password,
+      });
 
       setCookie(res, "token", String(response.accessToken));
       setCookie(res, "refr_Admin_Token", String(response.refreshToken));
@@ -88,10 +91,10 @@ export class AdminController {
         });
       }
 
-      const response = await this.adminService.resetPassword(
+      const response = await this.adminService.resetPassword({
         email,
-        newPassword
-      );
+        newPassword,
+      });
 
       if (response.success) {
         return res.status(HttpStatus.OK).json({

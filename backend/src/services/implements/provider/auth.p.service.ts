@@ -19,6 +19,13 @@ import { walletService } from "../wallet/wallet.service";
 import { addMinutes, isAfter } from "date-fns";
 import { OAuth2Client } from "google-auth-library";
 import { StatusCodes } from "http-status-codes";
+import {
+  SignUpDTO,
+  SignInDTO,
+  OtpVerificationDTO,
+  ResetPasswordDTO,
+  GoogleSignInDTO,
+} from "../../../dtos/user/auth.dto";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -32,7 +39,7 @@ export class AuthProviderService implements IAuthService {
     this.otpRepo = new OtpRepository();
   }
 
-  async signUp(providerData: IUser): Promise<AuthResponse> {
+  async signUp(providerData: SignUpDTO): Promise<AuthResponse> {
     try {
       const { fullName, email, phone, password, gender } = providerData;
 
@@ -100,8 +107,9 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
-  async signIn(email: string, password: string): Promise<SignInResult> {
+  async signIn(data: SignInDTO): Promise<SignInResult> {
     try {
+      const { email, password } = data;
       const existingUser = await this.providerRepo.findProviderByEmail(email);
 
       if (!existingUser) {
@@ -159,9 +167,9 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
-  async verifyOtp(otpData: AuthResponse): Promise<AuthResponse> {
+  async verifyOtp(data: OtpVerificationDTO): Promise<AuthResponse> {
     try {
-      const { email, otp } = otpData;
+      const { email, otp } = data;
 
       if (!email) {
         throw new AppError(
@@ -278,11 +286,9 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
-  async resetPassword(
-    email: string,
-    newPassword: string
-  ): Promise<AuthResponse> {
+  async resetPassword(data: ResetPasswordDTO): Promise<AuthResponse> {
     try {
+      const { email, newPassword } = data;
       const findUser = await this.providerRepo.findProviderByEmail(email);
 
       console.log("the provider from db in resetpassword", findUser);
@@ -316,7 +322,8 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
-  async signInGoogle(token: string): Promise<SignInResult> {
+  async signInGoogle(data: GoogleSignInDTO): Promise<SignInResult> {
+    const { token } = data;
     let user;
     const ticket = await client.verifyIdToken({
       idToken: token,

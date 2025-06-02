@@ -47,11 +47,11 @@ class UserController implements IUserController {
         });
       }
 
-      const result = await this.userService.changePassword(
+      const result = await this.userService.changePassword({
         email,
-        currentPassword,
+        oldPassword: currentPassword,
         newPassword
-      );
+      });
 
       if (!result.success) {
         return res.status(HttpStatus.BAD_REQUEST).json(result);

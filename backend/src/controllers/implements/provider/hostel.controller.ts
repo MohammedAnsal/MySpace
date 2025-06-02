@@ -106,6 +106,8 @@ export class HostelController {
 
       const result = await this.hostelServicee.getAllHostels(providerId);
 
+      console.log(result , 'rrrrrrrrrrrr')
+
       if (result.hostelData && Array.isArray(result.hostelData)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.hostelData.map(async (hostel) => {
@@ -116,7 +118,7 @@ export class HostelController {
             );
 
             return {
-              ...hostel.toObject(),
+              ...hostel,
               photos: signedPhotos,
             };
           })

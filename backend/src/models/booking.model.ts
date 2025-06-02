@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
 export interface IFacilitySelection {
-  facilityId: ObjectId;
+  facilityId: mongoose.Types.ObjectId;
   type: "Catering Service" | "Laundry Service" | "Deep Cleaning Service";
   startDate: Date;
   endDate: Date;

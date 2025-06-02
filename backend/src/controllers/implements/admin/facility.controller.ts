@@ -1,7 +1,5 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { IAdminFacilityService } from "../../../services/interface/admin/facility.service.interface";
-import { AdminFacilityResultController } from "../../interface/admin/facility.controller.interface";
-import { HttpStatus } from "../../../enums/http.status";
 import { AppError } from "../../../utils/error";
 import Container, { Service } from "typedi";
 import { adminFacilityService } from "../../../services/implements/admin/facility.service";
@@ -135,10 +133,10 @@ export class AdminFacilityController {
       if (!adminId) {
         throw new AppError("Admin not authenticated", 401);
       }
-      const result = await this.adminFacilityService.updateFacilityStatus(
+      const result = await this.adminFacilityService.updateFacilityStatus({
         facilityId,
-        status
-      );
+        status,
+      });
       return res.status(200).json(result);
     } catch (error) {
       console.error("Controller error details:", error);

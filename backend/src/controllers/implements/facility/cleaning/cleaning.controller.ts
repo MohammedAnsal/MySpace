@@ -40,15 +40,14 @@ export class CleaningController {
         throw new AppError("Missing required fields", 400);
       }
 
-      const result = await this.cleaningService.createCleaningRequest(
-        userId,
+      const result = await this.cleaningService.createCleaningRequest(userId, {
         providerId,
         hostelId,
         facilityId,
         requestedDate,
         preferredTimeSlot,
-        specialInstructions
-      );
+        specialInstructions,
+      });
 
       res.status(201).json(result);
     } catch (error) {
@@ -99,13 +98,16 @@ export class CleaningController {
       const { id } = req.params;
       const { status } = req.body;
 
+      console.log(id);
+      console.log(status);
+
       if (!status) {
         throw new AppError("Status is required", 400);
       }
 
       const result = await this.cleaningService.updateCleaningRequestStatus(
         id,
-        status
+        { status }
       );
       res.status(200).json(result);
     } catch (error) {
@@ -166,11 +168,10 @@ export class CleaningController {
         throw new AppError("Rating is required", 400);
       }
 
-      const result = await this.cleaningService.addFeedback(
-        id,
+      const result = await this.cleaningService.addFeedback(id, {
         rating,
-        comment
-      );
+        comment,
+      });
       res.status(200).json(result);
     } catch (error) {
       next(error);

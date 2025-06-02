@@ -1,12 +1,12 @@
-import { ILocation } from "../../../models/provider/location.model";
+import { LocationResponseDTO, CreateLocationDTO, UpdateLocationDTO } from "../../../dtos/provider/location.dto";
 
-export type locationResult = {
-  locationData?: ILocation | ILocation[] | null;
+export type LocationResult = {
+  locationData?: LocationResponseDTO | LocationResponseDTO[] | null;
   success: boolean;
   message: string;
 };
 
 export interface ILocationService {
-  createLocation(locationData: Partial<ILocation>): Promise<locationResult>;
-  updateLocation(locationId: string, locationData: Partial<ILocation>): Promise<locationResult>;
+  createLocation(locationData: CreateLocationDTO): Promise<LocationResult>;
+  updateLocation(locationId: string, locationData: UpdateLocationDTO): Promise<LocationResult>;
 }

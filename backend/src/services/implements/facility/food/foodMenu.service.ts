@@ -5,6 +5,12 @@ import { IFoodMenuService } from "../../../interface/facility/food/foodMenu.serv
 import { IFoodMenu } from "../../../../models/facility/Food/foodMenu.model";
 import { AppError } from "../../../../utils/error";
 import { HttpStatus } from "../../../../enums/http.status";
+import {
+  UpdateFoodMenuDTO,
+  AddSingleDayMenuDTO,
+  CancelMealDTO,
+  FoodMenuResponseDTO,
+} from "../../../../dtos/facility/food/foodMenu.dto";
 
 @Service()
 export class FoodMenuService implements IFoodMenuService {
@@ -14,18 +20,10 @@ export class FoodMenuService implements IFoodMenuService {
     this.foodMenuRepo = foodMenuRepository;
   }
 
-  // async createFoodMenu(
-  //   providerId: string,
-  //   facilityId: string
-  // ): Promise<IFoodMenu> {
-  //   try {
-  //     return await this.foodMenuRepo.createFoodMenu(providerId, facilityId);
-  //   } catch (error) {
-  //     throw new AppError("Failed to create food menu", HttpStatus.BAD_REQUEST);
-  //   }
-  // }
-
-  async getFoodMenu(facilityId: string, hostelId: string): Promise<IFoodMenu> {
+  async getFoodMenu(
+    facilityId: string,
+    hostelId: string
+  ): Promise<FoodMenuResponseDTO> {
     try {
       const menu = await this.foodMenuRepo.getFoodMenuByFacility(
         facilityId,
@@ -34,7 +32,11 @@ export class FoodMenuService implements IFoodMenuService {
       if (!menu) {
         throw new AppError("Food menu not found", HttpStatus.NOT_FOUND);
       }
-      return menu;
+      return {
+        success: true,
+        message: "Food menu retrieved successfully",
+        data: menu,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -46,14 +48,18 @@ export class FoodMenuService implements IFoodMenuService {
 
   async updateFoodMenu(
     id: string,
-    menu: Partial<IFoodMenu>
-  ): Promise<IFoodMenu> {
+    data: UpdateFoodMenuDTO
+  ): Promise<FoodMenuResponseDTO> {
     try {
-      const updatedMenu = await this.foodMenuRepo.updateFoodMenu(id, menu);
+      const updatedMenu = await this.foodMenuRepo.updateFoodMenu(id, data);
       if (!updatedMenu) {
         throw new AppError("Food menu not found", HttpStatus.NOT_FOUND);
       }
-      return updatedMenu;
+      return {
+        success: true,
+        message: "Food menu updated successfully",
+        data: updatedMenu,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError("Failed to update food menu", HttpStatus.BAD_REQUEST);
@@ -64,12 +70,17 @@ export class FoodMenuService implements IFoodMenuService {
     id: string,
     day: string,
     mealType: "morning" | "noon" | "night"
-  ): Promise<void> {
+  ): Promise<FoodMenuResponseDTO> {
     try {
       const result = await this.foodMenuRepo.deleteFoodMenu(id, day, mealType);
       if (!result) {
         throw new AppError("Food menu not found", HttpStatus.NOT_FOUND);
       }
+      return {
+        success: true,
+        message: "Food menu deleted successfully",
+        data: result,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -81,27 +92,24 @@ export class FoodMenuService implements IFoodMenuService {
 
   async addSingleDayMenu(
     providerId: string,
-    facilityId: string,
-    hostelId: string,
-    day: string,
-    meals: {
-      morning?: string[];
-      noon?: string[];
-      night?: string[];
-    }
-  ): Promise<IFoodMenu> {
+    data: AddSingleDayMenuDTO
+  ): Promise<FoodMenuResponseDTO> {
     try {
       const menu = await this.foodMenuRepo.addSingleDayMenu(
         providerId,
-        facilityId,
-        hostelId,
-        day,
-        meals
+        data.facilityId,
+        data.hostelId,
+        data.day,
+        data.meals
       );
       if (!menu) {
         throw new AppError("Menu not found", HttpStatus.NOT_FOUND);
       }
-      return menu;
+      return {
+        success: true,
+        message: "Day menu updated successfully",
+        data: menu,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -113,28 +121,49 @@ export class FoodMenuService implements IFoodMenuService {
 
   async cancelMeal(
     id: string,
-    day: string,
-    mealType: "morning" | "noon" | "night",
-    isAvailable: boolean
-  ): Promise<IFoodMenu> {
+    data: CancelMealDTO
+  ): Promise<FoodMenuResponseDTO> {
     try {
-      // Get the current day of the week
-      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
       const currentDay = days[new Date().getDay()];
-      
-      // Check if trying to cancel today's meal
-      if (day === currentDay) {
-        throw new AppError("Cannot cancel or restore meals for the current day", HttpStatus.BAD_REQUEST);
+
+      if (data.day === currentDay) {
+        throw new AppError(
+          "Cannot cancel or restore meals for the current day",
+          HttpStatus.BAD_REQUEST
+        );
       }
-      
-      const result = await this.foodMenuRepo.cancelMeal(id, day, mealType, isAvailable);
+
+      const result = await this.foodMenuRepo.cancelMeal(
+        id,
+        data.day,
+        data.mealType,
+        data.isAvailable
+      );
       if (!result) {
         throw new AppError("Food menu not found", HttpStatus.NOT_FOUND);
       }
-      return result;
+      return {
+        success: true,
+        message: `Meal ${
+          data.isAvailable ? "restored" : "cancelled"
+        } successfully`,
+        data: result,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to update meal availability", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to update meal availability",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }

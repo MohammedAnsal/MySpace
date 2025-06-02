@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import {
   adminService,
   AdminUserService,
@@ -9,10 +9,7 @@ import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import { AuthRequset } from "../../../types/api";
 import { IAdminUserService } from "../../../services/interface/admin/user.admin.service.interface";
 import { AppError } from "../../../utils/error";
-import {
-  s3Service,
-  S3Service,
-} from "../../../services/implements/s3/s3.service";
+import { s3Service } from "../../../services/implements/s3/s3.service";
 import { IHostel } from "../../../models/provider/hostel.model";
 
 const AdminId = process.env.ADMIN_ID;
@@ -33,11 +30,11 @@ class AdminUserController implements IAdminController {
         throw new AppError("Admin not authenticated", 401);
       }
       const adminWallet = await this.userService.createWallet(AdminId);
-       if (adminWallet) {
-         return res.status(200).json(adminWallet);
-       } else {
-         throw new Error("failed to  fetch user");
-       }
+      if (adminWallet) {
+        return res.status(200).json(adminWallet);
+      } else {
+        throw new Error("failed to  fetch user");
+      }
     } catch (walletError) {
       console.error("Error creating wallet for provider:", walletError);
       // Don't fail the verification process if wallet creation fails
@@ -50,7 +47,7 @@ class AdminUserController implements IAdminController {
       throw new AppError("Admin not authenticated", 401);
     }
     const searchQuery = req.query.search as string;
-    const getAllUsers = await this.userService.findAllUser(searchQuery);
+    const getAllUsers = await this.userService.findAllUser({ searchQuery });
 
     if (getAllUsers) {
       return res.status(200).json(getAllUsers);
@@ -65,7 +62,9 @@ class AdminUserController implements IAdminController {
       throw new AppError("Admin not authenticated", 401);
     }
     const searchQuery = req.query.search as string;
-    const getAllProviders = await this.userService.findAllProvider(searchQuery);
+    const getAllProviders = await this.userService.findAllProvider({
+      searchQuery,
+    });
 
     if (getAllProviders) {
       return res.status(200).json(getAllProviders);
@@ -98,12 +97,12 @@ class AdminUserController implements IAdminController {
       }
       const { hostelId, reason, isVerified, isRejected } = req.body;
 
-      const result = await this.adminServicee.verifyHostel(
+      const result = await this.adminServicee.verifyHostel({
         hostelId,
         reason,
         isVerified,
-        isRejected
-      );
+        isRejected,
+      });
 
       // Generate signed URLs for the verified/rejected hostel if data exists
       if (result.data) {

@@ -5,7 +5,7 @@ import Footer from "@/components/layouts/Footer";
 import Navbar from "@/components/layouts/Navbar";
 import main from "@/assets/user/m2.jpg";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Loading from "@/components/global/Loading";
 import { useHostels, useNearbyHostels } from "@/hooks/user/hostel/useHostel";
 import { Pagination } from "@/components/global/Pagination";
@@ -15,16 +15,25 @@ import { toast } from "sonner";
 const ITEMS_PER_PAGE = 6;
 
 const Hostels = () => {
-  const [filters, setFilters] = useState({
-    minPrice: 10,
-    maxPrice: 5000,
-    gender: "",
-    amenities: [] as string[],
-    search: "",
-    sortBy: "asc" as "asc" | "desc",
-    minRating: undefined as number | undefined,
-    sortByRating: false,
+  // Initialize filters from localStorage or use defaults
+  const [filters, setFilters] = useState(() => {
+    const savedFilters = localStorage.getItem('hostelFilters');
+    return savedFilters ? JSON.parse(savedFilters) : {
+      minPrice: 10,
+      maxPrice: 5000,
+      gender: "",
+      amenities: [] as string[],
+      search: "",
+      sortBy: "asc" as "asc" | "desc",
+      minRating: undefined as number | undefined,
+      sortByRating: false,
+    };
   });
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('hostelFilters', JSON.stringify(filters));
+  }, [filters]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isNearbyActive, setIsNearbyActive] = useState(false);
@@ -40,7 +49,10 @@ const Hostels = () => {
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
     setIsNearbyActive(false);
     setCurrentPage(1);
-    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setFilters((prev: any) => {
+      const updatedFilters = { ...prev, ...newFilters };
+      return updatedFilters;
+    });
   };
 
   const handleNearbyClick = () => {
