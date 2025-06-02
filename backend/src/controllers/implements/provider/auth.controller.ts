@@ -48,7 +48,7 @@ export class AuthController implements IAuthController {
         });
       }
 
-      const response = await this.providerService.signIn(email, password);
+      const response = await this.providerService.signIn({ email, password });
 
       setCookie(res, "provider_rfr", String(response.refreshToken));
       setCookie(res, "token", String(response.accessToken));
@@ -194,10 +194,10 @@ export class AuthController implements IAuthController {
         });
       }
 
-      const response = await this.providerService.resetPassword(
+      const response = await this.providerService.resetPassword({
         email,
-        newPassword
-      );
+        newPassword,
+      });
 
       if (response.success) {
         return res.status(HttpStatus.OK).json({
@@ -227,7 +227,7 @@ export class AuthController implements IAuthController {
     const { token } = req.body;
     try {
       const { fullName, accessToken, refreshToken, email, role, userId } =
-        await this.providerService.signInGoogle(token);
+        await this.providerService.signInGoogle({ token });
 
       setCookie(res, "provider_rfr", String(refreshToken));
       setCookie(res, "token", String(accessToken));

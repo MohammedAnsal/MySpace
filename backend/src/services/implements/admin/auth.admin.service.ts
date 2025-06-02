@@ -1,9 +1,16 @@
 import { Service } from "typedi";
 import { AdminRepository } from "../../../repositories/implementations/admin/admin.repository";
+import { IAdminAuthService } from "../../interface/admin/auth.admin.service.interface";
 import {
-  IAdminAuthService,
-  SignInResult,
-} from "../../interface/admin/auth.admin.service.interface";
+  AdminSignInDTO,
+  AdminForgotPasswordDTO,
+  AdminResetPasswordDTO,
+  AdminSignInResponseDTO,
+  AdminForgotPasswordResponseDTO,
+  AdminResetPasswordResponseDTO,
+  AdminTokenResponseDTO,
+  AdminTokenPayloadDTO,
+} from "../../../dtos/admin/auth.dto";
 import { comparePassword, hashPassword } from "../../../utils/password.utils";
 import {
   generateAccessToken,
@@ -12,7 +19,6 @@ import {
 } from "../../../utils/jwt.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
-import { AuthResponse } from "../../../types/types";
 
 @Service()
 export class AdminAuthService implements IAdminAuthService {
@@ -22,8 +28,10 @@ export class AdminAuthService implements IAdminAuthService {
     this.adminRepo = new AdminRepository();
   }
 
-  async admin_signIn(email: string, password: string): Promise<SignInResult> {
+  async admin_signIn(data: AdminSignInDTO): Promise<AdminSignInResponseDTO> {
     try {
+      const { email, password } = data;
+
       if (!email || !password) {
         throw new AppError(
           "Email and password are required",
@@ -43,23 +51,21 @@ export class AdminAuthService implements IAdminAuthService {
         throw new AppError("Incorrect Password", HttpStatus.UNAUTHORIZED);
       }
 
-      const accessToken = generateAccessToken({
-        id: exists._id,
+      const tokenPayload: AdminTokenPayloadDTO = {
+        id: String(exists._id),
         role: "admin",
-      });
+      };
 
-      const refreshToken = generateRefreshToken({
-        id: exists._id,
-        role: "admin",
-      });
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshToken = generateRefreshToken(tokenPayload);
 
       return {
         success: true,
         message: "Login Successfully...",
-        accessToken,
-        refreshToken,
         email: email,
         role: "admin",
+        accessToken: accessToken,
+        refreshToken: refreshToken,
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -72,8 +78,11 @@ export class AdminAuthService implements IAdminAuthService {
     }
   }
 
-  async forgotPassword(email: string): Promise<AuthResponse> {
+  async forgotPassword(
+    data: AdminForgotPasswordDTO
+  ): Promise<AdminForgotPasswordResponseDTO> {
     try {
+      const { email } = data;
       const existingAdmin = await this.adminRepo.findByEmail(email);
 
       if (!existingAdmin) {
@@ -88,31 +97,28 @@ export class AdminAuthService implements IAdminAuthService {
         message: "OTP sent for resetting your password.",
       };
     } catch (error) {
-      console.error("Error during forgot password process:", error);
       if (error instanceof AppError) {
         throw error;
       }
       throw new AppError(
-        "An error occurred while forgot password.",
+        "An error occurred while processing forgot password request.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   async resetPassword(
-    email: string,
-    newPassword: string
-  ): Promise<AuthResponse> {
+    data: AdminResetPasswordDTO
+  ): Promise<AdminResetPasswordResponseDTO> {
     try {
+      const { email, newPassword } = data;
       const findUser = await this.adminRepo.findByEmail(email);
 
-      console.log("the admin from db in resetpassword", findUser);
-
-      if (!findUser)
-        throw new AppError("Invalide Admin details", HttpStatus.BAD_REQUEST);
+      if (!findUser) {
+        throw new AppError("Invalid Admin details", HttpStatus.BAD_REQUEST);
+      }
 
       const hashedPassword = await hashPassword(newPassword);
-
       const changedPassword = await this.adminRepo.updatePassword(
         email,
         hashedPassword
@@ -120,24 +126,27 @@ export class AdminAuthService implements IAdminAuthService {
 
       if (!changedPassword) {
         throw new AppError(
-          "failed to update the password",
+          "Failed to update the password",
           HttpStatus.BAD_REQUEST
         );
       }
 
-      return { success: true, message: "password successfully changed" };
+      return {
+        success: true,
+        message: "Password successfully changed",
+      };
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
       }
       throw new AppError(
-        "An error occurred while re-setpassword.",
+        "An error occurred while resetting password.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
-  async checkToken(token: string) {
+  async checkToken(token: string): Promise<AdminTokenResponseDTO> {
     try {
       const response = verifyRefreshToken(token);
       if (
@@ -146,15 +155,16 @@ export class AdminAuthService implements IAdminAuthService {
         "id" in response
       ) {
         const newAccessToken = generateAccessToken({
-          email: response.email,
           id: response.id,
+          role: "admin",
         });
         return {
           success: true,
-          message: "new token created",
+          message: "New token created",
           token: newAccessToken,
         };
       }
+      throw new AppError("Invalid token", HttpStatus.UNAUTHORIZED);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

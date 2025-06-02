@@ -11,7 +11,12 @@ import { hostelRepository } from "../../../repositories/implementations/provider
 import { UserRepository } from "../../../repositories/implementations/user/user.repository";
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
-import { AdminFacilityResult } from "../../interface/admin/facility.service.interface";
+import {
+  ProviderResponseDTO,
+  UpdateProviderDTO,
+} from "../../../dtos/provider/provider.dto";
+
+import { FacilityResponseDTO } from "../../../dtos/admin/facility.dto";
 
 @Service()
 export class ProviderService implements IProviderService {
@@ -28,9 +33,26 @@ export class ProviderService implements IProviderService {
     this.bookingRepo = bookingRepository;
   }
 
-  async findProvider(
-    userId: string
-  ): Promise<{ success: boolean; message?: string; data?: IUser[] }> {
+  private mapToProviderDTO(provider: IUser): ProviderResponseDTO {
+    return {
+      _id: provider._id.toString(),
+      fullName: provider.fullName,
+      email: provider.email,
+      phone: provider.phone,
+      profile_picture: provider.profile_picture,
+      role: provider.role,
+      is_verified: provider.is_verified,
+      is_blocked: provider.is_blocked,
+      created_at: provider.created_at,
+      updated_at: provider.updated_at,
+    };
+  }
+
+  async findProvider(userId: string): Promise<{
+    success: boolean;
+    message?: string;
+    data?: ProviderResponseDTO;
+  }> {
     try {
       const currentProvider = await this.providerRepo.findById(userId);
 
@@ -41,7 +63,7 @@ export class ProviderService implements IProviderService {
           );
 
         const { password, ...rest } = currentProvider.toObject();
-        return { success: true, data: rest };
+        return { success: true, data: this.mapToProviderDTO(rest) };
       } else throw new Error("failed to fetch");
     } catch (error) {
       if (error instanceof AppError) {
@@ -101,7 +123,7 @@ export class ProviderService implements IProviderService {
   }
 
   async editProfile(
-    data: IUser,
+    data: UpdateProviderDTO,
     userId: string,
     image?: Express.Multer.File
   ): Promise<{ success: boolean; message: string }> {
@@ -289,21 +311,18 @@ export class ProviderService implements IProviderService {
     }
   }
 
-  async findAllFacilities(): Promise<AdminFacilityResult> {
+  async findAllFacilities(): Promise<FacilityResponseDTO> {
     try {
       const facilities = await this.providerRepo.findAllFacilities();
-
       return {
         success: true,
         message: "Facilities fetched successfully",
-        facilityData: facilities,
+        facilityData: facilities || [],
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+      if (error instanceof AppError) throw error;
       throw new AppError(
-        "An error occurred while fetching facilities. Please try again.",
+        "An error occurred while fetching facilities",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

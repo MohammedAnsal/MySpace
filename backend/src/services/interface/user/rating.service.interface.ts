@@ -1,15 +1,7 @@
-import { IRating } from "../../../models/rating.model";
+import { CreateRatingDTO, RatingResponseDTO, HostelRatingsResponseDTO } from "../../../dtos/user/rating.dto";
 
 export interface IRatingService {
-  createRating(userId: string, ratingData: any): Promise<IRating>;
-  getHostelRatings(hostelId: string): Promise<{
-    ratings: IRating[];
-    averageRating: number;
-    totalRatings: number;
-  }>;
-  getUserRating(
-    userId: string,
-    hostelId: string,
-    bookingId: string
-  ): Promise<IRating | null>;
+  createRating(userId: string, data: CreateRatingDTO): Promise<RatingResponseDTO>;
+  getHostelRatings(hostelId: string): Promise<HostelRatingsResponseDTO>;
+  getUserRating(userId: string, hostelId: string, bookingId: string): Promise<RatingResponseDTO | null>;
 }

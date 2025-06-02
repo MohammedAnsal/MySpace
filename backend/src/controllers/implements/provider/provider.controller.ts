@@ -1,7 +1,7 @@
 import Container, { Service } from "typedi";
 import { ProviderService } from "../../../services/implements/provider/provider.service";
 import { IProviderController } from "../../interface/provider/provider.controller.interface";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AuthRequset } from "../../../types/api";
 import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import { AppError } from "../../../utils/error";

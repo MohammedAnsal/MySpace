@@ -1,17 +1,16 @@
-import { AuthResponse } from "../../../types/types";
-
-export interface SignInResult {
-  success: boolean;
-  message: string;
-  email?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  role?: string;
-  fullName?: string;
-}
+import { 
+  AdminSignInDTO,
+  AdminForgotPasswordDTO,
+  AdminResetPasswordDTO,
+  AdminSignInResponseDTO,
+  AdminForgotPasswordResponseDTO,
+  AdminResetPasswordResponseDTO,
+  AdminTokenResponseDTO
+} from "../../../dtos/admin/auth.dto";
 
 export interface IAdminAuthService {
-  admin_signIn(email: string, password: string): Promise<SignInResult>;
-   forgotPassword(email: string): Promise<AuthResponse>;
-    resetPassword(email: string, newPassword: string): Promise<AuthResponse>;
+  admin_signIn(data: AdminSignInDTO): Promise<AdminSignInResponseDTO>;
+  forgotPassword(data: AdminForgotPasswordDTO): Promise<AdminForgotPasswordResponseDTO>;
+  resetPassword(data: AdminResetPasswordDTO): Promise<AdminResetPasswordResponseDTO>;
+  checkToken(token: string): Promise<AdminTokenResponseDTO>;
 }

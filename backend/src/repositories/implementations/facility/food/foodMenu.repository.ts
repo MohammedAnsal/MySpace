@@ -1,79 +1,12 @@
 import Container, { Service } from "typedi";
 import { IFoodMenuRepository } from "../../../interfaces/facility/food/foodMenu.Irepository";
-import FoodMenu, { IFoodMenu } from "../../../../models/facility/Food/foodMenu.model";
+import FoodMenu, {
+  IFoodMenu,
+} from "../../../../models/facility/Food/foodMenu.model";
 import { Types, HydratedDocument } from "mongoose";
 
 @Service()
 export class FoodMenuRepository implements IFoodMenuRepository {
-  // async createFoodMenu(
-  //   providerId: string,
-  //   facilityId: string
-  // ): Promise<IFoodMenu> {
-  //   const foodMenu = new FoodMenu({
-  //     providerId,
-  //     facilityId,
-  //     menu: [
-  //       {
-  //         day: "Monday",
-  //         meals: {
-  //           morning: { items: [], isAvailable: true },
-  //           noon: { items: [], isAvailable: true },
-  //           night: { items: [], isAvailable: true },
-  //         },
-  //       },
-  //       {
-  //         day: "Tuesday",
-  //         meals: {
-  //           morning: { items: [], isAvailable: true },
-  //           noon: { items: [], isAvailable: true },
-  //           night: { items: [], isAvailable: true },
-  //         },
-  //       },
-  //       {
-  //         day: "Wednesday",
-  //         meals: {
-  //           morning: { items: [], isAvailable: true },
-  //           noon: { items: [], isAvailable: true },
-  //           night: { items: [], isAvailable: true },
-  //         },
-  //       },
-  //       {
-  //         day: "Thursday",
-  //         meals: {
-  //           morning: { items: [], isAvailable: true },
-  //           noon: { items: [], isAvailable: true },
-  //           night: { items: [], isAvailable: true },
-  //         },
-  //       },
-  //       {
-  //         day: "Friday",
-  //         meals: {
-  //           morning: { items: [], isAvailable: true },
-  //           noon: { items: [], isAvailable: true },
-  //           night: { items: [], isAvailable: true },
-  //         },
-  //       },
-  //       {
-  //         day: "Saturday",
-  //         meals: {
-  //           morning: { items: [], isAvailable: true },
-  //           noon: { items: [], isAvailable: true },
-  //           night: { items: [], isAvailable: true },
-  //         },
-  //       },
-  //       {
-  //         day: "Sunday",
-  //         meals: {
-  //           morning: { items: [], isAvailable: true },
-  //           noon: { items: [], isAvailable: true },
-  //           night: { items: [], isAvailable: true },
-  //         },
-  //       },
-  //     ],
-  //   });
-  //   return await foodMenu.save();
-  // }
-
   async updateFoodMenu(
     menuId: string,
     menuData: Partial<IFoodMenu>
@@ -262,8 +195,6 @@ export class FoodMenuRepository implements IFoodMenuRepository {
       }
 
       if (!foodMenu) {
-        console.log("keriii - 1");
-
         if (!newMenu?._id) {
           console.error("Food menu is still null after save attempt");
           throw new Error("Failed to create food menu");
@@ -279,8 +210,6 @@ export class FoodMenuRepository implements IFoodMenuRepository {
             this.updateDayMeal(foodMenuId, day, "morning", meals.morning)
           );
         }
-
-        console.log("uuu");
 
         if (meals.noon?.length) {
           updateOperations.push(
@@ -305,7 +234,6 @@ export class FoodMenuRepository implements IFoodMenuRepository {
           throw new Error("Failed to retrieve updated menu");
         }
 
-        console.log("good");
         return updatedMenu;
       } else {
         console.log("keriii - 2");
@@ -360,13 +288,13 @@ export class FoodMenuRepository implements IFoodMenuRepository {
   }
 
   async cancelMeal(
-    menuId: string, 
-    day: string, 
-    mealType: "morning" | "noon" | "night", 
+    menuId: string,
+    day: string,
+    mealType: "morning" | "noon" | "night",
     isAvailable: boolean
   ): Promise<IFoodMenu | null> {
     const updatePath = `menu.$.meals.${mealType}.isAvailable`;
-    
+
     return await FoodMenu.findOneAndUpdate(
       { _id: menuId, "menu.day": day },
       { $set: { [updatePath]: isAvailable } },

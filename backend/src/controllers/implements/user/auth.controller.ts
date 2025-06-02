@@ -52,7 +52,7 @@ export class AuthController implements IAuthController {
           .json({ success: false, message: "Invalid credentials" });
       }
 
-      const response = await this.authSrvice.signIn(email, password);
+      const response = await this.authSrvice.signIn({ email, password });
 
       setCookie(res, "refreshToken", String(response.refreshToken));
       setCookie(res, "token", String(response.accessToken));
@@ -172,7 +172,10 @@ export class AuthController implements IAuthController {
         });
       }
 
-      const response = await this.authSrvice.resetPassword(email, newPassword);
+      const response = await this.authSrvice.resetPassword({
+        email,
+        newPassword,
+      });
 
       if (response.success) {
         return res.status(HttpStatus.OK).json({
@@ -199,10 +202,10 @@ export class AuthController implements IAuthController {
   }
 
   async googleSign(req: Request, res: Response): Promise<any> {
-    const { token } = req.body;
     try {
+      const { token } = req.body;
       const { fullName, accessToken, refreshToken, email, role, userId } =
-        await this.authSrvice.signInGoogle(token);
+        await this.authSrvice.signInGoogle({ token });
 
       setCookie(res, "refreshToken", String(refreshToken));
       setCookie(res, "token", String(accessToken));

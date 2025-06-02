@@ -1,10 +1,17 @@
-import { IMenuItem } from "../../../../models/facility/Food/menuItem.model";
+import {
+  CreateMenuItemDTO,
+  UpdateMenuItemDTO,
+  MenuItemResponseDTO,
+} from "../../../../dtos/facility/food/menuItem.dto";
 
 export interface IMenuItemService {
-  createMenuItem(item: IMenuItem): Promise<IMenuItem>;
-  getMenuItem(id: string): Promise<IMenuItem>;
-  getAllMenuItems(): Promise<IMenuItem[]>;
-  getMenuItemsByCategory(category: string): Promise<IMenuItem[]>;
-  updateMenuItem(id: string, item: IMenuItem): Promise<IMenuItem>;
-  deleteMenuItem(id: string): Promise<void>;
+  createMenuItem(data: CreateMenuItemDTO): Promise<MenuItemResponseDTO>;
+  getMenuItem(id: string): Promise<MenuItemResponseDTO>;
+  getAllMenuItems(): Promise<MenuItemResponseDTO>;
+  getMenuItemsByCategory(category: string): Promise<MenuItemResponseDTO>;
+  updateMenuItem(
+    id: string,
+    data: UpdateMenuItemDTO
+  ): Promise<MenuItemResponseDTO>;
+  deleteMenuItem(id: string): Promise<MenuItemResponseDTO>;
 }

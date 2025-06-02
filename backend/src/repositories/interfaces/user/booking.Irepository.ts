@@ -1,10 +1,10 @@
 import { IBooking, IFacilitySelection } from "../../../models/booking.model";
-import { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 
 export interface CreateBookingData {
-  userId: ObjectId;
-  hostelId: ObjectId;
-  providerId: ObjectId;
+  userId: mongoose.Types.ObjectId;
+  hostelId: mongoose.Types.ObjectId;
+  providerId: mongoose.Types.ObjectId;
   checkIn: Date;
   checkOut: Date;
   stayDurationInMonths: number;
@@ -29,7 +29,7 @@ export interface UpdateBookingData {
 export interface IBookingRepository {
   createBooking(bookingData: CreateBookingData): Promise<IBooking>;
   getBookingById(bookingId: string): Promise<IBooking | null>;
-  getBookingByIdUnPopulated(bookingId: string): Promise<IBooking | null>
+  getBookingByIdUnPopulated(bookingId: string): Promise<IBooking | null>;
   getUserBookings(userId: string): Promise<IBooking[]>;
   getAllBookings(): Promise<IBooking[]>;
   // getHostelBookings(hostelId: string): Promise<IBooking[]>;

@@ -1,33 +1,34 @@
+import {
+  CreateCleaningRequestDTO,
+  UpdateCleaningStatusDTO,
+  AddFeedbackDTO,
+  CleaningResponseDTO,
+} from "../../../../dtos/facility/cleaning/cleaning.dto";
+
 export interface ICleaningService {
   createCleaningRequest(
     userId: string,
-    providerId: string,
-    hostelId: string,
-    facilityId: string,
-    requestedDate: string,
-    preferredTimeSlot: string,
-    specialInstructions?: string
-  ): Promise<{ success: boolean; message: string; data?: any }>;
-  getUserCleaningRequests(
-    userId: string
-  ): Promise<{ success: boolean; message: string; data?: any }>;
-  getCleaningRequestById(
-    requestId: string
-  ): Promise<{ success: boolean; message: string; data?: any }>;
+    data: CreateCleaningRequestDTO
+  ): Promise<CleaningResponseDTO>;
+
+  getUserCleaningRequests(userId: string): Promise<CleaningResponseDTO>;
+
+  getCleaningRequestById(requestId: string): Promise<CleaningResponseDTO>;
+
   updateCleaningRequestStatus(
     requestId: string,
-    status: string
-  ): Promise<{ success: boolean; message: string; data?: any }>;
+    data: UpdateCleaningStatusDTO
+  ): Promise<CleaningResponseDTO>;
+
   cancelCleaningRequest(
     requestId: string,
     userId: string
-  ): Promise<{ success: boolean; message: string; data?: any }>;
-  getProviderCleaningRequests(
-    providerId: string
-  ): Promise<{ success: boolean; message: string; data?: any }>;
+  ): Promise<CleaningResponseDTO>;
+
+  getProviderCleaningRequests(providerId: string): Promise<CleaningResponseDTO>;
+
   addFeedback(
     requestId: string,
-    rating: number,
-    comment?: string
-  ): Promise<{ success: boolean; message: string; data?: any }>;
+    data: AddFeedbackDTO
+  ): Promise<CleaningResponseDTO>;
 }

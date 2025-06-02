@@ -1,12 +1,18 @@
-import { IUser } from "../../../models/user.model";
+import {
+  SignUpDTO,
+  SignInDTO,
+  OtpVerificationDTO,
+  ResetPasswordDTO,
+  GoogleSignInDTO,
+} from "../../../dtos/user/auth.dto";
 import { AuthResponse, SignInResult } from "../../../types/types";
 
 export interface IAuthService {
-  signUp(providerData: IUser): Promise<AuthResponse>;
-  signIn(email: string, password: string): Promise<AuthResponse>;
-  verifyOtp(otpData: AuthResponse): Promise<SignInResult>;
+  signUp(providerData: SignUpDTO): Promise<AuthResponse>;
+  signIn(data: SignInDTO): Promise<AuthResponse>;
+  verifyOtp(data: OtpVerificationDTO): Promise<SignInResult>;
   resendOtp(email: string): Promise<AuthResponse>;
   forgotPassword(email: string): Promise<AuthResponse>;
-  resetPassword(email: string, newPassword: string): Promise<AuthResponse>;
-  signInGoogle(email: string, fullName: string): Promise<AuthResponse>;
+  resetPassword(data: ResetPasswordDTO): Promise<AuthResponse>;
+  signInGoogle(data: GoogleSignInDTO): Promise<AuthResponse>;
 }

@@ -1,6 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
+  updated_at: Date;
+  is_blocked: boolean;
   _id: string;
   fullName: string;
   email: string;

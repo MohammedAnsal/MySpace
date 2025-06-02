@@ -9,6 +9,7 @@ import {
 } from "../../interface/user/hostel.service.interface";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
+import { HostelResponseDTO, HostelFiltersDTO } from "../../../dtos/user/hostel.dto";
 
 @Service()
 export class HostelService implements IHostelService {
@@ -20,20 +21,44 @@ export class HostelService implements IHostelService {
     this.hostelRepositoryy = hostelRepository;
   }
 
-  async getVerifiedHostels(filters: {
-    minPrice?: number;
-    maxPrice?: number;
-    gender?: string;
-    amenities?: string[];
-    search?: string;
-    sortBy?: "asc" | "desc";
-  }): Promise<hostelResult> {
+  private mapToHostelDTO(hostel: any): HostelResponseDTO {
+    return {
+      _id: hostel._id.toString(),
+      hostel_name: hostel.hostel_name,
+      monthly_rent: hostel.monthly_rent,
+      deposit_amount: hostel.deposit_amount,
+      deposit_terms: hostel.deposit_terms,
+      maximum_occupancy: hostel.maximum_occupancy,
+      rules: hostel.rules,
+      gender: hostel.gender,
+      available_space: hostel.available_space,
+      total_space: hostel.total_space,
+      status: hostel.status,
+      photos: hostel.photos,
+      amenities: hostel.amenities,
+      description: hostel.description,
+      location: hostel.location,
+      provider_id: hostel.provider_id,
+      facilities: hostel.facilities,
+      is_verified: hostel.is_verified,
+      is_rejected: hostel.is_rejected,
+      reason: hostel.reason,
+      created_at: hostel.createdAt,
+      updated_at: hostel.updatedAt,
+      averageRating: hostel.averageRating || 0,
+      ratingCount: hostel.ratingCount || 0
+    };
+  }
+
+  async getVerifiedHostels(filters: HostelFiltersDTO): Promise<hostelResult> {
     try {
       const hostels = await this.hostelRepositoryy.getVerifiedHostels(filters);
+      const hostelsDTO = hostels.map(hostel => this.mapToHostelDTO(hostel));
+      
       return {
         success: true,
         message: "Verified hostels fetched successfully",
-        data: hostels,
+        data: hostelsDTO,
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -49,10 +74,12 @@ export class HostelService implements IHostelService {
   async getVerifiedHostelsForHome(): Promise<hostelResult> {
     try {
       const hostels = await this.hostelRepositoryy.getVerifiedHostelsForHome();
+      const hostelsDTO = hostels.map(hostel => this.mapToHostelDTO(hostel));
+      
       return {
         success: true,
         message: "Verified all hostels fetched successfully",
-        data: hostels,
+        data: hostelsDTO,
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -86,10 +113,12 @@ export class HostelService implements IHostelService {
         hostel.photos = signedPhotos;
       }
 
+      const hostelDTO = this.mapToHostelDTO(hostel);
+
       return {
         success: true,
         message: "Hostel details fetched successfully",
-        data: hostel,
+        data: hostelDTO,
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -108,12 +137,13 @@ export class HostelService implements IHostelService {
         throw new AppError("Latitude and longitude are required", HttpStatus.BAD_REQUEST);
       }
       
-      const hostels = await this.hostelRepositoryy.getNearbyHostels(latitude, longitude, radius * 1000); // Convert km to meters
+      const hostels = await this.hostelRepositoryy.getNearbyHostels(latitude, longitude, radius * 1000);
+      const hostelsDTO = hostels.map(hostel => this.mapToHostelDTO(hostel));
       
       return {
         success: true,
         message: "Nearby hostels fetched successfully",
-        data: hostels,
+        data: hostelsDTO,
       };
     } catch (error) {
       if (error instanceof AppError) {

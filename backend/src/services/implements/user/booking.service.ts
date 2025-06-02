@@ -7,7 +7,7 @@ import { IBookingRepository } from "../../../repositories/interfaces/user/bookin
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { IBooking, IFacilitySelection } from "../../../models/booking.model";
 import { AppError } from "../../../utils/error";
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import { s3Service } from "../s3/s3.service";
 import Container, { Service } from "typedi";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
@@ -16,6 +16,11 @@ import { IFacilityRepository } from "../../../repositories/interfaces/provider/f
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 import { notificationService } from "../notification/notification.service";
 import { INotificationService } from "../../interface/notification/notification.service.interface";
+import {
+  BookingResponseDTO,
+  CreateBookingDTO,
+  CancelBookingDTO,
+} from "../../../dtos/user/booking.dto";
 
 @Service()
 export class BookingService implements IBookingService {
@@ -33,26 +38,61 @@ export class BookingService implements IBookingService {
     this.notificationService = notificationService;
   }
 
-  async createBooking(
-    bookingData: BookingCreateDTO,
-    selectedFacilitiess: FacilityI[]
-  ): Promise<IBooking> {
-    try {
+  private mapToBookingDTO(booking: any): BookingResponseDTO {
+    return {
+      _id: booking._id.toString(),
+      userId: booking.userId,
+      hostelId: booking.hostelId,
+      providerId: booking.providerId,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      stayDurationInMonths: booking.stayDurationInMonths,
+      selectedFacilities: booking.selectedFacilities,
+      bookingDate: booking.bookingDate,
+      totalPrice: booking.totalPrice,
+      firstMonthRent: booking.firstMonthRent,
+      depositAmount: booking.depositAmount,
+      monthlyRent: booking.monthlyRent,
+      paymentStatus: booking.paymentStatus,
+      proof: booking.proof,
+      reason: booking.reason,
+      created_at: booking.createdAt,
+      updated_at: booking.updatedAt,
+    };
+  }
 
+  async createBooking(
+    bookingData: CreateBookingDTO,
+    selectedFacilitiess: FacilityI[]
+  ): Promise<BookingResponseDTO> {
+    try {
       // Validate IDs before proceeding
-      if (!bookingData.userId || !bookingData.hostelId || !bookingData.providerId) {
+      if (
+        !bookingData.userId ||
+        !bookingData.hostelId ||
+        !bookingData.providerId
+      ) {
         throw new AppError("Missing required IDs", 400);
       }
 
       // Validate ID formats
       if (!mongoose.Types.ObjectId.isValid(bookingData.userId)) {
-        throw new AppError(`Invalid user ID format: ${bookingData.userId}`, 400);
+        throw new AppError(
+          `Invalid user ID format: ${bookingData.userId}`,
+          400
+        );
       }
       if (!mongoose.Types.ObjectId.isValid(bookingData.hostelId)) {
-        throw new AppError(`Invalid hostel ID format: ${bookingData.hostelId}`, 400);
+        throw new AppError(
+          `Invalid hostel ID format: ${bookingData.hostelId}`,
+          400
+        );
       }
       if (!mongoose.Types.ObjectId.isValid(bookingData.providerId)) {
-        throw new AppError(`Invalid provider ID format: ${bookingData.providerId}`, 400);
+        throw new AppError(
+          `Invalid provider ID format: ${bookingData.providerId}`,
+          400
+        );
       }
 
       const hostel = await this.hostelRepository.getHostelById(
@@ -114,13 +154,12 @@ export class BookingService implements IBookingService {
         }))
         );
       
-
       // Create booking with properly formatted ObjectIds
       const bookingDataToCreate = {
         ...bookingData,
-        userId: new mongoose.Types.ObjectId(bookingData.userId) as unknown as mongoose.Schema.Types.ObjectId,
-        hostelId: new mongoose.Types.ObjectId(bookingData.hostelId) as unknown as mongoose.Schema.Types.ObjectId,
-        providerId: new mongoose.Types.ObjectId(bookingData.providerId) as unknown as mongoose.Schema.Types.ObjectId,
+        userId: new mongoose.Types.ObjectId(bookingData.userId),
+        hostelId: new mongoose.Types.ObjectId(bookingData.hostelId),
+        providerId: new mongoose.Types.ObjectId(bookingData.providerId),
         proof: Array.isArray(uploadResult)
           ? uploadResult[0].Location
           : uploadResult.Location,
@@ -128,12 +167,17 @@ export class BookingService implements IBookingService {
         firstMonthRent,
         depositAmount,
         monthlyRent,
-        selectedFacilities: transformedFacilities,
+        selectedFacilities: transformedFacilities.map((facility) => ({
+          ...facility,
+          facilityId: new mongoose.Types.ObjectId(facility.facilityId),
+        })),
       };
 
-      console.log('Creating booking with data:', bookingDataToCreate);
+      console.log("Creating booking with data:", bookingDataToCreate);
 
-      const booking = await this.bookingRepository.createBooking(bookingDataToCreate);
+      const booking = await this.bookingRepository.createBooking(
+        bookingDataToCreate
+      );
 
       // Create notification for the provider
       // await this.notificationService.createNotification({
@@ -145,7 +189,7 @@ export class BookingService implements IBookingService {
       //   // relatedId: booking._id
       // });
 
-      return booking;
+      return this.mapToBookingDTO(booking);
     } catch (error) {
       if (error instanceof AppError && bookingData.proof) {
         try {
@@ -162,19 +206,18 @@ export class BookingService implements IBookingService {
     }
   }
 
-  async getBookingById(bookingId: string): Promise<IBooking> {
+  async getBookingById(bookingId: string): Promise<BookingResponseDTO> {
     try {
       const booking = await this.bookingRepository.getBookingById(bookingId);
       if (!booking) {
         throw new AppError("Booking not found", 404);
       }
 
-      // Generate signed URL for proof if it exists
       if (booking.proof) {
         booking.proof = await this.s3Service.generateSignedUrl(booking.proof);
       }
 
-      return booking;
+      return this.mapToBookingDTO(booking);
     } catch (error) {
       console.error("Error in getBookingById:", error);
       if (error instanceof AppError) {
@@ -184,7 +227,7 @@ export class BookingService implements IBookingService {
     }
   }
 
-  async getProviderBookings(providerId: string): Promise<IBooking[]> {
+  async getProviderBookings(providerId: string): Promise<BookingResponseDTO[]> {
     try {
       const bookings = await this.bookingRepository.getProviderBookings(
         providerId
@@ -197,7 +240,7 @@ export class BookingService implements IBookingService {
               booking.proof
             );
           }
-          return booking;
+          return this.mapToBookingDTO(booking);
         })
       );
 
@@ -208,7 +251,7 @@ export class BookingService implements IBookingService {
     }
   }
 
-  async getUserBookings(userId: string): Promise<IBooking[]> {
+  async getUserBookings(userId: string): Promise<BookingResponseDTO[]> {
     try {
       const bookings = await this.bookingRepository.getUserBookings(userId);
 
@@ -219,7 +262,7 @@ export class BookingService implements IBookingService {
               booking.proof
             );
           }
-          return booking;
+          return this.mapToBookingDTO(booking);
         })
       );
 
@@ -230,7 +273,7 @@ export class BookingService implements IBookingService {
     }
   }
 
-  async getAllBookings(): Promise<IBooking[]> {
+  async getAllBookings(): Promise<BookingResponseDTO[]> {
     try {
       const bookings = await this.bookingRepository.getAllBookings();
 
@@ -241,7 +284,7 @@ export class BookingService implements IBookingService {
               booking.proof
             );
           }
-          return booking;
+          return this.mapToBookingDTO(booking);
         })
       );
 
@@ -326,8 +369,13 @@ export class BookingService implements IBookingService {
   //   return updatedBooking;
   // }
 
-  async cancelBooking(bookingId: string, reason: string): Promise<IBooking> {
-    const booking = await this.bookingRepository.getBookingByIdUnPopulated(bookingId);
+  async cancelBooking(
+    bookingId: string,
+    reason: CancelBookingDTO
+  ): Promise<BookingResponseDTO> {
+    const booking = await this.bookingRepository.getBookingByIdUnPopulated(
+      bookingId
+    );
     if (!booking) {
       throw new AppError("Booking not found", 404);
     }
@@ -338,19 +386,13 @@ export class BookingService implements IBookingService {
 
     const cancelledBooking = await this.bookingRepository.cancelBooking(
       bookingId,
-      reason
+      reason.reason
     );
-
-    console.log(bookingId);
-    console.log(booking.hostelId);
-    
 
     if (booking) {
       const hostel = await this.hostelRepository.findHostelByIdUnPopulated(
         String(booking.hostelId)
       );
-
-      console.log(hostel,'l')
 
       await this.notificationService.createNotification({
         recipient: new mongoose.Types.ObjectId(String(hostel?.provider_id)),
@@ -366,7 +408,7 @@ export class BookingService implements IBookingService {
       throw new AppError("Failed to cancel booking", 500);
     }
 
-    return cancelledBooking;
+    return this.mapToBookingDTO(cancelledBooking);
   }
 
   // async processPayment(
@@ -424,7 +466,15 @@ export class BookingService implements IBookingService {
     monthlyRent: number;
     facilityCharges: number;
     firstMonthRent: number;
-    transformedFacilities: IFacilitySelection[];
+    transformedFacilities: {
+      facilityId: string;
+      type: "Catering Service" | "Laundry Service" | "Deep Cleaning Service";
+      startDate: Date;
+      endDate: Date;
+      duration: number;
+      ratePerMonth: number;
+      totalCost: number;
+    }[];
   }> {
     try {
       const hostel = await this.hostelRepository.getHostelById(hostelId);
@@ -437,7 +487,15 @@ export class BookingService implements IBookingService {
 
       let facilityCharges = 0;
       let facilityInitialCharge = 0;
-      const transformedFacilities: IFacilitySelection[] = [];
+      const transformedFacilities: {
+        facilityId: string;
+        type: "Catering Service" | "Laundry Service" | "Deep Cleaning Service";
+        startDate: Date;
+        endDate: Date;
+        duration: number;
+        ratePerMonth: number;
+        totalCost: number;
+      }[] = [];
 
       // Process each selected facility
       for (const selected of selectedFacilities) {
@@ -456,17 +514,16 @@ export class BookingService implements IBookingService {
         facilityInitialCharge += firstMonthFacility;
 
         // Create facility selection object
-        const facilitySelection: IFacilitySelection = {
-          facilityId:
-            facility.id.toString() as unknown as mongoose.Schema.Types.ObjectId,
+        const facilitySelection = {
+          facilityId: facility.id.toString(),
           type: facility.name as
             | "Catering Service"
             | "Laundry Service"
             | "Deep Cleaning Service",
-          startDate: new Date(), // Current date as start date
+          startDate: new Date(),
           endDate: new Date(
             Date.now() + parseInt(selected.duration) * 30 * 24 * 60 * 60 * 1000
-          ), // duration months later
+          ),
           duration: Number(selected.duration),
           ratePerMonth: facility.price,
           totalCost: totalCost,

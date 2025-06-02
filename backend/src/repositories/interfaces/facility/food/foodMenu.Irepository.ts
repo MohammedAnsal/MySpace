@@ -1,8 +1,7 @@
-import { IFoodMenu } from "../../../models/facility/Food/foodMenu.model";
-import { IDayMeal } from "../../../models/facility/Food/foodMenu.model";
+import { IFoodMenu } from "../../../../models/facility/Food/foodMenu.model";
+import { IDayMeal } from "../../../../models/facility/Food/foodMenu.model";
 
 export interface IFoodMenuRepository {
-  // createFoodMenu(providerId: string, facilityId: string): Promise<IFoodMenu>;
   updateFoodMenu(
     menuId: string,
     menuData: Partial<IFoodMenu>

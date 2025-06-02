@@ -1,5 +1,13 @@
-import { IUser } from "../../../models/user.model";
 import { IHostel } from "../../../models/provider/hostel.model";
+import { 
+  AdminSearchDTO,
+  AdminVerifyHostelDTO,
+  AdminUserResponseDTO,
+  AdminUserUpdateResponseDTO,
+  AdminHostelResponseDTO,
+  AdminDashboardResponseDTO,
+  AdminWalletDTO
+} from "../../../dtos/admin/user.dto";
 
 export type AdminResult = {
   success: boolean;
@@ -8,18 +16,13 @@ export type AdminResult = {
 };
 
 export interface IAdminUserService {
-  createWallet(adminId: string): Promise<any>;
-  findAllUser(searchQuery?: string): Promise<{ success: boolean; data: IUser[] }>;
-  findAllProvider(searchQuery?: string): Promise<{ success: boolean; data: IUser[] }>;
-  updateUser(email: string): Promise<{ success: boolean; message: string }>;
-  verifyHostel(
-    hostelId: string,
-    reason: string,
-    isVerified: boolean,
-    isRejected: boolean
-  ): Promise<AdminResult>;
-  getHostelById(hostelId: string): Promise<AdminResult>;
-  getUnverifiedHostels(): Promise<AdminResult>;
-  getVerifiedHostels(): Promise<AdminResult>;
-  getAdminDashboard(): Promise<any>;
+  createWallet(adminId: string): Promise<AdminWalletDTO>;
+  findAllUser(data: AdminSearchDTO): Promise<AdminUserResponseDTO>;
+  findAllProvider(data: AdminSearchDTO): Promise<AdminUserResponseDTO>;
+  updateUser(email: string): Promise<AdminUserUpdateResponseDTO>;
+  verifyHostel(data: AdminVerifyHostelDTO): Promise<AdminHostelResponseDTO>;
+  getHostelById(hostelId: string): Promise<AdminHostelResponseDTO>;
+  getUnverifiedHostels(): Promise<AdminHostelResponseDTO>;
+  getVerifiedHostels(): Promise<AdminHostelResponseDTO>;
+  getAdminDashboard(): Promise<AdminDashboardResponseDTO>;
 }

@@ -1,19 +1,32 @@
-import { IWashing } from "../../../../models/facility/Washing/washing.model";
+import {
+  CreateWashingRequestDTO,
+  UpdateWashingStatusDTO,
+  AddFeedbackDTO,
+  WashingResponseDTO,
+} from "../../../../dtos/facility/washing/washing.dto";
 
 export interface IWashingService {
-  createWashingRequest(washingData: Partial<IWashing>): Promise<IWashing>;
-  getUserWashingRequests(userId: string): Promise<IWashing[]>;
-  getProviderWashingRequests(providerId: string): Promise<IWashing[]>;
-  getWashingRequestById(id: string): Promise<IWashing>;
+  createWashingRequest(
+    userId: string,
+    data: CreateWashingRequestDTO
+  ): Promise<WashingResponseDTO>;
+
+  getUserWashingRequests(userId: string): Promise<WashingResponseDTO>;
+
+  getProviderWashingRequests(providerId: string): Promise<WashingResponseDTO>;
+
+  getWashingRequestById(id: string): Promise<WashingResponseDTO>;
+
   updateWashingRequestStatus(
     id: string,
-    status: "Pending" | "In Progress" | "Completed" | "Cancelled"
-  ): Promise<IWashing>;
-  cancelWashingRequest(id: string, userId: string): Promise<IWashing>;
+    data: UpdateWashingStatusDTO
+  ): Promise<WashingResponseDTO>;
+
+  cancelWashingRequest(id: string, userId: string): Promise<WashingResponseDTO>;
+
   addFeedback(
     id: string,
     userId: string,
-    rating: number,
-    comment?: string
-  ): Promise<IWashing>;
+    data: AddFeedbackDTO
+  ): Promise<WashingResponseDTO>;
 }

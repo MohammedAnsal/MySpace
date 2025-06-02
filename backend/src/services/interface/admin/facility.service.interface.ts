@@ -1,18 +1,13 @@
-import { IAdminFacility } from "../../../models/admin/facility.model";
-
-export type AdminFacilityResult = {
-  facilityData?: IAdminFacility | IAdminFacility[] | null;
-  success: boolean;
-  message: string;
-};
+import { 
+  CreateFacilityDTO,
+  UpdateFacilityStatusDTO,
+  FacilityResponseDTO
+} from "../../../dtos/admin/facility.dto";
 
 export interface IAdminFacilityService {
-  createFacility(facilityData: Partial<IAdminFacility>): Promise<AdminFacilityResult>;
-  findAllFacilities(): Promise<AdminFacilityResult>;
-  updateFacilityStatus(
-    facilityId: string,
-    status: boolean
-  ): Promise<AdminFacilityResult>;
-  deleteFacility(facilityId: string): Promise<AdminFacilityResult>;
-  findFacilityById(facilityId: string): Promise<AdminFacilityResult>;
+  createFacility(data: CreateFacilityDTO): Promise<FacilityResponseDTO>;
+  findAllFacilities(): Promise<FacilityResponseDTO>;
+  updateFacilityStatus(data: UpdateFacilityStatusDTO): Promise<FacilityResponseDTO>;
+  deleteFacility(facilityId: string): Promise<FacilityResponseDTO>;
+  findFacilityById(facilityId: string): Promise<FacilityResponseDTO>;
 } 

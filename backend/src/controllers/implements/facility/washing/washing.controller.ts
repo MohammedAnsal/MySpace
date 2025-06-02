@@ -52,19 +52,18 @@ export class WashingController {
       }
 
       const washingData = {
-        userId: new Types.ObjectId(userId),
-        providerId: new Types.ObjectId(providerId),
-        hostelId: new Types.ObjectId(hostelId),
-        facilityId: new Types.ObjectId(facilityId),
+        userId,
+        providerId,
+        hostelId,
+        facilityId,
         requestedDate,
         preferredTimeSlot,
         itemsCount,
         specialInstructions,
       };
 
-      console.log(washingData, "ccc");
-
       const newRequest = await this.washingService.createWashingRequest(
+        userId,
         washingData
       );
 
@@ -230,17 +229,6 @@ export class WashingController {
         return;
       }
 
-      const request = await this.washingService.getWashingRequestById(id);
-
-      // Check if this provider owns this request
-      if (request.providerId.toString() !== providerId) {
-        res.status(HttpStatus.FORBIDDEN).json({
-          status: "error",
-          message: "Unauthorized to update this request",
-        });
-        return;
-      }
-
       const updatedRequest =
         await this.washingService.updateWashingRequestStatus(id, status);
 
@@ -335,12 +323,10 @@ export class WashingController {
         return;
       }
 
-      const updatedRequest = await this.washingService.addFeedback(
-        id,
-        userId,
-        Number(rating),
-        comment
-      );
+      const updatedRequest = await this.washingService.addFeedback(id, userId, {
+        rating,
+        comment,
+      });
 
       res.status(HttpStatus.OK).json({
         status: "success",

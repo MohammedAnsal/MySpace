@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, ObjectId } from "mongoose";
+import mongoose, { Schema, Types , Document, ObjectId } from "mongoose";
 
 export interface IHostel extends Document {
   hostel_name: string | null;
@@ -14,9 +14,9 @@ export interface IHostel extends Document {
   photos: string[] | null;
   amenities: string[] | null;
   description: string | null;
-  location: ObjectId | null;
-  provider_id: ObjectId | null;
-  facilities: ObjectId[] | null;
+  location: Types.ObjectId | null;
+  provider_id: Types.ObjectId | null;
+  facilities: Types.ObjectId[] | null;
   reason: string;
   is_verified: boolean;
   is_rejected: boolean;

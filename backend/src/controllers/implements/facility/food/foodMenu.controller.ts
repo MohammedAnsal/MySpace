@@ -17,37 +17,6 @@ export class FoodMenuController {
     this.foodMenuService = foodMenuService;
   }
 
-  // async createFoodMenu(
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ): Promise<void> {
-  //   try {
-  //     const { providerId, facilityId } = req.body;
-
-  //     if (!providerId || !facilityId) {
-  //       throw new AppError(
-  //         "Invalid provider or facility ID",
-  //         HttpStatus.BAD_REQUEST
-  //       );
-  //     }
-
-  //     const foodMenu = await foodMenuService.createFoodMenu(
-  //       providerId,
-  //       facilityId
-  //     );
-
-  //     res.status(HttpStatus.CREATED).json({
-  //       status: "success",
-  //       message: "Food menu created successfully",
-  //       data: {
-  //         foodMenu,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
 
   async getFoodMenu(req: Request, res: Response): Promise<void> {
     try {
@@ -61,16 +30,14 @@ export class FoodMenuController {
         return;
       }
 
-      const foodMenuDoc = await this.foodMenuService.getFoodMenu(
-        facilityId,
-        hostelId
-      );
+      console.log(facilityId , 'ajjjjjjjjjjjjjjjjjj')
+      console.log(hostelId,'idddddddd')
 
-      // Convert to plain object and access the menu array properly
-      const plainFoodMenu = foodMenuDoc.toObject();
+      const foodMenuDoc = await this.foodMenuService.getFoodMenu(facilityId, hostelId);
+      const plainFoodMenu = foodMenuDoc.data?.toObject() as { menu: Array<{ day: string; meals: any }> };
 
       const foodMenu = {
-        ...plainFoodMenu,
+        ...(plainFoodMenu as Record<string, any>),
         menu: await Promise.all(
           plainFoodMenu.menu.map(async (day: any) => ({
             day: day.day,
@@ -237,10 +204,7 @@ export class FoodMenuController {
 
       const updatedMenu = await this.foodMenuService.addSingleDayMenu(
         providerId,
-        facilityId,
-        hostelId,
-        day,
-        meals
+        { facilityId, hostelId, day, meals }
       );
 
       res.status(200).json({
@@ -298,9 +262,11 @@ export class FoodMenuController {
 
       await this.foodMenuService.cancelMeal(
         id,
-        day,
-        mealType as "morning" | "noon" | "night",
-        isAvailable
+        {
+          day,
+          mealType: mealType as "morning" | "noon" | "night",
+          isAvailable
+        }
       );
 
       res.status(200).json({
