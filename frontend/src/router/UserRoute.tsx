@@ -12,7 +12,7 @@ import { ProtecteddRoute } from "@/router/authRoutes/user/ProtectRoute";
 import ForgotPassword from "@/pages/user/Auth/ForgotPassword";
 import ResetPassword from "@/pages/user/Auth/ResetPassword";
 import ProfileLayout from "@/pages/user/Home/profile/components/ProfileLayout";
-import UserProfile from "@/pages/user/Home/profile/UserProfile";
+import UserProfile from "@/pages/user/Home/profile/UserProfile.tsx";
 import Hostels from "@/pages/user/Home/hostel/Hostels";
 import HostelDetails from "@/pages/user/Home/hostel/HostelDetails";
 import Checkout from "@/pages/user/Home/booking/BookingHostel";
@@ -30,7 +30,7 @@ import Food from "@/pages/user/Home/profile/facility/components/food/Food";
 import Washing from "@/pages/user/Home/profile/facility/components/washing/Washing";
 import Cleaning from "@/pages/user/Home/profile/facility/components/cleaning/Cleaning";
 import Notification from "@/pages/user/Home/notification/Notification";
- 
+
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
   {
