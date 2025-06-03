@@ -1,4 +1,4 @@
-import { Tabs, TabsList, TabsTrigger } from "./tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface StaySelectorProps {
   onGenderChange: (gender: string) => void;
@@ -7,7 +7,11 @@ interface StaySelectorProps {
 export default function StaySelector({ onGenderChange }: StaySelectorProps) {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-12">
-      <Tabs defaultValue="all" className="w-full flex" onValueChange={onGenderChange}>
+      <Tabs
+        defaultValue="all"
+        className="w-full flex"
+        onValueChange={onGenderChange}
+      >
         <TabsList className="w-full max-w-full sm:max-w-md mx-auto h-10 md:h-12 bg-[#E1DDD5] p-4 md:p-8 rounded-full">
           <TabsTrigger
             value="male"
