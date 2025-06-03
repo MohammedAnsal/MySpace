@@ -90,6 +90,7 @@ export class WashingController {
   async getUserWashingRequests(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
+      console.log(userId);
       if (!userId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           status: "error",
@@ -198,6 +199,10 @@ export class WashingController {
       const { status } = req.body;
       const providerId = req.user?.id;
 
+      console.log(id);
+      console.log(status);
+      console.log(providerId);
+
       if (!providerId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           status: "error",
@@ -230,7 +235,7 @@ export class WashingController {
       }
 
       const updatedRequest =
-        await this.washingService.updateWashingRequestStatus(id, status);
+        await this.washingService.updateWashingRequestStatus(id, { status });
 
       res.status(HttpStatus.OK).json({
         status: "success",

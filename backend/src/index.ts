@@ -29,12 +29,14 @@ import cleaningRoute from "./routers/facility/cleaning/cleaning.routes";
 import chatRoute from "./routers/chat/chat.routes";
 import { createServer } from "http";
 import socketService from "./services/implements/socket/socket.service";
-import redisClient from "./config/redisConfig";
 import notificationRouter from "./routers/notification/notification.routes";
+import { cronService } from "./services/implements/cron/cron.service";
 
 dotenv.config();
 
 dbConnect();
+
+cronService
 
 const morganFormat = ":method :url :status :response-time ms";
 

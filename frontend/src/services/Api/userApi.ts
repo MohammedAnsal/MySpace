@@ -415,7 +415,8 @@ export const createWashingRequest = async (data: {
 export const getUserWashingRequests = async () => {
   try {
     const response = await api.get("/facility/washing/user");
-    return handleResponse(response.data, "Error fetching washing requests");
+    console.log(response,'p')
+    return handleResponse(response.data.data, "Error fetching washing requests");
   } catch (error) {
     handleError(error);
     return { success: false, data: [] };

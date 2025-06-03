@@ -15,6 +15,7 @@ import { loginSuccess } from "@/redux/slice/userSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 import { useGoogle } from "@/hooks/user/useGoogle";
+import socketService from "@/services/socket/socket.service";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,12 @@ export default function SignIn() {
             token: response.data.token,
           })
         );
+
+        // Connect to socket after successful login
+        socketService.connect();
+        // Emit user status as online
+        socketService.emitUserStatus(response.data.userId, response.data.role, true);
+
         navigate("/home");
         setLoading(false);
       } else {
@@ -65,7 +72,6 @@ export default function SignIn() {
       }
     } catch (error: any) {
       console.error("SignIn error:", error);
-      // toast.error(error.message);
     } finally {
       setLoading(false);
     }

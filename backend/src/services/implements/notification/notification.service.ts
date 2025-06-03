@@ -3,9 +3,10 @@ import { INotification } from "../../../models/notification/notification.model";
 import { AppError } from "../../../utils/error";
 import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import Container, { Service } from "typedi";
+import { INotificationService } from "../../../services/interface/notification/notification.service.interface";
 
 @Service()
-export class NotificationService {
+export class NotificationService implements INotificationService {
   constructor(private readonly repository: NotificationRepository) {}
 
   async createNotification(
@@ -91,6 +92,10 @@ export class NotificationService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  async getUnreadCount(userId: string): Promise<number> {
+    return await this.repository.countUnread(userId);
   }
 }
 

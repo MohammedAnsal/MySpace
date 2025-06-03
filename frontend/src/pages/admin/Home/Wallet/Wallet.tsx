@@ -33,11 +33,12 @@ import Loading from "@/components/global/Loading";
 interface Transaction {
   _id: string;
   amount: number;
-  type: "credit" | "debit";
+  type: "credit" | "debit" | "re-fund";
   status: "completed" | "pending" | "failed";
   description: string;
   bookingId?: string;
-  createdAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface WalletData {
@@ -45,8 +46,8 @@ interface WalletData {
   adminId: string;
   balance: number;
   transactions: Transaction[];
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const Wallet = () => {
@@ -56,6 +57,7 @@ export const Wallet = () => {
     error: fetchError,
     refetch,
   } = useAdminWallet();
+  console.log(walletData,'oooooooooooo');
   const [error, setError] = useState<string | null>(null);
   // const [filterStatus, setFilterStatus] = useState<string>("all");
   // const [filterType, setFilterType] = useState<string>("all");
@@ -116,7 +118,7 @@ export const Wallet = () => {
 
     // Filter transactions for current month
     const thisMonthTransactions = walletData.transactions.filter((tx) => {
-      const txDate = new Date(tx.createdAt);
+      const txDate = new Date(tx.created_at);
       return (
         txDate.getMonth() === currentMonth &&
         txDate.getFullYear() === currentYear
@@ -176,7 +178,7 @@ export const Wallet = () => {
   // const currentTransactions = filteredTransactions
   //   .sort(
   //     (a, b) =>
-  //       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  //       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   //   )
   //   .slice(indexOfFirstItem, indexOfLastItem);
 
@@ -221,7 +223,7 @@ export const Wallet = () => {
   //   ];
   //   const rows = walletData.transactions.map((tx) => [
   //     tx._id,
-  //     new Date(tx.createdAt).toLocaleDateString(),
+  //     new Date(tx.created_at).toLocaleDateString(),
   //     tx.description,
   //     tx.amount.toFixed(2),
   //     tx.type,
@@ -282,10 +284,9 @@ export const Wallet = () => {
     );
   }
 
-  const totalCredits =
-    walletData?.transactions
-      .filter((t) => t.type === "credit" && t.status === "completed")
-      .reduce((sum, t) => sum + t.amount, 0) || 0;
+  const totalCredits = walletData?.transactions
+    .filter((t) => t.type === "credit" && t.status === "completed")
+    .reduce((sum, t) => sum + t.amount, 0) || 0;
 
   // const totalDebits =
   //   walletData?.transactions
@@ -314,10 +315,10 @@ export const Wallet = () => {
 
     const firstTransaction = walletData.transactions.sort(
       (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )[0];
 
-    return new Date(firstTransaction.createdAt).toLocaleDateString();
+    return new Date(firstTransaction.created_at).toLocaleDateString();
   };
 
   return (
@@ -328,7 +329,7 @@ export const Wallet = () => {
       variants={pageVariants}
     >
       {/* Header Component */}
-      <WalletHeader onRefresh={refetch} />
+      <WalletHeader />
 
       {/* Wallet Summary Component */}
       <WalletSummary

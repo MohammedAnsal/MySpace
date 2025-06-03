@@ -4,6 +4,7 @@ import { googleRequest } from "@/services/Api/providerApi";
 import { loginSuccess } from "@/redux/slice/userSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import socketService from "@/services/socket/socket.service";
 
 export const useProviderGoogle = () => {
   const navigate = useNavigate();
@@ -27,6 +28,10 @@ export const useProviderGoogle = () => {
             token: response.token,
           })
         );
+        // Connect to socket after successful login
+        socketService.connect();
+        // Emit user status as online
+        socketService.emitUserStatus(response.userId, response.role, true);
         toast.success("Login successful!");
         navigate("/provider/dashboard");
       }

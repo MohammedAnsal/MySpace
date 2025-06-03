@@ -19,7 +19,7 @@ interface Transaction {
   status: "completed" | "pending" | "failed";
   description: string;
   bookingId?: string;
-  createdAt: string;
+  created_at: string;
 }
 
 interface TransactionHistoryProps {
@@ -29,13 +29,14 @@ interface TransactionHistoryProps {
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   transactions,
-  walletBalance,
 }) => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
+
+  console.log(transactions, "aaaaaaaaaaa");
 
   const tableVariants = {
     initial: { opacity: 0, y: 10 },
@@ -73,7 +74,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   const currentTransactions = filteredTransactions
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )
     .slice(indexOfFirstItem, indexOfLastItem);
 
@@ -99,50 +100,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  const downloadTransactionsCSV = () => {
-    if (!transactions.length) {
-      return;
-    }
-
-    // Create CSV header and rows
-    const headers = [
-      "ID",
-      "Date",
-      "Description",
-      "Amount",
-      "Type",
-      "Status",
-      "Booking ID",
-    ];
-    const rows = transactions.map((tx) => [
-      tx._id,
-      new Date(tx.createdAt).toLocaleDateString(),
-      tx.description,
-      tx.amount.toFixed(2),
-      tx.type,
-      tx.status,
-      tx.bookingId || "N/A",
-    ]);
-
-    // Combine header and rows
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((row) => row.join(",")),
-    ].join("\n");
-
-    // Create download link
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `admin-wallet-transactions-${new Date().toISOString().split("T")[0]}.csv`
-    );
-    link.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -253,7 +210,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                     {transaction.description}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {formatDate(transaction.createdAt)}
+                    {formatDate(transaction.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -303,9 +260,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
         ) : (
           <div className="text-center py-12 bg-[#2A2B2F]/50 rounded-lg border border-gray-700">
             <History className="mx-auto text-gray-600 mb-3 h-12 w-12" />
-            <p className="text-gray-300">
-              No transactions match your filters
-            </p>
+            <p className="text-gray-300">No transactions match your filters</p>
             <button
               onClick={() => {
                 setFilterStatus("all");
@@ -328,10 +283,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
               <p className="text-sm text-gray-400">
                 Showing{" "}
                 <span className="font-medium text-white">
-                  {Math.min(
-                    filteredTransactions.length,
-                    indexOfFirstItem + 1
-                  )}
+                  {Math.min(filteredTransactions.length, indexOfFirstItem + 1)}
                 </span>{" "}
                 to{" "}
                 <span className="font-medium text-white">
@@ -350,9 +302,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 aria-label="Pagination"
               >
                 <button
-                  onClick={() =>
-                    setCurrentPage(Math.max(1, currentPage - 1))
-                  }
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-600 bg-[#2A2B2F] text-sm font-medium text-gray-400 hover:bg-[#3A3B3F] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -360,24 +310,22 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                   <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                 </button>
 
-                {Array.from({ length: Math.min(5, totalPages) }).map(
-                  (_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentPage(pageNum)}
-                        className={`relative inline-flex items-center px-4 py-2 border ${
-                          currentPage === pageNum
-                            ? "z-10 bg-[#C8ED4F]/20 border-[#C8ED4F] text-[#C8ED4F]"
-                            : "bg-[#2A2B2F] border-gray-600 text-gray-400 hover:bg-[#3A3B3F]"
-                        } text-sm font-medium`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  }
-                )}
+                {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                  const pageNum = i + 1;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`relative inline-flex items-center px-4 py-2 border ${
+                        currentPage === pageNum
+                          ? "z-10 bg-[#C8ED4F]/20 border-[#C8ED4F] text-[#C8ED4F]"
+                          : "bg-[#2A2B2F] border-gray-600 text-gray-400 hover:bg-[#3A3B3F]"
+                      } text-sm font-medium`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
 
                 <button
                   onClick={() =>
@@ -429,4 +377,4 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   );
 };
 
-export default TransactionHistory; 
+export default TransactionHistory;

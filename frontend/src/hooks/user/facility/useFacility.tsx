@@ -50,18 +50,12 @@ export const useCreateWashingRequest = () => {
       specialInstructions?: string;
     }) => createWashingRequest(data),
     onMutate: async (newRequest) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["washing-requests"] });
-
-      // Snapshot the previous value
       const previousRequests = queryClient.getQueryData(["washing-requests"]);
 
-      // Optimistically update to the new value
       queryClient.setQueryData(["washing-requests"], (old: any) => {
-        if (!old?.data) return old;
-
         const newBooking = {
-          _id: `temp-${Date.now()}`, // Temporary ID
+          _id: `temp-${Date.now()}`,
           status: "Pending",
           requestedDate: newRequest.requestedDate,
           preferredTimeSlot: newRequest.preferredTimeSlot,
@@ -73,13 +67,14 @@ export const useCreateWashingRequest = () => {
           facilityId: newRequest.facilityId,
         };
 
+        // Handle case where old.data might not exist or be an array
+        const existingData = Array.isArray(old?.data) ? old.data : [];
         return {
           ...old,
-          data: [newBooking, ...old.data],
+          data: [newBooking, ...existingData],
         };
       });
 
-      // Return a context object with the snapshotted value
       return { previousRequests };
     },
     onError: (err, newRequest, context) => {

@@ -129,11 +129,11 @@ const ProviderChat = () => {
 
   const handleImageUpload = async (file: File) => {
     try {
-      await uploadImage(file);
-      setReplyToMessage(null);
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      const imageUrl = await uploadImage(file);
+      if (imageUrl) {
+        sendMessage("", imageUrl, replyToMessage?._id);
+        setReplyToMessage(null);
+      }
     } catch (error) {
       toast.error("Failed to upload image");
     }

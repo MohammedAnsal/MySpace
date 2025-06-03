@@ -36,6 +36,8 @@ const Washing = () => {
 
   const userBookings = washingRequestsData?.data || [];
 
+  console.log(userBookings,'wwww')
+
   const cancelRequest = async (id: string) => {
     cancelWashingMutation.mutate(id, {
       onSuccess: (response) => {
@@ -77,7 +79,7 @@ const Washing = () => {
   const totalPages = Math.ceil(userBookings.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentBookings = userBookings.slice(indexOfFirstItem, indexOfLastItem);
+  const currentBookings = Array.isArray(userBookings) ? userBookings.slice(indexOfFirstItem, indexOfLastItem) : [];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 rounded-2xl overflow-hidden shadow-lg mt-4 max-w-6xl mx-auto px-3 sm:px-4 sm:py-8">

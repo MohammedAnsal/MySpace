@@ -233,7 +233,7 @@ export const useAddSingleDayMenu = () => {
 const fetchProviderWashingRequests = async (): Promise<WashingRequest[]> => {
   try {
     const response = await getProviderWashingRequests();
-    return response?.data || [];
+    return response?.data.data || [];
   } catch (error) {
     console.error("Error fetching provider washing requests:", error);
     return [];

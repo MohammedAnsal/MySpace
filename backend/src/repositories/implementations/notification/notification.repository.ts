@@ -63,6 +63,14 @@ export class NotificationRepository {
       throw new AppError("Failed to mark all notifications as read", 500);
     }
   }
+
+  async countUnread(userId: string): Promise<number> {
+    return await Notification.countDocuments({
+      recipient: userId,
+      isRead: false,
+      isDeleted: false
+    });
+  }
 }
 
 export const notificationRepository = Container.get(NotificationRepository);

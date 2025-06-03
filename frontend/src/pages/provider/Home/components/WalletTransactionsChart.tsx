@@ -61,25 +61,35 @@ const WalletTransactionsChart: React.FC = () => {
 
     // Process transactions
     transactions.forEach(tx => {
-      const txDate = new Date(tx.createdAt);
-      const txMonth = txDate.getMonth();
-      const txYear = txDate.getFullYear();
-      
-      // Find matching month in our data
-      const monthIndex = months.findIndex(m => 
-        m.numericMonth === txMonth && m.year === txYear
-      );
-      
-      if (monthIndex !== -1 && tx.status === 'completed') {
-        if (tx.type === 'credit') {
-          months[monthIndex].credits += tx.amount;
-        } else if (tx.type === 'debit') {
-          months[monthIndex].debits += tx.amount;
+      try {
+        const txDate = new Date(tx.created_at);
+        // Validate date
+        if (isNaN(txDate.getTime())) {
+          console.warn('Invalid date found:', tx.created_at);
+          return; // Skip this transaction
         }
+
+        const txMonth = txDate.getMonth();
+        const txYear = txDate.getFullYear();
+        
+        // Find matching month in our data
+        const monthIndex = months.findIndex(m => 
+          m.numericMonth === txMonth && m.year === txYear
+        );
+        
+        if (monthIndex !== -1 && tx.status === 'completed') {
+          if (tx.type === 'credit') {
+            months[monthIndex].credits += tx.amount;
+          } else if (tx.type === 'debit') {
+            months[monthIndex].debits += tx.amount;
+          }
+        }
+      } catch (error) {
+        console.error('Error processing transaction:', error);
       }
     });
 
-    // Format the data for the chart (excluding the numericMonth and year properties)
+    // Format the data for the chart
     const formattedData = months.map(({ month, credits, debits }) => ({
       month,
       credits,
