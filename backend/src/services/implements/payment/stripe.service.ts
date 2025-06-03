@@ -150,14 +150,9 @@ export class StripeService {
           const session = event.data.object as Stripe.Checkout.Session;
           const amount = session.amount_total! / 100;
 
-          const payment = await this.paymentRepo.findByStripeSessionId(
-            session.id
-          );
+          const payment = await this.paymentRepo.findByStripeSessionId(session.id);
           if (!payment) {
-            throw new AppError(
-              "Payment record not found",
-              StatusCodes.NOT_FOUND
-            );
+            throw new AppError("Payment record not found", StatusCodes.NOT_FOUND);
           }
 
           // Update Payment Status
@@ -173,21 +168,16 @@ export class StripeService {
             );
 
             // Create notification in database
-            const notification =
-              await this.notificationService.createNotification({
-                recipient: new mongoose.Types.ObjectId(
-                  String(bookingData?.providerId)
-                ),
-                sender: new mongoose.Types.ObjectId(
-                  String(bookingData?.userId)
-                ),
-                title: "New Booking Request",
-                message: `You have received a new booking request for ${hostel?.hostel_name}`,
-                type: "booking",
-                // relatedId: bookingData._id
-              });
+            const notification = await this.notificationService.createNotification({
+              recipient: new mongoose.Types.ObjectId(String(bookingData?.providerId)),
+              sender: new mongoose.Types.ObjectId(String(bookingData?.userId)),
+              title: "New Booking Request",
+              message: `You have received a new booking request for ${hostel?.hostel_name}`,
+              type: "booking",
+              // relatedId: bookingData._id
+            });
 
-            // Emit the same notification object through socket
+            // Emit real-time notification
             socketService.emitNotification(
               String(bookingData?.providerId),
               notification

@@ -78,6 +78,8 @@ export const useCreateWashingRequest = () => {
       return { previousRequests };
     },
     onError: (err, newRequest, context) => {
+      console.log(err);
+      console.log(newRequest);
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["washing-requests"], context?.previousRequests);
     },
@@ -147,6 +149,8 @@ export const useCancelWashingRequest = () => {
       return { previousRequests };
     },
     onError: (err, requestId, context) => {
+      console.log(err);
+      console.log(requestId);
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["washing-requests"], context?.previousRequests);
     },
@@ -207,6 +211,8 @@ export const useCreateCleaningRequest = () => {
       return { previousRequests };
     },
     onError: (err, newRequest, context) => {
+      console.log(err);
+      console.log(newRequest);
       queryClient.setQueryData(
         ["cleaning-requests"],
         context?.previousRequests
@@ -272,6 +278,8 @@ export const useCancelCleaningRequest = () => {
       return { previousRequests };
     },
     onError: (err, requestId, context) => {
+      console.log(err);
+      console.log(requestId);
       queryClient.setQueryData(
         ["cleaning-requests"],
         context?.previousRequests
@@ -324,6 +332,8 @@ export const useAddCleaningFeedback = () => {
       return { previousRequests };
     },
     onError: (err, variables, context) => {
+      console.log(err);
+      console.log(variables);
       queryClient.setQueryData(
         ["cleaning-requests"],
         context?.previousRequests

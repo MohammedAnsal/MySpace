@@ -13,7 +13,7 @@ interface CancelBookingModalProps {
 const CancelBookingModal: React.FC<CancelBookingModalProps> = ({ 
   isOpen, 
   onClose, 
-  bookingId,
+  // bookingId,
   onSubmit
 }) => {
   const [reason, setReason] = useState<string>('');

@@ -32,11 +32,11 @@ const ProfileLayout: React.FC = () => {
     { name: "My Bookings", path: "/user/bookings", icon: <Calendar /> },
     { name: "My Wallet", path: "/user/wallet", icon: <Wallet /> },
     { name: "My Facility", path: "/user/facility", icon: <SquareLibrary /> },
-    { 
-      name: "My Notification", 
-      path: "/user/notification", 
+    {
+      name: "My Notification",
+      path: "/user/notification",
       icon: <Bell />,
-      badge: unreadCount > 0 ? unreadCount : null 
+      badge: unreadCount > 0 ? unreadCount : null,
     },
     { name: "My Chat", path: "/user/chat", icon: <MessageSquareText /> },
   ];

@@ -11,7 +11,10 @@ export const useNotification = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleRequest = async (requestFn: (...args: any[]) => Promise<any>, ...args: any[]) => {
+  const handleRequest = async (
+    requestFn: (...args: any[]) => Promise<any>,
+    ...args: any[]
+  ) => {
     setLoading(true);
     setError(null);
     try {
@@ -19,7 +22,8 @@ export const useNotification = () => {
       setLoading(false);
       return result;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+      const errorMessage =
+        err instanceof Error ? err.message : "An unknown error occurred";
       setError(errorMessage);
       setLoading(false);
       throw errorMessage;
@@ -31,7 +35,8 @@ export const useNotification = () => {
     error,
     createNotification: (data: any) => handleRequest(createNotification, data),
     getNotificationById: (id: string) => handleRequest(getNotificationById, id),
-    updateNotification: (id: string, data: any) => handleRequest(updateNotification, id, data),
+    updateNotification: (id: string, data: any) =>
+      handleRequest(updateNotification, id, data),
     deleteNotification: (id: string) => handleRequest(deleteNotification, id),
     getNotificationsByRecipient: (recipientId: string) =>
       handleRequest(getNotificationsByRecipient, recipientId),

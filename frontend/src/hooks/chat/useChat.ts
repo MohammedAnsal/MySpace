@@ -45,7 +45,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
       // Join all chat rooms when they are loaded
       if (socketService.isConnected()) {
-        rooms.forEach(room => {
+        rooms.forEach((room) => {
           socketService.joinRoom(userId, room._id);
         });
       }
@@ -102,7 +102,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
               return {
                 ...room,
                 userUnreadCount: userType === "user" ? 0 : room.userUnreadCount,
-                providerUnreadCount: userType === "provider" ? 0 : room.providerUnreadCount,
+                providerUnreadCount:
+                  userType === "provider" ? 0 : room.providerUnreadCount,
               };
             }
             return room;
@@ -344,7 +345,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
     // Join all existing chat rooms when socket connects
     if (userId && chatRooms.length > 0) {
-      chatRooms.forEach(room => {
+      chatRooms.forEach((room) => {
         socketService.joinRoom(userId, room._id);
       });
     }
@@ -353,7 +354,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     const handleReconnect = () => {
       console.log("Socket reconnected, rejoining rooms...");
       if (userId && chatRooms.length > 0) {
-        chatRooms.forEach(room => {
+        chatRooms.forEach((room) => {
           socketService.joinRoom(userId, room._id);
         });
       }
@@ -389,11 +390,16 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
             // Increment unread count if the message is not from the current user
             // and the user is not currently in this chat room
-            if (message.senderId !== userId && selectedChatRoom?._id !== message.chatRoomId) {
+            if (
+              message.senderId !== userId &&
+              selectedChatRoom?._id !== message.chatRoomId
+            ) {
               if (userType === "user") {
-                updatedRoom.userUnreadCount = (updatedRoom.userUnreadCount || 0) + 1;
+                updatedRoom.userUnreadCount =
+                  (updatedRoom.userUnreadCount || 0) + 1;
               } else {
-                updatedRoom.providerUnreadCount = (updatedRoom.providerUnreadCount || 0) + 1;
+                updatedRoom.providerUnreadCount =
+                  (updatedRoom.providerUnreadCount || 0) + 1;
               }
             }
 
@@ -403,7 +409,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         });
 
         // If room doesn't exist, refresh chat rooms
-        if (!updatedRooms.some(room => room._id === message.chatRoomId)) {
+        if (!updatedRooms.some((room) => room._id === message.chatRoomId)) {
           loadChatRooms();
         }
 
@@ -454,7 +460,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
             return {
               ...room,
               userUnreadCount: userType === "user" ? 0 : room.userUnreadCount,
-              providerUnreadCount: userType === "provider" ? 0 : room.providerUnreadCount,
+              providerUnreadCount:
+                userType === "provider" ? 0 : room.providerUnreadCount,
             };
           }
           return room;
@@ -570,7 +577,9 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         return response.image || null;
       } catch (error) {
         console.error("Error uploading image:", error);
-        setError(error instanceof Error ? error.message : "Failed to upload image");
+        setError(
+          error instanceof Error ? error.message : "Failed to upload image"
+        );
         return null;
       }
     },

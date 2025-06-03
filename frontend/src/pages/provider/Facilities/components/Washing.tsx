@@ -29,7 +29,7 @@ export const Washing = () => {
   const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
 
   // Provider theme color
-  const PROVIDER_COLOR = "orange";
+  // const PROVIDER_COLOR = "orange";
   const PROVIDER_LIGHT = "orange-50";
   const PROVIDER_MEDIUM = "orange-100";
   const PROVIDER_DARK = "orange-500";

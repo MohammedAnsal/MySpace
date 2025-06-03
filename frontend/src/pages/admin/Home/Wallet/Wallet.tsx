@@ -1,23 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  // DollarSign,
-  // ArrowDownRight,
-  // ArrowUpRight,
-  // FileText,
-  // Filter,
-  // Calendar,
-  // Download,
-  // Search,
-  // ChevronLeft,
-  // ChevronRight,
-  RefreshCw,
-  AlertCircle,
-  // WalletIcon,
-  // History,
-  // Info,
-  // TrendingUp,
-  // Briefcase,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { AlertCircle } from "lucide-react";
 import { useAdminWallet } from "@/hooks/admin/useAdminQueries";
 import { motion } from "framer-motion";
 import { getAdminDashboard } from "@/services/Api/admin/adminApi";
@@ -30,26 +12,6 @@ import TransactionHistory from "./components/TransactionHistory";
 import WalletInfo from "./components/WalletInfo";
 import Loading from "@/components/global/Loading";
 
-interface Transaction {
-  _id: string;
-  amount: number;
-  type: "credit" | "debit" | "re-fund";
-  status: "completed" | "pending" | "failed";
-  description: string;
-  bookingId?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface WalletData {
-  _id: string;
-  adminId: string;
-  balance: number;
-  transactions: Transaction[];
-  created_at: string;
-  updated_at: string;
-}
-
 export const Wallet = () => {
   const {
     data: walletData,
@@ -57,7 +19,6 @@ export const Wallet = () => {
     error: fetchError,
     refetch,
   } = useAdminWallet();
-  console.log(walletData,'oooooooooooo');
   const [error, setError] = useState<string | null>(null);
   // const [filterStatus, setFilterStatus] = useState<string>("all");
   // const [filterType, setFilterType] = useState<string>("all");
@@ -75,7 +36,6 @@ export const Wallet = () => {
     totalBookingRevenue: 0,
     totalBookings: 0,
   });
-  // const itemsPerPage = 10;
 
   useEffect(() => {
     if (fetchError) {
@@ -145,111 +105,6 @@ export const Wallet = () => {
     });
   };
 
-  // Filter transactions based on all criteria
-  // const getFilteredTransactions = () => {
-  //   if (!walletData) return [];
-
-  //   return walletData.transactions.filter((transaction) => {
-  //     const matchesStatus =
-  //       filterStatus === "all" || transaction.status === filterStatus;
-  //     const matchesType =
-  //       filterType === "all" || transaction.type === filterType;
-  //     const matchesSearch =
-  //       searchTerm === "" ||
-  //       transaction.description
-  //         .toLowerCase()
-  //         .includes(searchTerm.toLowerCase()) ||
-  //       transaction._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       (transaction.bookingId &&
-  //         transaction.bookingId
-  //           .toLowerCase()
-  //           .includes(searchTerm.toLowerCase()));
-
-  //     return matchesStatus && matchesType && matchesSearch;
-  //   });
-  // };
-
-  // const filteredTransactions = getFilteredTransactions();
-
-  // Pagination
-  // const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentTransactions = filteredTransactions
-  //   .sort(
-  //     (a, b) =>
-  //       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  //   )
-  //   .slice(indexOfFirstItem, indexOfLastItem);
-
-  // Status badge style
-  // const getStatusBadgeClass = (status: string) => {
-  //   switch (status) {
-  //     case "completed":
-  //       return "bg-[#C8ED4F]/20 text-[#C8ED4F]";
-  //     case "pending":
-  //       return "bg-yellow-500/20 text-yellow-500";
-  //     case "failed":
-  //       return "bg-red-500/20 text-red-500";
-  //     default:
-  //       return "bg-gray-500/20 text-gray-500";
-  //   }
-  // };
-
-  // const formatDate = (dateString: string) => {
-  //   return new Date(dateString).toLocaleDateString("en-US", {
-  //     year: "numeric",
-  //     month: "short",
-  //     day: "numeric",
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //   });
-  // };
-
-  // const downloadTransactionsCSV = () => {
-  //   if (!walletData?.transactions.length) {
-  //     return;
-  //   }
-
-  //   // Create CSV header and rows
-  //   const headers = [
-  //     "ID",
-  //     "Date",
-  //     "Description",
-  //     "Amount",
-  //     "Type",
-  //     "Status",
-  //     "Booking ID",
-  //   ];
-  //   const rows = walletData.transactions.map((tx) => [
-  //     tx._id,
-  //     new Date(tx.created_at).toLocaleDateString(),
-  //     tx.description,
-  //     tx.amount.toFixed(2),
-  //     tx.type,
-  //     tx.status,
-  //     tx.bookingId || "N/A",
-  //   ]);
-
-  //   // Combine header and rows
-  //   const csvContent = [
-  //     headers.join(","),
-  //     ...rows.map((row) => row.join(",")),
-  //   ].join("\n");
-
-  //   // Create download link
-  //   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement("a");
-  //   link.setAttribute("href", url);
-  //   link.setAttribute(
-  //     "download",
-  //     `admin-wallet-transactions-${new Date().toISOString().split("T")[0]}.csv`
-  //   );
-  //   link.click();
-  //   URL.revokeObjectURL(url);
-  // };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96 bg-[#2A2B2F] text-white">
@@ -284,9 +139,10 @@ export const Wallet = () => {
     );
   }
 
-  const totalCredits = walletData?.transactions
-    .filter((t) => t.type === "credit" && t.status === "completed")
-    .reduce((sum, t) => sum + t.amount, 0) || 0;
+  const totalCredits =
+    walletData?.transactions
+      .filter((t) => t.type === "credit" && t.status === "completed")
+      .reduce((sum, t) => sum + t.amount, 0) || 0;
 
   // const totalDebits =
   //   walletData?.transactions

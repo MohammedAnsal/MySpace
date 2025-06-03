@@ -59,14 +59,6 @@ export const MenuItemForm = ({ onClose, onSuccess }: MenuItemFormProps) => {
     }
   };
 
-  //  Edit Menu Item :-
-
-  const handleEdit = async () => {
-    
-    
-
-  }
-
   return (
     <div className="divide-y divide-gray-200">
       {/* Modal Header */}

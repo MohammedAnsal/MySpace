@@ -47,12 +47,13 @@ export class CronService {
       ],
     }).populate({
       path: "userId providerId hostelId",
-      select: "_id hostel_name" // Explicitly select the fields we need
+      select: "_id hostel_name", // Explicitly select the fields we need
     });
 
     for (const booking of bookings) {
-      const hostelName = (booking.hostelId as any)?.hostel_name || "your hostel";
-      
+      const hostelName =
+        (booking.hostelId as any)?.hostel_name || "your hostel";
+
       // Create notification for user
       const userNotification = await notificationService.createNotification({
         recipient: new mongoose.Types.ObjectId(booking.userId.toString()),
@@ -70,14 +71,16 @@ export class CronService {
       );
 
       // Create notification for provider
-      const providerNotification = await notificationService.createNotification({
-        recipient: new mongoose.Types.ObjectId(booking.providerId.toString()),
-        sender: new mongoose.Types.ObjectId(booking.userId.toString()),
-        title: "Upcoming Rent Payment",
-        message: `A rent payment for ${hostelName} is due in one week.`,
-        type: "rent_reminder",
-        // relatedId: booking._id
-      });
+      const providerNotification = await notificationService.createNotification(
+        {
+          recipient: new mongoose.Types.ObjectId(booking.providerId.toString()),
+          sender: new mongoose.Types.ObjectId(booking.userId.toString()),
+          title: "Upcoming Rent Payment",
+          message: `A rent payment for ${hostelName} is due in one week.`,
+          type: "rent_reminder",
+          // relatedId: booking._id
+        }
+      );
 
       // Emit real-time notification to provider
       socketService.emitNotification(
