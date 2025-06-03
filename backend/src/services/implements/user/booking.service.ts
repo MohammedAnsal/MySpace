@@ -21,6 +21,7 @@ import {
   CreateBookingDTO,
   CancelBookingDTO,
 } from "../../../dtos/user/booking.dto";
+import socketService from "../socket/socket.service";
 
 @Service()
 export class BookingService implements IBookingService {
@@ -152,8 +153,8 @@ export class BookingService implements IBookingService {
           id: facility.id.toString(),
           duration: String(facility.duration),
         }))
-        );
-      
+      );
+
       // Create booking with properly formatted ObjectIds
       const bookingDataToCreate = {
         ...bookingData,
@@ -394,14 +395,16 @@ export class BookingService implements IBookingService {
         String(booking.hostelId)
       );
 
-      await this.notificationService.createNotification({
+      const notification = await this.notificationService.createNotification({
         recipient: new mongoose.Types.ObjectId(String(hostel?.provider_id)),
         sender: new mongoose.Types.ObjectId(String(booking?.userId)),
         title: "Hostel Booking Cancelled",
         message: `A booking for your hostel "${hostel?.hostel_name}" has been cancelled by the user.`,
-        type: "hostel",
+        type: "booking",
         // relatedId: booking._id
       });
+
+      socketService.emitNotification(String(booking?.providerId), notification);
     }
 
     if (!cancelledBooking) {

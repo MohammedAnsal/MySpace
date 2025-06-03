@@ -13,6 +13,7 @@ import { walletService } from "../../../services/implements/wallet/wallet.servic
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
 import { INotificationService } from "../../interface/notification/notification.service.interface";
 import { notificationService } from "../notification/notification.service";
+import socketService from "../socket/socket.service";
 
 interface CreateCheckoutSessionParams {
   hostelId: Types.ObjectId;
@@ -147,7 +148,6 @@ export class StripeService {
       switch (event.type) {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
-          // const sessionId = new Types.ObjectId(session.metadata?.sessionId);
           const amount = session.amount_total! / 100;
 
           const payment = await this.paymentRepo.findByStripeSessionId(
@@ -160,44 +160,49 @@ export class StripeService {
             );
           }
 
-          //  Update Payment Status :-
-
-          const bookinData = await this.bookingRepo.updatePaymentStatus(
+          // Update Payment Status
+          const bookingData = await this.bookingRepo.updatePaymentStatus(
             payment.bookingId.toString(),
             "completed"
           );
 
-          //  Create Booking Notification :-
-
-          if (bookinData) {
+          // Create and emit real-time notification for the provider
+          if (bookingData) {
             const hostel = await this.hostelRepo.getHostelById(
-              String(bookinData.hostelId)
+              String(bookingData.hostelId)
             );
 
-            await this.notificationService.createNotification({
-              recipient: new mongoose.Types.ObjectId(
-                String(bookinData?.providerId)
-              ),
-              sender: new mongoose.Types.ObjectId(String(bookinData?.userId)),
-              title: "New Booking Request",
-              message: `You have received a new booking request for ${hostel?.hostel_name}`,
-              type: "hostel",
-              // relatedId: booking._id
-            });
+            // Create notification in database
+            const notification =
+              await this.notificationService.createNotification({
+                recipient: new mongoose.Types.ObjectId(
+                  String(bookingData?.providerId)
+                ),
+                sender: new mongoose.Types.ObjectId(
+                  String(bookingData?.userId)
+                ),
+                title: "New Booking Request",
+                message: `You have received a new booking request for ${hostel?.hostel_name}`,
+                type: "booking",
+                // relatedId: bookingData._id
+              });
+
+            // Emit the same notification object through socket
+            socketService.emitNotification(
+              String(bookingData?.providerId),
+              notification
+            );
           }
 
-          //  Update Hostel Availablespace Status :-
-
+          // Update Hostel Available Space Status
           await this.hostelRepo.updateHostelAvailableSpace(
             payment.hostelId.toString()
           );
 
-          //  Update Payment Status :-
-
+          // Update Payment Status
           await this.paymentRepo.updateStatus(payment._id, "completed");
 
-          // Get booking details to access the amount:-
-
+          // Get booking details for amount distribution
           const booking = await this.bookingRepo.getBookingById(
             payment.bookingId.toString()
           );
@@ -205,13 +210,12 @@ export class StripeService {
             throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
           }
 
-          // Distribute the booking amount between provider and admin (70/30 split) :-
-
+          // Distribute the booking amount
           try {
             await this.walletService.distributeBookingAmount(
               payment.bookingId.toString(),
               payment.providerId.toString(),
-              booking.firstMonthRent || amount // Use firstMonthRent if available, otherwise use the amount from Stripe
+              booking.firstMonthRent || amount
             );
           } catch (error) {
             console.error("Error distributing booking amount:", error);

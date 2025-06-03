@@ -216,18 +216,18 @@ export class SocketService {
       }
     );
 
-    socket.on("user_status", async ({ userId, role, isOnline }) => {
-      console.log(
-        `User ${userId} (${role}) is now ${isOnline ? "online" : "offline"}`
-      );
-      if (isOnline) {
-        this.onlineUsers.set(userId, { role, socketId: socket.id });
-      } else {
-        this.onlineUsers.delete(userId);
-      }
+    // socket.on("user_status", async ({ userId, role, isOnline }) => {
+    //   console.log(
+    //     `User ${userId} (${role}) is now ${isOnline ? "online" : "offline"}`
+    //   );
+    //   if (isOnline) {
+    //     this.onlineUsers.set(userId, { role, socketId: socket.id });
+    //   } else {
+    //     this.onlineUsers.delete(userId);
+    //   }
 
-      this.io.emit("user_status_changed", { userId, isOnline });
-    });
+    //   this.io.emit("user_status_changed", { userId, isOnline });
+    // });
 
     // Handle user status (online/offline)
     socket.on(
@@ -369,6 +369,13 @@ export class SocketService {
         const { notificationId } = data;
         await this.notificationService.updateNotification(notificationId, { isRead: true });
         socket.emit("notification_read", { notificationId });
+        
+        // Get updated count and emit
+        const userId = await redisClient.hGet(`socket:${socket.id}`, "userId");
+        if (userId) {
+          const count = await this.notificationService.getUnreadCount(userId);
+          socket.emit("notification_count_update", { count });
+        }
       } catch (error) {
         console.error("Error marking notification as read:", error);
       }
@@ -384,15 +391,16 @@ export class SocketService {
       }
     });
 
-    socket.on('mark_all_notifications_read', async () => {
+    socket.on("mark_all_notifications_read", async () => {
       try {
         const userId = await redisClient.hGet(`socket:${socket.id}`, "userId");
         if (userId) {
           await this.notificationService.markAllNotificationsAsRead(userId);
-          socket.emit('all_notifications_read');
+          socket.emit("all_notifications_read");
+          socket.emit("notification_count_update", { count: 0 });
         }
       } catch (error) {
-        console.error('Error marking all notifications as read:', error);
+        console.error("Error marking all notifications as read:", error);
       }
     });
   }
@@ -417,12 +425,51 @@ export class SocketService {
   emitNotification(recipientId: string, notification: any): void {
     redisClient
       .hGet(`user:${recipientId}`, "socketId")
-      .then((socketId) => {
+      .then(async (socketId) => {
         if (socketId) {
+          // Emit the notification
           this.io.to(socketId).emit("new_notification", notification);
+          
+          // Get and emit updated count
+          const count = await this.notificationService.getUnreadCount(recipientId);
+          this.io.to(socketId).emit("notification_count_update", { count });
         }
       })
       .catch((err) => console.error("Error emitting notification:", err));
+  }
+
+  // Add these methods to emit notifications for different events
+  emitNewBooking(booking: any, providerId: string): void {
+    const notification = {
+      recipient: providerId,
+      title: "New Booking Request",
+      message: `You have received a new booking request for ${booking.hostelName}`,
+      type: "booking",
+      relatedId: booking._id
+    };
+    this.emitNotification(providerId, notification);
+  }
+
+  emitBookingCancelled(booking: any, providerId: string): void {
+    const notification = {
+      recipient: providerId,
+      title: "Booking Cancelled",
+      message: `A booking for ${booking.hostelName} has been cancelled`,
+      type: "booking",
+      relatedId: booking._id
+    };
+    this.emitNotification(providerId, notification);
+  }
+
+  emitBookingStatusUpdate(booking: any, userId: string): void {
+    const notification = {
+      recipient: userId,
+      title: "Booking Status Updated",
+      message: `Your booking status has been updated to ${booking.status}`,
+      type: "booking",
+      relatedId: booking._id
+    };
+    this.emitNotification(userId, notification);
   }
 }
 

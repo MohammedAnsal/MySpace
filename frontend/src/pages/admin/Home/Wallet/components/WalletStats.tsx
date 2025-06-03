@@ -58,6 +58,7 @@ const WalletStats: React.FC<WalletStatsProps> = ({
           <p className="font-medium text-red-400">
             ${currentMonthDebits.toFixed(2)}
           </p>
+          <p className="text-xs text-gray-500 mt-1">Including refunds</p>
         </div>
       </div>
     </div>

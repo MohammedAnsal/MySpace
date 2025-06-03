@@ -126,21 +126,22 @@ class SocketService {
       }
     );
 
-    // Add notification listeners
+    // Single notification listener for all types
     this.socket.on("new_notification", (notification: any) => {
       console.log("Socket received notification:", notification);
       this.notifyListeners("new_notification", notification);
     });
 
-    this.socket.on("notification_read", (data: { notificationId: string }) => {
-      console.log("Socket notification read:", data);
-      this.notifyListeners("notification_read", data);
+    // Notification count update listener
+    this.socket.on("notification_count_update", (data: { count: number }) => {
+      console.log("Socket notification count update:", data);
+      this.notifyListeners("notification_count_update", data);
     });
   }
 
   // Methods for online status :-
 
-  emitUserStatus(userId: string, role: string, isOnline: boolean): void {
+   emitUserStatus(userId: string, role: string, isOnline: boolean): void {
     if (!this.socket?.connected) {
       console.log(
         "Socket not connected when trying to emit user status, connecting now..."

@@ -25,7 +25,7 @@ interface Transaction {
   type: "credit" | "debit" | "re-fund";
   status: "completed" | "pending" | "failed";
   description: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export const Wallet: React.FC = () => {
@@ -85,7 +85,18 @@ export const Wallet: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "MMM dd, yyyy • h:mm a");
+    try {
+      const date = new Date(dateString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date:', dateString);
+        return 'Invalid date';
+      }
+      return format(date, "MMM dd, yyyy • h:mm a");
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
   };
 
   const getTransactionIcon = (type: string) => {
@@ -219,10 +230,7 @@ export const Wallet: React.FC = () => {
               <p className="text-sm text-gray-500">Last Transaction</p>
               <p className="text-lg font-semibold text-gray-900">
                 {wallet.transactions && wallet.transactions.length > 0
-                  ? format(
-                      new Date(wallet.transactions[0].createdAt),
-                      "MMM dd, yyyy"
-                    )
+                  ? formatDate(wallet.transactions[0].created_at)
                   : "No transactions yet"}
               </p>
             </div>
@@ -367,10 +375,7 @@ export const Wallet: React.FC = () => {
                             </p>
                             <div className="flex justify-between items-center text-xs text-gray-500">
                               <span>
-                                {format(
-                                  new Date(transaction.createdAt),
-                                  "MMM dd, yyyy"
-                                )}
+                                {formatDate(transaction.created_at)}
                               </span>
                               <span
                                 className={`px-2 py-1 rounded-full ${
@@ -450,7 +455,7 @@ export const Wallet: React.FC = () => {
                                 {transaction.description}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {formatDate(transaction.createdAt)}
+                                {formatDate(transaction.created_at)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">

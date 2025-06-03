@@ -7,11 +7,10 @@ import { Types } from "mongoose";
 
 @Service()
 export class WashingRepository implements IWashingRepository {
-  
   async createWashingRequest(
     washingRequest: Partial<IWashing>
   ): Promise<IWashing> {
-    console.log(washingRequest)
+    console.log(washingRequest);
     const newRequest = new WashingRequest(washingRequest);
     return await newRequest.save();
   }
@@ -49,7 +48,6 @@ export class WashingRepository implements IWashingRepository {
   }
 
   async cancelWashingRequest(id: string): Promise<IWashing | null> {
-    
     return await WashingRequest.findByIdAndUpdate(
       id,
       { $set: { status: "Cancelled" } },
@@ -76,20 +74,23 @@ export class WashingRepository implements IWashingRepository {
     );
   }
 
-  async getUserRecentBookings(userId: string, days: number): Promise<IWashing[]> {
+  async getUserRecentBookings(
+    userId: string,
+    days: number
+  ): Promise<IWashing[]> {
     // Calculate date range: from days ago to today
     const pastDate = new Date();
     pastDate.setDate(pastDate.getDate() - days);
-    
+
     const today = new Date();
-    
-    return await WashingRequest.find({ 
+
+    return await WashingRequest.find({
       userId: new Types.ObjectId(userId),
-      requestedDate: { 
+      requestedDate: {
         $gte: pastDate,
-        $lte: today
+        $lte: today,
       },
-      status: { $ne: "Cancelled" } // Don't count cancelled bookings
+      status: { $ne: "Cancelled" }, // Don't count cancelled bookings
     });
   }
 }

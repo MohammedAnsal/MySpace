@@ -121,10 +121,12 @@ export const Washing = () => {
 
   // Handle updating status
   const handleUpdateStatus = (id: string, newStatus: string) => {
+    console.log(newStatus)
     updateStatusMutation.mutate(
       { id, status: newStatus },
       {
         onSuccess: (response) => {
+          console.log(response,'rrrrr')
           if (response && response.status === "success") {
             toast.success(`Request status updated to ${newStatus}`);
           } else {

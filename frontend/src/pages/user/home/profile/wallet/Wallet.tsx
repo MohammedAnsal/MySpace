@@ -21,7 +21,7 @@ interface Transaction {
   type: "credit" | "debit" | "re-fund";
   status: "completed" | "pending" | "failed";
   description: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export const Wallet: React.FC = () => {
@@ -31,6 +31,9 @@ export const Wallet: React.FC = () => {
   const [filter, setFilter] = useState<"all" | "credit" | "debit" | "re-fund">(
     "all"
   );
+
+  console.log(wallet)
+  console.log(transactions);
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -53,7 +56,17 @@ export const Wallet: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "MMM dd, yyyy • h:mm a");
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date:', dateString);
+        return 'Invalid date';
+      }
+      return format(date, "MMM dd, yyyy • h:mm a");
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
   };
 
   const getTransactionIcon = (type: string) => {
@@ -263,7 +276,7 @@ export const Wallet: React.FC = () => {
                               {transaction.description}
                             </h4>
                             <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
-                              {formatDate(transaction.createdAt)}
+                              {formatDate(transaction.created_at)}
                             </p>
                           </div>
                           <div className="flex items-center sm:block justify-between gap-2">

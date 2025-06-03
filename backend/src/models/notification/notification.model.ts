@@ -6,7 +6,7 @@ export interface INotification extends Document {
   sender?: Types.ObjectId;
   title: string;
   message: string;
-  type: "message" | "hostel" | "update" | "alert";
+  type: "message" | "hostel" | "rent_reminder" | "booking";
   isRead: boolean;
   isDeleted: boolean;
   // relatedId?: String;
@@ -36,7 +36,7 @@ const notificationSchema = new Schema<INotification>(
     },
     type: {
       type: String,
-      enum: ["message", "hostel", "update", "alert"],
+      enum: ["message", "hostel", "rent_reminder", "booking"],
       required: true,
     },
     isRead: {

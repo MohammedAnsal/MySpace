@@ -28,11 +28,41 @@ const WalletSummary: React.FC = () => {
           // Calculate summary data
           const transactions = response.data.transactions || [];
           const totalCredits = transactions
-            .filter((t: any) => t.type === 'credit' && t.status === 'completed')
+            .filter((t: any) => {
+              try {
+                // Validate transaction date if needed
+                if (t.created_at) {
+                  const date = new Date(t.created_at);
+                  if (isNaN(date.getTime())) {
+                    console.warn('Invalid date found:', t.created_at);
+                    return false;
+                  }
+                }
+                return t.type === 'credit' && t.status === 'completed';
+              } catch (error) {
+                console.error('Error processing transaction:', error);
+                return false;
+              }
+            })
             .reduce((sum: number, t: any) => sum + t.amount, 0);
           
           const totalDebits = transactions
-            .filter((t: any) => t.type === 'debit' && t.status === 'completed')
+            .filter((t: any) => {
+              try {
+                // Validate transaction date if needed
+                if (t.created_at) {
+                  const date = new Date(t.created_at);
+                  if (isNaN(date.getTime())) {
+                    console.warn('Invalid date found:', t.created_at);
+                    return false;
+                  }
+                }
+                return t.type === 'debit' && t.status === 'completed';
+              } catch (error) {
+                console.error('Error processing transaction:', error);
+                return false;
+              }
+            })
             .reduce((sum: number, t: any) => sum + t.amount, 0);
           
           const pendingTransactions = transactions

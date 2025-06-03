@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Home,
   BarChart2,
@@ -27,6 +27,10 @@ interface NavItem {
   title: string;
   icon: JSX.Element;
   path: string;
+}
+
+interface SidebarProps {
+  unreadCount: number;
 }
 
 const navItems: NavItem[] = [
@@ -86,7 +90,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({ unreadCount }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -211,12 +215,17 @@ const Sidebar: React.FC = () => {
                 }`}
                 onClick={() => handleNavigation(item.path)}
               >
-                <div className={`${isExpanded ? "" : "mx-auto"}`}>
+                <div className={`${isExpanded ? "" : "mx-auto"} relative`}>
                   {React.cloneElement(item.icon, {
                     className: isActivePath(item.path)
                       ? "text-gray-900"
                       : "text-gray-600",
                   })}
+                  {item.id === "notifications" && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
                 </div>
                 {isExpanded && (
                   <span className="ml-3 font-medium">{item.title}</span>

@@ -7,7 +7,7 @@ export interface IMessage {
   senderType: "user" | "provider";
   content?: string;
   image?: string;
-  handleSendMessagehandleSendMessagehandleSendMessage?: string;
+  handleSendMessage?: string;
   replyToMessageId?: Types.ObjectId;
   isSeen: boolean;
   createdAt?: Date;

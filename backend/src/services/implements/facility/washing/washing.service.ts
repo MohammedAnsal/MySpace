@@ -148,6 +148,7 @@ export class WashingService implements IWashingService {
       const updatedRequest = await washingRepository.updateWashingRequest(id, {
         status: data.status,
       });
+
       if (!updatedRequest) {
         throw new AppError(
           "Failed to update washing request status",

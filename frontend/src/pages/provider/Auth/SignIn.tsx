@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slice/userSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { useProviderGoogle } from "@/hooks/provider/useProviderGoogle";
+import socketService from "@/services/socket/socket.service";
 
 const ProviderLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -54,6 +55,12 @@ const ProviderLogin = () => {
             token: response.data.token,
           })
         );
+
+        // Connect to socket after successful login
+        socketService.connect();
+        // Emit user status as online
+        socketService.emitUserStatus(response.data.userId, response.data.role, true);
+
         navigate("/provider/dashboard");
       }
     } catch (error: any) {

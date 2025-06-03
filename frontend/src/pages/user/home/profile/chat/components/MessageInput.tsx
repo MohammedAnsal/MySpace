@@ -82,9 +82,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
       let imageUrl: string | undefined;
 
       if (selectedImage) {
-        const message = await uploadImage(selectedImage, replyToMessage?._id);
-        if (message?.image) {
-          imageUrl = message.image;
+        const uploadedUrl = await uploadImage(selectedImage);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
         }
       }
 

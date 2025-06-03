@@ -18,22 +18,28 @@ import { logout } from "@/redux/slice/userSlice";
 import Footer from "@/components/layouts/Footer";
 import Navbar from "@/components/layouts/Navbar";
 import socketService from "@/services/socket/socket.service";
-
-// Menu items for the sidebar
-const menuItems = [
-  { name: "My Profile", path: "/user/profile", icon: <User /> },
-  { name: "My Bookings", path: "/user/bookings", icon: <Calendar /> },
-  { name: "My Wallet", path: "/user/wallet", icon: <Wallet /> },
-  { name: "My Facility", path: "/user/facility", icon: <SquareLibrary /> },
-  { name: "My Notification", path: "/user/notification", icon: <Bell /> },
-  { name: "My Chat", path: "/user/chat", icon: <MessageSquareText /> },
-];
+import { useNotifications } from "@/contexts/NotificationContext";
 
 const ProfileLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isFullWidthChat, setIsFullWidthChat] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
+  const { unreadCount } = useNotifications();
+
+  const menuItems = [
+    { name: "My Profile", path: "/user/profile", icon: <User /> },
+    { name: "My Bookings", path: "/user/bookings", icon: <Calendar /> },
+    { name: "My Wallet", path: "/user/wallet", icon: <Wallet /> },
+    { name: "My Facility", path: "/user/facility", icon: <SquareLibrary /> },
+    { 
+      name: "My Notification", 
+      path: "/user/notification", 
+      icon: <Bell />,
+      badge: unreadCount > 0 ? unreadCount : null 
+    },
+    { name: "My Chat", path: "/user/chat", icon: <MessageSquareText /> },
+  ];
 
   // Check if we're on the chat page
   const isChatPage = location.pathname === "/user/chat";
@@ -137,17 +143,24 @@ const ProfileLayout: React.FC = () => {
                       key={item.name}
                       to={item.path}
                       className={`
-                      flex items-center space-x-3 py-2 px-3 rounded-md
-                      hover:bg-white/10 transition duration-150
-                      font-dm_sans
-                      ${location.pathname === item.path ? "bg-white/20" : ""}
-                    `}
+                        flex items-center justify-between py-2 px-3 rounded-md
+                        hover:bg-white/10 transition duration-150
+                        font-dm_sans
+                        ${location.pathname === item.path ? "bg-white/20" : ""}
+                      `}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span>{item.icon}</span>
-                      <span className="font-light tracking-wider text-lg">
-                        {item.name}
-                      </span>
+                      <div className="flex items-center space-x-3">
+                        <span>{item.icon}</span>
+                        <span className="font-light tracking-wider text-lg">
+                          {item.name}
+                        </span>
+                      </div>
+                      {item.badge && (
+                        <span className="bg-white text-[#b9a089] px-2 py-0.5 rounded-full text-sm">
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   ))}
                 </div>

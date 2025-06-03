@@ -42,6 +42,13 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           : await chatApi.getProviderChatRooms(userId);
 
       setChatRooms(rooms);
+
+      // Join all chat rooms when they are loaded
+      if (socketService.isConnected()) {
+        rooms.forEach(room => {
+          socketService.joinRoom(userId, room._id);
+        });
+      }
     } catch (err: any) {
       setError(err.message || "Failed to load chat rooms");
     } finally {
@@ -66,15 +73,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         setPage(1);
         setHasMore(true);
 
-        if (!socketService.isConnected()) {
-          console.log(
-            "Socket not connected when selecting room, connecting now..."
-          );
-          socketService.connect();
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        }
-
-        // Get newww room data :-
+        // Get new room data :-
         const roomData = await chatApi.getChatRoom(chatRoomId);
         setSelectedChatRoom(roomData);
 
@@ -95,6 +94,20 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           chatRoomId
         );
         setMessages(messagesData);
+
+        // Reset unread count for this room
+        setChatRooms((prev) =>
+          prev.map((room) => {
+            if (room._id === chatRoomId) {
+              return {
+                ...room,
+                userUnreadCount: userType === "user" ? 0 : room.userUnreadCount,
+                providerUnreadCount: userType === "provider" ? 0 : room.providerUnreadCount,
+              };
+            }
+            return room;
+          })
+        );
       } catch (err: any) {
         console.error("Error selecting chat room:", err);
         setError(err.message || "Failed to select chat room");
@@ -180,14 +193,13 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           replyToMessageId
         );
 
-
         // Replace the temp message with the real one
         setMessages((prevMessages) =>
           prevMessages.map((msg) => (msg._id === tempId ? savedMessage : msg))
         );
 
         // NOW send message via socket for real-time delivery to other users
-        
+
         socketService.sendMessage({
           chatRoomId: selectedChatRoom._id,
           senderId: userId,
@@ -195,7 +207,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           content,
           image,
           replyToMessageId,
-          _id: savedMessage._id, 
+          _id: savedMessage._id,
         });
 
         // Clear typing status
@@ -283,7 +295,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
   );
 
   // Mark messages as seen :-
-  
+
   const markMessagesAsSeen = useCallback(async () => {
     if (!selectedChatRoom) return;
 
@@ -330,59 +342,83 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
       socketConnectedRef.current = true;
     }
 
-    return () => {
-      // Only disconnect if we connected in this component
-      if (socketConnectedRef.current) {
-        console.log("Disconnecting socket in useChat cleanup");
-        socketService.disconnect();
+    // Join all existing chat rooms when socket connects
+    if (userId && chatRooms.length > 0) {
+      chatRooms.forEach(room => {
+        socketService.joinRoom(userId, room._id);
+      });
+    }
+
+    // Set up reconnection handling
+    const handleReconnect = () => {
+      console.log("Socket reconnected, rejoining rooms...");
+      if (userId && chatRooms.length > 0) {
+        chatRooms.forEach(room => {
+          socketService.joinRoom(userId, room._id);
+        });
       }
     };
-  }, []);
+
+    socketService.addEventListener("connect", handleReconnect);
+
+    return () => {
+      socketService.removeEventListener("connect", handleReconnect);
+      // Don't disconnect here, let the socket service handle disconnection
+      socketConnectedRef.current = false;
+    };
+  }, [userId, chatRooms]);
 
   // Set up message listeners
   useEffect(() => {
-    if (!selectedChatRoom || !userId) return;
+    if (!userId) return;
 
-    console.log(
-      `Setting up message handlers for room: ${selectedChatRoom._id}`
-    );
+    console.log("Setting up message handlers");
 
     const handleSocketMessage = (message: IMessage) => {
-      console.log("Received message via socket:", message);
+      console.log("Socket received message:", message);
 
-      // Only process if it's for the current room
-      if (message.chatRoomId === selectedChatRoom._id) {
-        // Don't add duplicates (check if message with same ID already exists)
+      // Update chat rooms list with the new message
+      setChatRooms((prevRooms) => {
+        const updatedRooms = prevRooms.map((room) => {
+          if (room._id === message.chatRoomId) {
+            const updatedRoom = {
+              ...room,
+              lastMessage: message.content,
+              lastMessageTime: message.createdAt,
+            };
+
+            // Increment unread count if the message is not from the current user
+            // and the user is not currently in this chat room
+            if (message.senderId !== userId && selectedChatRoom?._id !== message.chatRoomId) {
+              if (userType === "user") {
+                updatedRoom.userUnreadCount = (updatedRoom.userUnreadCount || 0) + 1;
+              } else {
+                updatedRoom.providerUnreadCount = (updatedRoom.providerUnreadCount || 0) + 1;
+              }
+            }
+
+            return updatedRoom;
+          }
+          return room;
+        });
+
+        // If room doesn't exist, refresh chat rooms
+        if (!updatedRooms.some(room => room._id === message.chatRoomId)) {
+          loadChatRooms();
+        }
+
+        return updatedRooms;
+      });
+
+      // If this message is for the currently selected chat room, add it to messages
+      if (selectedChatRoom?._id === message.chatRoomId) {
         setMessages((prev) => {
           // Skip if we already have this message
           if (prev.some((m) => m._id === message._id)) {
-            console.log("Duplicate message, not adding:", message._id);
             return prev;
           }
-
-          console.log("Adding new message from socket");
           return [message, ...prev];
         });
-
-        // Update the chat rooms list with latest message
-        setChatRooms((prevRooms) =>
-          prevRooms.map((room) => {
-            if (room._id === message.chatRoomId) {
-              return {
-                ...room,
-                lastMessage: message.content,
-                lastMessageTime: message.createdAt,
-              };
-            }
-            return room;
-          })
-        );
-
-        // Mark as seen if it's from someone else
-        if (message.senderId !== userId) {
-          console.log("Marking new messages as seen");
-          markMessagesAsSeen();
-        }
       }
     };
 
@@ -391,7 +427,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
       userId: string;
       isTyping: boolean;
     }) => {
-      if (data.chatRoomId === selectedChatRoom._id && data.userId !== userId) {
+      if (data.userId !== userId) {
         setTypingStatus((prev) => ({
           ...prev,
           [data.userId]: data.isTyping,
@@ -403,14 +439,26 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
       chatRoomId: string;
       recipientType: string;
     }) => {
-      if (data.chatRoomId !== selectedChatRoom._id) return;
-
       // Update seen status for all messages in this room
       setMessages((prev) =>
         prev.map((msg) => ({
           ...msg,
           isSeen: true,
         }))
+      );
+
+      // Reset unread count for this room
+      setChatRooms((prev) =>
+        prev.map((room) => {
+          if (room._id === data.chatRoomId) {
+            return {
+              ...room,
+              userUnreadCount: userType === "user" ? 0 : room.userUnreadCount,
+              providerUnreadCount: userType === "provider" ? 0 : room.providerUnreadCount,
+            };
+          }
+          return room;
+        })
       );
     };
 
@@ -425,7 +473,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
       socketService.removeEventListener("user_typing", handleTypingStatus);
       socketService.removeEventListener("messages_seen", handleMessagesSeen);
     };
-  }, [selectedChatRoom, userId, markMessagesAsSeen]);
+  }, [userId, selectedChatRoom, userType, loadChatRooms]);
 
   // Effect to handle new message notifications (when not in the current room)
   useEffect(() => {
@@ -496,26 +544,38 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     }
   }, [selectedChatRoomId, selectChatRoom, selectedChatRoom]);
 
-  const uploadImage = useCallback(async (file: File): Promise<string | null> => {
-    try {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        throw new Error('Please select an image file');
-      }
+  const uploadImage = useCallback(
+    async (file: File): Promise<string | null> => {
+      try {
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+          throw new Error("Please select an image file");
+        }
 
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error('Image size should be less than 5MB');
-      }
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error("Image size should be less than 5MB");
+        }
 
-      const imageUrl = await chatApi.uploadMessageImage(file);
-      return imageUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      setError(error instanceof Error ? error.message : 'Failed to upload image');
-      return null;
-    }
-  }, []);
+        if (!userId) {
+          return null;
+        }
+
+        const response = await chatApi.uploadMessageImage(
+          file,
+          String(selectedChatRoom?._id),
+          userId,
+          userType
+        );
+        return response.image || null;
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        setError(error instanceof Error ? error.message : "Failed to upload image");
+        return null;
+      }
+    },
+    [userId, selectedChatRoom, userType]
+  );
 
   return {
     chatRooms,
