@@ -9,11 +9,13 @@ import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 import { FaUsers } from "react-icons/fa";
 
-import ChatSidebar from "@/pages/user/Home/profile/chat/components/ChatSidebar";
-import ChatHeader from "@/pages/user/Home/profile/chat/components/ChatHeader";
-import MessageList from "@/pages/user/Home/profile/chat/components/MessageList";
-import MessageInput from "@/pages/user/Home/profile/chat/components/MessageInput";
-import EmptyChat from "@/pages/user/Home/profile/chat/components/EmptyChat";
+import {
+  ChatSidebar,
+  ChatHeader,
+  MessageList,
+  MessageInput,
+  EmptyChat,
+} from "@/pages/user/Home/profile/chat/components";
 
 export const Chat = () => {
   const location = useLocation();
