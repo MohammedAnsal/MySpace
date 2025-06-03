@@ -141,7 +141,7 @@ class SocketService {
 
   // Methods for online status :-
 
-   emitUserStatus(userId: string, role: string, isOnline: boolean): void {
+  emitUserStatus(userId: string, role: string, isOnline: boolean): void {
     if (!this.socket?.connected) {
       console.log(
         "Socket not connected when trying to emit user status, connecting now..."
@@ -295,10 +295,12 @@ class SocketService {
 
   markNotificationAsRead(notificationId: string): void {
     if (!this.socket?.connected) {
-      console.log("Socket not connected when trying to mark notification as read");
+      console.log(
+        "Socket not connected when trying to mark notification as read"
+      );
       return;
     }
-    this.socket.emit('mark_notification_read', { notificationId });
+    this.socket.emit("mark_notification_read", { notificationId });
   }
 
   deleteNotification(notificationId: string): void {
@@ -306,15 +308,17 @@ class SocketService {
       console.log("Socket not connected when trying to delete notification");
       return;
     }
-    this.socket.emit('delete_notification', { notificationId });
+    this.socket.emit("delete_notification", { notificationId });
   }
 
   markAllNotificationsAsRead(): void {
     if (!this.socket?.connected) {
-      console.log("Socket not connected when trying to mark all notifications as read");
+      console.log(
+        "Socket not connected when trying to mark all notifications as read"
+      );
       return;
     }
-    this.socket.emit('mark_all_notifications_read');
+    this.socket.emit("mark_all_notifications_read");
   }
 }
 

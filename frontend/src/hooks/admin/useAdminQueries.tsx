@@ -127,7 +127,7 @@ interface Transaction {
   status: 'completed' | 'pending' | 'failed';
   description: string;
   bookingId?: string;
-  createdAt: string;
+  created_at: string;
 }
 
 interface WalletData {
@@ -135,7 +135,7 @@ interface WalletData {
   adminId: string;
   balance: number;
   transactions: Transaction[];
-  createdAt: string;
+  created_at: string;
   updatedAt: string;
 }
 

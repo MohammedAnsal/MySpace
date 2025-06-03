@@ -5,7 +5,6 @@ import {
   SquareStack,
   Users,
   HomeIcon,
-  House,
   NotebookTabs,
   DollarSign
 } from "lucide-react";

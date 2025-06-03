@@ -1,4 +1,3 @@
-// import { useNavigate } from "react-router-dom";
 import { Users, Hotel, Calendar, DollarSign } from "lucide-react";
 import { useAdminDashboard } from "@/hooks/admin/useAdminQueries";
 import Loading from "@/components/global/Loading";
@@ -14,7 +13,6 @@ interface Metric {
 }
 
 const Dashboard = () => {
-  // const navigate = useNavigate();
   const { data: dashboardData, isLoading: isDashboardLoading } =
     useAdminDashboard();
 

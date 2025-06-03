@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import m2 from "../../../../../assets/user/m2.jpg";
 

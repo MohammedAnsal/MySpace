@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
   BarChart2,
@@ -126,7 +126,7 @@ const Sidebar: React.FC<SidebarProps> = ({ unreadCount }) => {
       const response = await providerLogout();
       if (response.data) {
         toast.success(response.data.message);
-        socketService.disconnect()
+        socketService.disconnect();
         localStorage.removeItem("access-token");
         dispatch(logout());
         navigate("/provider/signIn");

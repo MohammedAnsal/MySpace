@@ -24,6 +24,7 @@ import {
 interface ViewHostelProps {
   hostel: any;
   onClose: () => void;
+  onReapply: (hostelId: string) => void;
 }
 
 const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {

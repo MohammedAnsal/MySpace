@@ -13,8 +13,8 @@ interface RatingModalProps {
 const RatingModal: React.FC<RatingModalProps> = ({ 
   isOpen, 
   onClose, 
-  hostelId,
-  userId,
+  // hostelId,
+  // userId,
   onSubmit
 }) => {
   const [rating, setRating] = useState<number>(0);

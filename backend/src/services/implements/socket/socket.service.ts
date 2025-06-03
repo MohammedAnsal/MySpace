@@ -21,7 +21,7 @@ export class SocketService {
   constructor() {
     this.messageService = messageService;
     this.chatRoomService = chatRoomService;
-    this.notificationService = notificationService
+    this.notificationService = notificationService;
   }
 
   initialize(httpServer: HttpServer): void {
@@ -364,30 +364,40 @@ export class SocketService {
     });
 
     // Handle notification read
-    socket.on("mark_notification_read", async (data: { notificationId: string }) => {
-      try {
-        const { notificationId } = data;
-        await this.notificationService.updateNotification(notificationId, { isRead: true });
-        socket.emit("notification_read", { notificationId });
-        
-        // Get updated count and emit
-        const userId = await redisClient.hGet(`socket:${socket.id}`, "userId");
-        if (userId) {
-          const count = await this.notificationService.getUnreadCount(userId);
-          socket.emit("notification_count_update", { count });
+    socket.on(
+      "mark_notification_read",
+      async (data: { notificationId: string }) => {
+        try {
+          const { notificationId } = data;
+          await this.notificationService.updateNotification(notificationId, {
+            isRead: true,
+          });
+          socket.emit("notification_read", { notificationId });
+
+          // Get updated count and emit
+          const userId = await redisClient.hGet(
+            `socket:${socket.id}`,
+            "userId"
+          );
+          if (userId) {
+            const count = await this.notificationService.getUnreadCount(userId);
+            socket.emit("notification_count_update", { count });
+          }
+        } catch (error) {
+          console.error("Error marking notification as read:", error);
         }
-      } catch (error) {
-        console.error("Error marking notification as read:", error);
       }
-    });
+    );
 
     // Add these new event handlers
-    socket.on('delete_notification', async ({ notificationId }) => {
+    socket.on("delete_notification", async ({ notificationId }) => {
       try {
-        await this.notificationService.updateNotification(notificationId, { isDeleted: true });
-        socket.emit('notification_deleted', { notificationId });
+        await this.notificationService.updateNotification(notificationId, {
+          isDeleted: true,
+        });
+        socket.emit("notification_deleted", { notificationId });
       } catch (error) {
-        console.error('Error deleting notification:', error);
+        console.error("Error deleting notification:", error);
       }
     });
 
@@ -429,9 +439,11 @@ export class SocketService {
         if (socketId) {
           // Emit the notification
           this.io.to(socketId).emit("new_notification", notification);
-          
+
           // Get and emit updated count
-          const count = await this.notificationService.getUnreadCount(recipientId);
+          const count = await this.notificationService.getUnreadCount(
+            recipientId
+          );
           this.io.to(socketId).emit("notification_count_update", { count });
         }
       })
@@ -445,7 +457,7 @@ export class SocketService {
       title: "New Booking Request",
       message: `You have received a new booking request for ${booking.hostelName}`,
       type: "booking",
-      relatedId: booking._id
+      relatedId: booking._id,
     };
     this.emitNotification(providerId, notification);
   }
@@ -456,7 +468,7 @@ export class SocketService {
       title: "Booking Cancelled",
       message: `A booking for ${booking.hostelName} has been cancelled`,
       type: "booking",
-      relatedId: booking._id
+      relatedId: booking._id,
     };
     this.emitNotification(providerId, notification);
   }
@@ -467,7 +479,7 @@ export class SocketService {
       title: "Booking Status Updated",
       message: `Your booking status has been updated to ${booking.status}`,
       type: "booking",
-      relatedId: booking._id
+      relatedId: booking._id,
     };
     this.emitNotification(userId, notification);
   }

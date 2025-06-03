@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { ObjectId , Types } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 
 export interface INotification extends Document {
   recipient: Types.ObjectId;

@@ -7,7 +7,7 @@ import { IChatRoom, IMessage } from "../../../../../types/chat";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
-import { FaUsers } from 'react-icons/fa';
+import { FaUsers } from "react-icons/fa";
 
 import ChatSidebar from "@/pages/user/Home/profile/chat/components/ChatSidebar";
 import ChatHeader from "@/pages/user/Home/profile/chat/components/ChatHeader";
@@ -50,7 +50,7 @@ export const Chat = () => {
   });
 
   //  New chat start when coming from hostel details page :-
-  
+
   useEffect(() => {
     const state = location.state as {
       providerId?: string;
@@ -196,6 +196,7 @@ export const Chat = () => {
 
   // Get recipient name for reply
   const getRecipientName = (message: IMessage) => {
+    console.log(message);
     if (!selectedChatRoom) return "User";
     return getOtherUser(selectedChatRoom)?.fullName || "User";
   };
@@ -227,15 +228,15 @@ export const Chat = () => {
           >
             <FaUsers className="w-6 h-6 text-gray-600" />
           </motion.button>
-          
+
           {selectedChatRoom && (
-        <ChatHeader
-          isMobile={isMobile}
-          selectedChatRoom={selectedChatRoom}
-          getOtherUser={getOtherUser}
-          setShowUserList={setShowUserList}
-          isAnyoneTyping={isAnyoneTyping}
-        />
+            <ChatHeader
+              isMobile={isMobile}
+              selectedChatRoom={selectedChatRoom}
+              getOtherUser={getOtherUser}
+              setShowUserList={setShowUserList}
+              isAnyoneTyping={isAnyoneTyping}
+            />
           )}
           <div className="w-10" />
         </motion.div>

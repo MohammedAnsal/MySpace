@@ -9,12 +9,10 @@ import {
   CheckCircle2,
   Trash2,
 } from "lucide-react";
-// import { RootState } from "@/redux/store/store";
-// import { useSelector } from "react-redux";
+
 import { useNotifications } from "@/contexts/NotificationContext";
 
 const Notifications: React.FC = () => {
-  // const { userId } = useSelector((state: RootState) => state.user);
   const {
     notifications,
     unreadCount,
@@ -68,7 +66,9 @@ const Notifications: React.FC = () => {
     >
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
-        <p className="text-gray-600">Stay updated with your latest activities</p>
+        <p className="text-gray-600">
+          Stay updated with your latest activities
+        </p>
       </div>
 
       <motion.div
@@ -79,7 +79,9 @@ const Notifications: React.FC = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <Bell className="text-amber-500" size={24} />
-              <h2 className="text-xl font-semibold text-gray-800">Your Notifications</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Your Notifications
+              </h2>
               {unreadCount > 0 && (
                 <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
                   {unreadCount} new
@@ -123,7 +125,9 @@ const Notifications: React.FC = () => {
                         <h3 className="text-lg font-medium text-gray-900">
                           {notification.title}
                         </h3>
-                        <p className="mt-1 text-gray-600">{notification.message}</p>
+                        <p className="mt-1 text-gray-600">
+                          {notification.message}
+                        </p>
                         <p className="mt-2 text-sm text-gray-500">
                           {new Date(notification.createdAt).toLocaleString()}
                         </p>

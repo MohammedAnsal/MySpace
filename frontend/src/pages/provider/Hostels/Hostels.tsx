@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHostel } from "@/services/Api/providerApi";
 import { verifyHostel } from "@/services/Api/admin/adminApi";

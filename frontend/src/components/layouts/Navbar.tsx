@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store/store";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
@@ -8,7 +8,6 @@ import { X } from "lucide-react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
-  // const dispatch = useDispatch();
 
   useEffect(() => {
     if (isOpen) {
@@ -20,15 +19,6 @@ export default function Navbar() {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
-
-  // const handleLogout = async () => {
-  //   const response = await userLogout();
-  //   if (response.data) {
-  //     toast.success(response.data.message);
-  //     localStorage.removeItem("access-token");
-  //     dispatch(logout());
-  //   }
-  // };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);

@@ -30,8 +30,7 @@ interface Transaction {
 
 export const Wallet: React.FC = () => {
   const { data: wallet, isLoading: isWalletLoading } = useProviderWallet();
-  const { data: transactions, isLoading: isTransactionsLoading } =
-    useWalletTransactions();
+  const { isLoading: isTransactionsLoading } = useWalletTransactions();
   const [activeTab, setActiveTab] = useState<"transactions" | "info">(
     "transactions"
   );
@@ -89,13 +88,13 @@ export const Wallet: React.FC = () => {
       const date = new Date(dateString);
       // Check if date is valid
       if (isNaN(date.getTime())) {
-        console.warn('Invalid date:', dateString);
-        return 'Invalid date';
+        console.warn("Invalid date:", dateString);
+        return "Invalid date";
       }
       return format(date, "MMM dd, yyyy • h:mm a");
     } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid date';
+      console.error("Error formatting date:", error);
+      return "Invalid date";
     }
   };
 
@@ -374,9 +373,7 @@ export const Wallet: React.FC = () => {
                               {transaction.description}
                             </p>
                             <div className="flex justify-between items-center text-xs text-gray-500">
-                              <span>
-                                {formatDate(transaction.created_at)}
-                              </span>
+                              <span>{formatDate(transaction.created_at)}</span>
                               <span
                                 className={`px-2 py-1 rounded-full ${
                                   transaction.status === "completed"

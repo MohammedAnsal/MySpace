@@ -15,7 +15,6 @@ const persistConfig = {
 // Combine all slice reducers into a single root reducer
 const rootReducer = combineReducers({
   user: userReducer,
-  // provider: providerReducer,
   admin: adminReducer,
 });
 

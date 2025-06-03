@@ -1,6 +1,5 @@
 import React from "react";
 import { Calendar, TrendingUp, ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface WalletStatsProps {
   firstTransactionDate: string;

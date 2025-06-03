@@ -1,7 +1,6 @@
 import * as React from "react";
 import czn from "@/assets/admin/czn.jpg";
-import { ChevronsUpDown, Plus } from "lucide-react";
-// import { Logout } from "@/redux/slice/adminSlice";
+import { ChevronsUpDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,7 +79,7 @@ export function TeamSwitcher({
           >
             {teams.map((team, index) => (
               <DropdownMenuItem
-                key={team.name}
+                key={index}
                 onClick={handleLogout}
                 className="p-2 gap-2"
               >

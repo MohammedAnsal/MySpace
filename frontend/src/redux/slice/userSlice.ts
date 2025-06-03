@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import socketService from "@/services/socket/socket.service";
 
 interface userState {
   userId: string | null;
@@ -45,13 +44,11 @@ const userSlice = createSlice({
       state.role = action.payload.role;
       state.isAuthenticated = true;
       
-      // socketService.connect();
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       (state.loading = false), (state.error = action.payload);
     },
     logout: (state) => {
-      // socketService.disconnect();
       
       (state.loading = false),
         (state.userId = null),
