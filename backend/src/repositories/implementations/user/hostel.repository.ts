@@ -58,12 +58,14 @@ export class HostelRepository implements IHostelRepository {
       //  Search Filter :-
 
       if (filters.search) {
+        const searchLocations = await this.findLocationsBySearch(filters.search);
         query = {
+          ...query,
           $or: [
             { hostel_name: { $regex: filters.search, $options: "i" } },
             {
               location: {
-                $in: await this.findLocationsBySearch(filters.search),
+                $in: searchLocations,
               },
             },
           ],
@@ -253,7 +255,7 @@ export class HostelRepository implements IHostelRepository {
   async getNearbyHostels(
     latitude: number,
     longitude: number,
-    maxDistance: number = 5000
+    maxDistance: number = 100000
   ): Promise<IHostel[]> {
     try {
       const hostels = await Hostel.find({

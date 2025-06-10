@@ -84,7 +84,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
       if (selectedImage) {
         const uploadedUrl = await uploadImage(selectedImage);
         if (uploadedUrl) {
-          imageUrl = uploadedUrl;
+          imageUrl = uploadedUrl; 
         }
       }
 

@@ -17,37 +17,46 @@ const ITEMS_PER_PAGE = 6;
 const Hostels = () => {
   // Initialize filters from localStorage or use defaults
   const [filters, setFilters] = useState(() => {
-    const savedFilters = localStorage.getItem('hostelFilters');
-    return savedFilters ? JSON.parse(savedFilters) : {
-      minPrice: 10,
-      maxPrice: 5000,
-      gender: "",
-      amenities: [] as string[],
-      search: "",
-      sortBy: "asc" as "asc" | "desc",
-      minRating: undefined as number | undefined,
-      sortByRating: false,
-    };
+    const savedFilters = localStorage.getItem("hostelFilters");
+    return savedFilters
+      ? JSON.parse(savedFilters)
+      : {
+          minPrice: 10,
+          maxPrice: 5000,
+          gender: "",
+          amenities: [] as string[],
+          search: "",
+          sortBy: "asc" as "asc" | "desc",
+          minRating: undefined as number | undefined,
+          sortByRating: false,
+        };
   });
 
   // Save filters to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('hostelFilters', JSON.stringify(filters));
+    localStorage.setItem("hostelFilters", JSON.stringify(filters));
   }, [filters]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [isNearbyActive, setIsNearbyActive] = useState(false);
+  const [isNearbyActive, setIsNearbyActive] = useState(() => {
+    const savedNearby = localStorage.getItem("nearbyLocation");
+    return savedNearby ? JSON.parse(savedNearby).isActive : false;
+  });
   const [coordinates, setCoordinates] = useState<{
     latitude: number | null;
     longitude: number | null;
-  }>({
-    latitude: null,
-    longitude: null,
+  }>(() => {
+    const savedNearby = localStorage.getItem("nearbyLocation");
+    return savedNearby
+      ? JSON.parse(savedNearby).coordinates
+      : {
+          latitude: null,
+          longitude: null,
+        };
   });
   const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
-    setIsNearbyActive(false);
     setCurrentPage(1);
     setFilters((prev: any) => {
       const updatedFilters = { ...prev, ...newFilters };
@@ -103,7 +112,7 @@ const Hostels = () => {
     data: nearbyHostels = [],
     isLoading: isLoadingNearby,
     error: nearbyError,
-  } = useNearbyHostels(coordinates.latitude, coordinates.longitude, 5);
+  } = useNearbyHostels(coordinates.latitude, coordinates.longitude, 20);
 
   // Determine which data source to use
 
@@ -116,6 +125,16 @@ const Hostels = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentHostels = hostels.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "nearbyLocation",
+      JSON.stringify({
+        isActive: isNearbyActive,
+        coordinates: coordinates,
+      })
+    );
+  }, [isNearbyActive, coordinates]);
 
   return (
     <>
