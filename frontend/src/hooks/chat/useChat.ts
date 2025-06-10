@@ -43,7 +43,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
       setChatRooms(rooms);
 
-      // Join all chat rooms when they are loaded
+      // Join all chat rooms when they are loaded :-
+
       if (socketService.isConnected()) {
         rooms.forEach((room) => {
           socketService.joinRoom(userId, room._id);
@@ -380,40 +381,47 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
       // Update chat rooms list with the new message
       setChatRooms((prevRooms) => {
-        const updatedRooms = prevRooms.map((room) => {
-          if (room._id === message.chatRoomId) {
-            const updatedRoom = {
-              ...room,
-              lastMessage: message.content,
-              lastMessageTime: message.createdAt,
-            };
+        // Find the room that needs to be updated
+        const roomToUpdate = prevRooms.find(
+          (room) => room._id === message.chatRoomId
+        );
 
-            // Increment unread count if the message is not from the current user
-            // and the user is not currently in this chat room
-            if (
-              message.senderId !== userId &&
-              selectedChatRoom?._id !== message.chatRoomId
-            ) {
-              if (userType === "user") {
-                updatedRoom.userUnreadCount =
-                  (updatedRoom.userUnreadCount || 0) + 1;
-              } else {
-                updatedRoom.providerUnreadCount =
-                  (updatedRoom.providerUnreadCount || 0) + 1;
-              }
+        if (roomToUpdate) {
+          // Create updated room with new message info
+          const updatedRoom = {
+            ...roomToUpdate,
+            lastMessage: message.content,
+            lastMessageTime: message.createdAt,
+          };
+
+          // Increment unread count if the message is not from the current user
+          // and the user is not currently in this chat room
+          if (
+            message.senderId !== userId &&
+            selectedChatRoom?._id !== message.chatRoomId
+          ) {
+            if (userType === "user") {
+              updatedRoom.userUnreadCount =
+                (updatedRoom.userUnreadCount || 0) + 1;
+            } else {
+              updatedRoom.providerUnreadCount =
+                (updatedRoom.providerUnreadCount || 0) + 1;
             }
-
-            return updatedRoom;
           }
-          return room;
-        });
+
+          // Remove the room from its current position and add it to the top
+          const otherRooms = prevRooms.filter(
+            (room) => room._id !== message.chatRoomId
+          );
+          return [updatedRoom, ...otherRooms];
+        }
 
         // If room doesn't exist, refresh chat rooms
-        if (!updatedRooms.some((room) => room._id === message.chatRoomId)) {
+        if (!prevRooms.some((room) => room._id === message.chatRoomId)) {
           loadChatRooms();
         }
 
-        return updatedRooms;
+        return prevRooms;
       });
 
       // If this message is for the currently selected chat room, add it to messages

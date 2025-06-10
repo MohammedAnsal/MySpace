@@ -119,7 +119,7 @@ export class SocketService {
           // );
           this.io.to(chatRoomId).emit("receive_message", newMessage);
 
-          // Also notify the other user if they're not in the ro om
+          // Also notify the other user if they're not in the room
           const recipientType = senderType === "user" ? "provider" : "user";
           const chatRoom = await this.chatRoomService.getChatRoomById(
             chatRoomId

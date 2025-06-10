@@ -56,6 +56,14 @@ const Notifications: React.FC = () => {
     }
   };
 
+  const handleNotificationClick = (notification: any) => {
+    // If notification is unread, mark it as read
+    if (!notification.isRead) {
+      markAsRead(notification._id);
+    }
+    // You can add additional logic here for navigation or other actions
+  };
+
   return (
     <motion.div
       className="max-w-7xl mx-auto px-4 py-6"
@@ -111,42 +119,59 @@ const Notifications: React.FC = () => {
                 variants={itemVariants}
                 initial="initial"
                 animate="animate"
-                className={`p-6 hover:bg-gray-50 transition-colors ${
-                  !notification.isRead ? "bg-amber-50/50" : ""
+                className={`p-6 hover:bg-gray-50 transition-colors cursor-pointer ${
+                  !notification.isRead
+                    ? "bg-amber-50/50 border-l-4 border-amber-500"
+                    : ""
                 }`}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex items-start space-x-4">
-                  <div className="p-3 rounded-full bg-gray-50">
+                  <div className="p-3 rounded-full bg-gray-50 relative">
                     {getIcon(notification.type)}
+                    {/* Show a small dot for unread notifications */}
+                    {!notification.isRead && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full"></div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-900">
+                      <div className="flex-1">
+                        <h3
+                          className={`text-lg ${
+                            !notification.isRead
+                              ? "font-semibold"
+                              : "font-medium"
+                          } text-gray-900`}
+                        >
                           {notification.title}
                         </h3>
-                        <p className="mt-1 text-gray-600">
+                        <p
+                          className={`mt-1 ${
+                            !notification.isRead
+                              ? "text-gray-700"
+                              : "text-gray-600"
+                          }`}
+                        >
                           {notification.message}
                         </p>
                         <p className="mt-2 text-sm text-gray-500">
                           {new Date(notification.createdAt).toLocaleString()}
                         </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
                         {!notification.isRead && (
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => markAsRead(notification._id)}
-                            className="p-2 text-amber-600 hover:bg-amber-100 rounded-full transition-colors"
-                          >
-                            <CheckCircle2 size={20} />
-                          </motion.button>
+                          <p className="mt-1 text-sm text-amber-600 font-medium">
+                            Click to mark as read
+                          </p>
                         )}
+                      </div>
+                      <div className="flex items-center space-x-2 ml-4">
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => deleteNotification(notification._id)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the notification click
+                            deleteNotification(notification._id);
+                          }}
                           className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                         >
                           <Trash2 size={20} />

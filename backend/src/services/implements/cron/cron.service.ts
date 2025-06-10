@@ -27,7 +27,6 @@ export class CronService {
     const oneWeekFromNow = new Date(today);
     oneWeekFromNow.setDate(today.getDate() + 7);
 
-    // Find all active bookings where next payment is due in a week
     const bookings = await Booking.find({
       paymentStatus: "completed",
       checkOut: { $gt: today },
@@ -47,30 +46,28 @@ export class CronService {
       ],
     }).populate({
       path: "userId providerId hostelId",
-      select: "_id hostel_name", // Explicitly select the fields we need
+      select: "_id hostel_name",
     });
 
     for (const booking of bookings) {
       const hostelName =
         (booking.hostelId as any)?.hostel_name || "your hostel";
 
-      // Create notification for user
+      // notification for user
       const userNotification = await notificationService.createNotification({
         recipient: new mongoose.Types.ObjectId(booking.userId.toString()),
         sender: new mongoose.Types.ObjectId(booking.providerId.toString()),
         title: "Rent Payment Reminder",
         message: `Your next rent payment for ${hostelName} is due in one week.`,
         type: "rent_reminder",
-        // relatedId: booking._id
       });
 
-      // Emit real-time notification to user
       socketService.emitNotification(
         booking.userId.toString(),
         userNotification
       );
 
-      // Create notification for provider
+      // notification for provider
       const providerNotification = await notificationService.createNotification(
         {
           recipient: new mongoose.Types.ObjectId(booking.providerId.toString()),
@@ -78,11 +75,9 @@ export class CronService {
           title: "Upcoming Rent Payment",
           message: `A rent payment for ${hostelName} is due in one week.`,
           type: "rent_reminder",
-          // relatedId: booking._id
         }
       );
 
-      // Emit real-time notification to provider
       socketService.emitNotification(
         booking.providerId.toString(),
         providerNotification
