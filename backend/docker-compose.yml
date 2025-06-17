@@ -1,19 +1,17 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
     build:
       context: .
-      dockerfile: DockerFile
+      dockerfile: Dockerfile # Fixed: lowercase 'f'
     ports:
       - "7001:7001"
     environment:
       - REDIS_URL=redis://redis:6379
     depends_on:
       - redis
-    volumes:
-      - .:/app
-      - /app/node_modules
+    # Removed problematic volume mounts for production
 
   redis:
     image: redis:alpine
@@ -23,4 +21,4 @@ services:
       - redis_data:/data
 
 volumes:
-  redis_data: 
+  redis_data:
