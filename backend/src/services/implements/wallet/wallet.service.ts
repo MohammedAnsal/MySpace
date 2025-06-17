@@ -5,7 +5,6 @@ import { IWallet } from "../../../models/wallet.model";
 import { walletRepository } from "../../../repositories/implementations/wallet/wallet.repository";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
-import dotenv from "dotenv";
 import { IWalletRepository } from "../../../repositories/interfaces/wallet/wallet.Irepository";
 import { Types } from "mongoose";
 import { WalletResponseDTO } from "../../../dtos/wallet/wallet.dto";

@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile # Fixed: lowercase 'f'
     ports:
       - "7001:7001"
+    env_file:
+      - .env
     environment:
       - REDIS_URL=redis://redis:6379
     depends_on:
