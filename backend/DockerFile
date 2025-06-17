@@ -25,4 +25,5 @@ RUN ln -s /app/dist /app/@
 
 EXPOSE 7001
 
-CMD ["node", "-r", "module-alias/register", "dist/app.js"]
+# Make sure this matches your actual built file
+CMD ["node", "-r", "module-alias/register", "dist/index.js"]
