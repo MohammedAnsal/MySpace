@@ -5,7 +5,7 @@ import { IUserService } from "../../interface/user/user.service.interface";
 import { comparePassword, hashPassword } from "../../../utils/password.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
-import { S3Service, s3Service } from "../s3/s3.service";
+import { S3Service } from "../s3/s3.service";
 import { IWalletService } from "../../interface/wallet/wallet.service.interface";
 import { walletService } from "../wallet/wallet.service";
 import IS3service from "../../interface/s3/s3.service.interface";
@@ -26,6 +26,8 @@ export class UserService implements IUserService {
     this.s3Service = S3Service;
     this.walletService = walletService;
   }
+
+  //  Get userProfile :-
 
   async findUser(userId: string): Promise<{
     success: boolean;
@@ -66,6 +68,8 @@ export class UserService implements IUserService {
       );
     }
   }
+
+  //  Change password :-
 
   async changePassword(
     data: ChangePasswordDTO
@@ -114,6 +118,8 @@ export class UserService implements IUserService {
     }
   }
 
+  //  Edit profile :-
+
   async editProfile(
     data: EditProfileDTO,
     userId: string,
@@ -152,7 +158,6 @@ export class UserService implements IUserService {
           if (user.profile_picture) {
             try {
               await this.s3Service.delete_File([user.profile_picture]);
-              console.log("Previous profile image deleted successfully");
             } catch (deleteError) {
               console.error(
                 "Error deleting previous profile image:",

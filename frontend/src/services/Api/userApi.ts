@@ -352,8 +352,6 @@ export const getWalletTransactions = async () => {
 
 export const getFoodMenu = async (facilityId: string, hostelId: string) => {
   try {
-    console.log(facilityId);
-    console.log(hostelId);
 
     const response = await api.get(
       `/facility/food-menu/${facilityId}/${hostelId}`
@@ -415,7 +413,6 @@ export const createWashingRequest = async (data: {
 export const getUserWashingRequests = async () => {
   try {
     const response = await api.get("/facility/washing/user");
-    console.log(response,'p')
     return handleResponse(response.data.data, "Error fetching washing requests");
   } catch (error) {
     handleError(error);

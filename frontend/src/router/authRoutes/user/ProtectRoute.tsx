@@ -55,14 +55,9 @@ export const ProtecteddRoute = ({
 
   if (role != allowedRole) {
     const rePath = role == Role.PROVIDER ? "/provider/dashboard" : "/home";
-    console.log(rePath,'re-pathhh');
 
     return <Navigate to={rePath} replace />;
   }
-
-  // if (role !== Role.USER) {
-  //   return <Navigate to={location} state={{ from: location }} replace />;
-  // }
 
   return <>{children}</>;
 };

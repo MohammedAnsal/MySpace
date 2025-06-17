@@ -16,7 +16,6 @@ import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { AuthResponse, SignInResult } from "../../../types/types";
 import { walletService } from "../wallet/wallet.service";
-import { addMinutes, isAfter } from "date-fns";
 import { OAuth2Client } from "google-auth-library";
 import { StatusCodes } from "http-status-codes";
 import {
@@ -38,6 +37,8 @@ export class AuthProviderService implements IAuthService {
     this.providerRepo = new ProviderRepository();
     this.otpRepo = new OtpRepository();
   }
+
+  //  Provider signUp :-
 
   async signUp(providerData: SignUpDTO): Promise<AuthResponse> {
     try {
@@ -107,6 +108,8 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
+  //  SignIn :-
+
   async signIn(data: SignInDTO): Promise<SignInResult> {
     try {
       const { email, password } = data;
@@ -167,6 +170,8 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
+  //  Verify otp :-
+
   async verifyOtp(data: OtpVerificationDTO): Promise<AuthResponse> {
     try {
       const { email, otp } = data;
@@ -221,6 +226,8 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
+  //  Re-send otp :-
+
   async resendOtp(email: string): Promise<AuthResponse> {
     try {
       if (!email) {
@@ -259,6 +266,8 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
+  //  Forgot password :-
+
   async forgotPassword(email: string): Promise<AuthResponse> {
     try {
       const existingUser = await this.providerRepo.findProviderByEmail(email);
@@ -286,12 +295,12 @@ export class AuthProviderService implements IAuthService {
     }
   }
 
+  //  Re-set password :-
+
   async resetPassword(data: ResetPasswordDTO): Promise<AuthResponse> {
     try {
       const { email, newPassword } = data;
       const findUser = await this.providerRepo.findProviderByEmail(email);
-
-      console.log("the provider from db in resetpassword", findUser);
 
       if (!findUser)
         throw new AppError("Invalide Provider details", HttpStatus.BAD_REQUEST);
@@ -321,6 +330,8 @@ export class AuthProviderService implements IAuthService {
       );
     }
   }
+
+  //  Google auth :-
 
   async signInGoogle(data: GoogleSignInDTO): Promise<SignInResult> {
     const { token } = data;

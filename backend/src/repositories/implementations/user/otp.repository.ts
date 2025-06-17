@@ -13,6 +13,8 @@ export class OtpRepository
     super(Otp);
   }
 
+  //  For otp create :-
+
   async createOtp(otpData: IOtp): Promise<IOtp> {
     try {
       return await this.create(otpData);
@@ -20,6 +22,8 @@ export class OtpRepository
       throw new Error(`Error creating OTP: ${(error as Error).message}`);
     }
   }
+
+  //  For find otp by email :-
 
   async findOtpByEmail(email: string): Promise<IOtp | null> {
     try {
@@ -30,6 +34,8 @@ export class OtpRepository
       );
     }
   }
+
+  //  For update otp :-
 
   async updateOtpByEmail(email: string, newOtp: string): Promise<void> {
     try {
@@ -43,6 +49,8 @@ export class OtpRepository
       );
     }
   }
+
+  //  For delete otp :-
 
   async deleteOtpByEmail(email: string): Promise<void> {
     try {

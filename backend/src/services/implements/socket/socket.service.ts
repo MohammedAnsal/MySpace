@@ -38,7 +38,6 @@ export class SocketService {
   }
 
   private async handleConnection(socket: Socket): Promise<void> {
-    console.log(`New client connected: ${socket.id}`);
 
     // Handle user joining a chat room
     socket.on(
@@ -53,7 +52,6 @@ export class SocketService {
           await redisClient.hSet(`socket:${socket.id}`, "userId", userId);
           await redisClient.sAdd(`room:${chatRoomId}`, socket.id);
 
-          console.log(`User ${userId} joined room ${chatRoomId}`);
         } catch (error) {
           console.error("Error joining room:", error);
         }
@@ -113,10 +111,7 @@ export class SocketService {
           }
 
           // Broadcast to room
-          // console.log(
-          //   `Broadcasting message to room ${chatRoomId}:`,
-          //   newMessage
-          // );
+
           this.io.to(chatRoomId).emit("receive_message", newMessage);
 
           // Also notify the other user if they're not in the room
@@ -146,10 +141,7 @@ export class SocketService {
 
               if (!isInRoom) {
                 // Notify recipient about new message
-                console.log(
-                  `Notifying user ${recipientId} about new message:`,
-                  newMessage
-                );
+           
                 this.io.to(recipientSocketId).emit("new_message_notification", {
                   chatRoomId,
                   message: newMessage,
@@ -209,25 +201,11 @@ export class SocketService {
 
           // Remove from Redis
           await redisClient.sRem(`room:${chatRoomId}`, socket.id);
-          console.log(`User ${userId} left room ${chatRoomId}`);
         } catch (error) {
           console.error("Error leaving room:", error);
         }
       }
     );
-
-    // socket.on("user_status", async ({ userId, role, isOnline }) => {
-    //   console.log(
-    //     `User ${userId} (${role}) is now ${isOnline ? "online" : "offline"}`
-    //   );
-    //   if (isOnline) {
-    //     this.onlineUsers.set(userId, { role, socketId: socket.id });
-    //   } else {
-    //     this.onlineUsers.delete(userId);
-    //   }
-
-    //   this.io.emit("user_status_changed", { userId, isOnline });
-    // });
 
     // Handle user status (online/offline)
     socket.on(
@@ -235,9 +213,6 @@ export class SocketService {
       async (data: { userId: string; role: string; isOnline: boolean }) => {
         try {
           const { userId, role, isOnline } = data;
-          console.log(
-            `User ${userId} is now ${isOnline ? "online" : "offline"}`
-          );
 
           if (isOnline) {
             // Store in memory map
@@ -327,7 +302,6 @@ export class SocketService {
           await redisClient.sRem(roomKey, socket.id);
         }
 
-        console.log(`Client disconnected: ${socket.id}`);
       } catch (error) {
         console.error("Error handling disconnect:", error);
       }
@@ -337,7 +311,6 @@ export class SocketService {
     socket.on("user_connected", async (data: { userId: string }) => {
       try {
         const { userId } = data;
-        console.log(`User ${userId} connected globally`);
 
         // Store user's socket ID in Redis
         await redisClient.hSet(`user:${userId}`, "socketId", socket.id);
@@ -354,7 +327,6 @@ export class SocketService {
     socket.on("user_disconnected", async (data: { userId: string }) => {
       try {
         const { userId } = data;
-        console.log(`User ${userId} disconnected globally`);
 
         // Clean up Redis entries
         await redisClient.del(`user:${userId}`);

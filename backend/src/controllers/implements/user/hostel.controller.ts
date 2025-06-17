@@ -19,6 +19,8 @@ class HostelController {
     this.s3Service = S3Service;
   }
 
+  //  Get all verified hostel's :-
+
   async getVerifiedHostels(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -91,6 +93,8 @@ class HostelController {
     }
   }
 
+  //  Get all verified hostel's for home :-
+
   async getVerifiedHostelsForHome(req: AuthRequset, res: Response) {
     try {
       const userId = req.user?.id;
@@ -148,6 +152,8 @@ class HostelController {
     }
   }
 
+  //  Get single hostel :-
+
   async getHostelById(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -177,6 +183,8 @@ class HostelController {
       }
     }
   }
+
+  //  Get near by hostel's :-
 
   async getNearbyHostels(req: AuthRequset, res: Response): Promise<void> {
     try {

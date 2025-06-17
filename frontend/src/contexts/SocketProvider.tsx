@@ -24,9 +24,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   // Connect to socket when user is authenticated
   useEffect(() => {
     if (isAuthenticated && userId) {
-      console.log(
-        "Authenticated user detected, establishing socket connection"
-      );
+      
 
       // Connect and emit user presence
       socketService.connect();
@@ -73,7 +71,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
           handleInitialOnlineUsers
         );
 
-        console.log("Cleaning up socket connection");
         socketService.disconnect();
       };
     }

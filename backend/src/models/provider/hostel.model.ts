@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types , Document, ObjectId } from "mongoose";
+import mongoose, { Schema, Types , Document } from "mongoose";
 
 export interface IHostel extends Document {
   hostel_name: string | null;

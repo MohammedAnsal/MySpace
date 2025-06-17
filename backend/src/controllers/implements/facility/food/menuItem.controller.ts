@@ -1,12 +1,9 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { Service } from "typedi";
 import { menuItemService } from "../../../../services/implements/facility/food/menuItem.service";
 import { AuthRequset } from "../../../../types/api";
 import { IMenuItem } from "../../../../models/facility/Food/menuItem.model";
-import {
-  S3Service,
-  s3Service,
-} from "../../../../services/implements/s3/s3.service";
+import { S3Service } from "../../../../services/implements/s3/s3.service";
 import IS3service from "../../../../services/interface/s3/s3.service.interface";
 import { IMenuItemService } from "../../../../services/interface/facility/food/menuItem.service.interface";
 
@@ -19,6 +16,8 @@ export class MenuItemController {
     this.s3Service = S3Service;
     this.menuItemService = menuItemService;
   }
+
+  //  Create menu item :-
 
   async createMenuItem(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -70,18 +69,24 @@ export class MenuItemController {
     }
   }
 
+  //  Get all menu item's :-
+
   async getAllMenuItems(req: AuthRequset, res: Response): Promise<void> {
     try {
       const menuItems = await this.menuItemService.getAllMenuItems();
 
       const menuItemsWithSignedUrls = await Promise.all(
-        (menuItems.data as IMenuItem[])?.map(async (item: { image: string; toObject: () => any; }) => {
-          const signedUrl = await this.s3Service.generateSignedUrl(item.image);
-          return {
-            ...item.toObject(),
-            image: signedUrl,
-          };
-        })
+        (menuItems.data as IMenuItem[])?.map(
+          async (item: { image: string; toObject: () => any }) => {
+            const signedUrl = await this.s3Service.generateSignedUrl(
+              item.image
+            );
+            return {
+              ...item.toObject(),
+              image: signedUrl,
+            };
+          }
+        )
       );
 
       res.status(200).json({
@@ -95,6 +100,8 @@ export class MenuItemController {
       });
     }
   }
+
+  //  Get menuItem by category :-
 
   async getMenuItemsByCategory(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -113,6 +120,8 @@ export class MenuItemController {
       });
     }
   }
+
+  //  Get single menuItem :-
 
   async getMenuItem(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -136,10 +145,11 @@ export class MenuItemController {
     }
   }
 
+  //  Update menuItem :-
+
   async updateMenuItem(req: AuthRequset, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      console.log(id, "iddddddd");
 
       if (!req.file) {
         res.status(400).json({
@@ -172,12 +182,10 @@ export class MenuItemController {
         category: req.body.category,
         image: uploadResult.Location,
       };
-      console.log(menuItemData, "from menu item con");
       const updatedMenuItem = await this.menuItemService.updateMenuItem(
         id,
         menuItemData as IMenuItem
       );
-      console.log("after updation :-", updatedMenuItem);
       if (!updatedMenuItem) {
         res.status(404).json({
           status: "error",
@@ -195,6 +203,8 @@ export class MenuItemController {
       });
     }
   }
+
+  //  Delete mneuItem :-
 
   async deleteMenuItem(req: AuthRequset, res: Response): Promise<void> {
     try {

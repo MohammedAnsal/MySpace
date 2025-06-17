@@ -17,7 +17,7 @@ interface MessageInputProps {
   replyToMessage: IMessage | null;
   setReplyToMessage: (message: IMessage | null) => void;
   userId: string | null;
-  getRecipientName: (message: IMessage) => string;
+  getRecipientName: () => string;
   chatRoomId: string;
 }
 
@@ -114,7 +114,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 Replying to{" "}
                 {replyToMessage.senderId === userId
                   ? "yourself"
-                  : getRecipientName(replyToMessage)}
+                  : getRecipientName()}
               </div>
               <div className="text-sm truncate">
                 {replyToMessage.content || "Original message"}

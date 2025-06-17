@@ -3,7 +3,6 @@ import { ICleaningService } from "../../../interface/facility/cleaning/cleaning.
 import {
   CreateCleaningRequestDTO,
   UpdateCleaningStatusDTO,
-  AddFeedbackDTO,
   CleaningResponseDTO,
   CleaningRequestDataDTO,
 } from "../../../../dtos/facility/cleaning/cleaning.dto";
@@ -20,6 +19,8 @@ export class CleaningService implements ICleaningService {
     this.cleaningRepo = cleaningRepository;
   }
 
+  //  Create Cleaning :-
+
   async createCleaningRequest(
     userId: string,
     data: CreateCleaningRequestDTO
@@ -33,7 +34,7 @@ export class CleaningService implements ICleaningService {
         requestedDate: new Date(data.requestedDate),
         preferredTimeSlot: data.preferredTimeSlot,
         specialInstructions: data.specialInstructions,
-        status: "Pending"
+        status: "Pending",
       };
 
       const cleaningRequest = await this.cleaningRepo.createCleaningRequest(
@@ -54,6 +55,8 @@ export class CleaningService implements ICleaningService {
     }
   }
 
+  //  Get user cleaning req :-
+
   async getUserCleaningRequests(userId: string): Promise<CleaningResponseDTO> {
     try {
       const cleaningRequests = await this.cleaningRepo.getUserCleaningRequests(
@@ -71,6 +74,8 @@ export class CleaningService implements ICleaningService {
       );
     }
   }
+
+  //  Get single cleaning req :-
 
   async getCleaningRequestById(
     requestId: string
@@ -95,6 +100,8 @@ export class CleaningService implements ICleaningService {
       );
     }
   }
+
+  //  Update cleaning req :-
 
   async updateCleaningRequestStatus(
     requestId: string,
@@ -134,6 +141,8 @@ export class CleaningService implements ICleaningService {
       );
     }
   }
+
+  //  Cancel cleaning req :-
 
   async cancelCleaningRequest(
     requestId: string,
@@ -178,6 +187,8 @@ export class CleaningService implements ICleaningService {
     }
   }
 
+  //  Get provider cleaning req :-
+
   async getProviderCleaningRequests(
     providerId: string
   ): Promise<CleaningResponseDTO> {
@@ -194,46 +205,6 @@ export class CleaningService implements ICleaningService {
         "An error occurred while retrieving provider cleaning requests",
         500
       );
-    }
-  }
-
-  async addFeedback(
-    requestId: string,
-    data: AddFeedbackDTO
-  ): Promise<CleaningResponseDTO> {
-    try {
-      if (data.rating < 1 || data.rating > 5) {
-        throw new AppError("Rating must be between 1 and 5", 400);
-      }
-
-      const cleaningRequest = await this.cleaningRepo.getCleaningRequestById(
-        requestId
-      );
-      if (!cleaningRequest) {
-        throw new AppError("Cleaning request not found", 404);
-      }
-
-      if (cleaningRequest.status !== "Completed") {
-        throw new AppError(
-          "Feedback can only be added for completed cleaning requests",
-          400
-        );
-      }
-
-      const updatedRequest = await this.cleaningRepo.addFeedback(
-        requestId,
-        data.rating,
-        data.comment
-      );
-
-      return {
-        success: true,
-        message: "Feedback added successfully",
-        data: updatedRequest,
-      };
-    } catch (error) {
-      if (error instanceof AppError) throw error;
-      throw new AppError("An error occurred while adding feedback", 500);
     }
   }
 }

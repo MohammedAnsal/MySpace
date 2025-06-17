@@ -7,6 +7,8 @@ import { Types, HydratedDocument } from "mongoose";
 
 @Service()
 export class FoodMenuRepository implements IFoodMenuRepository {
+  //  For update foodMenu :-
+
   async updateFoodMenu(
     menuId: string,
     menuData: Partial<IFoodMenu>
@@ -18,21 +20,36 @@ export class FoodMenuRepository implements IFoodMenuRepository {
     );
   }
 
+  //  For delete foodMenu (single Meal) :-
+
   async deleteFoodMenu(
+    foodMenuId: string,
     menuId: string,
     day: string,
     mealType: "morning" | "noon" | "night"
   ): Promise<IFoodMenu | null> {
-    const updatePath = `menu.$.meals.${mealType}.items`;
+    const menu = await FoodMenu.findById(foodMenuId);
+    if (!menu) {
+      return null;
+    }
 
     return await FoodMenu.findOneAndUpdate(
-      { "menu.day": day },
-      { $pull: { [updatePath]: new Types.ObjectId(menuId) } },
-      { new: true }
+      { _id: foodMenuId },
+      {
+        $pull: {
+          [`menu.$[elem].meals.${mealType}.items`]: new Types.ObjectId(menuId),
+        },
+      },
+      {
+        new: true,
+        arrayFilters: [{ "elem.day": day }],
+      }
     ).populate(
       "menu.meals.morning.items menu.meals.noon.items menu.meals.night.items"
     );
   }
+
+  //  For get single food menu :-
 
   async getFoodMenuById(menuId: string): Promise<IFoodMenu | null> {
     return await FoodMenu.findById(menuId)
@@ -40,6 +57,8 @@ export class FoodMenuRepository implements IFoodMenuRepository {
       .populate("menu.meals.noon.items")
       .populate("menu.meals.night.items");
   }
+
+  //  For get foodMenu by facility :-
 
   async getFoodMenuByFacility(
     facilityId: string,
@@ -51,12 +70,7 @@ export class FoodMenuRepository implements IFoodMenuRepository {
     });
   }
 
-  async getFoodMenuByProvider(providerId: string): Promise<IFoodMenu[]> {
-    return await FoodMenu.find({ providerId })
-      .populate("menu.meals.morning.items")
-      .populate("menu.meals.noon.items")
-      .populate("menu.meals.night.items");
-  }
+  //  For update dey meal :-
 
   async updateDayMeal(
     menuId: string,
@@ -74,6 +88,8 @@ export class FoodMenuRepository implements IFoodMenuRepository {
     );
   }
 
+  //  For get day meal :-
+
   async getDayMeal(menuId: string, day: string): Promise<any | null> {
     const menu = await FoodMenu.findOne(
       { _id: menuId },
@@ -85,6 +101,8 @@ export class FoodMenuRepository implements IFoodMenuRepository {
 
     return menu?.menu[0] || null;
   }
+
+  //  For available meal :-
 
   async toggleMealAvailability(
     menuId: string,
@@ -101,6 +119,8 @@ export class FoodMenuRepository implements IFoodMenuRepository {
       "menu.meals.morning.items menu.meals.noon.items menu.meals.night.items"
     );
   }
+
+  //  For add single day meal (Using the updateDayMeal fun) :-
 
   async addSingleDayMenu(
     providerId: string,
@@ -205,7 +225,6 @@ export class FoodMenuRepository implements IFoodMenuRepository {
         foodMenuId = String(newMenu._id);
 
         if (meals.morning?.length) {
-          console.log("o");
           updateOperations.push(
             this.updateDayMeal(foodMenuId, day, "morning", meals.morning)
           );
@@ -236,7 +255,6 @@ export class FoodMenuRepository implements IFoodMenuRepository {
 
         return updatedMenu;
       } else {
-        console.log("keriii - 2");
         if (!foodMenu?._id) {
           console.error("Food menu is still null after save attempt");
           throw new Error("Failed to create food menu");
@@ -247,13 +265,10 @@ export class FoodMenuRepository implements IFoodMenuRepository {
         foodMenuId = String(foodMenu._id);
 
         if (meals.morning?.length) {
-          console.log("o");
           updateOperations.push(
             this.updateDayMeal(foodMenuId, day, "morning", meals.morning)
           );
         }
-
-        console.log("uuu");
 
         if (meals.noon?.length) {
           updateOperations.push(
@@ -277,8 +292,6 @@ export class FoodMenuRepository implements IFoodMenuRepository {
         if (!updatedMenu) {
           throw new Error("Failed to retrieve updated menu");
         }
-
-        console.log("good");
         return updatedMenu;
       }
     } catch (error) {
@@ -286,6 +299,8 @@ export class FoodMenuRepository implements IFoodMenuRepository {
       throw error;
     }
   }
+
+  //  For user cancel day meal :-
 
   async cancelMeal(
     menuId: string,

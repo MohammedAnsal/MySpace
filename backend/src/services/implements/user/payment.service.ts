@@ -4,11 +4,17 @@ import { StatusCodes } from "http-status-codes";
 import { IPaymentService } from "../../interface/user/payment.service.interface";
 import { IPaymentRepository } from "../../../repositories/interfaces/user/payment.Irepository";
 import { AppError } from "../../../utils/error";
-import { PaymentResponseDTO, CreatePaymentDTO, UpdatePaymentStatusDTO } from "../../../dtos/user/payment.dto";
+import {
+  PaymentResponseDTO,
+  CreatePaymentDTO,
+  UpdatePaymentStatusDTO,
+} from "../../../dtos/user/payment.dto";
 
 @Service()
 export class PaymentService implements IPaymentService {
   constructor(private paymentRepository: IPaymentRepository) {}
+
+  //  For DTO check :-
 
   private mapToPaymentDTO(payment: any): PaymentResponseDTO {
     return {
@@ -27,7 +33,11 @@ export class PaymentService implements IPaymentService {
     };
   }
 
-  async createPayment(paymentData: CreatePaymentDTO): Promise<PaymentResponseDTO> {
+  //  Create payment :-
+
+  async createPayment(
+    paymentData: CreatePaymentDTO
+  ): Promise<PaymentResponseDTO> {
     try {
       if (!paymentData.userId || !paymentData.hostelId || !paymentData.amount) {
         throw new AppError(
@@ -40,7 +50,7 @@ export class PaymentService implements IPaymentService {
         ...paymentData,
         userId: new Types.ObjectId(paymentData.userId),
         hostelId: new Types.ObjectId(paymentData.hostelId),
-        bookingId: new Types.ObjectId(paymentData.bookingId)
+        bookingId: new Types.ObjectId(paymentData.bookingId),
       };
 
       const payment = await this.paymentRepository.create(paymentModelData);
@@ -64,6 +74,8 @@ export class PaymentService implements IPaymentService {
     }
   }
 
+  //  Get single payment :-
+
   async getPaymentById(paymentId: Types.ObjectId): Promise<PaymentResponseDTO> {
     try {
       const payment = await this.paymentRepository.findById(paymentId);
@@ -84,7 +96,11 @@ export class PaymentService implements IPaymentService {
     }
   }
 
-  async getPaymentByHostelId(hostelId: Types.ObjectId): Promise<PaymentResponseDTO> {
+  //  Get payment by hostelId :-
+
+  async getPaymentByHostelId(
+    hostelId: Types.ObjectId
+  ): Promise<PaymentResponseDTO> {
     try {
       const payment = await this.paymentRepository.findByHostelId(hostelId);
 
@@ -106,6 +122,8 @@ export class PaymentService implements IPaymentService {
       );
     }
   }
+
+  //  Update payment status :-
 
   async updatePaymentStatus(
     paymentId: Types.ObjectId,
@@ -137,6 +155,8 @@ export class PaymentService implements IPaymentService {
       );
     }
   }
+
+  //  Get payment by stripe session ID :-
 
   async getPaymentByStripeSessionId(
     stripeSessionId: string

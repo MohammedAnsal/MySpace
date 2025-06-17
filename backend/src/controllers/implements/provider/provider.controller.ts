@@ -10,6 +10,8 @@ import { AppError } from "../../../utils/error";
 export class ProviderController implements IProviderController {
   constructor(private readonly providerService: ProviderService) {}
 
+  //  Find provider profile :-
+
   async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
       const providerId = req.user?.id;
@@ -39,6 +41,8 @@ export class ProviderController implements IProviderController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Change password :-
 
   async changePassword(req: AuthRequset, res: Response): Promise<any> {
     try {
@@ -84,11 +88,12 @@ export class ProviderController implements IProviderController {
     }
   }
 
+  //  Edit profile :-
+
   async editProfile(req: AuthRequset, res: Response): Promise<any> {
     try {
       const formData = req.body;
       const profileImage = req.file;
-
       const providerId = req.user?.id;
 
       if (!providerId) {
@@ -128,6 +133,8 @@ export class ProviderController implements IProviderController {
     }
   }
 
+  //  Get dashboard :-
+
   async getDashboard(req: AuthRequset, res: Response): Promise<any> {
     try {
       const providerId = req.user?.id;
@@ -158,6 +165,8 @@ export class ProviderController implements IProviderController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Get all facility's :-
 
   async findAllFacilities(req: AuthRequset, res: Response): Promise<any> {
     try {

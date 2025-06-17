@@ -5,7 +5,6 @@ import { AppError } from "../../../../utils/error";
 import { HttpStatus } from "../../../../enums/http.status";
 import { AuthRequset } from "../../../../types/api";
 import { IWashingService } from "../../../../services/interface/facility/washing/washing.service.interface";
-import { Types } from "mongoose";
 
 @Service()
 export class WashingController {
@@ -14,6 +13,8 @@ export class WashingController {
   constructor() {
     this.washingService = washingService;
   }
+
+  //  Create washing req :-
 
   async createWashingRequest(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -87,10 +88,11 @@ export class WashingController {
     }
   }
 
+  //  Get user washing req :-
+
   async getUserWashingRequests(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
-      console.log(userId);
       if (!userId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           status: "error",
@@ -119,6 +121,8 @@ export class WashingController {
       });
     }
   }
+
+  //  Get provider washing req :-
 
   async getProviderWashingRequests(
     req: AuthRequset,
@@ -157,6 +161,8 @@ export class WashingController {
     }
   }
 
+  //  Get wahsing req byId :-
+
   async getWashingRequestById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -190,6 +196,8 @@ export class WashingController {
     }
   }
 
+  //  Update washing req status :-
+
   async updateWashingRequestStatus(
     req: AuthRequset,
     res: Response
@@ -198,10 +206,6 @@ export class WashingController {
       const { id } = req.params;
       const { status } = req.body;
       const providerId = req.user?.id;
-
-      console.log(id);
-      console.log(status);
-      console.log(providerId);
 
       if (!providerId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
@@ -219,7 +223,6 @@ export class WashingController {
         return;
       }
 
-      // Validate status value
       const validStatuses = [
         "Pending",
         "In Progress",
@@ -257,13 +260,12 @@ export class WashingController {
     }
   }
 
+  //  Cancel washing req :-
+
   async cancelWashingRequest(req: AuthRequset, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const userId = req.user?.id;
-
-      console.log(id);
-      console.log(userId);
 
       if (!userId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
@@ -290,53 +292,6 @@ export class WashingController {
         status: true,
         message: "Washing request cancelled successfully",
         data: cancelledRequest,
-      });
-    } catch (error) {
-      if (error instanceof AppError) {
-        res.status(error.statusCode).json({
-          status: "error",
-          message: error.message,
-        });
-        return;
-      }
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        status: "error",
-        message: error instanceof Error ? error.message : "An error occurred",
-      });
-    }
-  }
-
-  async addFeedback(req: AuthRequset, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const { rating, comment } = req.body;
-      const userId = req.user?.id;
-
-      if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          status: "error",
-          message: "User not authenticated",
-        });
-        return;
-      }
-
-      if (!id || !rating) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          status: "error",
-          message: "Request ID and rating are required",
-        });
-        return;
-      }
-
-      const updatedRequest = await this.washingService.addFeedback(id, userId, {
-        rating,
-        comment,
-      });
-
-      res.status(HttpStatus.OK).json({
-        status: "success",
-        message: "Feedback added successfully",
-        data: updatedRequest,
       });
     } catch (error) {
       if (error instanceof AppError) {

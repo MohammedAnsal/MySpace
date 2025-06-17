@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import Container, { Service } from "typedi";
 import { HttpStatus } from "../../../enums/http.status";
 import { AppError } from "../../../utils/error";
@@ -13,44 +13,7 @@ export class WalletController {
     this.walletService = walletService;
   }
 
-  // async createWallet(req: AuthRequset, res: Response): Promise<any> {
-  //   try {
-  //     const { bookingId } = req.params;
-  //     const walletData = req.body;
-
-  //     if (!bookingId) {
-  //       return res.status(HttpStatus.BAD_REQUEST).json({
-  //         success: false,
-  //         message: "Booking ID is required",
-  //       });
-  //     }
-
-  //     if (!req.user) {
-  //       return res.status(HttpStatus.UNAUTHORIZED).json({
-  //         success: false,
-  //         message: "User not authenticated",
-  //       });
-  //     }
-
-  //     const wallet = await this.walletService.createWallet(walletData);
-
-  //     return res.status(HttpStatus.CREATED).json({
-  //       success: true,
-  //       message: "Wallet created successfully",
-  //       data: wallet,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       return res
-  //         .status(error.statusCode)
-  //         .json({ message: error.message, success: false });
-  //     }
-  //     console.error("Error creating wallet:", error);
-  //     return res
-  //       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-  //       .json({ success: false, message: "Internal server error" });
-  //   }
-  // }
+  //  Get user wallet :-
 
   async getUserWallet(req: AuthRequset, res: Response): Promise<any> {
     try {
@@ -82,6 +45,8 @@ export class WalletController {
     }
   }
 
+  //  Get provider wallet :-
+
   async getProviderWallet(req: AuthRequset, res: Response): Promise<any> {
     try {
       if (!req.user?.id) {
@@ -112,6 +77,8 @@ export class WalletController {
     }
   }
 
+  //  Get admin wallet :-
+
   async getAdminWallet(req: AuthRequset, res: Response): Promise<any> {
     try {
       const adminId = req.user?.id;
@@ -141,6 +108,8 @@ export class WalletController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Get wallet transaction :-
 
   async getTransactions(req: AuthRequset, res: Response): Promise<any> {
     try {
@@ -175,6 +144,8 @@ export class WalletController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Re-fund handling :- (User)
 
   async processRefund(req: AuthRequset, res: Response): Promise<any> {
     try {

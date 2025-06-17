@@ -4,6 +4,8 @@ import { ILocationRepository } from "../../interfaces/provider/location.Ireposit
 
 @Service()
 class LocationRepository implements ILocationRepository {
+  //  For create location :-
+
   async createLocation(locationData: Partial<ILocation>): Promise<ILocation> {
     try {
       if (locationData.latitude && locationData.longitude) {
@@ -20,6 +22,8 @@ class LocationRepository implements ILocationRepository {
     }
   }
 
+  //  For find single location :-
+
   async findLocationById(locationId: string): Promise<ILocation | null> {
     try {
       return await Location.findById(locationId);
@@ -28,6 +32,8 @@ class LocationRepository implements ILocationRepository {
       throw new Error("Failed to find location");
     }
   }
+
+  //  For update location :-
 
   async updateLocation(
     locationId: string,

@@ -23,6 +23,8 @@ export class RatingService implements IRatingService {
     this.ratingRepo = ratingRepository;
   }
 
+  //  Create rating :-
+
   async createRating(userId: string, ratingData: any): Promise<any> {
     try {
       if (!ratingData.hostel_id || !ratingData.rating) {
@@ -79,6 +81,8 @@ export class RatingService implements IRatingService {
     }
   }
 
+  //  Get hostel's rating's :-
+
   async getHostelRatings(hostelId: string): Promise<HostelRatingsResponseDTO> {
     try {
       if (!hostelId) {
@@ -130,6 +134,8 @@ export class RatingService implements IRatingService {
       );
     }
   }
+
+  //  Get user rating's :-
 
   async getUserRating(
     userId: string,

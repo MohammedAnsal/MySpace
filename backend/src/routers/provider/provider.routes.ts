@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { providerController } from "../../controllers/implements/provider/provider.controller";
 import { upload } from "../../utils/multer";
-// import { facilityController } from "../../controllers/implements/provider/facility.controller";
 import { hostelController } from "../../controllers/implements/provider/hostel.controller";
 import { bookingContrller } from "../../controllers/implements/user/booking.controller";
 import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
@@ -36,11 +35,6 @@ providerRoute.put(
   providerController.editProfile.bind(providerController)
 );
 
-// providerRoute.post(
-//   "/add-facility",
-//   facilityController.createFacility.bind(facilityController)
-// );
-
 providerRoute.get(
   "/facilities",
   authMiddleWare,
@@ -48,16 +42,6 @@ providerRoute.get(
   authorizeRoles(Roles.PROVIDER),
   providerController.findAllFacilities.bind(providerController)
 );
-
-// providerRoute.put(
-//   "/facility/status",
-//   facilityController.updateFacilityStatus.bind(facilityController)
-// );
-
-// providerRoute.delete(
-//   "/facility/:facilityId",
-//   facilityController.deleteFacility.bind(facilityController)
-// );
 
 providerRoute.post(
   "/create-hostel",

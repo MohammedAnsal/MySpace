@@ -20,10 +20,4 @@ export interface ICleaningRepository {
   ): Promise<ICleaning | null>;
   cancelCleaningRequest(requestId: string): Promise<ICleaning | null>;
   getProviderCleaningRequests(providerId: string): Promise<ICleaning[]>;
-  addFeedback(
-    requestId: string,
-    rating: number,
-    comment?: string
-  ): Promise<ICleaning | null>;
-  getUserRecentBookings(userId: string, days: number): Promise<ICleaning[]>;
 }

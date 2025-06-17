@@ -6,6 +6,8 @@ import { AppError } from "../../../utils/error";
 
 @Service()
 export class RatingRepository implements IRatingRepository {
+  //  For create rating :-
+
   async createRating(ratingData: Partial<IRating>): Promise<IRating> {
     try {
       const newRating = new Rating(ratingData);
@@ -20,6 +22,8 @@ export class RatingRepository implements IRatingRepository {
       );
     }
   }
+
+  //  For find rating by hostel ID :-
 
   async findRatingsByHostelId(hostelId: string): Promise<IRating[]> {
     try {
@@ -36,6 +40,8 @@ export class RatingRepository implements IRatingRepository {
       );
     }
   }
+
+  //  For find rating by user ID :-
 
   async findRatingByUserAndHostel(
     userId: string,

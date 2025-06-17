@@ -33,6 +33,8 @@ export class ProviderService implements IProviderService {
     this.bookingRepo = bookingRepository;
   }
 
+  //  For DTO check :-
+
   private mapToProviderDTO(provider: IUser): ProviderResponseDTO {
     return {
       _id: provider._id.toString(),
@@ -47,6 +49,8 @@ export class ProviderService implements IProviderService {
       updated_at: provider.updated_at,
     };
   }
+
+  //  Find provider profile :-
 
   async findProvider(userId: string): Promise<{
     success: boolean;
@@ -75,6 +79,8 @@ export class ProviderService implements IProviderService {
       );
     }
   }
+
+  //  Change password :-
 
   async changePassword(
     email: string,
@@ -122,6 +128,8 @@ export class ProviderService implements IProviderService {
     }
   }
 
+  //  Edit profile :-
+
   async editProfile(
     data: UpdateProviderDTO,
     userId: string,
@@ -159,7 +167,6 @@ export class ProviderService implements IProviderService {
           if (provider.profile_picture) {
             try {
               await this.s3Service.delete_File([provider.profile_picture]);
-              console.log("Previous profile image deleted successfully");
             } catch (deleteError) {
               console.error(
                 "Error deleting previous profile image:",
@@ -190,16 +197,16 @@ export class ProviderService implements IProviderService {
     }
   }
 
+  //  Get dashboard :- (Provider)
+
   async getProviderDashboard(providerId: string): Promise<any> {
     try {
-      // const totalHostels = await this.hostelRepo.getAllHostels();
       const totalUsers = await this.userRepo.findUserByRole("user");
       const totalBookings = await this.bookingRepo.getProviderBookings(
         providerId
       );
       const hostels = (await this.hostelRepo.getAllHostels(providerId)).length;
 
-      // const hostels = totalHostels.length;
       const bookings = totalBookings.length;
       const users = totalUsers.length;
 
@@ -310,6 +317,8 @@ export class ProviderService implements IProviderService {
       );
     }
   }
+
+  //  Find all facility's :-
 
   async findAllFacilities(): Promise<FacilityResponseDTO> {
     try {

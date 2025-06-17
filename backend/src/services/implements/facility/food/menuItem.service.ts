@@ -1,5 +1,4 @@
 import Container, { Service } from "typedi";
-import { IMenuItem } from "../../../../models/facility/Food/menuItem.model";
 import { menuItemRepository } from "../../../../repositories/implementations/facility/food/menuItem.repository";
 import { IMenuItemRepository } from "../../../../repositories/interfaces/facility/food/menuItem.Irepository";
 import { IMenuItemService } from "../../../interface/facility/food/menuItem.service.interface";
@@ -19,6 +18,8 @@ export class MenuItemService implements IMenuItemService {
   constructor() {
     this.menuItemRepo = menuItemRepository;
   }
+
+  //  Create menu item :-
 
   async createMenuItem(data: CreateMenuItemDTO): Promise<MenuItemResponseDTO> {
     try {
@@ -41,6 +42,8 @@ export class MenuItemService implements IMenuItemService {
     }
   }
 
+  //  Get single menuItem :-
+
   async getMenuItem(id: string): Promise<MenuItemResponseDTO> {
     try {
       const menuItem = await this.menuItemRepo.getMenuItemById(id);
@@ -61,6 +64,8 @@ export class MenuItemService implements IMenuItemService {
     }
   }
 
+  //  Get all menu item's :-
+
   async getAllMenuItems(): Promise<MenuItemResponseDTO> {
     try {
       const menuItems = await this.menuItemRepo.getAllMenuItems();
@@ -77,6 +82,8 @@ export class MenuItemService implements IMenuItemService {
       );
     }
   }
+
+  //  Get menuItem by category :-
 
   async getMenuItemsByCategory(category: string): Promise<MenuItemResponseDTO> {
     try {
@@ -96,6 +103,8 @@ export class MenuItemService implements IMenuItemService {
       );
     }
   }
+
+  //  Update menuItem :-
 
   async updateMenuItem(
     id: string,
@@ -119,6 +128,8 @@ export class MenuItemService implements IMenuItemService {
       );
     }
   }
+
+  //  Delete mneuItem :-
 
   async deleteMenuItem(id: string): Promise<MenuItemResponseDTO> {
     try {

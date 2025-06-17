@@ -1,4 +1,4 @@
-import mongoose, { Types, model, Schema } from "mongoose";
+import { Types, model, Schema } from "mongoose";
 
 export type TransactionType = "credit" | "debit" | "re-fund";
 export type TransactionStatus = "completed" | "pending" | "failed";

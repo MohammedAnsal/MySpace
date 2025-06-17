@@ -36,8 +36,6 @@ const Washing = () => {
 
   const userBookings = washingRequestsData?.data || [];
 
-  console.log(userBookings,'wwww')
-
   const cancelRequest = async (id: string) => {
     cancelWashingMutation.mutate(id, {
       onSuccess: (response) => {

@@ -1,7 +1,6 @@
 import Container, { Service } from "typedi";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
-
 import { s3Service } from "../../../services/implements/s3/s3.service";
 import {
   hostelResult,
@@ -9,7 +8,10 @@ import {
 } from "../../interface/user/hostel.service.interface";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
-import { HostelResponseDTO, HostelFiltersDTO } from "../../../dtos/user/hostel.dto";
+import {
+  HostelResponseDTO,
+  HostelFiltersDTO,
+} from "../../../dtos/user/hostel.dto";
 
 @Service()
 export class HostelService implements IHostelService {
@@ -20,6 +22,8 @@ export class HostelService implements IHostelService {
     this.s3ServiceInstance = s3Service;
     this.hostelRepositoryy = hostelRepository;
   }
+
+  //  For DTO check :-
 
   private mapToHostelDTO(hostel: any): HostelResponseDTO {
     return {
@@ -46,15 +50,17 @@ export class HostelService implements IHostelService {
       created_at: hostel.createdAt,
       updated_at: hostel.updatedAt,
       averageRating: hostel.averageRating || 0,
-      ratingCount: hostel.ratingCount || 0
+      ratingCount: hostel.ratingCount || 0,
     };
   }
+
+  //  Get all verified hostel's :-
 
   async getVerifiedHostels(filters: HostelFiltersDTO): Promise<hostelResult> {
     try {
       const hostels = await this.hostelRepositoryy.getVerifiedHostels(filters);
-      const hostelsDTO = hostels.map(hostel => this.mapToHostelDTO(hostel));
-      
+      const hostelsDTO = hostels.map((hostel) => this.mapToHostelDTO(hostel));
+
       return {
         success: true,
         message: "Verified hostels fetched successfully",
@@ -71,11 +77,13 @@ export class HostelService implements IHostelService {
     }
   }
 
+  //  Get all verified hostel's for home :-
+
   async getVerifiedHostelsForHome(): Promise<hostelResult> {
     try {
       const hostels = await this.hostelRepositoryy.getVerifiedHostelsForHome();
-      const hostelsDTO = hostels.map(hostel => this.mapToHostelDTO(hostel));
-      
+      const hostelsDTO = hostels.map((hostel) => this.mapToHostelDTO(hostel));
+
       return {
         success: true,
         message: "Verified all hostels fetched successfully",
@@ -91,6 +99,8 @@ export class HostelService implements IHostelService {
       );
     }
   }
+
+  //  Get single hostel :-
 
   async getHostelById(hostelId: string): Promise<hostelResult> {
     try {
@@ -131,15 +141,28 @@ export class HostelService implements IHostelService {
     }
   }
 
-  async getNearbyHostels(latitude: number, longitude: number, radius: number): Promise<hostelResult> {
+  //  Get near by hostel's :-
+
+  async getNearbyHostels(
+    latitude: number,
+    longitude: number,
+    radius: number
+  ): Promise<hostelResult> {
     try {
       if (!latitude || !longitude) {
-        throw new AppError("Latitude and longitude are required", HttpStatus.BAD_REQUEST);
+        throw new AppError(
+          "Latitude and longitude are required",
+          HttpStatus.BAD_REQUEST
+        );
       }
-      
-      const hostels = await this.hostelRepositoryy.getNearbyHostels(latitude, longitude, radius * 1000);
-      const hostelsDTO = hostels.map(hostel => this.mapToHostelDTO(hostel));
-      
+
+      const hostels = await this.hostelRepositoryy.getNearbyHostels(
+        latitude,
+        longitude,
+        radius * 1000
+      );
+      const hostelsDTO = hostels.map((hostel) => this.mapToHostelDTO(hostel));
+
       return {
         success: true,
         message: "Nearby hostels fetched successfully",

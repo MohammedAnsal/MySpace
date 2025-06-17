@@ -1,16 +1,25 @@
 import Container, { Service } from "typedi";
-import { AdminFacility, IAdminFacility } from "../../../models/admin/facility.model";
+import {
+  AdminFacility,
+  IAdminFacility,
+} from "../../../models/admin/facility.model";
 import { IAdminFacilityRepository } from "../../interfaces/admin/facility.Irepository";
 
 @Service()
 export class AdminFacilityRepository implements IAdminFacilityRepository {
-  async createFacility(facilityData: Partial<IAdminFacility>): Promise<IAdminFacility> {
+  //  For create facility :-
+
+  async createFacility(
+    facilityData: Partial<IAdminFacility>
+  ): Promise<IAdminFacility> {
     try {
       return await AdminFacility.create(facilityData);
     } catch (error) {
       throw new Error(`Error creating facility: ${error}`);
     }
   }
+
+  //  For find all facility's :-
 
   async findAllFacilities(): Promise<IAdminFacility[]> {
     try {
@@ -20,6 +29,8 @@ export class AdminFacilityRepository implements IAdminFacilityRepository {
     }
   }
 
+  //  For find single facility :-
+
   async findFacilityById(facilityId: string): Promise<IAdminFacility | null> {
     try {
       return await AdminFacility.findById(facilityId);
@@ -28,6 +39,8 @@ export class AdminFacilityRepository implements IAdminFacilityRepository {
       throw new Error("Failed to find facility");
     }
   }
+
+  //  For update facility status :-
 
   async updateFacilityStatus(
     facilityId: string,
@@ -44,6 +57,8 @@ export class AdminFacilityRepository implements IAdminFacilityRepository {
     }
   }
 
+  //  For delete facility :-
+
   async deleteFacility(facilityId: string): Promise<IAdminFacility | null> {
     try {
       return await AdminFacility.findByIdAndDelete(facilityId);
@@ -53,4 +68,4 @@ export class AdminFacilityRepository implements IAdminFacilityRepository {
   }
 }
 
-export const adminFacilityRepository = Container.get(AdminFacilityRepository); 
+export const adminFacilityRepository = Container.get(AdminFacilityRepository);

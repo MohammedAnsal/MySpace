@@ -18,7 +18,6 @@ const handleError = (error: any) => {
 };
 
 export const chatApi = {
-  //  Chat Room Api's
 
   createChatRoom: async (
     userId: string,

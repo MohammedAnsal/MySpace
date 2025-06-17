@@ -19,7 +19,6 @@ const locationSchema = new Schema<ILocation>(
     longitude: { type: Number, required: true },
     address: { type: String, required: true },
 
-    // GeoJSON location field for geospatial queries
     location: {
       type: {
         type: String,
@@ -28,7 +27,6 @@ const locationSchema = new Schema<ILocation>(
       },
       coordinates: {
         type: [Number],
-        // Don't make this required since we'll set it programmatically
       },
     },
   },

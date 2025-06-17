@@ -10,7 +10,8 @@ import { AppError } from "../../../utils/error";
 
 @Service()
 export class PaymentRepository implements IPaymentRepository {
-  
+  //  For create payement :-
+
   async create(payment: Partial<IHostelPayment>): Promise<IHostelPayment> {
     try {
       const newPayment = new HostelPaymentModel(payment);
@@ -23,6 +24,8 @@ export class PaymentRepository implements IPaymentRepository {
     }
   }
 
+  //  For find single payment :-
+
   async findById(id: Types.ObjectId): Promise<IHostelPayment | null> {
     try {
       return await HostelPaymentModel.findById(id);
@@ -33,6 +36,8 @@ export class PaymentRepository implements IPaymentRepository {
       );
     }
   }
+
+  // For find payment by hostelId :-
 
   async findByHostelId(
     hostelId: Types.ObjectId
@@ -46,6 +51,8 @@ export class PaymentRepository implements IPaymentRepository {
       );
     }
   }
+
+  //  For update payment status :-
 
   async updateStatus(
     id: Types.ObjectId,
@@ -64,6 +71,8 @@ export class PaymentRepository implements IPaymentRepository {
       );
     }
   }
+
+  //  For find payment by stripe ID :-
 
   async findByStripeSessionId(
     stripeSessionId: string

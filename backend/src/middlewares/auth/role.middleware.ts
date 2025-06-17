@@ -1,4 +1,3 @@
-// middlewares/role.middleware.ts
 import { NextFunction, Response } from "express";
 import { AuthRequset } from "../../types/api";
 import { HttpStatus } from "../../enums/http.status";

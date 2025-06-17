@@ -61,7 +61,6 @@ export default function SignIn() {
 
         // Connect to socket after successful login
         socketService.connect();
-        console.log("💀 Socket connected : User")
         // Emit user status as online
         socketService.emitUserStatus(response.data.userId, response.data.role, true);
 

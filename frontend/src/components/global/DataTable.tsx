@@ -29,9 +29,6 @@ export default function DataTable<T extends Record<string, any>>({
 }: TableProps<T>) {
   const [currentPage, setCurrentpage] = useState(1);
 
-  console.log(data, "aaa");
-  console.log(columns, "aaa");
-
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
   const currentData = useMemo(() => {

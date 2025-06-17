@@ -16,11 +16,6 @@ export interface UpdateWashingStatusDTO {
   status: "Pending" | "In Progress" | "Completed" | "Cancelled";
 }
 
-export interface AddFeedbackDTO {
-  rating: number;
-  comment?: string;
-}
-
 // Response DTOs
 export interface WashingResponseDTO {
   success: boolean;

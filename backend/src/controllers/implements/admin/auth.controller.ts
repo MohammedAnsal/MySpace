@@ -5,11 +5,11 @@ import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import { AppError } from "../../../utils/error";
 import { setCookie } from "../../../utils/cookies.util";
 
-const AdminId = process.env.ADMIN_ID;
-
 @Service()
 export class AdminController {
   constructor(private readonly adminService: AdminAuthService) {}
+
+  //  Admin Signin :-
 
   async signIn(req: Request, res: Response): Promise<any> {
     try {
@@ -52,6 +52,8 @@ export class AdminController {
     }
   }
 
+  //  ForgotPassword :-
+
   async forgetPassword(req: Request, res: Response): Promise<any> {
     try {
       const { email } = req.body;
@@ -79,6 +81,8 @@ export class AdminController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  ResetPassword :-
 
   async resetPassword(req: Request, res: Response): Promise<any> {
     try {
@@ -120,6 +124,8 @@ export class AdminController {
     }
   }
 
+  //  Logout :-
+
   async logout(req: Request, res: Response): Promise<any> {
     try {
       res.clearCookie("refr_Admin_Token", {
@@ -145,6 +151,8 @@ export class AdminController {
       });
     }
   }
+
+  //  Set newToken :-
 
   async setNewToken(req: Request, res: Response): Promise<any> {
     try {

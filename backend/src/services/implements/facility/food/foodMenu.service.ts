@@ -2,7 +2,6 @@ import Container, { Service } from "typedi";
 import { foodMenuRepository } from "../../../../repositories/implementations/facility/food/foodMenu.repository";
 import { IFoodMenuRepository } from "../../../../repositories/interfaces/facility/food/foodMenu.Irepository";
 import { IFoodMenuService } from "../../../interface/facility/food/foodMenu.service.interface";
-import { IFoodMenu } from "../../../../models/facility/Food/foodMenu.model";
 import { AppError } from "../../../../utils/error";
 import { HttpStatus } from "../../../../enums/http.status";
 import {
@@ -19,6 +18,8 @@ export class FoodMenuService implements IFoodMenuService {
   constructor() {
     this.foodMenuRepo = foodMenuRepository;
   }
+
+  //  Get food menu :-
 
   async getFoodMenu(
     facilityId: string,
@@ -46,6 +47,8 @@ export class FoodMenuService implements IFoodMenuService {
     }
   }
 
+  //  Update food menu :-
+
   async updateFoodMenu(
     id: string,
     data: UpdateFoodMenuDTO
@@ -53,7 +56,10 @@ export class FoodMenuService implements IFoodMenuService {
     try {
       const updatedMenu = await this.foodMenuRepo.updateFoodMenu(id, data);
       if (!updatedMenu) {
-        throw new AppError("Food menu not found", HttpStatus.NOT_FOUND);
+        throw new AppError(
+          "Food menu not found, please add menu's",
+          HttpStatus.NOT_FOUND
+        );
       }
       return {
         success: true,
@@ -66,22 +72,33 @@ export class FoodMenuService implements IFoodMenuService {
     }
   }
 
+  //  Delete food menu :-
+
   async deleteFoodMenu(
+    foodMenuId: string,
     id: string,
     day: string,
     mealType: "morning" | "noon" | "night"
   ): Promise<FoodMenuResponseDTO> {
     try {
-      const result = await this.foodMenuRepo.deleteFoodMenu(id, day, mealType);
+      const result = await this.foodMenuRepo.deleteFoodMenu(
+        foodMenuId,
+        id,
+        day,
+        mealType
+      );
+
       if (!result) {
         throw new AppError("Food menu not found", HttpStatus.NOT_FOUND);
       }
+
       return {
         success: true,
         message: "Food menu deleted successfully",
         data: result,
       };
     } catch (error) {
+      console.error("Service error:", error);
       if (error instanceof AppError) throw error;
       throw new AppError(
         "Failed to delete food menu",
@@ -89,6 +106,8 @@ export class FoodMenuService implements IFoodMenuService {
       );
     }
   }
+
+  //  Add single day menu meal :-
 
   async addSingleDayMenu(
     providerId: string,
@@ -118,6 +137,8 @@ export class FoodMenuService implements IFoodMenuService {
       );
     }
   }
+
+  //  Cancel meal by user :-
 
   async cancelMeal(
     id: string,

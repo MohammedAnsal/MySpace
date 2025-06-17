@@ -2,19 +2,23 @@ import Container, { Service } from "typedi";
 import { INotification } from "../../../models/notification/notification.model";
 import { Notification } from "../../../models/notification/notification.model";
 import { AppError } from "../../../utils/error";
+import { INotificationRepository } from "../../interfaces/notification/notification.Irepository";
 @Service()
-export class NotificationRepository {
+export class NotificationRepository implements INotificationRepository {
+  //  For create notification :-
+
   async create(
     notificationData: Partial<INotification>
   ): Promise<INotification> {
     try {
       const notification = await Notification.create(notificationData);
-      console.log(notification)
       return notification;
     } catch (error) {
       throw new AppError("Failed to create notification", 500);
     }
   }
+
+  //  For find singe notification byId :-
 
   async findById(id: string): Promise<INotification | null> {
     try {
@@ -23,6 +27,8 @@ export class NotificationRepository {
       throw new AppError("Failed to fetch notification", 500);
     }
   }
+
+  //  For update notification status :-
 
   async update(
     id: string,
@@ -37,6 +43,8 @@ export class NotificationRepository {
     }
   }
 
+  //  For delete notification :-
+
   async delete(id: string): Promise<void> {
     try {
       await Notification.findByIdAndDelete(id).exec();
@@ -45,13 +53,20 @@ export class NotificationRepository {
     }
   }
 
+  //  For find all notification's :-
+
   async findAllByRecipient(recipientId: string): Promise<INotification[]> {
     try {
-      return await Notification.find({ recipient: recipientId , isDeleted: false}).exec();
+      return await Notification.find({
+        recipient: recipientId,
+        isDeleted: false,
+      }).exec();
     } catch (error) {
       throw new AppError("Failed to fetch notifications", 500);
     }
   }
+
+  //  For markAll notification's :-
 
   async markAllAsRead(userId: string): Promise<void> {
     try {
@@ -64,11 +79,13 @@ export class NotificationRepository {
     }
   }
 
+  //  For un-read notification count :-
+
   async countUnread(userId: string): Promise<number> {
     return await Notification.countDocuments({
       recipient: userId,
       isRead: false,
-      isDeleted: false
+      isDeleted: false,
     });
   }
 }

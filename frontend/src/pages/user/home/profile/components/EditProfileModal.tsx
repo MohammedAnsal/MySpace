@@ -34,7 +34,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     return null;
   }
 
-  console.log("EditProfileModal received profile:", profile);
   const [editableProfile, setEditableProfile] = useState<UserProfile>(profile);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);

@@ -160,7 +160,7 @@ const Notifications: React.FC = () => {
                         </p>
                         {!notification.isRead && (
                           <p className="mt-1 text-sm text-amber-600 font-medium">
-                            Click to mark as read
+                            {/* Mark as read */}
                           </p>
                         )}
                       </div>

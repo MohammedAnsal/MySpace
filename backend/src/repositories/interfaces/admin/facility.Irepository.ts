@@ -11,7 +11,4 @@ export interface IAdminFacilityRepository {
     status: boolean
   ): Promise<IAdminFacility | null>;
   deleteFacility(facilityId: string): Promise<IAdminFacility | null>;
-  // findFacilityById(facilityId: string): Promise<IFacility | null>;
-  // findFacilitiesByHostel(hostelId: string): Promise<IFacility[]>;
-  // findFacilitiesByProvider(providerId: string): Promise<IFacility[]>;
 }

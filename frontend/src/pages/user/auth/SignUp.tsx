@@ -31,7 +31,6 @@ const SignUp: React.FC = () => {
   // Show validation errors
 
   useEffect(() => {
-    console.log(errors);
     Object.values(errors).forEach((error) => {
       toast.error(error.message);
     });

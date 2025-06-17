@@ -13,6 +13,8 @@ import { StatusCodes } from "http-status-codes";
 export class AuthController implements IAuthController {
   constructor(private readonly authSrvice: AuthService) {}
 
+  //  User signUp :-
+
   async signUp(req: Request, res: Response): Promise<any> {
     try {
       const validationCheck = registerSchema.safeParse(req.body);
@@ -40,6 +42,8 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  SignIn :-
 
   async signIn(req: Request, res: Response): Promise<any> {
     try {
@@ -79,6 +83,8 @@ export class AuthController implements IAuthController {
     }
   }
 
+  //  Verify otp :-
+
   async verifyOtp(req: Request, res: Response): Promise<any> {
     try {
       const { email, otp } = req.body;
@@ -104,6 +110,8 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Re-send otp :-
 
   async resendOtp(req: Request, res: Response): Promise<any> {
     try {
@@ -133,6 +141,8 @@ export class AuthController implements IAuthController {
     }
   }
 
+  //  Forgot password :-
+
   async forgetPassword(req: Request, res: Response): Promise<any> {
     try {
       const { email } = req.body;
@@ -160,6 +170,8 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Re-set password :-
 
   async resetPassword(req: Request, res: Response): Promise<any> {
     try {
@@ -201,6 +213,8 @@ export class AuthController implements IAuthController {
     }
   }
 
+  //  Google auth :-
+
   async googleSign(req: Request, res: Response): Promise<any> {
     try {
       const { token } = req.body;
@@ -233,6 +247,8 @@ export class AuthController implements IAuthController {
       });
     }
   }
+
+  //  Set newToken :- (re-freashToken)
 
   async setNewToken(req: Request, res: Response): Promise<any> {
     try {
@@ -267,6 +283,8 @@ export class AuthController implements IAuthController {
     }
   }
 
+  //  Logout :-
+
   async logout(req: Request, res: Response): Promise<any> {
     try {
       const refreshToken = req.cookies.refreshToken;
@@ -275,7 +293,7 @@ export class AuthController implements IAuthController {
         return res.status(400).json({ message: "No token provided" });
       }
 
-      const tokenExpiration = 7 * 24 * 60 * 60; // 7 days in seconds
+      const tokenExpiration = 7 * 24 * 60 * 60;
 
       await redisClient.set(refreshToken, "blacklisted", {
         EX: tokenExpiration,
@@ -286,7 +304,6 @@ export class AuthController implements IAuthController {
 
       res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
     } catch (error) {
-      console.log(error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Server error" });

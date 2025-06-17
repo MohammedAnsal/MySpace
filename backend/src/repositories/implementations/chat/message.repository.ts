@@ -2,9 +2,9 @@ import { Types } from "mongoose";
 import Message, { IMessage } from "../../../models/chat/message.model";
 import { IMessageRepository } from "../../interfaces/chat/message.Irepository";
 import Container, { Service } from "typedi";
-import messageModel from "../../../models/chat/message.model";
 @Service()
 export class MessageRepository implements IMessageRepository {
+  //  For create message :-
 
   async createMessage(messageData: IMessage): Promise<IMessage> {
     const message = new Message(messageData);
@@ -12,12 +12,16 @@ export class MessageRepository implements IMessageRepository {
     return savedMessage as IMessage;
   }
 
+  //  For find single message's :-
+
   async findMessageById(
     messageId: string | Types.ObjectId
   ): Promise<IMessage | null> {
     const message = await Message.findById(messageId);
     return message ? (message.toObject() as IMessage) : null;
   }
+
+  //  For find message by chatRoom :-
 
   async getMessagesByChatRoom(
     chatRoomId: string | Types.ObjectId,
@@ -34,6 +38,8 @@ export class MessageRepository implements IMessageRepository {
     return messages.map((msg) => msg.toObject()) as IMessage[];
   }
 
+  //  For message markAsSeen :-
+
   async markMessageAsSeen(
     messageId: string | Types.ObjectId
   ): Promise<IMessage | null> {
@@ -43,6 +49,8 @@ export class MessageRepository implements IMessageRepository {
       { new: true }
     );
   }
+
+  //  For message markAllSeen :-
 
   async markAllMessagesAsSeenInChatRoom(
     chatRoomId: string | Types.ObjectId,
@@ -56,10 +64,7 @@ export class MessageRepository implements IMessageRepository {
     return result.modifiedCount > 0;
   }
 
-  async deleteMessage(messageId: string | Types.ObjectId): Promise<boolean> {
-    const result = await Message.deleteOne({ _id: messageId });
-    return result.deletedCount > 0;
-  }
+  //  For message un-read count :-
 
   async countUnreadMessages(
     chatRoomId: string | Types.ObjectId,
@@ -73,6 +78,8 @@ export class MessageRepository implements IMessageRepository {
     });
   }
 
+  //  For get latest message :-
+
   async getLatestMessage(
     chatRoomId: string | Types.ObjectId
   ): Promise<IMessage | null> {
@@ -81,6 +88,8 @@ export class MessageRepository implements IMessageRepository {
       .limit(1);
     return lastMessage as IMessage;
   }
+
+  //  For replay message :-
 
   async getReplyMessage(
     messageId: string | Types.ObjectId

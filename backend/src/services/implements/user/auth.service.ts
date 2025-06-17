@@ -8,11 +8,7 @@ import { sendOtpMail } from "../../../utils/email.utils";
 import { generateOtp } from "../../../utils/otp.utils";
 import { hashPassword, RandomPassword } from "../../../utils/password.utils";
 import { addMinutes, isAfter } from "date-fns";
-import {
-  AuthResponse,
-  OtpVerificationData,
-  SignInResult,
-} from "../../../types/types";
+import { AuthResponse, SignInResult } from "../../../types/types";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -43,6 +39,8 @@ export class AuthService implements IAuthService {
     this.userRepo = new UserRepository();
     this.otpRepo = new OtpRepository();
   }
+
+  //  User signUp :-
 
   async signUp(userData: SignUpDTO): Promise<AuthResponse> {
     try {
@@ -109,6 +107,8 @@ export class AuthService implements IAuthService {
     }
   }
 
+  //  SignIn :-
+
   async signIn(data: SignInDTO): Promise<SignInResult> {
     try {
       const { email, password } = data;
@@ -171,6 +171,8 @@ export class AuthService implements IAuthService {
       );
     }
   }
+
+  //  Verify otp :-
 
   async verifyOtp(otpData: OtpVerificationDTO): Promise<AuthResponse> {
     try {
@@ -244,6 +246,8 @@ export class AuthService implements IAuthService {
     }
   }
 
+  //  Re-send otp :-
+
   async resendOtp(email: string): Promise<AuthResponse> {
     try {
       if (!email) {
@@ -266,10 +270,8 @@ export class AuthService implements IAuthService {
 
       if (existingOtp) {
         await this.otpRepo.updateOtpByEmail(email, newOtp);
-        console.log("new otp updated ", email, newOtp);
       } else {
         await this.otpRepo.createOtp({ email, otp: newOtp } as IOtp);
-        console.log("new otp created ", newOtp);
       }
 
       await sendOtpMail(email, "Registartion", newOtp);
@@ -286,6 +288,8 @@ export class AuthService implements IAuthService {
     }
   }
 
+  //  Forgot password :-
+
   async forgotPassword(email: string): Promise<AuthResponse> {
     try {
       const existingUser = await this.userRepo.findUserByEmail(email);
@@ -298,8 +302,6 @@ export class AuthService implements IAuthService {
       }
 
       const otp = generateOtp();
-
-      console.log("The OTP generated for forgot password:", otp);
 
       const existingOtpRecord = await this.otpRepo.findOtpByEmail(email);
 
@@ -336,12 +338,12 @@ export class AuthService implements IAuthService {
     }
   }
 
+  //  Re-set password :-
+
   async resetPassword(data: ResetPasswordDTO): Promise<AuthResponse> {
     try {
       const { email, newPassword } = data;
       const findUser = await this.userRepo.findUserByEmail(email);
-
-      console.log("the user from db in resetpassword", findUser);
 
       if (!findUser)
         throw new AppError("Invalide User details", HttpStatus.BAD_REQUEST);
@@ -352,7 +354,6 @@ export class AuthService implements IAuthService {
         email,
         hashedPassword
       );
-      console.log("the changed password is ", changedPassword);
 
       if (!changedPassword) {
         throw new AppError(
@@ -372,6 +373,8 @@ export class AuthService implements IAuthService {
       );
     }
   }
+
+  //  Google auth :-
 
   async signInGoogle(data: GoogleSignInDTO): Promise<SignInResult> {
     const { token } = data;
@@ -441,6 +444,8 @@ export class AuthService implements IAuthService {
       email: user.email,
     };
   }
+
+  //  Set newToken :- (re-freashToken)
 
   async checkToken(token: string) {
     try {
