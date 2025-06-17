@@ -26,8 +26,7 @@ interface Transaction {
 
 export const Wallet: React.FC = () => {
   const { data: wallet, isLoading: isWalletLoading } = useUserWallet();
-  const { data: transactions, isLoading: isTransactionsLoading } =
-    useWalletTransactions();
+  const { isLoading: isTransactionsLoading } = useWalletTransactions();
   const [filter, setFilter] = useState<"all" | "credit" | "debit" | "re-fund">(
     "all"
   );
@@ -56,13 +55,13 @@ export const Wallet: React.FC = () => {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
-        console.warn('Invalid date:', dateString);
-        return 'Invalid date';
+        console.warn("Invalid date:", dateString);
+        return "Invalid date";
       }
       return format(date, "MMM dd, yyyy • h:mm a");
     } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid date';
+      console.error("Error formatting date:", error);
+      return "Invalid date";
     }
   };
 
