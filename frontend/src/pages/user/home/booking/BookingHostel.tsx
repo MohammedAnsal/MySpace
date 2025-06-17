@@ -186,16 +186,6 @@ const Checkout: React.FC = () => {
         return;
       }
 
-      // Log the data being sent
-      console.log('Sending booking data:', {
-        hostelId: hostel._id,
-        providerId: hostel.providerId,
-        startDate: formData.startDate,
-        endDate: new Date(calculateEndDate()).toISOString(),
-        months: formData.selectedMonths,
-        facilities: formData.selectedFacilities
-      });
-
       const bookingFormData = new FormData();
       bookingFormData.append("hostelId", hostel._id.toString());
       bookingFormData.append("providerId", hostel.provider_id._id.toString());

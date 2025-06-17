@@ -6,7 +6,7 @@ import {
   Users,
   HomeIcon,
   NotebookTabs,
-  DollarSign
+  DollarSign,
 } from "lucide-react";
 import { NavMain } from "../../components/admin/nav-main";
 import { TeamSwitcher } from "@/components/admin/team-switcher";
@@ -80,7 +80,6 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    // <SidebarProvider>
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
@@ -91,7 +90,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarRail />
     </Sidebar>
-
-    // </SidebarProvider>
   );
 }

@@ -34,30 +34,14 @@ export interface IBookingService {
     bookingData: CreateBookingDTO,
     selectedFacilities: Array<{ id: string; duration: string }>
   ): Promise<BookingResponseDTO>;
-
-  // getBookingDetails(bookingId: string): Promise<IBooking>;
   getUserBookings(userId: string): Promise<BookingResponseDTO[]>;
   getProviderBookings(providerId: string): Promise<BookingResponseDTO[]>;
   getAllBookings(): Promise<BookingResponseDTO[]>;
-
-  // getHostelBookings(hostelId: string): Promise<IBooking[]>;
-
-  // updateBooking(bookingId: string, updateData: BookingUpdateDTO): Promise<IBooking>;
-
   cancelBooking(
     bookingId: string,
     reason: CancelBookingDTO
   ): Promise<BookingResponseDTO>;
   getBookingById(bookingId: string): Promise<BookingResponseDTO>;
-  // processPayment(bookingId: string, paymentDetails: any): Promise<IBooking>;
-
-  // checkAvailability(
-  //   hostelId: string,
-  //   checkIn: Date,
-  //   checkOut: Date,
-  //   selectedSpace: string
-  // ): Promise<boolean>;
-
   calculateBookingCost(
     hostelId: string,
     stayDurationInMonths: number,

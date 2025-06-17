@@ -53,7 +53,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     // Listen for new notifications
     const handleNewNotification = (notification: INotification) => {
-      console.log("New notification received:", notification);
       receivedSocketNotifications.add(notification._id);
 
       setNotifications((prev) => {

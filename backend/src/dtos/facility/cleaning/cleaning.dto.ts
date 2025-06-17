@@ -15,11 +15,6 @@ export interface UpdateCleaningStatusDTO {
   status: string;
 }
 
-export interface AddFeedbackDTO {
-  rating: number;
-  comment?: string;
-}
-
 // Response DTOs
 export interface CleaningResponseDTO {
   success: boolean;

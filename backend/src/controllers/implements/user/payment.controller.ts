@@ -17,6 +17,8 @@ export class PaymentController {
     private bookingService: BookingService
   ) {}
 
+  //  Create payment :-
+
   async createCheckoutSession(req: Request, res: Response) {
     try {
       const {
@@ -68,6 +70,8 @@ export class PaymentController {
     }
   }
 
+  //  Handle stripe web-hook :-
+
   async handleWebhook(req: Request, res: Response): Promise<void> {
     try {
       const signature = req.headers["stripe-signature"] as string;
@@ -94,6 +98,8 @@ export class PaymentController {
       });
     }
   }
+
+  //  Failed payment re-payment handle :-
 
   async reprocessPayment(req: Request, res: Response) {
     try {

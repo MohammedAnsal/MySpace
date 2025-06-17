@@ -23,8 +23,9 @@ class AdminUserController implements IAdminController {
     this.adminServicee = adminService;
   }
 
+  //  Admin create wallet :-
+
   async createWallet(req: AuthRequset, res: Response): Promise<any> {
-    // Create wallet for provider after verification
     try {
       if (!AdminId) {
         throw new AppError("Admin not authenticated", 401);
@@ -37,9 +38,10 @@ class AdminUserController implements IAdminController {
       }
     } catch (walletError) {
       console.error("Error creating wallet for provider:", walletError);
-      // Don't fail the verification process if wallet creation fails
     }
   }
+
+  //  Find all user's :-
 
   async fetchUsers(req: AuthRequset, res: Response): Promise<any> {
     const userId = req.user?.id;
@@ -55,6 +57,8 @@ class AdminUserController implements IAdminController {
       throw new Error("failed to fetch user");
     }
   }
+
+  //  Find all provider's :-
 
   async fetchProviders(req: AuthRequset, res: Response): Promise<any> {
     const userId = req.user?.id;
@@ -73,6 +77,8 @@ class AdminUserController implements IAdminController {
     }
   }
 
+  //  Update user status :-
+
   async updateUser(req: AuthRequset, res: Response): Promise<any> {
     const userId = req.user?.id;
     if (!userId) {
@@ -88,6 +94,8 @@ class AdminUserController implements IAdminController {
       throw new Error("Error in updateUser");
     }
   }
+
+  //  Verify hostel :-
 
   async verifyHostel(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -146,6 +154,8 @@ class AdminUserController implements IAdminController {
     }
   }
 
+  //  Find un-verified hostel's :-
+
   async getUnverifiedHostels(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -154,11 +164,9 @@ class AdminUserController implements IAdminController {
       }
       const result = await this.adminServicee.getUnverifiedHostels();
 
-      // Generate signed URLs for all hostel photos
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
-            // Generate signed URLs for all photos
             const signedPhotos = await Promise.all(
               (hostel.photos || []).map((photo) =>
                 this.s3ServiceInstance.generateSignedUrl(photo)
@@ -200,6 +208,8 @@ class AdminUserController implements IAdminController {
     }
   }
 
+  //  Find verified hostel's :-
+
   async getVerifiedHostels(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -208,7 +218,6 @@ class AdminUserController implements IAdminController {
       }
       const result = await this.adminServicee.getVerifiedHostels();
 
-      // Generate signed URLs for all hostel photos
       if (result.data && Array.isArray(result.data)) {
         const hostelsWithSignedUrls = await Promise.all(
           result.data.map(async (hostel) => {
@@ -252,6 +261,8 @@ class AdminUserController implements IAdminController {
     }
   }
 
+  //  Find single hostel :-
+
   async getHostelById(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -281,6 +292,8 @@ class AdminUserController implements IAdminController {
       }
     }
   }
+
+  //  Get dashboard :-
 
   async getDashboard(req: AuthRequset, res: Response): Promise<any> {
     try {

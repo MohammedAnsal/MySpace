@@ -21,6 +21,8 @@ export class HostelController {
     this.s3Service = S3Service;
   }
 
+  //  Create hostel :-
+
   async createHostel(req: AuthRequset, res: Response): Promise<void> {
     try {
       const providerId = req.user?.id;
@@ -96,6 +98,8 @@ export class HostelController {
     }
   }
 
+  //  Get all hostel's :-
+
   async getAllHostels(req: AuthRequset, res: Response): Promise<void> {
     try {
       const providerId = req.user?.id;
@@ -149,6 +153,8 @@ export class HostelController {
       }
     }
   }
+
+  //  Get single hostel :-
 
   async getHostelById(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -206,6 +212,8 @@ export class HostelController {
       }
     }
   }
+
+  //  Edit hostel :-
 
   async editHostel(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -342,6 +350,8 @@ export class HostelController {
       }
     }
   }
+
+  //  Delete hostel :-
 
   async deleteHostel(req: AuthRequset, res: Response): Promise<void> {
     try {

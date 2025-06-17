@@ -7,6 +7,8 @@ import { Types } from "mongoose";
 
 @Service()
 export class WashingRepository implements IWashingRepository {
+  //  For create washing req :-
+
   async createWashingRequest(
     washingRequest: Partial<IWashing>
   ): Promise<IWashing> {
@@ -15,11 +17,15 @@ export class WashingRepository implements IWashingRepository {
     return await newRequest.save();
   }
 
+  //  For get user washing req :-
+
   async getUserWashingRequests(userId: string): Promise<IWashing[]> {
     return await WashingRequest.find({ userId: new Types.ObjectId(userId) })
       .sort({ createdAt: -1 })
       .populate("hostelId", "hostel_name location");
   }
+
+  //  For get provider wahsing req :-
 
   async getProviderWashingRequests(providerId: string): Promise<IWashing[]> {
     return await WashingRequest.find({
@@ -30,11 +36,15 @@ export class WashingRepository implements IWashingRepository {
       .populate("hostelId", "hostel_name location");
   }
 
+  //  For get wahsing req byId :-
+
   async getWashingRequestById(id: string): Promise<IWashing | null> {
     return await WashingRequest.findById(id)
       .populate("userId", "fullName email")
       .populate("hostelId", "hostel_name location");
   }
+
+  //  Update wahsing req :-
 
   async updateWashingRequest(
     id: string,
@@ -47,51 +57,14 @@ export class WashingRepository implements IWashingRepository {
     );
   }
 
+  //  Cancel washing req :-
+
   async cancelWashingRequest(id: string): Promise<IWashing | null> {
     return await WashingRequest.findByIdAndUpdate(
       id,
       { $set: { status: "Cancelled" } },
       { new: true }
     );
-  }
-
-  async addFeedback(
-    id: string,
-    rating: number,
-    comment?: string
-  ): Promise<IWashing | null> {
-    return await WashingRequest.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          feedback: {
-            rating,
-            ...(comment && { comment }),
-          },
-        },
-      },
-      { new: true }
-    );
-  }
-
-  async getUserRecentBookings(
-    userId: string,
-    days: number
-  ): Promise<IWashing[]> {
-    // Calculate date range: from days ago to today
-    const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - days);
-
-    const today = new Date();
-
-    return await WashingRequest.find({
-      userId: new Types.ObjectId(userId),
-      requestedDate: {
-        $gte: pastDate,
-        $lte: today,
-      },
-      status: { $ne: "Cancelled" }, // Don't count cancelled bookings
-    });
   }
 }
 

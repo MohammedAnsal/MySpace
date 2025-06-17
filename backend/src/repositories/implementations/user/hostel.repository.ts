@@ -8,7 +8,8 @@ import { Location } from "../../../models/provider/location.model";
 
 @Service()
 export class HostelRepository implements IHostelRepository {
-  
+  //  For get all verified hostel's :-
+
   async getVerifiedHostels(filters: {
     minPrice?: number;
     maxPrice?: number;
@@ -58,7 +59,9 @@ export class HostelRepository implements IHostelRepository {
       //  Search Filter :-
 
       if (filters.search) {
-        const searchLocations = await this.findLocationsBySearch(filters.search);
+        const searchLocations = await this.findLocationsBySearch(
+          filters.search
+        );
         query = {
           ...query,
           $or: [
@@ -162,6 +165,8 @@ export class HostelRepository implements IHostelRepository {
     }
   }
 
+  //  For all verified hostel's :- (For home)
+
   async getVerifiedHostelsForHome(): Promise<IHostel[]> {
     try {
       const hostels = await Hostel.find({ is_verified: true })
@@ -215,6 +220,8 @@ export class HostelRepository implements IHostelRepository {
     }
   }
 
+  //  For single hostel :-
+
   async getHostelById(hostelId: string): Promise<IHostel | null> {
     try {
       const query: FilterQuery<IHostel> = {
@@ -234,15 +241,19 @@ export class HostelRepository implements IHostelRepository {
     }
   }
 
-   async findHostelByIdUnPopulated(hostelId: string): Promise<IHostel | null> {
-      try {
-        const hostel = await Hostel.findById(hostelId);
-        return hostel;
-      } catch (error) {
-        console.error("Error finding hostel:", error);
-        throw new Error("Failed to find hostel");
-      }
+  //  For single hostel :- (Un populated)
+
+  async findHostelByIdUnPopulated(hostelId: string): Promise<IHostel | null> {
+    try {
+      const hostel = await Hostel.findById(hostelId);
+      return hostel;
+    } catch (error) {
+      console.error("Error finding hostel:", error);
+      throw new Error("Failed to find hostel");
     }
+  }
+
+  //  For handling the available hostel bed-space :-
 
   async updateHostelAvailableSpace(hostelId: string): Promise<IHostel | null> {
     return await Hostel.findByIdAndUpdate(
@@ -251,6 +262,8 @@ export class HostelRepository implements IHostelRepository {
       { new: true }
     );
   }
+
+  //  For find all near-by hostel's :-
 
   async getNearbyHostels(
     latitude: number,
@@ -327,6 +340,8 @@ export class HostelRepository implements IHostelRepository {
       throw error;
     }
   }
+
+  //  For search hostel :-
 
   private async findLocationsBySearch(searchTerm: string): Promise<ObjectId[]> {
     const locations = await Location.find({

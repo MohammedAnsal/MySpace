@@ -8,6 +8,8 @@ import Container, { Service } from "typedi";
 export class NotificationController {
   constructor(private readonly service: NotificationService) {}
 
+  //  Create notification :-
+
   async createNotification(req: Request, res: Response) {
     try {
       const notification = await this.service.createNotification(req.body);
@@ -23,6 +25,8 @@ export class NotificationController {
       );
     }
   }
+
+  //  Get single notification :-
 
   async getNotificationById(req: Request, res: Response) {
     try {
@@ -44,6 +48,8 @@ export class NotificationController {
       );
     }
   }
+
+  //  Update notification :-
 
   async updateNotification(req: Request, res: Response) {
     try {
@@ -67,6 +73,8 @@ export class NotificationController {
     }
   }
 
+  //  Delete notification :-
+
   async deleteNotification(req: Request, res: Response) {
     try {
       await this.service.deleteNotification(req.params.id);
@@ -78,6 +86,8 @@ export class NotificationController {
       );
     }
   }
+
+  //  Get notification by recipient :-
 
   async getNotificationsByRecipient(req: Request, res: Response) {
     try {

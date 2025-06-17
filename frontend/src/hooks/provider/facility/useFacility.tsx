@@ -187,14 +187,16 @@ export const useDeleteFoodMenu = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
+      foodMenuId,
       id,
       day,
       mealType,
     }: {
+      foodMenuId: string;
       id: string;
       day: string;
       mealType: "morning" | "noon" | "night";
-    }) => deleteFoodMenu(id, day, mealType),
+    }) => deleteFoodMenu(foodMenuId, id, day, mealType),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["food-menu"],

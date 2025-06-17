@@ -33,6 +33,8 @@ export class s3Service implements IS3service {
     this.bucket = process.env.BUCKET_NAME!;
   }
 
+  //  For validate the file :-
+
   private validate_Files(file: Express.Multer.File) {
     if (file.size > 5 * 1024 * 1024)
       throw new AppError(
@@ -48,6 +50,8 @@ export class s3Service implements IS3service {
         HttpStatus.BAD_REQUEST
       );
   }
+
+  //  For upload multiple file's :-
 
   async uploadMultipleFiles(files: Express.Multer.File[], folder: string) {
     try {
@@ -86,6 +90,8 @@ export class s3Service implements IS3service {
     }
   }
 
+  //  For upload single file :-
+
   async uploadFile(
     file: Express.Multer.File | Express.Multer.File[],
     folder: string
@@ -107,17 +113,6 @@ export class s3Service implements IS3service {
           const command = new PutObjectCommand(params);
           await this.s3Service.send(command);
 
-          // const getObjectCommand = new GetObjectCommand({
-          //   Bucket: process.env.BUCKET_NAME,
-          //   Key: params.Key,
-          // });
-
-          // const presignedUrl = await getSignedUrl(
-          //   this.s3Service,
-          //   getObjectCommand,
-          //   { expiresIn: 604800 }
-          // );
-
           return {
             success: true,
             Location: `https://${process.env.BUCKET_NAME}.s3.${process.env.BUCKET_REGION}.amazonaws.com/${params.Key}`,
@@ -129,6 +124,8 @@ export class s3Service implements IS3service {
       throw new Error((error as Error).message);
     }
   }
+
+  //  For delete file :-
 
   async delete_File(files: string[]) {
     try {
@@ -150,6 +147,8 @@ export class s3Service implements IS3service {
       throw new Error("Error occured in delete file");
     }
   }
+
+  //  For creating signedURL :-
 
   async generateSignedUrl(url: string): Promise<string> {
     try {

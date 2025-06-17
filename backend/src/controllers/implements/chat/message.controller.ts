@@ -5,8 +5,7 @@ import { Types } from "mongoose";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { IMessageService } from "../../../services/interface/chat/message.service.interface";
-import { upload } from '../../../utils/multer';
-import { S3Service } from '../../../services/implements/s3/s3.service';
+import { S3Service } from "../../../services/implements/s3/s3.service";
 import IS3service from "../../../services/interface/s3/s3.service.interface";
 
 @Service()
@@ -18,6 +17,8 @@ export class MessageController {
     this.messageService = messageService;
     this.s3Service = S3Service;
   }
+
+  //   Send message :-
 
   sendMessage = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -73,6 +74,8 @@ export class MessageController {
     }
   };
 
+  //  Get chat messages's :-
+
   getChatMessages = async (req: Request, res: Response): Promise<void> => {
     try {
       const { chatRoomId } = req.params;
@@ -111,6 +114,8 @@ export class MessageController {
       }
     }
   };
+
+  //  Mark message seen :-
 
   markMessagesAsSeen = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -156,45 +161,7 @@ export class MessageController {
     }
   };
 
-  deleteMessage = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { messageId } = req.params;
-
-      if (!messageId || !Types.ObjectId.isValid(messageId)) {
-        throw new AppError(
-          "Valid messageId is required",
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      const deleted = await this.messageService.deleteMessage(messageId);
-
-      if (!deleted) {
-        throw new AppError(
-          "Message not found or already deleted",
-          HttpStatus.NOT_FOUND
-        );
-      }
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Message deleted successfully",
-      });
-    } catch (error) {
-      console.error("Error deleting message:", error);
-      if (error instanceof AppError) {
-        res.status(error.statusCode).json({
-          success: false,
-          message: error.message,
-        });
-      } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: "An error occurred while deleting the message",
-        });
-      }
-    }
-  };
+  //  Get all msg un-read count :-
 
   getUnreadMessageCount = async (
     req: Request,
@@ -246,51 +213,53 @@ export class MessageController {
     }
   };
 
+  //  Upload image in message :-
+
   uploadMessageImage = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log("kerii")
       if (!req.file) {
-        throw new AppError('No image file provided', HttpStatus.BAD_REQUEST);
+        throw new AppError("No image file provided", HttpStatus.BAD_REQUEST);
       }
 
       const { chatRoomId, senderId, senderType, replyToMessageId } = req.body;
 
-      console.log(chatRoomId, senderId, senderType, replyToMessageId , 'iiiiiiiiiiiiiiiii');
-
-      // Validate required fields
       if (!chatRoomId || !senderId || !senderType) {
         throw new AppError(
-          'chatRoomId, senderId, and senderType are required',
+          "chatRoomId, senderId, and senderType are required",
           HttpStatus.BAD_REQUEST
         );
       }
 
-      // Upload to S3
-      const uploadResult = await this.s3Service.uploadFile(req.file, 'chat-images');
-      if (!uploadResult || !("Location" in uploadResult) || Array.isArray(uploadResult)) {
-        throw new AppError('Failed to upload image', HttpStatus.INTERNAL_SERVER_ERROR);
+      const uploadResult = await this.s3Service.uploadFile(
+        req.file,
+        "chat-images"
+      );
+      if (
+        !uploadResult ||
+        !("Location" in uploadResult) ||
+        Array.isArray(uploadResult)
+      ) {
+        throw new AppError(
+          "Failed to upload image",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       }
 
-      console.log(uploadResult,'img')
-
-      // Create message with image
       const message = await this.messageService.sendMessage(
         chatRoomId,
         senderId,
         senderType,
-        '', // Empty content for image-only messages
+        "", // Empty content for image-only messages
         uploadResult.Location,
         replyToMessageId
       );
 
-      console.log(message, "messs")
-      
       res.status(HttpStatus.OK).json({
         success: true,
-        message
+        message,
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
       if (error instanceof AppError) {
         res.status(error.statusCode).json({
           success: false,
@@ -299,7 +268,7 @@ export class MessageController {
       } else {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: 'An error occurred while uploading the image',
+          message: "An error occurred while uploading the image",
         });
       }
     }

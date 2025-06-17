@@ -10,6 +10,8 @@ import { AuthRequset } from "../../../types/api";
 class UserController implements IUserController {
   constructor(private readonly userService: UserService) {}
 
+  //  Get userProfile :-
+
   async findUser(req: AuthRequset, res: Response): Promise<any> {
     try {
       const user = req.user?.id;
@@ -36,6 +38,8 @@ class UserController implements IUserController {
     }
   }
 
+  //  Change password :-
+
   async changePassword(req: Request, res: Response): Promise<any> {
     try {
       const { email, currentPassword, newPassword } = req.body;
@@ -50,7 +54,7 @@ class UserController implements IUserController {
       const result = await this.userService.changePassword({
         email,
         oldPassword: currentPassword,
-        newPassword
+        newPassword,
       });
 
       if (!result.success) {
@@ -73,6 +77,8 @@ class UserController implements IUserController {
       });
     }
   }
+
+  //  Edit profile :-
 
   async editProfile(req: AuthRequset, res: Response): Promise<any> {
     try {

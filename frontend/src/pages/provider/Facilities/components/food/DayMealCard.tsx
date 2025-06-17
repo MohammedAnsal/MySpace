@@ -57,20 +57,31 @@ export const DayMealCard = ({
   const { data: menuItems = [], isLoading: isLoadingItems } = useMenuItems();
 
   // Get food menu
-  const { data: foodMenu, isLoading: isLoadingMenu } = useFoodMenu(facilityId, hostelId);
+  const { data: foodMenu, isLoading: isLoadingMenu } = useFoodMenu(
+    facilityId,
+    hostelId
+  );
 
   // Add day menu mutation
   const addDayMenu = useAddSingleDayMenu();
 
   // Get meals for current day
   const dayMenu = foodMenu?.menu?.find((menu) => menu.day === day);
-  
+
   // Get current day of the week
   const getCurrentDay = () => {
-    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     return daysOfWeek[new Date().getDay()];
   };
-  
+
   const isCurrentDay = day === getCurrentDay();
 
   const handleAddItems = (mealType: "Breakfast" | "Lunch" | "Dinner") => {
@@ -92,7 +103,7 @@ export const DayMealCard = ({
       // Get existing items for this meal type
       const existingItems =
         dayMenu?.meals[mealType as keyof typeof dayMenu.meals]?.items || [];
-      
+
       // Add the new item
       const updatedItems = [...existingItems, item._id];
 
@@ -119,11 +130,13 @@ export const DayMealCard = ({
 
   const handleRemoveMealInMenu = async (
     itemId: string,
+    foodMenuId: string,
     mealType: "morning" | "noon" | "night"
   ) => {
     try {
       await deleteMenu.mutateAsync({
         id: itemId,
+        foodMenuId,
         day,
         mealType,
       });
@@ -135,7 +148,7 @@ export const DayMealCard = ({
   };
 
   // Calculate pagination for menu items:-
-  
+
   const getCurrentPageItems = () => {
     if (!menuItems) return [];
     const filteredItems = menuItems.filter(
@@ -203,17 +216,25 @@ export const DayMealCard = ({
             </button>
           )}
         </div>
-        
+
         {!isAvailable && (
           <div className="bg-red-50 border border-red-100 rounded-lg p-2">
             <div className="flex items-center">
               <AlertTriangle className="h-4 w-4 text-red-500 mr-1.5" />
-              <p className="text-xs text-red-600">This meal has been cancelled by user</p>
+              <p className="text-xs text-red-600">
+                This meal has been cancelled by user
+              </p>
             </div>
           </div>
         )}
-        
-        <div className={`${!isAvailable ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-100'} rounded-lg border`}>
+
+        <div
+          className={`${
+            !isAvailable
+              ? "bg-red-50 border-red-100"
+              : "bg-gray-50 border-gray-100"
+          } rounded-lg border`}
+        >
           {isLoadingMenu ? (
             <div className="p-3">
               <p className="text-xs text-gray-500">Loading meals...</p>
@@ -302,17 +323,18 @@ export const DayMealCard = ({
                 Today
               </span>
             )}
-            
+
             {/* Show if any meal is cancelled in this day */}
-            {dayMenu && (
-              ['morning', 'noon', 'night'].some(mealType => 
-                dayMenu.meals[mealType as keyof typeof dayMenu.meals]?.isAvailable === false
+            {dayMenu &&
+              ["morning", "noon", "night"].some(
+                (mealType) =>
+                  dayMenu.meals[mealType as keyof typeof dayMenu.meals]
+                    ?.isAvailable === false
               ) && (
                 <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full">
                   Has cancellations
                 </span>
-              )
-            )}
+              )}
           </div>
           {isExpanded ? (
             <ChevronUp size={20} className="text-gray-500" />
@@ -453,6 +475,7 @@ export const DayMealCard = ({
               onClick={() =>
                 deleteConfirm &&
                 handleRemoveMealInMenu(
+                  String(foodMenu?._id),
                   deleteConfirm.itemId,
                   deleteConfirm.mealType
                 )

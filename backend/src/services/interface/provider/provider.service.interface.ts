@@ -1,9 +1,9 @@
+import { FacilityResponseDTO } from "../../../dtos/admin/facility.dto";
 import {
   ProviderResponseDTO,
   UpdateProviderDTO,
   DashboardResponseDTO,
 } from "../../../dtos/provider/provider.dto";
-import { AdminFacilityResult } from "../admin/facility.service.interface";
 
 export interface IProviderService {
   findProvider(userId: string): Promise<{
@@ -22,5 +22,5 @@ export interface IProviderService {
     image?: Express.Multer.File
   ): Promise<{ success: boolean; message: string }>;
   getProviderDashboard(providerId: string): Promise<DashboardResponseDTO>;
-  findAllFacilities(): Promise<AdminFacilityResult>;
+  findAllFacilities(): Promise<FacilityResponseDTO>;
 }

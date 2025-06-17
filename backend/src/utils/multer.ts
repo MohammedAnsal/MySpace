@@ -27,7 +27,6 @@ export const upload = multer({
       }
       return cb(null, true);
     }
-console.log(file.fieldname,'m')
     if (file.fieldname === "image") {
       
       if (!file.mimetype.startsWith("image/")) {

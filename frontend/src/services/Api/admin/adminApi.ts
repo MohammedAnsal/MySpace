@@ -186,7 +186,6 @@ export const deleteFacility = async (facilityId: string) => {
 export const listAdminBookings = async () => {
   try {
     const response = await private_api.get("/admin/bookings");
-    console.log(response, "from admin api");
 
     return handleResponse(response.data.data, "Error in list admin bookings");
   } catch (error) {
@@ -197,7 +196,6 @@ export const listAdminBookings = async () => {
 export const getAdminDashboard = async () => {
   try {
     const response = await private_api.get("/admin/dashboard");
-    console.log(response, "from admin api");
 
     return handleResponse(
       response.data.getDashboardData,

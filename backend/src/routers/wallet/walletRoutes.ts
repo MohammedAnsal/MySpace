@@ -7,14 +7,6 @@ import Roles from "../../enums/roles";
 
 const walletRoute = express.Router();
 
-// walletRoute.post(
-//   "/create/:bookingId",
-//   authMiddleWare,
-//   autherization,
-//   authorizeRoles(Roles.USER),
-//   walletController.createWallet.bind(walletController)
-// );
-
 walletRoute.get(
   "/user-wallet",
   authMiddleWare,

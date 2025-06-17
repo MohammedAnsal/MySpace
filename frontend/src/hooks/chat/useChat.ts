@@ -90,10 +90,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
         // Load messages
         const messagesData = await chatApi.getChatMessages(chatRoomId);
-        console.log(
-          `Loaded ${messagesData.length} messages for room:`,
-          chatRoomId
-        );
+        
         setMessages(messagesData);
 
         // Reset unread count for this room
@@ -146,11 +143,13 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     }
   }, [selectedChatRoom, page, hasMore, loading]);
 
-  // Send message :- (Main)
-
+  // Send message :- (Main) - FIXED FOR IMAGES
   const sendMessage = useCallback(
     async (content: string, image?: string, replyToMessageId?: string) => {
       if (!selectedChatRoom || !userId) return;
+
+      // Don't send if both content and image are empty
+      if (!content.trim() && !image) return;
 
       try {
         // Create a temporary message for immediate display
@@ -160,8 +159,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           chatRoomId: selectedChatRoom._id as any,
           senderId: userId as any,
           senderType: userType,
-          content: content,
-          image: image,
+          content: content || "", // Use empty string if no content
+          image: image || undefined, // Include image if provided
           isSeen: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -172,12 +171,15 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         setMessages((prevMessages) => [tempMessage, ...prevMessages]);
 
         // Update the local chat rooms list for immediate UI feedback
+        // Show appropriate last message text
+        const lastMessageText = image ? "📷 Image" : content;
+
         setChatRooms((prevRooms) =>
           prevRooms.map((room) => {
             if (room._id === selectedChatRoom._id) {
               return {
                 ...room,
-                lastMessage: content,
+                lastMessage: lastMessageText,
                 lastMessageTime: new Date().toISOString(),
               };
             }
@@ -201,13 +203,13 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         );
 
         // NOW send message via socket for real-time delivery to other users
-
+        // Make sure to include the image in the socket message
         socketService.sendMessage({
           chatRoomId: selectedChatRoom._id,
           senderId: userId,
           senderType: userType,
-          content,
-          image,
+          content: content || "",
+          image: image || undefined,
           replyToMessageId,
           _id: savedMessage._id,
         });
@@ -335,11 +337,9 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
   // Socket event listeners
   useEffect(() => {
-    console.log("Setting up socket connection in useChat hook");
 
     // Connect to socket server if not already connected
     if (!socketService.isConnected()) {
-      console.log("Socket not connected, connecting now...");
       socketService.connect();
       socketConnectedRef.current = true;
     }
@@ -353,7 +353,6 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
     // Set up reconnection handling
     const handleReconnect = () => {
-      console.log("Socket reconnected, rejoining rooms...");
       if (userId && chatRooms.length > 0) {
         chatRooms.forEach((room) => {
           socketService.joinRoom(userId, room._id);
@@ -370,14 +369,12 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     };
   }, [userId, chatRooms]);
 
-  // Set up message listeners
+  // Set up message listeners - FIXED FOR IMAGES
   useEffect(() => {
     if (!userId) return;
 
-    console.log("Setting up message handlers");
 
     const handleSocketMessage = (message: IMessage) => {
-      console.log("Socket received message:", message);
 
       // Update chat rooms list with the new message
       setChatRooms((prevRooms) => {
@@ -387,10 +384,13 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         );
 
         if (roomToUpdate) {
+          // Create appropriate last message text for display
+          const lastMessageText = message.image ? "📷 Image" : message.content;
+
           // Create updated room with new message info
           const updatedRoom = {
             ...roomToUpdate,
-            lastMessage: message.content,
+            lastMessage: lastMessageText,
             lastMessageTime: message.createdAt,
           };
 
@@ -496,16 +496,20 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
       chatRoomId: string;
       message: IMessage;
     }) => {
-      console.log("New message notification received:", data);
 
       // Update chat rooms list with the new message
       setChatRooms((prev) => {
         const updatedRooms = prev.map((room) => {
           if (room._id === data.chatRoomId) {
+            // Create appropriate last message text
+            const lastMessageText = data.message.image
+              ? "📷 Image"
+              : data.message.content;
+
             // Increment unread count based on user type
             const updatedRoom = {
               ...room,
-              lastMessage: data.message.content,
+              lastMessage: lastMessageText,
               lastMessageTime: data.message.createdAt,
             };
 

@@ -5,11 +5,15 @@ import { IMessage } from "../../../models/chat/message.model";
 import Container, { Service } from "typedi";
 @Service()
 export class ChatRoomRepository implements IChatRoomRepository {
+  //  For create chatRoom :-
+
   async createChatRoom(chatRoomData: IChatRoom): Promise<IChatRoom> {
     const chatRoom = new ChatRoom(chatRoomData);
     const savedChatRoom = await chatRoom.save();
     return savedChatRoom as IChatRoom;
   }
+
+  //  For find single chatRoom :-
 
   async findChatRoomById(
     chatRoomId: string | Types.ObjectId
@@ -23,12 +27,16 @@ export class ChatRoomRepository implements IChatRoomRepository {
     return chatRoom.toObject() as IChatRoom;
   }
 
+  //  For create chatRoom :-
+
   async findChatRoomByUserAndProvider(
     userId: string | Types.ObjectId,
     providerId: string | Types.ObjectId
   ): Promise<IChatRoom | null> {
     return await ChatRoom.findOne({ userId, providerId });
   }
+
+  //  For update single chatRoom :-
 
   async updateChatRoom(
     chatRoomId: string | Types.ObjectId,
@@ -38,6 +46,8 @@ export class ChatRoomRepository implements IChatRoomRepository {
       new: true,
     });
   }
+
+  //  For increment un-read count :-
 
   async incrementUnreadCount(
     chatRoomId: string | Types.ObjectId,
@@ -52,6 +62,8 @@ export class ChatRoomRepository implements IChatRoomRepository {
     );
   }
 
+  //  For re-set unread count :-
+
   async resetUnreadCount(
     chatRoomId: string | Types.ObjectId,
     userType: "user" | "provider"
@@ -65,6 +77,8 @@ export class ChatRoomRepository implements IChatRoomRepository {
     );
   }
 
+  //  For update latest message :-
+
   async updateLastMessage(
     chatRoomId: string | Types.ObjectId,
     message: IMessage,
@@ -76,6 +90,8 @@ export class ChatRoomRepository implements IChatRoomRepository {
       { new: true }
     );
   }
+
+  //  For user chat room's :-
 
   async getChatRoomsForUser(
     userId: string | Types.ObjectId,
@@ -91,6 +107,8 @@ export class ChatRoomRepository implements IChatRoomRepository {
     return chatRooms.map((room) => room.toObject()) as IChatRoom[];
   }
 
+  //  For provider chat room's :-
+
   async getChatRoomsForProvider(
     providerId: string | Types.ObjectId,
     page: number = 1,
@@ -105,6 +123,8 @@ export class ChatRoomRepository implements IChatRoomRepository {
 
     return chatRooms.map((room) => room.toObject()) as IChatRoom[];
   }
+
+  //  For delete chat room :-
 
   async deleteChatRoom(chatRoomId: string | Types.ObjectId): Promise<boolean> {
     const result = await ChatRoom.deleteOne({ _id: chatRoomId });

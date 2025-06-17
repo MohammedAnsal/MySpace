@@ -18,6 +18,8 @@ export class ChatRoomController {
     this.s3Service = S3Service;
   }
 
+  //  Create chat room :-
+
   createChatRoom = async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId, providerId } = req.body;
@@ -53,6 +55,8 @@ export class ChatRoomController {
       }
     }
   };
+
+  //  Get chat room :-
 
   getChatRoom = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -125,6 +129,8 @@ export class ChatRoomController {
       }
     }
   };
+
+  //  GetAll user chat room's :-
 
   getUserChatRooms = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -203,6 +209,8 @@ export class ChatRoomController {
     }
   };
 
+  //  GetAll provider chat room's :-
+
   getProviderChatRooms = async (req: Request, res: Response): Promise<void> => {
     try {
       const { providerId } = req.params;
@@ -277,6 +285,8 @@ export class ChatRoomController {
       }
     }
   };
+
+  //  Soon :-
 
   deleteChatRoom = async (req: Request, res: Response): Promise<void> => {
     try {

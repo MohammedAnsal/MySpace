@@ -17,6 +17,7 @@ export class FoodMenuController {
     this.foodMenuService = foodMenuService;
   }
 
+  //  Get food menu :-
 
   async getFoodMenu(req: Request, res: Response): Promise<void> {
     try {
@@ -30,11 +31,15 @@ export class FoodMenuController {
         return;
       }
 
-      console.log(facilityId , 'ajjjjjjjjjjjjjjjjjj')
-      console.log(hostelId,'idddddddd')
+      const foodMenuDoc = await this.foodMenuService.getFoodMenu(
+        facilityId,
+        hostelId
+      );
+      const plainFoodMenu = foodMenuDoc.data?.toObject() as {
+        menu: Array<{ day: string; meals: any }>;
+      };
 
-      const foodMenuDoc = await this.foodMenuService.getFoodMenu(facilityId, hostelId);
-      const plainFoodMenu = foodMenuDoc.data?.toObject() as { menu: Array<{ day: string; meals: any }> };
+      //  Taking all day and meals :-
 
       const foodMenu = {
         ...(plainFoodMenu as Record<string, any>),
@@ -105,6 +110,8 @@ export class FoodMenuController {
     }
   }
 
+  //  Update food menu :-
+
   async updateFoodMenu(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -136,12 +143,14 @@ export class FoodMenuController {
     }
   }
 
+  //  Delete food menu :-
+
   async deleteFoodMenu(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { day, mealType } = req.body;
+      const { foodMenuId, day, mealType } = req.body;
 
-      if (!id || !day || !mealType) {
+      if (!id || !foodMenuId || !day || !mealType) {
         res.status(400).json({
           status: "error",
           message: "Missing required parameters",
@@ -149,19 +158,36 @@ export class FoodMenuController {
         return;
       }
 
-      await this.foodMenuService.deleteFoodMenu(id, day, mealType);
+      const result = await this.foodMenuService.deleteFoodMenu(
+        foodMenuId,
+        id,
+        day,
+        mealType
+      );
+
+      if (!result) {
+        res.status(404).json({
+          status: "error",
+          message: "Food menu not found",
+        });
+        return;
+      }
 
       res.status(200).json({
         status: "success",
         message: "Food menu item deleted successfully",
+        data: result,
       });
     } catch (error) {
+      console.error("Delete food menu error:", error);
       res.status(500).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
     }
   }
+
+  //  Add single day menu meal :-
 
   async addSingleDayMenu(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -220,6 +246,8 @@ export class FoodMenuController {
     }
   }
 
+  //  Cancel meal by user :-
+
   async cancelMeal(req: AuthRequset, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -233,7 +261,6 @@ export class FoodMenuController {
         return;
       }
 
-      // Validate mealType
       if (!["morning", "noon", "night"].includes(mealType)) {
         res.status(400).json({
           status: "error",
@@ -242,7 +269,6 @@ export class FoodMenuController {
         return;
       }
 
-      // Validate day
       const validDays = [
         "Monday",
         "Tuesday",
@@ -260,14 +286,11 @@ export class FoodMenuController {
         return;
       }
 
-      await this.foodMenuService.cancelMeal(
-        id,
-        {
-          day,
-          mealType: mealType as "morning" | "noon" | "night",
-          isAvailable
-        }
-      );
+      await this.foodMenuService.cancelMeal(id, {
+        day,
+        mealType: mealType as "morning" | "noon" | "night",
+        isAvailable,
+      });
 
       res.status(200).json({
         status: "success",

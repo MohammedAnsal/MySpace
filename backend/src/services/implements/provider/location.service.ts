@@ -23,6 +23,8 @@ class LocationService implements ILocationService {
     this.locationRepositoryy = locationRepository;
   }
 
+  //  For DTO check :-
+
   private mapToLocationDTO(location: ILocation): LocationResponseDTO {
     return {
       _id: location._id.toString(),
@@ -34,6 +36,8 @@ class LocationService implements ILocationService {
       updated_at: location.updated_at,
     };
   }
+
+  //  Create location :-
 
   async createLocation(
     locationData: CreateLocationDTO
@@ -61,6 +65,8 @@ class LocationService implements ILocationService {
       );
     }
   }
+
+  //  Update location :-
 
   async updateLocation(
     locationId: string,

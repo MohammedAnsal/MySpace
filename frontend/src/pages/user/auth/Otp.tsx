@@ -111,7 +111,6 @@ export default function OTPVerification() {
   const handleResendOTP = async () => {
     try {
       const response = await resendOtp(email);
-      console.log(response);
       if (response.data.success) {
         const newExpirationTime = Date.now() + OTP_EXPIRATION_TIME * 1000;
         localStorage.setItem("otpExpiration", newExpirationTime.toString());

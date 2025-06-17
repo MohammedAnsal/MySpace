@@ -16,6 +16,8 @@ export class ProviderRepository
     super(User);
   }
 
+  //  For find by email :-
+
   async findProviderByEmail(email: string): Promise<IUser | null | never> {
     try {
       return await User.findOne({ email });
@@ -26,6 +28,8 @@ export class ProviderRepository
     }
   }
 
+  //  For find by role :-
+
   async findProviderByRole(role: string): Promise<IUser[] | never> {
     try {
       return await User.find({ role }, "-password");
@@ -35,6 +39,8 @@ export class ProviderRepository
       );
     }
   }
+
+  //  For verifiy provider :- (provider)
 
   async verifyProvider(
     email: string,
@@ -49,6 +55,8 @@ export class ProviderRepository
       );
     }
   }
+
+  //  For update password :- (provider)
 
   async updatePassword(
     email: string,
@@ -68,6 +76,8 @@ export class ProviderRepository
       );
     }
   }
+
+  //  For find all facility's :-
 
   async findAllFacilities(): Promise<IAdminFacility[]> {
     try {

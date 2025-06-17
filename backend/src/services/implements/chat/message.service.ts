@@ -23,6 +23,8 @@ export class MessageService implements IMessageService {
     this.s3Service = S3Service;
   }
 
+  //   Send message :-
+
   async sendMessage(
     chatRoomId: string | Types.ObjectId,
     senderId: string | Types.ObjectId,
@@ -95,6 +97,8 @@ export class MessageService implements IMessageService {
     }
   }
 
+  //  Get message byId :-
+
   async getMessageById(
     messageId: string | Types.ObjectId
   ): Promise<IMessage | null> {
@@ -108,6 +112,8 @@ export class MessageService implements IMessageService {
       );
     }
   }
+
+  //  Get chat messages's :-
 
   async getChatMessages(
     chatRoomId: string | Types.ObjectId,
@@ -153,6 +159,8 @@ export class MessageService implements IMessageService {
     }
   }
 
+  //  Mark message seen :-
+
   async markMessageAsSeen(
     messageId: string | Types.ObjectId
   ): Promise<IMessage | null> {
@@ -166,6 +174,8 @@ export class MessageService implements IMessageService {
       );
     }
   }
+
+  //  Mark all message seen :-
 
   async markAllMessagesAsSeenInChatRoom(
     chatRoomId: string | Types.ObjectId,
@@ -202,17 +212,7 @@ export class MessageService implements IMessageService {
     }
   }
 
-  async deleteMessage(messageId: string | Types.ObjectId): Promise<boolean> {
-    try {
-      return await this.messageRepository.deleteMessage(messageId);
-    } catch (error) {
-      if (error instanceof AppError) throw error;
-      throw new AppError(
-        "An error occurred while deleting message",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
+  //  Get all msg un-read count :-
 
   async getUnreadMessageCount(
     chatRoomId: string | Types.ObjectId,

@@ -30,59 +30,7 @@ export class WalletService implements IWalletService {
     }
   }
 
-  async createUserWallet(userId: string): Promise<WalletResponseDTO> {
-    try {
-      const walletData: Partial<IWallet> = {
-        userId: userId as any,
-        balance: 0,
-        transactions: [] as any,
-      };
-
-      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
-      return this.mapToWalletDTO(wallet);
-    } catch (error) {
-      throw new AppError(
-        "Failed to create user wallet",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  async createProviderWallet(providerId: string): Promise<WalletResponseDTO> {
-    try {
-      const walletData: Partial<IWallet> = {
-        userId: providerId as any,
-        balance: 0,
-        transactions: [] as any,
-      };
-
-      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
-      return this.mapToWalletDTO(wallet);
-    } catch (error) {
-      throw new AppError(
-        "Failed to create provider wallet",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  async createAdminWallet(adminId: string): Promise<WalletResponseDTO> {
-    try {
-      const walletData: Partial<IWallet> = {
-        adminId: adminId as any,
-        balance: 0,
-        transactions: [] as any,
-      };
-
-      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
-      return this.mapToWalletDTO(wallet);
-    } catch (error) {
-      throw new AppError(
-        "Failed to create admin wallet",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
+  //  For DTO check :-
 
   private mapToWalletDTO(wallet: IWallet): WalletResponseDTO {
     return {
@@ -111,6 +59,68 @@ export class WalletService implements IWalletService {
     };
   }
 
+  //  Create user wallet :-
+
+  async createUserWallet(userId: string): Promise<WalletResponseDTO> {
+    try {
+      const walletData: Partial<IWallet> = {
+        userId: userId as any,
+        balance: 0,
+        transactions: [] as any,
+      };
+
+      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
+      return this.mapToWalletDTO(wallet);
+    } catch (error) {
+      throw new AppError(
+        "Failed to create user wallet",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  //  Create provider wallet :-
+
+  async createProviderWallet(providerId: string): Promise<WalletResponseDTO> {
+    try {
+      const walletData: Partial<IWallet> = {
+        userId: providerId as any,
+        balance: 0,
+        transactions: [] as any,
+      };
+
+      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
+      return this.mapToWalletDTO(wallet);
+    } catch (error) {
+      throw new AppError(
+        "Failed to create provider wallet",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  //  Create admin wallet :-
+
+  async createAdminWallet(adminId: string): Promise<WalletResponseDTO> {
+    try {
+      const walletData: Partial<IWallet> = {
+        adminId: adminId as any,
+        balance: 0,
+        transactions: [] as any,
+      };
+
+      const wallet = await this.walletRepo.createWallet(walletData as IWallet);
+      return this.mapToWalletDTO(wallet);
+    } catch (error) {
+      throw new AppError(
+        "Failed to create admin wallet",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  //  Get user wallet :-
+
   async getUserWallet(userId: string): Promise<WalletResponseDTO> {
     try {
       const wallet = await this.walletRepo.findWalletByUserId(userId);
@@ -126,6 +136,8 @@ export class WalletService implements IWalletService {
       );
     }
   }
+
+  //  Get provider wallet :-
 
   async getProviderWallet(providerId: string): Promise<WalletResponseDTO> {
     try {
@@ -145,6 +157,8 @@ export class WalletService implements IWalletService {
     }
   }
 
+  //  Get admin wallet :-
+
   async getAdminWallet(adminId: string): Promise<WalletResponseDTO> {
     try {
       const wallet = await this.walletRepo.findWalletByAdminId(adminId);
@@ -162,6 +176,8 @@ export class WalletService implements IWalletService {
       );
     }
   }
+
+  //  Get wallet transaction :-
 
   async getTransactions(
     userId: string,
@@ -197,6 +213,8 @@ export class WalletService implements IWalletService {
       );
     }
   }
+
+  //  For distribute booking money :-
 
   async distributeBookingAmount(
     bookingId: string,
@@ -241,6 +259,8 @@ export class WalletService implements IWalletService {
       );
     }
   }
+
+  //  Re-fund handling :- (User)
 
   async processRefund(bookingId: string): Promise<boolean> {
     try {

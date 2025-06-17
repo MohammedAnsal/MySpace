@@ -25,10 +25,6 @@ washingRoute.post(
   "/washing/:id/cancel",
   washingController.cancelWashingRequest.bind(washingController)
 );
-washingRoute.post(
-  "/washing/:id/feedback",
-  washingController.addFeedback.bind(washingController)
-);
 
 // Provider routes
 washingRoute.get(

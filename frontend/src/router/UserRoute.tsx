@@ -6,7 +6,6 @@ import Auth from "@/pages/user/Auth/Auth";
 import { PublicRoute } from "@/router/authRoutes/user/publicRoute";
 import OTPVerification from "@/pages/user/Auth/Otp";
 import NotFound from "@/components/global/NotFound";
-// import ProtectRoute from "./authRoutes/user/ProtectRoute";
 import { Role } from "@/types/types";
 import { ProtecteddRoute } from "@/router/authRoutes/user/ProtectRoute";
 import ForgotPassword from "@/pages/user/Auth/ForgotPassword";
@@ -37,10 +36,6 @@ export const UserRoutes: RouteObject[] = [
     path: "/auth",
     element: <Auth />,
     children: [
-      // {
-      //   path: "",
-      //   element: <Navigate to="/auth/signUp" replace />,
-      // },
       {
         path: "signUp",
         element: (

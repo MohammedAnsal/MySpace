@@ -16,8 +16,6 @@ export const ProtectedRoute = ({
     (state: RootState) => state.admin
   );
 
-  console.log(role , 'roleeeeee')
-
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -30,10 +28,6 @@ export const ProtectedRoute = ({
 
     return <Navigate to={rePath} replace />;
   }
-
-  // if (role !== Role.USER) {
-  //   return <Navigate to={location} state={{ from: location }} replace />;
-  // }
 
   return <>{children}</>;
 };

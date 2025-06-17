@@ -4,7 +4,6 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
-// import { stripeWebhookController } from "../../controllers/implements/user/stripe-webhook.controller";
 
 const paymentRoute = express.Router();
 

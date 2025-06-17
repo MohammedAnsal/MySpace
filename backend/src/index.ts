@@ -12,8 +12,6 @@ import morgan from "morgan";
 import { morganOptions } from "./utils/logger";
 import authLimiter from "./middlewares/user/rate-limiting";
 import userRoute from "./routers/user/userRoute";
-import { autherization } from "./middlewares/auth/autherization.middlware";
-import { authMiddleWare } from "./middlewares/auth/auth.middleware";
 import { userTokenBlackList } from "./middlewares/user/auth.blacklist.middleware";
 import { providerTokenBlackList } from "./middlewares/provider/auth.blacklist.middleware";
 import providerRoute from "./routers/provider/provider.routes";
@@ -36,7 +34,7 @@ dotenv.config();
 
 dbConnect();
 
-cronService
+cronService;
 
 const morganFormat = ":method :url :status :response-time ms";
 

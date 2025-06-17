@@ -19,6 +19,8 @@ export class AdminFacilityService implements IAdminFacilityService {
     this.adminFacilityRepository = adminFacilityRepository;
   }
 
+  //  Admin create facility :-
+
   async createFacility(data: CreateFacilityDTO): Promise<FacilityResponseDTO> {
     try {
       const { name, price, description } = data;
@@ -55,6 +57,8 @@ export class AdminFacilityService implements IAdminFacilityService {
     }
   }
 
+  //  Find all facility :-
+
   async findAllFacilities(): Promise<FacilityResponseDTO> {
     try {
       const facilities = await this.adminFacilityRepository.findAllFacilities();
@@ -71,6 +75,8 @@ export class AdminFacilityService implements IAdminFacilityService {
       );
     }
   }
+
+  //  Find single facility :-
 
   async findFacilityById(facilityId: string): Promise<FacilityResponseDTO> {
     try {
@@ -98,6 +104,8 @@ export class AdminFacilityService implements IAdminFacilityService {
       );
     }
   }
+
+  //  Update facility status :-
 
   async updateFacilityStatus(
     data: UpdateFacilityStatusDTO
@@ -130,6 +138,8 @@ export class AdminFacilityService implements IAdminFacilityService {
       );
     }
   }
+
+  //  Delete facility :-
 
   async deleteFacility(facilityId: string): Promise<FacilityResponseDTO> {
     try {

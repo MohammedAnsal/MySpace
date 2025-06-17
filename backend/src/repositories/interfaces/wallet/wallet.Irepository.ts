@@ -1,5 +1,4 @@
 import { IWallet, IWalletTransaction } from "../../../models/wallet.model";
-import mongoose from "mongoose";
 
 export interface IWalletRepository {
 

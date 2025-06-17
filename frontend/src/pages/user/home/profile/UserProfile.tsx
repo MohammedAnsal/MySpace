@@ -47,7 +47,6 @@ const UserProfile: React.FC = () => {
   }, [profile]);
 
   const openEditModal = () => {
-    console.log("Opening modal with userProfile:", userProfile);
     if (userProfile) {
       setIsEditModalOpen(true);
     } else {

@@ -24,6 +24,8 @@ class HostelService implements IHostelService {
     this.hostelRepositoryy = hostelRepository;
   }
 
+  //  For DTO check :-
+
   private mapToHostelDTO(hostel: IHostel): HostelResponseDTO {
     return {
       _id: (hostel._id as mongoose.Types.ObjectId).toString(),
@@ -76,6 +78,8 @@ class HostelService implements IHostelService {
       updated_at: hostel.updated_at || new Date(),
     };
   }
+
+  //  Create hostel :-
 
   async createHostel(hostelData: CreateHostelDTO): Promise<HostelResult> {
     try {
@@ -137,10 +141,11 @@ class HostelService implements IHostelService {
     }
   }
 
+  //  Get all hostel's :-
+
   async getAllHostels(providerId: string): Promise<HostelResult> {
     try {
       const hostels = await this.hostelRepositoryy.getAllHostels(providerId);
-      console.log(hostels, "from service full hostel");
       return {
         success: true,
         message: "Hostels fetched successfully",
@@ -154,6 +159,8 @@ class HostelService implements IHostelService {
       );
     }
   }
+
+  //  Get single hostel :-
 
   async getHostelById(hostelId: string): Promise<HostelResult> {
     try {
@@ -179,6 +186,8 @@ class HostelService implements IHostelService {
       );
     }
   }
+
+  //  Edit hostel :-
 
   async editHostelById(
     hostelId: string,
@@ -230,6 +239,8 @@ class HostelService implements IHostelService {
       );
     }
   }
+
+  //  Delete hostel :-
 
   async deleteHostelById(hostelId: string): Promise<HostelResult> {
     try {

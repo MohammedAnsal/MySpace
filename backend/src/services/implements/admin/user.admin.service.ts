@@ -1,10 +1,6 @@
 import Container, { Service } from "typedi";
-import { IUser } from "../../../models/user.model";
 import { UserRepository } from "../../../repositories/implementations/user/user.repository";
-import {
-  AdminResult,
-  IAdminUserService,
-} from "../../interface/admin/user.admin.service.interface";
+import { IAdminUserService } from "../../interface/admin/user.admin.service.interface";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { IAdminRepository } from "../../../repositories/interfaces/admin/admin.Irepository";
@@ -15,10 +11,9 @@ import { hostelRepository } from "../../../repositories/implementations/provider
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 import { walletService } from "../wallet/wallet.service";
-import { IWalletService } from "../../interface/wallet/wallet.service.interface";
 import { INotificationService } from "../../interface/notification/notification.service.interface";
 import { notificationService } from "../notification/notification.service";
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import {
   AdminSearchDTO,
   AdminVerifyHostelDTO,
@@ -26,12 +21,8 @@ import {
   AdminUserUpdateResponseDTO,
   AdminHostelResponseDTO,
   AdminDashboardResponseDTO,
-  AdminWalletDTO
+  AdminWalletDTO,
 } from "../../../dtos/admin/user.dto";
-
-interface PopulatedId {
-  _id: Types.ObjectId;
-}
 
 @Service()
 export class AdminUserService implements IAdminUserService {
@@ -49,43 +40,69 @@ export class AdminUserService implements IAdminUserService {
     this.notificationService = notificationService;
   }
 
+  //  Admin create wallet :-
+
   async createWallet(adminId: string): Promise<AdminWalletDTO> {
     try {
       const adminWallet = await walletService.createAdminWallet(adminId);
       if (!adminWallet) {
-        throw new AppError("Failed to add admin wallet", HttpStatus.BAD_REQUEST);
+        throw new AppError(
+          "Failed to add admin wallet",
+          HttpStatus.BAD_REQUEST
+        );
       }
       return adminWallet;
     } catch (error) {
-      throw new AppError("Failed to create wallet", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to create wallet",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
+  //  Find all user's :-
+
   async findAllUser(data: AdminSearchDTO): Promise<AdminUserResponseDTO> {
     try {
-      const allUsers = await this.userRepo.findUserByRole("user", data.searchQuery);
+      const allUsers = await this.userRepo.findUserByRole(
+        "user",
+        data.searchQuery
+      );
       if (!allUsers) {
         throw new AppError("Failed to fetch users", HttpStatus.BAD_REQUEST);
       }
       return { success: true, data: allUsers };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to fetch users", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to fetch users",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
+  //  Find all provider's :-
+
   async findAllProvider(data: AdminSearchDTO): Promise<AdminUserResponseDTO> {
     try {
-      const allProviders = await this.userRepo.findUserByRole("provider", data.searchQuery);
+      const allProviders = await this.userRepo.findUserByRole(
+        "provider",
+        data.searchQuery
+      );
       if (!allProviders) {
         throw new AppError("Failed to fetch providers", HttpStatus.BAD_REQUEST);
       }
       return { success: true, data: allProviders };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to fetch providers", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to fetch providers",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
+
+  //  Update user status :-
 
   async updateUser(email: string): Promise<AdminUserUpdateResponseDTO> {
     try {
@@ -99,14 +116,21 @@ export class AdminUserService implements IAdminUserService {
 
       return {
         success: true,
-        message: findUser.role === "user" ? "User status updated" : "Provider status updated"
+        message:
+          findUser.role === "user"
+            ? "User status updated"
+            : "Provider status updated",
       };
     } catch (error) {
       throw new AppError("Internal error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async verifyHostel(data: AdminVerifyHostelDTO): Promise<AdminHostelResponseDTO> {
+  //  Verify hostel :-
+
+  async verifyHostel(
+    data: AdminVerifyHostelDTO
+  ): Promise<AdminHostelResponseDTO> {
     try {
       const { hostelId, reason, isVerified, isRejected } = data;
       if (!hostelId) {
@@ -129,7 +153,9 @@ export class AdminUserService implements IAdminUserService {
           recipient: new Types.ObjectId(String(providerId)),
           sender: new Types.ObjectId(process.env.ADMIN_ID!),
           title: "Hostel Verification",
-          message: `Your hostel "${result?.hostel_name}" has been ${isVerified ? 'verified' : 'rejected'}.`,
+          message: `Your hostel "${result?.hostel_name}" has been ${
+            isVerified ? "verified" : "rejected"
+          }.`,
           type: "hostel",
         });
       }
@@ -140,14 +166,21 @@ export class AdminUserService implements IAdminUserService {
 
       return {
         success: true,
-        message: isVerified ? "Hostel verified successfully" : "Hostel rejected successfully",
-        data: result
+        message: isVerified
+          ? "Hostel verified successfully"
+          : "Hostel rejected successfully",
+        data: result,
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to verify hostel", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to verify hostel",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
+
+  //  Find un-verified hostel's :-
 
   async getUnverifiedHostels(): Promise<AdminHostelResponseDTO> {
     try {
@@ -155,13 +188,18 @@ export class AdminUserService implements IAdminUserService {
       return {
         success: true,
         message: "Unverified hostels fetched successfully",
-        data: hostels
+        data: hostels,
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to fetch unverified hostels", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to fetch unverified hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
+
+  //  Find verified hostel's :-
 
   async getVerifiedHostels(): Promise<AdminHostelResponseDTO> {
     try {
@@ -169,13 +207,18 @@ export class AdminUserService implements IAdminUserService {
       return {
         success: true,
         message: "Verified hostels fetched successfully",
-        data: hostels
+        data: hostels,
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to fetch verified hostels", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to fetch verified hostels",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
+
+  //  Find single hostel :-
 
   async getHostelById(hostelId: string): Promise<AdminHostelResponseDTO> {
     try {
@@ -190,7 +233,9 @@ export class AdminUserService implements IAdminUserService {
 
       if (hostel.photos && hostel.photos.length > 0) {
         const signedPhotos = await Promise.all(
-          hostel.photos.map((photo) => this.s3ServiceInstance.generateSignedUrl(photo))
+          hostel.photos.map((photo) =>
+            this.s3ServiceInstance.generateSignedUrl(photo)
+          )
         );
         hostel.photos = signedPhotos;
       }
@@ -198,13 +243,18 @@ export class AdminUserService implements IAdminUserService {
       return {
         success: true,
         message: "Hostel details fetched successfully",
-        data: hostel
+        data: hostel,
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to fetch hostel details", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to fetch hostel details",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
+
+  //  Get dashboard :- (Admin)
 
   async getAdminDashboard(): Promise<AdminDashboardResponseDTO> {
     try {
@@ -239,7 +289,10 @@ export class AdminUserService implements IAdminUserService {
 
         return {
           week: `Week ${7 - i}`,
-          revenue: weeklyBookings.reduce((sum, booking) => sum + booking.totalPrice, 0)
+          revenue: weeklyBookings.reduce(
+            (sum, booking) => sum + booking.totalPrice,
+            0
+          ),
         };
       }).reverse();
 
@@ -255,8 +308,13 @@ export class AdminUserService implements IAdminUserService {
         });
 
         return {
-          month: new Date(currentYear, index).toLocaleString("default", { month: "short" }),
-          revenue: monthBookings.reduce((sum, booking) => sum + booking.totalPrice, 0)
+          month: new Date(currentYear, index).toLocaleString("default", {
+            month: "short",
+          }),
+          revenue: monthBookings.reduce(
+            (sum, booking) => sum + booking.totalPrice,
+            0
+          ),
         };
       });
 
@@ -265,12 +323,18 @@ export class AdminUserService implements IAdminUserService {
         const year = currentYear - i;
         const yearBookings = totalBookings.filter((booking) => {
           const bookingDate = new Date(booking.bookingDate);
-          return bookingDate.getFullYear() === year && booking.paymentStatus === "completed";
+          return (
+            bookingDate.getFullYear() === year &&
+            booking.paymentStatus === "completed"
+          );
         });
 
         return {
           year,
-          revenue: yearBookings.reduce((sum, booking) => sum + booking.totalPrice, 0)
+          revenue: yearBookings.reduce(
+            (sum, booking) => sum + booking.totalPrice,
+            0
+          ),
         };
       });
 
@@ -282,12 +346,15 @@ export class AdminUserService implements IAdminUserService {
         revenueData: {
           weekly: weeklyRevenue,
           monthly: monthlyRevenue,
-          yearly: yearlyRevenue
-        }
+          yearly: yearlyRevenue,
+        },
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to fetch dashboard data", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to fetch dashboard data",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }

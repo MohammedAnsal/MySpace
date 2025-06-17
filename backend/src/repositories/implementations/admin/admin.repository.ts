@@ -13,6 +13,8 @@ export class AdminRepository
     super(Admin);
   }
 
+  //  For finding email :-
+
   async findByEmail(email: string): Promise<IAdmin | null> {
     try {
       return await Admin.findOne({ email });
@@ -22,6 +24,8 @@ export class AdminRepository
       );
     }
   }
+
+  //  For update password :-
 
   async updatePassword(
     email: string,
@@ -42,6 +46,8 @@ export class AdminRepository
     }
   }
 
+  //  For verify hsotel :-
+
   async verifyHostel(
     hostelId: string,
     reason: string,
@@ -56,14 +62,12 @@ export class AdminRepository
           { new: true }
         ).populate(["provider_id", "location", "facilities"]);
       } else if (isRejected) {
-        console.log("2");
         return await Hostel.findByIdAndUpdate(
           hostelId,
           { $set: { is_verified: false, reason, is_rejected: false } },
           { new: true }
         ).populate(["provider_id", "location", "facilities"]);
       } else {
-        console.log("1");
         return await Hostel.findByIdAndUpdate(
           hostelId,
           { $set: { is_rejected: true, reason, is_verified: false } },
@@ -75,6 +79,8 @@ export class AdminRepository
       throw new Error("Failed to verify hostel");
     }
   }
+
+  //  For find un-verified hostel's :-
 
   async getUnverifiedHostels(): Promise<IHostel[]> {
     try {
@@ -93,6 +99,8 @@ export class AdminRepository
     }
   }
 
+  //  For find verified hostel's :-
+
   async getVerifiedHostels(): Promise<IHostel[]> {
     try {
       const hostels = await Hostel.find({
@@ -109,6 +117,8 @@ export class AdminRepository
       throw error;
     }
   }
+
+  //  For find single hostel :-
 
   async getHostelById(hostelId: string): Promise<IHostel | null> {
     try {

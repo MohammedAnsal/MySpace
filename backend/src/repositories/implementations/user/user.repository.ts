@@ -12,6 +12,8 @@ export class UserRepository
     super(User);
   }
 
+  //  For find by email :- (user)
+
   async findUserByEmail(email: string): Promise<IUser | null | never> {
     try {
       return await User.findOne({ email });
@@ -20,13 +22,7 @@ export class UserRepository
     }
   }
 
-  // async findUserByRole(role: string): Promise<IUser[] | never> {
-  //   try {
-  //     return await User.find({ role }, "-password");
-  //   } catch (error) {
-  //     return Promise.reject(new Error(`Error finding users by role: ${error}`));
-  //   }
-  // }
+  //  For find by role :- (user)
 
   async findUserByRole(
     role: string,
@@ -51,6 +47,8 @@ export class UserRepository
     }
   }
 
+  //  For verify user :-
+
   async verifyUser(
     email: string,
     is_verified: boolean
@@ -64,6 +62,8 @@ export class UserRepository
       );
     }
   }
+
+  //  For update password :-
 
   async updatePassword(
     email: string,

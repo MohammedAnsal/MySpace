@@ -57,6 +57,8 @@ export class StripeService {
     }
   }
 
+  //  For create stripe checkOut session :-
+
   async createCheckoutSession(
     params: CreateCheckoutSessionParams
   ): Promise<string> {
@@ -121,6 +123,8 @@ export class StripeService {
     }
   }
 
+  //  For validate the stripe webHook signature :-
+
   async validateWebhookSignature(
     payload: string,
     signature: string
@@ -137,6 +141,8 @@ export class StripeService {
     }
   }
 
+  //  For handle Webhook :-
+
   async handleWebhookEvent(payload: any, signature: string): Promise<void> {
     try {
       const event = this.stripe.webhooks.constructEvent(
@@ -150,9 +156,14 @@ export class StripeService {
           const session = event.data.object as Stripe.Checkout.Session;
           const amount = session.amount_total! / 100;
 
-          const payment = await this.paymentRepo.findByStripeSessionId(session.id);
+          const payment = await this.paymentRepo.findByStripeSessionId(
+            session.id
+          );
           if (!payment) {
-            throw new AppError("Payment record not found", StatusCodes.NOT_FOUND);
+            throw new AppError(
+              "Payment record not found",
+              StatusCodes.NOT_FOUND
+            );
           }
 
           // Update Payment Status
@@ -168,14 +179,18 @@ export class StripeService {
             );
 
             // Create notification in database
-            const notification = await this.notificationService.createNotification({
-              recipient: new mongoose.Types.ObjectId(String(bookingData?.providerId)),
-              sender: new mongoose.Types.ObjectId(String(bookingData?.userId)),
-              title: "New Booking Request",
-              message: `You have received a new booking request for ${hostel?.hostel_name}`,
-              type: "booking",
-              // relatedId: bookingData._id
-            });
+            const notification =
+              await this.notificationService.createNotification({
+                recipient: new mongoose.Types.ObjectId(
+                  String(bookingData?.providerId)
+                ),
+                sender: new mongoose.Types.ObjectId(
+                  String(bookingData?.userId)
+                ),
+                title: "New Booking Request",
+                message: `You have received a new booking request for ${hostel?.hostel_name}`,
+                type: "booking",
+              });
 
             // Emit real-time notification
             socketService.emitNotification(

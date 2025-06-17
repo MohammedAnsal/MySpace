@@ -19,6 +19,8 @@ export class ChatRoomService implements IChatRoomService {
     this.messageRepository = messageRepository;
   }
 
+  //  Create chat room :-
+
   async createChatRoom(
     userId: string | Types.ObjectId,
     providerId: string | Types.ObjectId
@@ -52,6 +54,8 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
+  //  Get single chatRoom :-
+
   async getChatRoomById(
     chatRoomId: string | Types.ObjectId
   ): Promise<IChatRoom | null> {
@@ -66,23 +70,7 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
-  async getChatRoomByUserAndProvider(
-    userId: string | Types.ObjectId,
-    providerId: string | Types.ObjectId
-  ): Promise<IChatRoom | null> {
-    try {
-      return await this.chatRoomRepository.findChatRoomByUserAndProvider(
-        userId,
-        providerId
-      );
-    } catch (error) {
-      if (error instanceof AppError) throw error;
-      throw new AppError(
-        "An error occurred while fetching chat room by user and provider",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
+  //  Update latest message :-
 
   async updateLastMessage(
     chatRoomId: string | Types.ObjectId,
@@ -146,6 +134,8 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
+  //  Get All user chat room's :-
+
   async getUserChatRooms(
     userId: string | Types.ObjectId,
     page: number = 1,
@@ -166,6 +156,8 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
+  //  Get All provider chat room's :-
+
   async getProviderChatRooms(
     providerId: string | Types.ObjectId,
     page: number = 1,
@@ -185,6 +177,8 @@ export class ChatRoomService implements IChatRoomService {
       );
     }
   }
+
+  //  Soon :-
 
   async deleteChatRoom(chatRoomId: string | Types.ObjectId): Promise<boolean> {
     try {

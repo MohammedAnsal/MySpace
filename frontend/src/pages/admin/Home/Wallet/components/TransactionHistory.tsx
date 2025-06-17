@@ -35,8 +35,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
 
-  console.log(transactions, "aaaaaaaaaaa");
-
   const tableVariants = {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },

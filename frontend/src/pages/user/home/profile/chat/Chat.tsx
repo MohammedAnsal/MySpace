@@ -197,8 +197,7 @@ export const Chat = () => {
   };
 
   // Get recipient name for reply
-  const getRecipientName = (message: IMessage) => {
-    console.log(message);
+  const getRecipientName = () => {
     if (!selectedChatRoom) return "User";
     return getOtherUser(selectedChatRoom)?.fullName || "User";
   };

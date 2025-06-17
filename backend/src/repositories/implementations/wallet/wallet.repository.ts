@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 
 @Service()
 export class WalletRepository implements IWalletRepository {
+  //  For create wallet :-
 
   async createWallet(walletData: IWallet): Promise<IWallet> {
     try {
@@ -18,6 +19,8 @@ export class WalletRepository implements IWalletRepository {
       throw error;
     }
   }
+
+  //  For find user wallet :-
 
   async findWalletByUserId(userId: string): Promise<IWallet | null> {
     try {
@@ -29,6 +32,8 @@ export class WalletRepository implements IWalletRepository {
     }
   }
 
+  //  For find admin wallet :-
+
   async findWalletByAdminId(adminId: string): Promise<IWallet | null> {
     try {
       return await WalletModel.findOne({ adminId });
@@ -36,6 +41,8 @@ export class WalletRepository implements IWalletRepository {
       throw error;
     }
   }
+
+  //  For find wallet balance :-
 
   async updateBalance(
     walletId: string,
@@ -51,6 +58,8 @@ export class WalletRepository implements IWalletRepository {
       throw error;
     }
   }
+
+  //  For add wallet transaction :-
 
   async addTransaction(
     walletId: string,
@@ -74,6 +83,8 @@ export class WalletRepository implements IWalletRepository {
       throw error;
     }
   }
+
+  //  For distribute booking money :-
 
   async distributeBookingAmount(
     bookingId: string,
@@ -128,6 +139,8 @@ export class WalletRepository implements IWalletRepository {
       throw error;
     }
   }
+
+  //  For wallet re-fund :- (user)
 
   async processRefund(
     bookingId: string,

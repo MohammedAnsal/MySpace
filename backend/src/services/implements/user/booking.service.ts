@@ -1,18 +1,16 @@
 import {
   IBookingService,
-  BookingCreateDTO,
   FacilityI,
 } from "../../interface/user/booking.service.interface";
 import { IBookingRepository } from "../../../repositories/interfaces/user/booking.Irepository";
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
-import { IBooking, IFacilitySelection } from "../../../models/booking.model";
 import { AppError } from "../../../utils/error";
 import mongoose from "mongoose";
 import { s3Service } from "../s3/s3.service";
 import Container, { Service } from "typedi";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
 import { adminFacilityRepository } from "../../../repositories/implementations/admin/facility.repository";
-import { IFacilityRepository } from "../../../repositories/interfaces/provider/facility.Irepository";
+import { IAdminFacilityRepository } from "../../../repositories/interfaces/admin/facility.Irepository";
 import { bookingRepository } from "../../../repositories/implementations/user/booking.repository";
 import { notificationService } from "../notification/notification.service";
 import { INotificationService } from "../../interface/notification/notification.service.interface";
@@ -27,7 +25,7 @@ import socketService from "../socket/socket.service";
 export class BookingService implements IBookingService {
   private s3Service: s3Service;
   private hostelRepository: IHostelRepository;
-  private facilityRepository: IFacilityRepository;
+  private facilityRepository: IAdminFacilityRepository;
   private bookingRepository: IBookingRepository;
   private notificationService: INotificationService;
 
@@ -38,6 +36,8 @@ export class BookingService implements IBookingService {
     this.bookingRepository = bookingRepository;
     this.notificationService = notificationService;
   }
+
+  //  For DTO check :-
 
   private mapToBookingDTO(booking: any): BookingResponseDTO {
     return {
@@ -62,12 +62,13 @@ export class BookingService implements IBookingService {
     };
   }
 
+  //  Create booking :-
+
   async createBooking(
     bookingData: CreateBookingDTO,
     selectedFacilitiess: FacilityI[]
   ): Promise<BookingResponseDTO> {
     try {
-      // Validate IDs before proceeding
       if (
         !bookingData.userId ||
         !bookingData.hostelId ||
@@ -76,7 +77,6 @@ export class BookingService implements IBookingService {
         throw new AppError("Missing required IDs", 400);
       }
 
-      // Validate ID formats
       if (!mongoose.Types.ObjectId.isValid(bookingData.userId)) {
         throw new AppError(
           `Invalid user ID format: ${bookingData.userId}`,
@@ -106,25 +106,10 @@ export class BookingService implements IBookingService {
         throw new AppError("No beds available in this hostel", 400);
       }
 
-      // Check date availability
-      // const isAvailable = await this.checkAvailability(
-      //   bookingData.hostelId,
-      //   bookingData.checkIn,
-      //   bookingData.checkOut
-      // );
-
-      // if (!isAvailable) {
-      //   throw new AppError(
-      //     "Selected dates are not available for booking",
-      //     400
-      //   );
-      // }
-
       if (!bookingData.proof || !bookingData.proof.buffer) {
         throw new AppError("Proof document is required", 400);
       }
 
-      // Upload proof to S3
       const uploadResult = await this.s3Service.uploadFile(
         bookingData.proof,
         "proof"
@@ -174,21 +159,9 @@ export class BookingService implements IBookingService {
         })),
       };
 
-      console.log("Creating booking with data:", bookingDataToCreate);
-
       const booking = await this.bookingRepository.createBooking(
         bookingDataToCreate
       );
-
-      // Create notification for the provider
-      // await this.notificationService.createNotification({
-      //   recipient: booking.providerId,
-      //   sender: booking.userId,
-      //   title: "New Booking Request",
-      //   message: `You have received a new booking request for ${hostel.hostel_name}`,
-      //   type: "hostel",
-      //   // relatedId: booking._id
-      // });
 
       return this.mapToBookingDTO(booking);
     } catch (error) {
@@ -206,6 +179,8 @@ export class BookingService implements IBookingService {
       throw error;
     }
   }
+
+  //  Get single booking details :-
 
   async getBookingById(bookingId: string): Promise<BookingResponseDTO> {
     try {
@@ -227,6 +202,8 @@ export class BookingService implements IBookingService {
       throw new AppError("Error retrieving booking details", 500);
     }
   }
+
+  //  Get provider bookig's :-
 
   async getProviderBookings(providerId: string): Promise<BookingResponseDTO[]> {
     try {
@@ -252,6 +229,8 @@ export class BookingService implements IBookingService {
     }
   }
 
+  //  Get user bookig's :-
+
   async getUserBookings(userId: string): Promise<BookingResponseDTO[]> {
     try {
       const bookings = await this.bookingRepository.getUserBookings(userId);
@@ -273,6 +252,8 @@ export class BookingService implements IBookingService {
       throw error;
     }
   }
+
+  //  Get all bookig's :-
 
   async getAllBookings(): Promise<BookingResponseDTO[]> {
     try {
@@ -296,79 +277,7 @@ export class BookingService implements IBookingService {
     }
   }
 
-  // async getHostelBookings(hostelId: string): Promise<IBooking[]> {
-  //   return await this.bookingRepository.getHostelBookings(hostelId);
-  // }
-
-  // async updateBooking(
-  //   bookingId: string,
-  //   updateData: BookingUpdateDTO
-  // ): Promise<IBooking> {
-  //   const booking = await this.bookingRepository.getBookingById(bookingId);
-  //   if (!booking) {
-  //     throw new AppError("Booking not found", 404);
-  //   }
-
-  //   if (booking.paymentStatus === "cancelled") {
-  //     throw new AppError("Cannot update cancelled booking", 400);
-  //   }
-
-  //   // Handle proof update if new proof is provided
-  //   let proofUrl = booking.proof;
-  //   if (updateData.proof) {
-  //     try {
-  //       // Delete old proof if it exists
-  //       if (booking.proof) {
-  //         await this.s3Service.delete_File([booking.proof]);
-  //       }
-
-  //       // Upload new proof
-  //       const uploadResult = await this.s3Service.uploadFile(
-  //         updateData.proof,
-  //         `bookings/${booking.userId}/proofs`
-  //       );
-
-  //       if (Array.isArray(uploadResult)) {
-  //         if (!uploadResult[0]?.Location) {
-  //           throw new AppError("Failed to upload new proof document", 500);
-  //         }
-  //         proofUrl = uploadResult[0].Location;
-  //       } else {
-  //         if (!uploadResult.Location) {
-  //           throw new AppError("Failed to upload new proof document", 500);
-  //         }
-  //         proofUrl = uploadResult.Location;
-  //       }
-  //     } catch (error) {
-  //       throw new AppError("Failed to update proof document", 500);
-  //     }
-  //   }
-
-  //   // Recalculate costs if necessary
-  //   let costs = {};
-  //   if (updateData.stayDurationInMonths || updateData.selectedFacilities) {
-  //     costs = await this.calculateBookingCost(
-  //       booking.hostelId.toString(),
-  //       updateData.stayDurationInMonths || booking.stayDurationInMonths,
-  //       updateData.selectedFacilities || booking.selectedFacilities
-  //     );
-  //   }
-
-  //   const updatedBooking = await this.bookingRepository.updateBooking(
-  //     bookingId,
-  //     {
-  //       ...updateData,
-  //       proof: proofUrl,
-  //       ...costs,
-  //     }
-  //   );
-
-  //   if (!updatedBooking) {
-  //     throw new AppError("Failed to update booking", 500);
-  //   }
-
-  //   return updatedBooking;
-  // }
+  //  Cancel booking :-
 
   async cancelBooking(
     bookingId: string,
@@ -380,10 +289,6 @@ export class BookingService implements IBookingService {
     if (!booking) {
       throw new AppError("Booking not found", 404);
     }
-
-    // if (booking.paymentStatus === "cancelled") {
-    //   throw new AppError("Booking is already cancelled", 400);
-    // }
 
     const cancelledBooking = await this.bookingRepository.cancelBooking(
       bookingId,
@@ -401,7 +306,6 @@ export class BookingService implements IBookingService {
         title: "Hostel Booking Cancelled",
         message: `A booking for your hostel "${hostel?.hostel_name}" has been cancelled by the user.`,
         type: "booking",
-        // relatedId: booking._id
       });
 
       socketService.emitNotification(String(booking?.providerId), notification);
@@ -413,49 +317,6 @@ export class BookingService implements IBookingService {
 
     return this.mapToBookingDTO(cancelledBooking);
   }
-
-  // async processPayment(
-  //   bookingId: string,
-  //   paymentDetails: any
-  // ): Promise<IBooking> {
-  //   const booking = await this.bookingRepository.getBookingById(bookingId);
-  //   if (!booking) {
-  //     throw new AppError("Booking not found", 404);
-  //   }
-
-  //   if (booking.paymentStatus === "completed") {
-  //     throw new AppError("Booking is already paid", 400);
-  //   }
-
-  //   if (booking.paymentStatus === "cancelled") {
-  //     throw new AppError("Cannot process payment for cancelled booking", 400);
-  //   }
-
-  //   // Process payment logic here
-  //   // ... payment gateway integration
-
-  //   const updatedBooking = await this.bookingRepository.updatePaymentStatus(
-  //     bookingId,
-  //     "completed"
-  //   );
-  //   if (!updatedBooking) {
-  //     throw new AppError("Failed to update payment status", 500);
-  //   }
-
-  //   return updatedBooking;
-  // }
-
-  // async checkAvailability(
-  //   hostelId: string,
-  //   checkIn: Date,
-  //   checkOut: Date
-  // ): Promise<boolean> {
-  //   return await this.bookingRepository.checkBookingAvailability(
-  //     hostelId,
-  //     checkIn,
-  //     checkOut
-  //   );
-  // }
 
   //  Calculate Booking Charges :- (Fun)
 

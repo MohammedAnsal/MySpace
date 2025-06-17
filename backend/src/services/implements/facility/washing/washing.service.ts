@@ -3,7 +3,6 @@ import { IWashingService } from "../../../interface/facility/washing/washing.ser
 import {
   CreateWashingRequestDTO,
   UpdateWashingStatusDTO,
-  AddFeedbackDTO,
   WashingResponseDTO,
   WashingRequestDataDTO,
 } from "../../../../dtos/facility/washing/washing.dto";
@@ -14,6 +13,8 @@ import { Types } from "mongoose";
 
 @Service()
 export class WashingService implements IWashingService {
+  //  Create washing req :-
+
   async createWashingRequest(
     userId: string,
     data: CreateWashingRequestDTO
@@ -65,6 +66,8 @@ export class WashingService implements IWashingService {
     }
   }
 
+  //  Get user washing req :-
+
   async getUserWashingRequests(userId: string): Promise<WashingResponseDTO> {
     try {
       const requests = await washingRepository.getUserWashingRequests(userId);
@@ -80,6 +83,8 @@ export class WashingService implements IWashingService {
       );
     }
   }
+
+  //  Get provider washing req :-
 
   async getProviderWashingRequests(
     providerId: string
@@ -101,6 +106,8 @@ export class WashingService implements IWashingService {
     }
   }
 
+  //  Get wahsing req byId :-
+
   async getWashingRequestById(id: string): Promise<WashingResponseDTO> {
     try {
       const request = await washingRepository.getWashingRequestById(id);
@@ -120,6 +127,8 @@ export class WashingService implements IWashingService {
       );
     }
   }
+
+  //  Update washing req status :-
 
   async updateWashingRequestStatus(
     id: string,
@@ -170,6 +179,8 @@ export class WashingService implements IWashingService {
     }
   }
 
+  //  Cancel washing req :-
+
   async cancelWashingRequest(
     id: string,
     userId: string
@@ -218,65 +229,6 @@ export class WashingService implements IWashingService {
       if (error instanceof AppError) throw error;
       throw new AppError(
         "Failed to cancel washing request",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  async addFeedback(
-    id: string,
-    userId: string,
-    data: AddFeedbackDTO
-  ): Promise<WashingResponseDTO> {
-    try {
-      if (data.rating < 1 || data.rating > 5) {
-        throw new AppError(
-          "Rating must be between 1 and 5",
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      const request = await washingRepository.getWashingRequestById(id);
-      if (!request) {
-        throw new AppError("Washing request not found", HttpStatus.NOT_FOUND);
-      }
-
-      if (request.userId._id.toString() !== userId) {
-        throw new AppError(
-          "Unauthorized to add feedback to this request",
-          HttpStatus.FORBIDDEN
-        );
-      }
-
-      if (request.status !== "Completed") {
-        throw new AppError(
-          "Can only add feedback to completed requests",
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      if (request.feedback && request.feedback.rating) {
-        throw new AppError(
-          "Feedback already exists for this request",
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      const updatedRequest = await washingRepository.addFeedback(
-        id,
-        data.rating,
-        data.comment
-      );
-
-      return {
-        success: true,
-        message: "Feedback added successfully",
-        data: updatedRequest,
-      };
-    } catch (error) {
-      if (error instanceof AppError) throw error;
-      throw new AppError(
-        "Failed to add feedback",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

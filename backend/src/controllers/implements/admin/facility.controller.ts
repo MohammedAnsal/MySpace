@@ -13,6 +13,8 @@ export class AdminFacilityController {
     this.adminFacilityService = adminFacilityService;
   }
 
+  //  Admin create facility :-
+
   async createFacility(req: AuthRequset, res: Response): Promise<any> {
     try {
       const formData = req.body;
@@ -62,6 +64,8 @@ export class AdminFacilityController {
     }
   }
 
+  //  Find all facility :-
+
   async findAllFacilities(req: AuthRequset, res: Response): Promise<any> {
     try {
       const adminId = req.user?.id;
@@ -91,6 +95,8 @@ export class AdminFacilityController {
       });
     }
   }
+
+  //  Find single facility :-
 
   async getFacilityById(req: AuthRequset, res: Response): Promise<any> {
     try {
@@ -125,18 +131,22 @@ export class AdminFacilityController {
     }
   }
 
+  //  Update facility status :-
+
   async updateFacilityStatus(req: AuthRequset, res: Response): Promise<any> {
     try {
-      const { facilityId, status } = req.body;
       const adminId = req.user?.id;
 
       if (!adminId) {
         throw new AppError("Admin not authenticated", 401);
       }
+
+      const { facilityId, status } = req.body;
       const result = await this.adminFacilityService.updateFacilityStatus({
         facilityId,
         status,
       });
+
       return res.status(200).json(result);
     } catch (error) {
       console.error("Controller error details:", error);
@@ -153,15 +163,16 @@ export class AdminFacilityController {
     }
   }
 
+  //  Delete facility :-
+
   async deleteFacility(req: AuthRequset, res: Response): Promise<any> {
     try {
-      const { facilityId } = req.params;
-
       const adminId = req.user?.id;
-
       if (!adminId) {
         throw new AppError("Admin not authenticated", 401);
       }
+
+      const { facilityId } = req.params;
 
       const result = await this.adminFacilityService.deleteFacility(facilityId);
       return res.status(200).json(result);

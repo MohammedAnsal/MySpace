@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { ObjectId, Types } from "mongoose";
+import { Types } from "mongoose";
 
 export interface INotification extends Document {
   recipient: Types.ObjectId;
@@ -9,7 +9,6 @@ export interface INotification extends Document {
   type: "message" | "hostel" | "rent_reminder" | "booking";
   isRead: boolean;
   isDeleted: boolean;
-  // relatedId?: String;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -28,6 +28,8 @@ export class AdminAuthService implements IAdminAuthService {
     this.adminRepo = new AdminRepository();
   }
 
+  //  Admin signIn :-
+
   async admin_signIn(data: AdminSignInDTO): Promise<AdminSignInResponseDTO> {
     try {
       const { email, password } = data;
@@ -78,6 +80,8 @@ export class AdminAuthService implements IAdminAuthService {
     }
   }
 
+  //  Forgot password :-
+
   async forgotPassword(
     data: AdminForgotPasswordDTO
   ): Promise<AdminForgotPasswordResponseDTO> {
@@ -106,6 +110,8 @@ export class AdminAuthService implements IAdminAuthService {
       );
     }
   }
+
+  //  Re-set password :-
 
   async resetPassword(
     data: AdminResetPasswordDTO
@@ -145,6 +151,8 @@ export class AdminAuthService implements IAdminAuthService {
       );
     }
   }
+
+  //  Set newToken :-
 
   async checkToken(token: string): Promise<AdminTokenResponseDTO> {
     try {

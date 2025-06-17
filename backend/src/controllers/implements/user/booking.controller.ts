@@ -18,6 +18,8 @@ class BookingController implements IBookingController {
     this.walletService = walletService;
   }
 
+  //  Create booking :-
+
   async createBooking(req: AuthRequset, res: Response): Promise<void> {
     try {
       const {
@@ -82,6 +84,8 @@ class BookingController implements IBookingController {
     }
   }
 
+  //  Get single booking details :-
+
   async getBookingDetails(req: AuthRequset, res: Response): Promise<void> {
     try {
       const { bookingId } = req.params;
@@ -105,6 +109,8 @@ class BookingController implements IBookingController {
       }
     }
   }
+
+  //  Get provider bookig's :-
 
   async getProviderBookings(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -136,6 +142,8 @@ class BookingController implements IBookingController {
     }
   }
 
+  //  Get user bookig's :-
+
   async getUserBookings(req: AuthRequset, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
@@ -163,6 +171,8 @@ class BookingController implements IBookingController {
       }
     }
   }
+
+  //  Get all bookig's :-
 
   async getAllBookings(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -192,64 +202,7 @@ class BookingController implements IBookingController {
     }
   }
 
-  // async getHostelBookings(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { hostelId } = req.params;
-  //     const bookings = await this.bookingService.getHostelBookings(hostelId);
-
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: bookings,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       res.status(500).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
-
-  // async updateBooking(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { bookingId } = req.params;
-  //     const updateData = req.body;
-
-  //     // Validate update data
-  //     //   const validationError = validateUpdateData(updateData);
-  //     //   if (validationError) {
-  //     //     throw new AppError(validationError, 400);
-  //     //   }
-
-  //     const updatedBooking = await this.bookingService.updateBooking(
-  //       bookingId,
-  //       updateData
-  //     );
-
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: updatedBooking,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       res.status(500).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
+  //  Cancel booking :-
 
   async cancelBooking(req: AuthRequset, res: Response): Promise<void> {
     try {
@@ -267,14 +220,6 @@ class BookingController implements IBookingController {
 
       // Get the booking to check the check-in date
       const booking = await this.bookingService.getBookingById(bookingId);
-
-      // Check if the booking belongs to the user
-      // if (booking.userId.toString() !== userId) {
-      //   throw new AppError(
-      //     "You are not authorized to cancel this booking",
-      //     403
-      //   );
-      // }
 
       // Check if today is before the check-in date
       const today = new Date();
@@ -319,79 +264,6 @@ class BookingController implements IBookingController {
       }
     }
   }
-
-  // async processPayment(req: AuthRequset, res: Response): Promise<void> {
-  //   try {
-  //     const userId = req.user?.id;
-  //     if (!userId) {
-  //       throw new AppError("User not authenticated", 401);
-  //     }
-  //     const { bookingId } = req.params;
-  //     const paymentDetails = req.body;
-
-  //     const updatedBooking = await this.bookingService.processPayment(
-  //       bookingId,
-  //       paymentDetails
-  //     );
-
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: updatedBooking,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       res.status(500).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
-
-  // async checkAvailability(req: AuthRequset, res: Response): Promise<void> {
-  //   try {
-  //     const userId = req.user?.id;
-  //     if (!userId) {
-  //       throw new AppError("User not authenticated", 401);
-  //     }
-  //     const { hostelId, checkIn, checkOut, selectedSpace } = req.query;
-
-  //     if (!hostelId || !checkIn || !checkOut || !selectedSpace) {
-  //       throw new AppError("Missing required query parameters", 400);
-  //     }
-
-  //     const isAvailable = await this.bookingService.checkAvailability(
-  //       hostelId as string,
-  //       new Date(checkIn as string),
-  //       new Date(checkOut as string),
-  //       selectedSpace as string
-  //     );
-
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: {
-  //         isAvailable,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       res.status(500).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
 }
 
 export const bookingContrller = Container.get(BookingController);

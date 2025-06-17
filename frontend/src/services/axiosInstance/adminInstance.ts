@@ -60,8 +60,7 @@ adminAxiosInstance.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return adminAxiosInstance(originalRequest);
         } catch (err) {
-          // toast.error("Session expired");
-          // store.dispatch(logout());
+    
           return Promise.reject(err);
         }
       }
@@ -94,6 +93,5 @@ async function getNewAccessToken() {
   const response = await axios.get(`${API_URL}/auth/admin-refresh-token`, {
     withCredentials: true,
   });
-  console.log(response, "getRefreshhh");
   return response.data.token;
 }

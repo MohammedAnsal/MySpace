@@ -36,7 +36,6 @@ export const signInRequest = async (data: Object) => {
 
 export const forgotPssword = async (email: string) => {
   try {
-
     const response = await publicApi.post("/auth/provider/forgot-password", {
       email,
     });
@@ -172,10 +171,6 @@ export const getHostelById = async (hostelId: string) => {
 
 export const updateHostel = async (id: string, formData: FormData) => {
   try {
-    // Debug log
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
 
     const response = await privateApi.put(
       `/provider/edit-hostel/${id}`,
@@ -212,7 +207,6 @@ export const deleteHostel = async (hostelId: string) => {
 export const listProviderBookings = async () => {
   try {
     const response = await privateApi.get("/provider/bookings");
-    console.log(response, "from provider api");
 
     return handleResponse(
       response.data.data,
@@ -361,12 +355,13 @@ export const updateFoodMenu = async (id: string, menuData: any) => {
 
 export const deleteFoodMenu = async (
   id: string,
+  foodMenuId: string,
   day: string,
   mealType: "morning" | "noon" | "night"
 ) => {
   try {
     const response = await privateApi.delete(`/facility/food-menu/${id}`, {
-      data: { day, mealType },
+      data: { foodMenuId, day, mealType },
     });
     return handleResponse(response.data, "Error deleting food menu");
   } catch (error) {

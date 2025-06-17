@@ -7,6 +7,7 @@ export interface IFoodMenuRepository {
     menuData: Partial<IFoodMenu>
   ): Promise<IFoodMenu | null>;
   deleteFoodMenu(
+    foodMenuId: string,
     menuId: string,
     day: string,
     mealType: "morning" | "noon" | "night"
@@ -16,7 +17,6 @@ export interface IFoodMenuRepository {
     facilityId: string,
     hostelId: string
   ): Promise<IFoodMenu | null>;
-  getFoodMenuByProvider(providerId: string): Promise<IFoodMenu[]>;
   updateDayMeal(
     menuId: string,
     day: string,

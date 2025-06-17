@@ -11,9 +11,6 @@ const adminUserRoute = Router();
 
 adminUserRoute.post(
   "/create-wallet",
-  // authMiddleWare,
-  // autherization,
-  // authorizeRoles(Roles.ADMIN),
   adminUserControllerr.createWallet.bind(adminUserControllerr)
 );
 adminUserRoute.get(

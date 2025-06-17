@@ -11,6 +11,8 @@ import { StatusCodes } from "http-status-codes";
 export class AuthController implements IAuthController {
   constructor(private readonly providerService: AuthProviderService) {}
 
+  //  Provider signUp :-
+
   async signUp(req: Request, res: Response): Promise<any> {
     try {
       if (!req.body.email || !req.body.password) {
@@ -36,6 +38,8 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  SignIn :-
 
   async signIn(req: Request, res: Response): Promise<any> {
     try {
@@ -75,6 +79,8 @@ export class AuthController implements IAuthController {
     }
   }
 
+  //  Verify otp :-
+
   async verifyOtp(req: Request, res: Response): Promise<any> {
     try {
       const otpData = req.body;
@@ -100,6 +106,8 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Re-send otp :-
 
   async resendOtp(req: Request, res: Response): Promise<any> {
     try {
@@ -129,6 +137,8 @@ export class AuthController implements IAuthController {
     }
   }
 
+  //  Logout :-
+
   async logout(req: Request, res: Response): Promise<any> {
     try {
       const refreshToken = req.cookies.provider_rfr;
@@ -148,12 +158,13 @@ export class AuthController implements IAuthController {
 
       res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
     } catch (error) {
-      console.log(error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Server error" });
     }
   }
+
+  //  Forgot password :-
 
   async forgetPassword(req: Request, res: Response): Promise<any> {
     try {
@@ -182,6 +193,8 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Re-set password :-
 
   async resetPassword(req: Request, res: Response): Promise<any> {
     try {
@@ -222,6 +235,8 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
     }
   }
+
+  //  Google auth :-
 
   async googleSign(req: Request, res: Response): Promise<any> {
     const { token } = req.body;
