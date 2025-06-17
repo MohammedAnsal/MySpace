@@ -27,7 +27,7 @@ export class SocketService {
   initialize(httpServer: HttpServer): void {
     this.io = new Server(httpServer, {
       cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:5000",
+        origin: process.env.CLIENT_URL || "https://my-space.shop/",
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         credentials: true,
       },
@@ -38,7 +38,6 @@ export class SocketService {
   }
 
   private async handleConnection(socket: Socket): Promise<void> {
-
     // Handle user joining a chat room
     socket.on(
       "join_room",
@@ -51,7 +50,6 @@ export class SocketService {
           await redisClient.hSet(`user:${userId}`, "socketId", socket.id);
           await redisClient.hSet(`socket:${socket.id}`, "userId", userId);
           await redisClient.sAdd(`room:${chatRoomId}`, socket.id);
-
         } catch (error) {
           console.error("Error joining room:", error);
         }
@@ -141,7 +139,7 @@ export class SocketService {
 
               if (!isInRoom) {
                 // Notify recipient about new message
-           
+
                 this.io.to(recipientSocketId).emit("new_message_notification", {
                   chatRoomId,
                   message: newMessage,
@@ -301,7 +299,6 @@ export class SocketService {
         for (const roomKey of allRoomKeys) {
           await redisClient.sRem(roomKey, socket.id);
         }
-
       } catch (error) {
         console.error("Error handling disconnect:", error);
       }
