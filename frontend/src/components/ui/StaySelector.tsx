@@ -1,4 +1,4 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface StaySelectorProps {
   onGenderChange: (gender: string) => void;

@@ -15,7 +15,7 @@ import {
   MessageList,
   MessageInput,
   EmptyChat,
-} from "@/pages/user/Home/profile/chat/components";
+} from "@/pages/user/home/profile/chat/components";
 
 export const Chat = () => {
   const location = useLocation();

@@ -1,34 +1,34 @@
 import { RouteObject } from "react-router-dom";
-import SignUp from "@/pages/user/Auth/SignUp";
-import SignIn from "@/pages/user/Auth/SignIn";
-import HomePage from "@/pages/user/Home/Home";
-import Auth from "@/pages/user/Auth/Auth";
+import SignUp from "@/pages/user/auth/SignUp";
+import SignIn from "@/pages/user/auth/SignIn";
+import HomePage from "@/pages/user/home/Home";
+import Auth from "@/pages/user/auth/Auth";
 import { PublicRoute } from "@/router/authRoutes/user/publicRoute";
-import OTPVerification from "@/pages/user/Auth/Otp";
+import OTPVerification from "@/pages/user/auth/Otp";
 import NotFound from "@/components/global/NotFound";
 import { Role } from "@/types/types";
 import { ProtecteddRoute } from "@/router/authRoutes/user/ProtectRoute";
-import ForgotPassword from "@/pages/user/Auth/ForgotPassword";
-import ResetPassword from "@/pages/user/Auth/ResetPassword";
-import ProfileLayout from "@/pages/user/Home/profile/components/ProfileLayout";
-import UserProfile from "@/pages/user/Home/profile/UserProfile.tsx";
-import Hostels from "@/pages/user/Home/hostel/Hostels";
-import HostelDetails from "@/pages/user/Home/hostel/HostelDetails";
-import Checkout from "@/pages/user/Home/booking/BookingHostel";
+import ForgotPassword from "@/pages/user/auth/ForgotPassword";
+import ResetPassword from "@/pages/user/auth/ResetPassword";
+import ProfileLayout from "@/pages/user/home/profile/components/ProfileLayout";
+import UserProfile from "@/pages/user/home/profile/UserProfile";
+import Hostels from "@/pages/user/home/hostel/Hostels";
+import HostelDetails from "@/pages/user/home/hostel/HostelDetails";
+import Checkout from "@/pages/user/home/booking/BookingHostel";
 import { SuccessPayment } from "@/components/client/payment/SuccessPayment";
 import { CancelPayment } from "@/components/client/payment/CancelPayment";
-import { MyBookings } from "@/pages/user/Home/profile/bookings/MyBookings";
+import { MyBookings } from "@/pages/user/home/profile/bookings/MyBookings";
 import RootPage from "@/router/Rootpage";
-import Contact from "@/pages/user/Home/contact/Contact";
-import About from "@/pages/user/Home/about/About";
-import BookingDetailsPage from "@/pages/user/Home/profile/bookings/BookingDetailsPage";
-import Wallet from "@/pages/user/Home/profile/wallet/Wallet";
-import Chat from "@/pages/user/Home/profile/chat/Chat";
-import { MyFacility } from "@/pages/user/Home/profile/facility/MyFacility";
-import Food from "@/pages/user/Home/profile/facility/components/food/Food";
-import Washing from "@/pages/user/Home/profile/facility/components/washing/Washing";
-import Cleaning from "@/pages/user/Home/profile/facility/components/cleaning/Cleaning";
-import Notification from "@/pages/user/Home/notification/Notification";
+import Contact from "@/pages/user/home/contact/Contact";
+import About from "@/pages/user/home/about/About";
+import BookingDetailsPage from "@/pages/user/home/profile/bookings/BookingDetailsPage";
+import Wallet from "@/pages/user/home/profile/wallet/Wallet";
+import Chat from "@/pages/user/home/profile/chat/Chat";
+import { MyFacility } from "@/pages/user/home/profile/facility/MyFacility";
+import Food from "@/pages/user/home/profile/facility/components/food/Food";
+import Washing from "@/pages/user/home/profile/facility/components/washing/Washing";
+import Cleaning from "@/pages/user/home/profile/facility/components/cleaning/Cleaning";
+import Notification from "@/pages/user/home/notification/Notification";
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
@@ -227,15 +227,6 @@ export const UserRoutes: RouteObject[] = [
     ],
   },
 
-  // {
-  //   path: "/",
-  //   element: (
-  //     <PublicRoute routeType={Role.USER}>
-  //       <HomePage />
-  //     </PublicRoute>
-  //   ),
-  // },
-
   {
     path: "/contact",
     element: <Contact />,
@@ -247,7 +238,6 @@ export const UserRoutes: RouteObject[] = [
   },
 
   //  Landing Page
-
   {
     path: "/",
     element: <RootPage />,

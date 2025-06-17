@@ -76,12 +76,12 @@ const EditHostel = () => {
   useEffect(() => {
     if (hostel) {
       const data = hostel.data;
-      
+
       // Extract facility IDs from facility objects
-      const facilityIds = Array.isArray(data.facilities) 
+      const facilityIds = Array.isArray(data.facilities)
         ? data.facilities.map((facility: any) => facility._id || facility)
         : [];
-      
+
       setFormData({
         hostel_name: data.hostel_name || "",
         description: data.description || "",
@@ -105,7 +105,6 @@ const EditHostel = () => {
         // You might need to modify this depending on how you want to handle existing photos
         setExistingPhotos(data.photos);
       }
-
     }
   }, [hostel]);
 
@@ -190,6 +189,12 @@ const EditHostel = () => {
       return false;
     }
   };
+
+  useEffect(() => {
+    if (false) {
+      validateForm();
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

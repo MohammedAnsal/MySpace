@@ -2,9 +2,10 @@ import { userAxiosInstance } from "@/services/axiosInstance/userInstance";
 
 import { IChatRoom, IMessage } from "../../types/chat";
 
-interface ChatResponse<T> {
+interface ChatResponse<T = any> {
   success: boolean;
   message?: string;
+  data?: T; // Actually use the generic type
   chatRoom?: IChatRoom;
   chatRooms?: IChatRoom[];
   messages?: IMessage[];
@@ -18,7 +19,6 @@ const handleError = (error: any) => {
 };
 
 export const chatApi = {
-
   createChatRoom: async (
     userId: string,
     providerId: string
@@ -213,26 +213,25 @@ export const chatApi = {
   ): Promise<IMessage> => {
     try {
       const formData = new FormData();
-      formData.append('image', file);
-      formData.append('chatRoomId', chatRoomId);
-      formData.append('senderId', senderId);
-      formData.append('senderType', senderType);
+      formData.append("image", file);
+      formData.append("chatRoomId", chatRoomId);
+      formData.append("senderId", senderId);
+      formData.append("senderType", senderType);
       if (replyToMessageId) {
-        formData.append('replyToMessageId', replyToMessageId);
+        formData.append("replyToMessageId", replyToMessageId);
       }
 
-      const response = await userAxiosInstance.post<{ success: boolean; message: IMessage }>(
-        '/chat/messages/upload-image',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      const response = await userAxiosInstance.post<{
+        success: boolean;
+        message: IMessage;
+      }>("/chat/messages/upload-image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (!response.data.success) {
-        throw new Error('Failed to upload image');
+        throw new Error("Failed to upload image");
       }
 
       return response.data.message;

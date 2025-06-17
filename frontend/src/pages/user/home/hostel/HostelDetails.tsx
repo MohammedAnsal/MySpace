@@ -35,7 +35,7 @@ import {
   useHostelDetails,
   useHostelRatings,
 } from "@/hooks/user/hostel/useHostel";
-import RatingSection from "@/pages/user/Home/hostel/components/RatingSection.tsx";
+import RatingSection from "@/pages/user/home/hostel/components/RatingSection";
 import Scroll from "@/components/global/Scroll";
 import ImageGalleryPopup from "./components/ImageGalleryPopup";
 import MapModal from "./components/MapModal";
