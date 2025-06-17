@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { findUser } from "@/services/Api/userApi";
-import UserProfile from "@/pages/user/Home/profile/UserProfile";
+import UserProfile from "@/pages/user/home/profile/UserProfile";
 
 const fetchUserProfile = async (): Promise<UserProfile | null> => {
   try {
