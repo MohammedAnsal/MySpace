@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/index.ts",
+    "build": "tsc",
+    "dev": "nodemon src/index.ts",
+    "start": "node -r module-alias/register dist/index.js",
     "lint": "eslint ."
   },
   "keywords": [],
@@ -26,6 +28,7 @@
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "logform": "^2.7.0",
+    "module-alias": "^2.2.3",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
@@ -62,5 +65,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   }
 }
