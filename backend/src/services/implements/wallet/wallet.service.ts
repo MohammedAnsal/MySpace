@@ -11,8 +11,6 @@ import { Types } from "mongoose";
 import { WalletResponseDTO } from "../../../dtos/wallet/wallet.dto";
 import { TransactionDTO } from "../../../dtos/wallet/wallet.dto";
 
-dotenv.config();
-
 interface PopulatedId {
   _id: Types.ObjectId;
 }
