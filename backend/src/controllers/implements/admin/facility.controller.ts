@@ -4,6 +4,7 @@ import { AppError } from "../../../utils/error";
 import Container, { Service } from "typedi";
 import { adminFacilityService } from "../../../services/implements/admin/facility.service";
 import { AuthRequset } from "../../../types/api";
+import { HttpStatus } from "../../../enums/http.status";
 
 @Service()
 export class AdminFacilityController {
@@ -15,7 +16,7 @@ export class AdminFacilityController {
 
   //  Admin create facility :-
 
-  async createFacility(req: AuthRequset, res: Response): Promise<any> {
+  async createFacility(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const formData = req.body;
       const { name, price, description } = formData;
@@ -23,28 +24,28 @@ export class AdminFacilityController {
       const adminId = req.user?.id;
 
       if (!adminId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       if (!name) {
         return res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Name is required" });
       }
       if (!price) {
         return res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Price is required" });
       }
       if (!description) {
         return res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Description is required" });
       }
 
       const facility = await this.adminFacilityService.createFacility(formData);
 
-      return res.status(201).json({
+      return res.status(HttpStatus.CREATED).json({
         success: true,
         message: "Facility Created Successfully",
         data: facility,
@@ -57,7 +58,7 @@ export class AdminFacilityController {
           message: error.message,
         });
       }
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to create facility",
       });
@@ -66,17 +67,17 @@ export class AdminFacilityController {
 
   //  Find all facility :-
 
-  async findAllFacilities(req: AuthRequset, res: Response): Promise<any> {
+  async findAllFacilities(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const adminId = req.user?.id;
 
       if (!adminId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.FORBIDDEN);
       }
 
       const facilities = await this.adminFacilityService.findAllFacilities();
 
-      return res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: "Facilities fetched successfully",
         data: facilities,
@@ -89,7 +90,7 @@ export class AdminFacilityController {
           message: error.message,
         });
       }
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch facilities",
       });
@@ -98,12 +99,12 @@ export class AdminFacilityController {
 
   //  Find single facility :-
 
-  async getFacilityById(req: AuthRequset, res: Response): Promise<any> {
+  async getFacilityById(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const adminId = req.user?.id;
 
       if (!adminId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.FORBIDDEN);
       }
 
       const { facilityId } = req.params;
@@ -111,7 +112,7 @@ export class AdminFacilityController {
         facilityId
       );
 
-      return res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: "Facility fetched successfully",
         data: facility,
@@ -124,7 +125,7 @@ export class AdminFacilityController {
           message: error.message,
         });
       }
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch facility",
       });
@@ -133,12 +134,15 @@ export class AdminFacilityController {
 
   //  Update facility status :-
 
-  async updateFacilityStatus(req: AuthRequset, res: Response): Promise<any> {
+  async updateFacilityStatus(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
     try {
       const adminId = req.user?.id;
 
       if (!adminId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.FORBIDDEN);
       }
 
       const { facilityId, status } = req.body;
@@ -147,7 +151,7 @@ export class AdminFacilityController {
         status,
       });
 
-      return res.status(200).json(result);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
@@ -156,7 +160,7 @@ export class AdminFacilityController {
           message: error.message,
         });
       }
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update facility status",
       });
@@ -165,17 +169,17 @@ export class AdminFacilityController {
 
   //  Delete facility :-
 
-  async deleteFacility(req: AuthRequset, res: Response): Promise<any> {
+  async deleteFacility(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const adminId = req.user?.id;
       if (!adminId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.FORBIDDEN);
       }
 
       const { facilityId } = req.params;
 
       const result = await this.adminFacilityService.deleteFacility(facilityId);
-      return res.status(200).json(result);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
@@ -184,7 +188,7 @@ export class AdminFacilityController {
           message: error.message,
         });
       }
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to delete facility",
       });

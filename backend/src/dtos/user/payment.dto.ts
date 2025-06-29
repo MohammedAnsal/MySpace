@@ -25,3 +25,20 @@ export interface CreatePaymentDTO {
 export interface UpdatePaymentStatusDTO {
   status: "pending" | "completed" | "failed" | "refunded";
 }
+
+export function mapToPaymentDTO(payment: any): PaymentResponseDTO {
+  return {
+    _id: payment._id.toString(),
+    userId: payment.userId.toString(),
+    hostelId: payment.hostelId.toString(),
+    bookingId: payment.bookingId.toString(),
+    amount: payment.amount,
+    currency: payment.currency,
+    status: payment.status,
+    stripeSessionId: payment.stripeSessionId,
+    stripePaymentIntentId: payment.stripePaymentIntentId,
+    metadata: payment.metadata,
+    created_at: payment.createdAt,
+    updated_at: payment.updatedAt,
+  };
+}

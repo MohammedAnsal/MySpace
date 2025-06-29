@@ -7,6 +7,7 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const providerRoute = Router();
 
@@ -15,7 +16,7 @@ providerRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  providerController.findUser.bind(providerController)
+  asyncHandler(providerController.findUser.bind(providerController))
 );
 
 providerRoute.post(
@@ -23,7 +24,7 @@ providerRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  providerController.changePassword.bind(providerController)
+  asyncHandler(providerController.changePassword.bind(providerController))
 );
 
 providerRoute.put(
@@ -32,7 +33,7 @@ providerRoute.put(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  providerController.editProfile.bind(providerController)
+  asyncHandler(providerController.editProfile.bind(providerController))
 );
 
 providerRoute.get(
@@ -40,7 +41,7 @@ providerRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  providerController.findAllFacilities.bind(providerController)
+  asyncHandler(providerController.findAllFacilities.bind(providerController))
 );
 
 providerRoute.post(
@@ -49,7 +50,7 @@ providerRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  hostelController.createHostel.bind(hostelController)
+  asyncHandler(hostelController.createHostel.bind(hostelController))
 );
 
 providerRoute.get(
@@ -57,7 +58,7 @@ providerRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  hostelController.getAllHostels.bind(hostelController)
+  asyncHandler(hostelController.getAllHostels.bind(hostelController))
 );
 
 providerRoute.get(
@@ -65,7 +66,7 @@ providerRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  hostelController.getHostelById.bind(hostelController)
+  asyncHandler(hostelController.getHostelById.bind(hostelController))
 );
 
 providerRoute.put(
@@ -74,7 +75,7 @@ providerRoute.put(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  hostelController.editHostel.bind(hostelController)
+  asyncHandler(hostelController.editHostel.bind(hostelController))
 );
 
 providerRoute.delete(
@@ -82,7 +83,7 @@ providerRoute.delete(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  hostelController.deleteHostel.bind(hostelController)
+  asyncHandler(hostelController.deleteHostel.bind(hostelController))
 );
 
 providerRoute.get(
@@ -90,7 +91,7 @@ providerRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  bookingContrller.getProviderBookings.bind(bookingContrller)
+  asyncHandler(bookingContrller.getProviderBookings.bind(bookingContrller))
 );
 
 providerRoute.get(
@@ -98,7 +99,7 @@ providerRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  providerController.getDashboard.bind(providerController)
+  asyncHandler(providerController.getDashboard.bind(providerController))
 );
 
 export default providerRoute;

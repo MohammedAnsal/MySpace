@@ -10,6 +10,7 @@ import { ICleaningRepository } from "../../../../repositories/interfaces/facilit
 import { cleaningRepository } from "../../../../repositories/implementations/facility/cleaning/cleaning.repository";
 import { AppError } from "../../../../utils/error";
 import { Types } from "mongoose";
+import { HttpStatus } from "../../../../enums/http.status";
 
 @Service()
 export class CleaningService implements ICleaningService {
@@ -50,7 +51,7 @@ export class CleaningService implements ICleaningService {
       if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while creating the cleaning request",
-        500
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
@@ -70,7 +71,7 @@ export class CleaningService implements ICleaningService {
     } catch (error) {
       throw new AppError(
         "An error occurred while retrieving cleaning requests",
-        500
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
@@ -85,7 +86,7 @@ export class CleaningService implements ICleaningService {
         requestId
       );
       if (!cleaningRequest) {
-        throw new AppError("Cleaning request not found", 404);
+        throw new AppError("Cleaning request not found", HttpStatus.NOT_FOUND);
       }
       return {
         success: true,
@@ -96,7 +97,7 @@ export class CleaningService implements ICleaningService {
       if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while retrieving the cleaning request",
-        500
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
@@ -115,7 +116,7 @@ export class CleaningService implements ICleaningService {
         "Cancelled",
       ];
       if (!validStatuses.includes(data.status)) {
-        throw new AppError("Invalid status", 400);
+        throw new AppError("Invalid status", HttpStatus.BAD_REQUEST);
       }
 
       const cleaningRequest =
@@ -125,7 +126,7 @@ export class CleaningService implements ICleaningService {
         );
 
       if (!cleaningRequest) {
-        throw new AppError("Cleaning request not found", 404);
+        throw new AppError("Cleaning request not found", HttpStatus.NOT_FOUND);
       }
 
       return {
@@ -137,7 +138,7 @@ export class CleaningService implements ICleaningService {
       if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while updating the cleaning request status",
-        500
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
@@ -153,11 +154,14 @@ export class CleaningService implements ICleaningService {
         requestId
       );
       if (!cleaningRequest) {
-        throw new AppError("Cleaning request not found", 404);
+        throw new AppError("Cleaning request not found", HttpStatus.NOT_FOUND);
       }
 
       if (cleaningRequest.userId._id.toString() !== userId) {
-        throw new AppError("Unauthorized to cancel this request", 403);
+        throw new AppError(
+          "Unauthorized to cancel this request",
+          HttpStatus.FORBIDDEN
+        );
       }
 
       if (
@@ -166,7 +170,7 @@ export class CleaningService implements ICleaningService {
       ) {
         throw new AppError(
           "Cannot cancel a completed or already cancelled request",
-          400
+          HttpStatus.BAD_REQUEST
         );
       }
 
@@ -182,7 +186,7 @@ export class CleaningService implements ICleaningService {
       if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while cancelling the cleaning request",
-        500
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
@@ -203,7 +207,7 @@ export class CleaningService implements ICleaningService {
     } catch (error) {
       throw new AppError(
         "An error occurred while retrieving provider cleaning requests",
-        500
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }

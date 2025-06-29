@@ -7,8 +7,11 @@ import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { IWalletRepository } from "../../../repositories/interfaces/wallet/wallet.Irepository";
 import { Types } from "mongoose";
-import { WalletResponseDTO } from "../../../dtos/wallet/wallet.dto";
-import { TransactionDTO } from "../../../dtos/wallet/wallet.dto";
+import {
+  WalletResponseDTO,
+  TransactionDTO,
+  mapToWalletDTO,
+} from "../../../dtos/wallet/wallet.dto";
 
 interface PopulatedId {
   _id: Types.ObjectId;
@@ -27,35 +30,6 @@ export class WalletService implements IWalletService {
     }
   }
 
-  //  For DTO check :-
-
-  private mapToWalletDTO(wallet: IWallet): WalletResponseDTO {
-    return {
-      _id: wallet._id.toString(),
-      userId: wallet.userId
-        ? {
-            _id: wallet.userId.toString(),
-            fullName: "",
-            email: "",
-          }
-        : undefined,
-      adminId: wallet.adminId?.toString(),
-      balance: wallet.balance,
-      transactions: wallet.transactions.map((tx) => ({
-        _id: tx._id.toString(),
-        amount: tx.amount,
-        type: tx.type,
-        status: tx.status,
-        description: tx.description,
-        bookingId: tx.bookingId?.toString(),
-        metadata: tx.metadata,
-        created_at: tx.createdAt,
-      })),
-      created_at: wallet.createdAt,
-      updated_at: wallet.updatedAt,
-    };
-  }
-
   //  Create user wallet :-
 
   async createUserWallet(userId: string): Promise<WalletResponseDTO> {
@@ -67,7 +41,7 @@ export class WalletService implements IWalletService {
       };
 
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
-      return this.mapToWalletDTO(wallet);
+      return mapToWalletDTO(wallet);
     } catch (error) {
       throw new AppError(
         "Failed to create user wallet",
@@ -87,7 +61,7 @@ export class WalletService implements IWalletService {
       };
 
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
-      return this.mapToWalletDTO(wallet);
+      return mapToWalletDTO(wallet);
     } catch (error) {
       throw new AppError(
         "Failed to create provider wallet",
@@ -107,7 +81,7 @@ export class WalletService implements IWalletService {
       };
 
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
-      return this.mapToWalletDTO(wallet);
+      return mapToWalletDTO(wallet);
     } catch (error) {
       throw new AppError(
         "Failed to create admin wallet",
@@ -124,7 +98,7 @@ export class WalletService implements IWalletService {
       if (!wallet) {
         throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
       }
-      return this.mapToWalletDTO(wallet);
+      return mapToWalletDTO(wallet);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -144,7 +118,7 @@ export class WalletService implements IWalletService {
         throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
       }
 
-      return this.mapToWalletDTO(wallet);
+      return mapToWalletDTO(wallet);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -164,7 +138,7 @@ export class WalletService implements IWalletService {
         throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
       }
 
-      return this.mapToWalletDTO(wallet);
+      return mapToWalletDTO(wallet);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(

@@ -2,6 +2,7 @@ import express from "express";
 import { washingController } from "../../../controllers/implements/facility/washing/washing.controller";
 import { authMiddleWare } from "../../../middlewares/auth/auth.middleware";
 import { autherization } from "../../../middlewares/auth/autherization.middlware";
+import { asyncHandler } from "../../../utils/asyncHandler";
 
 const washingRoute = express.Router();
 
@@ -11,29 +12,33 @@ washingRoute.use(autherization);
 // User routes
 washingRoute.post(
   "/washing/create",
-  washingController.createWashingRequest.bind(washingController)
+  asyncHandler(washingController.createWashingRequest.bind(washingController))
 );
 washingRoute.get(
   "/washing/user",
-  washingController.getUserWashingRequests.bind(washingController)
+  asyncHandler(washingController.getUserWashingRequests.bind(washingController))
 );
 washingRoute.get(
   "/washing/:id",
-  washingController.getWashingRequestById.bind(washingController)
+  asyncHandler(washingController.getWashingRequestById.bind(washingController))
 );
 washingRoute.post(
   "/washing/:id/cancel",
-  washingController.cancelWashingRequest.bind(washingController)
+  asyncHandler(washingController.cancelWashingRequest.bind(washingController))
 );
 
 // Provider routes
 washingRoute.get(
   "/washing/provider/requests",
-  washingController.getProviderWashingRequests.bind(washingController)
+  asyncHandler(
+    washingController.getProviderWashingRequests.bind(washingController)
+  )
 );
 washingRoute.put(
   "/washing/:id/status",
-  washingController.updateWashingRequestStatus.bind(washingController)
+  asyncHandler(
+    washingController.updateWashingRequestStatus.bind(washingController)
+  )
 );
 
 export default washingRoute;

@@ -5,6 +5,7 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const bookingRoute = express.Router();
 
@@ -14,7 +15,7 @@ bookingRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  bookingContrller.createBooking.bind(bookingContrller)
+  asyncHandler(bookingContrller.createBooking.bind(bookingContrller))
 );
 
 bookingRoute.get(
@@ -22,13 +23,13 @@ bookingRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  bookingContrller.getUserBookings.bind(bookingContrller)
+  asyncHandler(bookingContrller.getUserBookings.bind(bookingContrller))
 );
 
 bookingRoute.get(
   "/bookings/:bookingId",
   authMiddleWare,
-  bookingContrller.getBookingDetails.bind(bookingContrller)
+  asyncHandler(bookingContrller.getBookingDetails.bind(bookingContrller))
 );
 
 bookingRoute.post(
@@ -36,7 +37,7 @@ bookingRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  bookingContrller.cancelBooking.bind(bookingContrller)
+  asyncHandler(bookingContrller.cancelBooking.bind(bookingContrller))
 );
 
 export default bookingRoute;

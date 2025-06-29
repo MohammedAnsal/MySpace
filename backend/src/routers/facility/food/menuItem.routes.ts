@@ -5,6 +5,7 @@ import { authMiddleWare } from "../../../middlewares/auth/auth.middleware";
 import { autherization } from "../../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../../middlewares/auth/role.middleware";
 import Roles from "../../../enums/roles";
+import { asyncHandler } from "../../../utils/asyncHandler";
 
 const menuItemRoute = express.Router();
 
@@ -15,38 +16,40 @@ menuItemRoute.post(
   "/menu-item/create",
   authorizeRoles(Roles.PROVIDER),
   upload.single("menuImage"),
-  menuItemController.createMenuItem.bind(menuItemController)
+  asyncHandler(menuItemController.createMenuItem.bind(menuItemController))
 );
 
 menuItemRoute.get(
   "/menu-item/all",
   authorizeRoles(Roles.PROVIDER),
-  menuItemController.getAllMenuItems.bind(menuItemController)
+  asyncHandler(menuItemController.getAllMenuItems.bind(menuItemController))
 );
 
 menuItemRoute.get(
   "/menu-item/category/:category",
   authorizeRoles(Roles.PROVIDER),
-  menuItemController.getMenuItemsByCategory.bind(menuItemController)
+  asyncHandler(
+    menuItemController.getMenuItemsByCategory.bind(menuItemController)
+  )
 );
 
 menuItemRoute.get(
   "/menu-item/:id",
   authorizeRoles(Roles.PROVIDER),
-  menuItemController.getMenuItem.bind(menuItemController)
+  asyncHandler(menuItemController.getMenuItem.bind(menuItemController))
 );
 
 menuItemRoute.put(
   "/menu-item/:id",
   authorizeRoles(Roles.PROVIDER),
   upload.single("image"),
-  menuItemController.updateMenuItem.bind(menuItemController)
+  asyncHandler(menuItemController.updateMenuItem.bind(menuItemController))
 );
 
 menuItemRoute.delete(
   "/menu-item/:id",
   authorizeRoles(Roles.PROVIDER),
-  menuItemController.deleteMenuItem.bind(menuItemController)
+  asyncHandler(menuItemController.deleteMenuItem.bind(menuItemController))
 );
 
 export default menuItemRoute;

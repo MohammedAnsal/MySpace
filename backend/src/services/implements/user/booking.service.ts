@@ -18,8 +18,10 @@ import {
   BookingResponseDTO,
   CreateBookingDTO,
   CancelBookingDTO,
+  mapToBookingDTO,
 } from "../../../dtos/user/booking.dto";
 import socketService from "../socket/socket.service";
+import { HttpStatus } from "../../../enums/http.status";
 
 @Service()
 export class BookingService implements IBookingService {
@@ -37,31 +39,6 @@ export class BookingService implements IBookingService {
     this.notificationService = notificationService;
   }
 
-  //  For DTO check :-
-
-  private mapToBookingDTO(booking: any): BookingResponseDTO {
-    return {
-      _id: booking._id.toString(),
-      userId: booking.userId,
-      hostelId: booking.hostelId,
-      providerId: booking.providerId,
-      checkIn: booking.checkIn,
-      checkOut: booking.checkOut,
-      stayDurationInMonths: booking.stayDurationInMonths,
-      selectedFacilities: booking.selectedFacilities,
-      bookingDate: booking.bookingDate,
-      totalPrice: booking.totalPrice,
-      firstMonthRent: booking.firstMonthRent,
-      depositAmount: booking.depositAmount,
-      monthlyRent: booking.monthlyRent,
-      paymentStatus: booking.paymentStatus,
-      proof: booking.proof,
-      reason: booking.reason,
-      created_at: booking.createdAt,
-      updated_at: booking.updatedAt,
-    };
-  }
-
   //  Create booking :-
 
   async createBooking(
@@ -74,25 +51,25 @@ export class BookingService implements IBookingService {
         !bookingData.hostelId ||
         !bookingData.providerId
       ) {
-        throw new AppError("Missing required IDs", 400);
+        throw new AppError("Missing required IDs", HttpStatus.BAD_REQUEST);
       }
 
       if (!mongoose.Types.ObjectId.isValid(bookingData.userId)) {
         throw new AppError(
           `Invalid user ID format: ${bookingData.userId}`,
-          400
+          HttpStatus.BAD_REQUEST
         );
       }
       if (!mongoose.Types.ObjectId.isValid(bookingData.hostelId)) {
         throw new AppError(
           `Invalid hostel ID format: ${bookingData.hostelId}`,
-          400
+          HttpStatus.BAD_REQUEST
         );
       }
       if (!mongoose.Types.ObjectId.isValid(bookingData.providerId)) {
         throw new AppError(
           `Invalid provider ID format: ${bookingData.providerId}`,
-          400
+          HttpStatus.BAD_REQUEST
         );
       }
 
@@ -100,14 +77,20 @@ export class BookingService implements IBookingService {
         bookingData.hostelId
       );
       if (!hostel) {
-        throw new AppError("Hostel not found", 404);
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
       if (hostel.available_space !== null && hostel.available_space <= 0) {
-        throw new AppError("No beds available in this hostel", 400);
+        throw new AppError(
+          "No beds available in this hostel",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       if (!bookingData.proof || !bookingData.proof.buffer) {
-        throw new AppError("Proof document is required", 400);
+        throw new AppError(
+          "Proof document is required",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       const uploadResult = await this.s3Service.uploadFile(
@@ -121,7 +104,10 @@ export class BookingService implements IBookingService {
           ? !uploadResult[0].Location
           : !uploadResult.Location)
       ) {
-        throw new AppError("Failed to upload proof document", 500);
+        throw new AppError(
+          "Failed to upload proof document",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       }
 
       // Calculate costs and get transformed facilities
@@ -163,7 +149,7 @@ export class BookingService implements IBookingService {
         bookingDataToCreate
       );
 
-      return this.mapToBookingDTO(booking);
+      return mapToBookingDTO(booking);
     } catch (error) {
       if (error instanceof AppError && bookingData.proof) {
         try {
@@ -186,20 +172,23 @@ export class BookingService implements IBookingService {
     try {
       const booking = await this.bookingRepository.getBookingById(bookingId);
       if (!booking) {
-        throw new AppError("Booking not found", 404);
+        throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
       }
 
       if (booking.proof) {
         booking.proof = await this.s3Service.generateSignedUrl(booking.proof);
       }
 
-      return this.mapToBookingDTO(booking);
+      return mapToBookingDTO(booking);
     } catch (error) {
       console.error("Error in getBookingById:", error);
       if (error instanceof AppError) {
         throw error;
       }
-      throw new AppError("Error retrieving booking details", 500);
+      throw new AppError(
+        "Error retrieving booking details",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -218,7 +207,7 @@ export class BookingService implements IBookingService {
               booking.proof
             );
           }
-          return this.mapToBookingDTO(booking);
+          return mapToBookingDTO(booking);
         })
       );
 
@@ -242,7 +231,7 @@ export class BookingService implements IBookingService {
               booking.proof
             );
           }
-          return this.mapToBookingDTO(booking);
+          return mapToBookingDTO(booking);
         })
       );
 
@@ -266,7 +255,7 @@ export class BookingService implements IBookingService {
               booking.proof
             );
           }
-          return this.mapToBookingDTO(booking);
+          return mapToBookingDTO(booking);
         })
       );
 
@@ -287,7 +276,7 @@ export class BookingService implements IBookingService {
       bookingId
     );
     if (!booking) {
-      throw new AppError("Booking not found", 404);
+      throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
     }
 
     const cancelledBooking = await this.bookingRepository.cancelBooking(
@@ -312,10 +301,13 @@ export class BookingService implements IBookingService {
     }
 
     if (!cancelledBooking) {
-      throw new AppError("Failed to cancel booking", 500);
+      throw new AppError(
+        "Failed to cancel booking",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
 
-    return this.mapToBookingDTO(cancelledBooking);
+    return mapToBookingDTO(cancelledBooking);
   }
 
   //  Calculate Booking Charges :- (Fun)
@@ -343,7 +335,7 @@ export class BookingService implements IBookingService {
     try {
       const hostel = await this.hostelRepository.getHostelById(hostelId);
       if (!hostel) {
-        throw new AppError("Hostel not found", 404);
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
 
       const monthlyRent = hostel.monthly_rent;
@@ -368,7 +360,10 @@ export class BookingService implements IBookingService {
         );
 
         if (!facility) {
-          throw new AppError(`Facility with ID ${selected.id} not found`, 404);
+          throw new AppError(
+            `Facility with ID ${selected.id} not found`,
+            HttpStatus.NOT_FOUND
+          );
         }
 
         // Calculate total cost based on duration and rate per day
@@ -397,7 +392,10 @@ export class BookingService implements IBookingService {
       }
 
       if (!monthlyRent || !depositAmount) {
-        throw new AppError("Invalid hostel pricing data", 400);
+        throw new AppError(
+          "Invalid hostel pricing data",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       const firstMonthRent =
@@ -419,7 +417,10 @@ export class BookingService implements IBookingService {
       if (error instanceof AppError) {
         throw error;
       }
-      throw new AppError("Error calculating booking cost", 500);
+      throw new AppError(
+        "Error calculating booking cost",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }

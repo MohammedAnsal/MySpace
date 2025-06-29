@@ -6,6 +6,32 @@ import { AuthRequset } from "../../../../types/api";
 import { S3Service } from "../../../../services/implements/s3/s3.service";
 import IS3service from "../../../../services/interface/s3/s3.service.interface";
 import { IFoodMenuService } from "../../../../services/interface/facility/food/foodMenu.service.interface";
+import { HttpStatus } from "../../../../enums/http.status";
+
+interface FoodMenuItem {
+  _id: string;
+  name: string;
+  image?: string;
+}
+
+interface Meal {
+  isAvailable: boolean;
+  items: FoodMenuItem[];
+}
+
+interface DayMenu {
+  day: string;
+  meals: {
+    morning: Meal;
+    noon: Meal;
+    night: Meal;
+  };
+}
+
+interface PlainFoodMenu {
+  menu: DayMenu[];
+  // add other properties if needed
+}
 
 @Service()
 export class FoodMenuController {
@@ -19,38 +45,35 @@ export class FoodMenuController {
 
   //  Get food menu :-
 
-  async getFoodMenu(req: Request, res: Response): Promise<void> {
+  async getFoodMenu(req: Request, res: Response): Promise<Response> {
     try {
       const { facilityId, hostelId } = req.params;
 
       if (!facilityId) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Invalid facility ID",
         });
-        return;
       }
 
       const foodMenuDoc = await this.foodMenuService.getFoodMenu(
         facilityId,
         hostelId
       );
-      const plainFoodMenu = foodMenuDoc.data?.toObject() as {
-        menu: Array<{ day: string; meals: any }>;
-      };
+      const plainFoodMenu = foodMenuDoc.data?.toObject() as PlainFoodMenu;
 
       //  Taking all day and meals :-
 
       const foodMenu = {
-        ...(plainFoodMenu as Record<string, any>),
+        ...plainFoodMenu,
         menu: await Promise.all(
-          plainFoodMenu.menu.map(async (day: any) => ({
+          plainFoodMenu.menu.map(async (day) => ({
             day: day.day,
             meals: {
               morning: {
                 isAvailable: day.meals.morning.isAvailable,
                 items: await Promise.all(
-                  (day.meals.morning.items || []).map(async (item: any) => ({
+                  (day.meals.morning.items || []).map(async (item) => ({
                     _id: item._id,
                     name: item.name,
                     image: item.image
@@ -62,7 +85,7 @@ export class FoodMenuController {
               noon: {
                 isAvailable: day.meals.noon.isAvailable,
                 items: await Promise.all(
-                  (day.meals.noon.items || []).map(async (item: any) => ({
+                  (day.meals.noon.items || []).map(async (item) => ({
                     _id: item._id,
                     name: item.name,
                     image: item.image
@@ -74,7 +97,7 @@ export class FoodMenuController {
               night: {
                 isAvailable: day.meals.night.isAvailable,
                 items: await Promise.all(
-                  (day.meals.night.items || []).map(async (item: any) => ({
+                  (day.meals.night.items || []).map(async (item) => ({
                     _id: item._id,
                     name: item.name,
                     image: item.image
@@ -88,7 +111,7 @@ export class FoodMenuController {
         ),
       };
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: foodMenu,
       });
@@ -97,13 +120,12 @@ export class FoodMenuController {
         error instanceof AppError &&
         error.message === "Food menu not found"
       ) {
-        res.status(404).json({
+        return res.status(HttpStatus.NOT_FOUND).json({
           status: "error",
           message: "Food menu not found",
         });
-        return;
       }
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -112,17 +134,16 @@ export class FoodMenuController {
 
   //  Update food menu :-
 
-  async updateFoodMenu(req: Request, res: Response): Promise<void> {
+  async updateFoodMenu(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const menuData = req.body;
 
       if (!id) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Invalid menu ID",
         });
-        return;
       }
 
       const updatedMenu = await this.foodMenuService.updateFoodMenu(
@@ -130,13 +151,13 @@ export class FoodMenuController {
         menuData
       );
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         message: "Food menu updated successfully",
         data: updatedMenu,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -145,17 +166,16 @@ export class FoodMenuController {
 
   //  Delete food menu :-
 
-  async deleteFoodMenu(req: Request, res: Response): Promise<void> {
+  async deleteFoodMenu(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const { foodMenuId, day, mealType } = req.body;
 
       if (!id || !foodMenuId || !day || !mealType) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Missing required parameters",
         });
-        return;
       }
 
       const result = await this.foodMenuService.deleteFoodMenu(
@@ -166,21 +186,20 @@ export class FoodMenuController {
       );
 
       if (!result) {
-        res.status(404).json({
+        return res.status(HttpStatus.NOT_FOUND).json({
           status: "error",
           message: "Food menu not found",
         });
-        return;
       }
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         message: "Food menu item deleted successfully",
         data: result,
       });
     } catch (error) {
       console.error("Delete food menu error:", error);
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -189,17 +208,16 @@ export class FoodMenuController {
 
   //  Add single day menu meal :-
 
-  async addSingleDayMenu(req: AuthRequset, res: Response): Promise<void> {
+  async addSingleDayMenu(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const { facilityId, hostelId, day, meals } = req.body;
       const providerId = req.user?.id;
 
       if (!providerId || !facilityId) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Invalid provider or facility ID",
         });
-        return;
       }
 
       const validDays = [
@@ -213,19 +231,17 @@ export class FoodMenuController {
       ];
 
       if (!validDays.includes(day)) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Invalid day provided",
         });
-        return;
       }
 
       if (!meals || Object.keys(meals).length === 0) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Meals data is required",
         });
-        return;
       }
 
       const updatedMenu = await this.foodMenuService.addSingleDayMenu(
@@ -233,13 +249,13 @@ export class FoodMenuController {
         { facilityId, hostelId, day, meals }
       );
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         message: "Day menu updated successfully",
         data: updatedMenu,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -248,25 +264,23 @@ export class FoodMenuController {
 
   //  Cancel meal by user :-
 
-  async cancelMeal(req: AuthRequset, res: Response): Promise<void> {
+  async cancelMeal(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const { day, mealType, isAvailable } = req.body;
 
       if (!id || !day || !mealType || isAvailable === undefined) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Missing required parameters",
         });
-        return;
       }
 
       if (!["morning", "noon", "night"].includes(mealType)) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Invalid meal type. Must be morning, noon, or night.",
         });
-        return;
       }
 
       const validDays = [
@@ -279,11 +293,10 @@ export class FoodMenuController {
         "Sunday",
       ];
       if (!validDays.includes(day)) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Invalid day provided",
         });
-        return;
       }
 
       await this.foodMenuService.cancelMeal(id, {
@@ -292,20 +305,19 @@ export class FoodMenuController {
         isAvailable,
       });
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         message: `Meal ${isAvailable ? "restored" : "cancelled"} successfully`,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
-        return;
       }
 
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });

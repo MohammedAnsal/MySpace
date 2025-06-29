@@ -5,6 +5,7 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import Roles from "../../enums/roles";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const hostelRoute = Router();
 
@@ -13,7 +14,7 @@ hostelRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  hostelController.getVerifiedHostels.bind(hostelController)
+  asyncHandler(hostelController.getVerifiedHostels.bind(hostelController))
 );
 
 hostelRoute.get(
@@ -29,7 +30,7 @@ hostelRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  hostelController.getHostelById.bind(hostelController)
+  asyncHandler(hostelController.getHostelById.bind(hostelController))
 );
 
 hostelRoute.get(
@@ -37,7 +38,7 @@ hostelRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  ratingController.getHostelRatings.bind(ratingController)
+  asyncHandler(ratingController.getHostelRatings.bind(ratingController))
 );
 
 hostelRoute.get(
@@ -45,7 +46,7 @@ hostelRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  hostelController.getNearbyHostels.bind(hostelController)
+  asyncHandler(hostelController.getNearbyHostels.bind(hostelController))
 );
 
 export default hostelRoute;

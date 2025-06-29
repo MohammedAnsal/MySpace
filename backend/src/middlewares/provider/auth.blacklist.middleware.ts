@@ -3,6 +3,7 @@ import redisClient from "../../config/redisConfig";
 import { AuthRequset } from "../../types/api";
 import { verifyRefreshToken } from "../../utils/jwt.utils";
 import { JwtPayload } from "jsonwebtoken";
+import { HttpStatus } from "../../enums/http.status";
 
 interface CustomJwtPayload extends JwtPayload {
   id: string;
@@ -16,13 +17,15 @@ export const providerTokenBlackList = async (
   const refreshToken = req.cookies.provider_rfr;
 
   if (!refreshToken) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(HttpStatus.FORBIDDEN).json({ message: "Unauthorized" });
   }
 
   try {
     const isBlacklisted = await redisClient.get(refreshToken);
     if (isBlacklisted) {
-      return res.status(403).json({ message: "Token has been blacklisted" });
+      return res
+        .status(HttpStatus.FORBIDDEN)
+        .json({ message: "Token has been blacklisted" });
     }
 
     const decoded = verifyRefreshToken(refreshToken) as CustomJwtPayload;
@@ -35,6 +38,6 @@ export const providerTokenBlackList = async (
 
     next();
   } catch (error) {
-    res.status(403).json({ message: "Invalid token" });
+    res.status(HttpStatus.FORBIDDEN).json({ message: "Invalid token" });
   }
 };

@@ -9,9 +9,9 @@ export type AdminFacilityResultController = {
 };
 
 export interface IAdminFacilityController {
-  createFacility(req: AuthRequset, res: Response): Promise<any>;
-  findAllFacilities(req: AuthRequset, res: Response): Promise<any>;
-  updateFacilityStatus(req: AuthRequset, res: Response): Promise<any>;
-  deleteFacility(req: AuthRequset, res: Response): Promise<any>;
-  getFacilityById(req: AuthRequset, res: Response): Promise<any>;
+  createFacility(req: AuthRequset, res: Response): Promise<Response>;
+  findAllFacilities(req: AuthRequset, res: Response): Promise<Response>;
+  updateFacilityStatus(req: AuthRequset, res: Response): Promise<Response>;
+  deleteFacility(req: AuthRequset, res: Response): Promise<Response>;
+  getFacilityById(req: AuthRequset, res: Response): Promise<Response>;
 } 

@@ -25,34 +25,37 @@ class AdminUserController implements IAdminController {
 
   //  Admin create wallet :-
 
-  async createWallet(req: AuthRequset, res: Response): Promise<any> {
+  async createWallet(req: AuthRequset, res: Response): Promise<Response> {
     try {
       if (!AdminId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const adminWallet = await this.userService.createWallet(AdminId);
       if (adminWallet) {
-        return res.status(200).json(adminWallet);
+        return res.status(HttpStatus.OK).json(adminWallet);
       } else {
         throw new Error("failed to  fetch user");
       }
     } catch (walletError) {
       console.error("Error creating wallet for provider:", walletError);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
   //  Find all user's :-
 
-  async fetchUsers(req: AuthRequset, res: Response): Promise<any> {
+  async fetchUsers(req: AuthRequset, res: Response): Promise<Response> {
     const userId = req.user?.id;
     if (!userId) {
-      throw new AppError("Admin not authenticated", 401);
+      throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
     }
     const searchQuery = req.query.search as string;
     const getAllUsers = await this.userService.findAllUser({ searchQuery });
 
     if (getAllUsers) {
-      return res.status(200).json(getAllUsers);
+      return res.status(HttpStatus.OK).json(getAllUsers);
     } else {
       throw new Error("failed to fetch user");
     }
@@ -60,10 +63,10 @@ class AdminUserController implements IAdminController {
 
   //  Find all provider's :-
 
-  async fetchProviders(req: AuthRequset, res: Response): Promise<any> {
+  async fetchProviders(req: AuthRequset, res: Response): Promise<Response> {
     const userId = req.user?.id;
     if (!userId) {
-      throw new AppError("Admin not authenticated", 401);
+      throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
     }
     const searchQuery = req.query.search as string;
     const getAllProviders = await this.userService.findAllProvider({
@@ -71,7 +74,7 @@ class AdminUserController implements IAdminController {
     });
 
     if (getAllProviders) {
-      return res.status(200).json(getAllProviders);
+      return res.status(HttpStatus.OK).json(getAllProviders);
     } else {
       throw new Error("failed to fetch providers");
     }
@@ -79,17 +82,17 @@ class AdminUserController implements IAdminController {
 
   //  Update user status :-
 
-  async updateUser(req: AuthRequset, res: Response): Promise<any> {
+  async updateUser(req: AuthRequset, res: Response): Promise<Response> {
     const userId = req.user?.id;
     if (!userId) {
-      throw new AppError("Admin not authenticated", 401);
+      throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
     }
     const { email } = req.body;
 
     const findUser = await this.userService.updateUser(email);
 
     if (findUser) {
-      return res.status(200).json(findUser);
+      return res.status(HttpStatus.OK).json(findUser);
     } else {
       throw new Error("Error in updateUser");
     }
@@ -97,11 +100,11 @@ class AdminUserController implements IAdminController {
 
   //  Verify hostel :-
 
-  async verifyHostel(req: AuthRequset, res: Response): Promise<void> {
+  async verifyHostel(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { hostelId, reason, isVerified, isRejected } = req.body;
 
@@ -122,17 +125,17 @@ class AdminUserController implements IAdminController {
         );
 
         const hostelWithSignedUrls = {
-          ...(hostel as any).toObject(),
+          ...hostel.toObject(),
           photos: signedPhotos,
         };
 
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: hostelWithSignedUrls,
         });
       } else {
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: null,
@@ -141,12 +144,12 @@ class AdminUserController implements IAdminController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to verify hostel",
         });
@@ -156,11 +159,14 @@ class AdminUserController implements IAdminController {
 
   //  Find un-verified hostel's :-
 
-  async getUnverifiedHostels(req: AuthRequset, res: Response): Promise<void> {
+  async getUnverifiedHostels(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const result = await this.adminServicee.getUnverifiedHostels();
 
@@ -174,19 +180,19 @@ class AdminUserController implements IAdminController {
             );
 
             return {
-              ...hostel.toObject(), // Convert mongoose document to plain object
+              ...hostel.toObject(),
               photos: signedPhotos,
             };
           })
         );
 
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: hostelsWithSignedUrls,
         });
       } else {
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: [],
@@ -195,12 +201,12 @@ class AdminUserController implements IAdminController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch unverified hostels",
         });
@@ -210,11 +216,11 @@ class AdminUserController implements IAdminController {
 
   //  Find verified hostel's :-
 
-  async getVerifiedHostels(req: AuthRequset, res: Response): Promise<void> {
+  async getVerifiedHostels(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const result = await this.adminServicee.getVerifiedHostels();
 
@@ -233,13 +239,13 @@ class AdminUserController implements IAdminController {
           })
         );
 
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: hostelsWithSignedUrls,
         });
       } else {
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: [],
@@ -248,12 +254,12 @@ class AdminUserController implements IAdminController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch verified hostels",
         });
@@ -263,16 +269,16 @@ class AdminUserController implements IAdminController {
 
   //  Find single hostel :-
 
-  async getHostelById(req: AuthRequset, res: Response): Promise<void> {
+  async getHostelById(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { hostelId } = req.params;
       const result = await this.adminServicee.getHostelById(hostelId);
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: result.message,
         data: result.data,
@@ -280,12 +286,12 @@ class AdminUserController implements IAdminController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch hostel details",
         });
@@ -295,18 +301,20 @@ class AdminUserController implements IAdminController {
 
   //  Get dashboard :-
 
-  async getDashboard(req: AuthRequset, res: Response): Promise<any> {
+  async getDashboard(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("Admin not authenticated", 401);
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const getDashboardData = await this.adminServicee.getAdminDashboard();
 
       if (getDashboardData) {
-        res.status(HttpStatus.OK).json({ success: true, getDashboardData });
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, getDashboardData });
       } else
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: responseMessage.ACCESS_DENIED });
     } catch (error) {

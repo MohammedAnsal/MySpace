@@ -5,6 +5,7 @@ import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
 import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const userRoute = Router();
 
@@ -13,14 +14,14 @@ userRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  userController.findUser.bind(userController)
+  asyncHandler(userController.findUser.bind(userController))
 );
 userRoute.post(
   "/change-password",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  userController.changePassword.bind(userController)
+  asyncHandler(userController.changePassword.bind(userController))
 );
 
 userRoute.put(
@@ -29,7 +30,7 @@ userRoute.put(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  userController.editProfile.bind(userController)
+  asyncHandler(userController.editProfile.bind(userController))
 );
 
 export default userRoute;

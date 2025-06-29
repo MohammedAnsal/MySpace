@@ -281,13 +281,22 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         const targetId = userType === "user" ? otherUserId : userId;
         const currentUserId = userType === "user" ? userId : otherUserId;
 
-        const newRoom = await chatApi.createChatRoom(currentUserId, targetId);
+        const newRoomStub = await chatApi.createChatRoom(currentUserId, targetId);
+
+        if (!newRoomStub) {
+          throw new Error("Room creation failed to return a room stub.");
+        }
+
+        //  Come the new room in the chat list :-
+
+        const newRoomFull = await chatApi.getChatRoom(newRoomStub._id);
+
         setChatRooms((prev) => [
-          newRoom,
-          ...prev.filter((room) => room._id !== newRoom._id),
+          newRoomFull,
+          ...prev.filter((room) => room._id !== newRoomFull._id),
         ]);
 
-        return newRoom;
+        return newRoomFull;
       } catch (err: any) {
         setError(err.message || "Failed to create chat room");
         return null;

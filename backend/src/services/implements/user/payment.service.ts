@@ -8,30 +8,12 @@ import {
   PaymentResponseDTO,
   CreatePaymentDTO,
   UpdatePaymentStatusDTO,
+  mapToPaymentDTO,
 } from "../../../dtos/user/payment.dto";
 
 @Service()
 export class PaymentService implements IPaymentService {
   constructor(private paymentRepository: IPaymentRepository) {}
-
-  //  For DTO check :-
-
-  private mapToPaymentDTO(payment: any): PaymentResponseDTO {
-    return {
-      _id: payment._id.toString(),
-      userId: payment.userId.toString(),
-      hostelId: payment.hostelId.toString(),
-      bookingId: payment.bookingId.toString(),
-      amount: payment.amount,
-      currency: payment.currency,
-      status: payment.status,
-      stripeSessionId: payment.stripeSessionId,
-      stripePaymentIntentId: payment.stripePaymentIntentId,
-      metadata: payment.metadata,
-      created_at: payment.createdAt,
-      updated_at: payment.updatedAt,
-    };
-  }
 
   //  Create payment :-
 
@@ -62,7 +44,7 @@ export class PaymentService implements IPaymentService {
         );
       }
 
-      return this.mapToPaymentDTO(payment);
+      return mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -84,7 +66,7 @@ export class PaymentService implements IPaymentService {
         throw new AppError("Payment not found", StatusCodes.NOT_FOUND);
       }
 
-      return this.mapToPaymentDTO(payment);
+      return mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -111,7 +93,7 @@ export class PaymentService implements IPaymentService {
         );
       }
 
-      return this.mapToPaymentDTO(payment);
+      return mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -144,7 +126,7 @@ export class PaymentService implements IPaymentService {
         throw new AppError("Payment not found", StatusCodes.NOT_FOUND);
       }
 
-      return this.mapToPaymentDTO(updatedPayment);
+      return mapToPaymentDTO(updatedPayment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -173,7 +155,7 @@ export class PaymentService implements IPaymentService {
         );
       }
 
-      return this.mapToPaymentDTO(payment);
+      return mapToPaymentDTO(payment);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

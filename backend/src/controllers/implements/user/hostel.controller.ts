@@ -21,11 +21,11 @@ class HostelController {
 
   //  Get all verified hostel's :-
 
-  async getVerifiedHostels(req: AuthRequset, res: Response): Promise<void> {
+  async getVerifiedHostels(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const filters = {
         minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
@@ -65,13 +65,13 @@ class HostelController {
           })
         );
 
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: hostelsWithSignedUrls,
         });
       } else {
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: [],
@@ -80,12 +80,12 @@ class HostelController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch verified hostels",
         });
@@ -99,7 +99,7 @@ class HostelController {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const result = await this.hostelServicee.getVerifiedHostelsForHome();
 
@@ -154,16 +154,16 @@ class HostelController {
 
   //  Get single hostel :-
 
-  async getHostelById(req: AuthRequset, res: Response): Promise<void> {
+  async getHostelById(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { hostelId } = req.params;
       const result = await this.hostelServicee.getHostelById(hostelId);
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: result.message,
         data: result.data,
@@ -171,12 +171,12 @@ class HostelController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch hostel details",
         });
@@ -186,11 +186,11 @@ class HostelController {
 
   //  Get near by hostel's :-
 
-  async getNearbyHostels(req: AuthRequset, res: Response): Promise<void> {
+  async getNearbyHostels(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { latitude, longitude, radius = 5 } = req.query;
 
@@ -228,13 +228,13 @@ class HostelController {
           })
         );
 
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: hostelsWithSignedUrls,
         });
       } else {
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: [],
@@ -243,12 +243,12 @@ class HostelController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch nearby hostels",
         });

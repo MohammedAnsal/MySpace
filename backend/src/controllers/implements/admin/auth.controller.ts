@@ -11,7 +11,7 @@ export class AdminController {
 
   //  Admin Signin :-
 
-  async signIn(req: Request, res: Response): Promise<any> {
+  async signIn(req: Request, res: Response): Promise<Response> {
     try {
       const { email, password } = req.body;
 
@@ -54,7 +54,7 @@ export class AdminController {
 
   //  ForgotPassword :-
 
-  async forgetPassword(req: Request, res: Response): Promise<any> {
+  async forgetPassword(req: Request, res: Response): Promise<Response> {
     try {
       const { email } = req.body;
 
@@ -84,7 +84,7 @@ export class AdminController {
 
   //  ResetPassword :-
 
-  async resetPassword(req: Request, res: Response): Promise<any> {
+  async resetPassword(req: Request, res: Response): Promise<Response> {
     try {
       const { email, newPassword } = req.body;
 
@@ -126,7 +126,7 @@ export class AdminController {
 
   //  Logout :-
 
-  async logout(req: Request, res: Response): Promise<any> {
+  async logout(req: Request, res: Response): Promise<Response> {
     try {
       res.clearCookie("refr_Admin_Token", {
         httpOnly: true,
@@ -154,7 +154,7 @@ export class AdminController {
 
   //  Set newToken :-
 
-  async setNewToken(req: Request, res: Response): Promise<any> {
+  async setNewToken(req: Request, res: Response): Promise<Response> {
     try {
       const token = req.cookies?.refr_Admin_Token;
 

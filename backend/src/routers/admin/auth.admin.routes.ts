@@ -1,31 +1,32 @@
 import { Router } from "express";
 import { authController } from "../../controllers/implements/admin/auth.controller";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const authAdminRoute = Router();
 
 authAdminRoute.post(
   "/admin/sign-in",
-  authController.signIn.bind(authController)
+  asyncHandler(authController.signIn.bind(authController))
 );
 
 authAdminRoute.post(
   "/admin/forgot-password",
-  authController.forgetPassword.bind(authController)
+  asyncHandler(authController.forgetPassword.bind(authController))
 );
 
 authAdminRoute.put(
   "/admin/reset-password",
-  authController.resetPassword.bind(authController)
+  asyncHandler(authController.resetPassword.bind(authController))
 );
 
 authAdminRoute.post(
   "/admin/logout",
-  authController.logout.bind(authController)
+  asyncHandler(authController.logout.bind(authController))
 );
 
 authAdminRoute.get(
   "/admin-refresh-token",
-  authController.setNewToken.bind(authController)
+  asyncHandler(authController.setNewToken.bind(authController))
 );
 
 export default authAdminRoute;
