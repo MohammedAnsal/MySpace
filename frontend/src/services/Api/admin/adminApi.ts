@@ -183,6 +183,23 @@ export const deleteFacility = async (facilityId: string) => {
   }
 };
 
+export const updateFacility = async (facilityId: string, facilityData: any) => {
+  try {
+    const response = await private_api.put(
+      `/admin/facility/${facilityId}`,
+      facilityData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return handleResponse(response.data, "Error updating facility");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const listAdminBookings = async () => {
   try {
     const response = await private_api.get("/admin/bookings");

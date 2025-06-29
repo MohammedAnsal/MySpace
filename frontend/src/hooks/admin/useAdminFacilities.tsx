@@ -3,7 +3,8 @@ import {
   createFacility,
   findAllFacilities,
   updateFacilityStatus,
-  deleteFacility
+  deleteFacility,
+  updateFacility
 } from '@/services/Api/admin/adminApi';
 
 export const useAdminFacilities = () => {
@@ -37,6 +38,15 @@ export const useAdminFacilities = () => {
     },
   });
 
+  // Mutation for updating a facility
+  const { mutate: updateFacilityData, isPending: isUpdatingFacility } = useMutation({
+    mutationFn: ({ facilityId, facilityData }: { facilityId: string; facilityData: any }) =>
+      updateFacility(facilityId, facilityData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-facilities'] });
+    },
+  });
+
   // Mutation for deleting a facility
   const { mutate: removeFacility, isPending: isDeleting } = useMutation({
     mutationFn: deleteFacility,
@@ -53,6 +63,8 @@ export const useAdminFacilities = () => {
     isCreating,
     updateStatus,
     isUpdating,
+    updateFacilityData,
+    isUpdatingFacility,
     removeFacility,
     isDeleting,
   };

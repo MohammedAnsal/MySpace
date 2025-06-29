@@ -10,5 +10,9 @@ export interface IAdminFacilityRepository {
     facilityId: string,
     status: boolean
   ): Promise<IAdminFacility | null>;
+  updateFacility(
+    facilityId: string,
+    facilityData: Partial<IAdminFacility>
+  ): Promise<IAdminFacility | null>;
   deleteFacility(facilityId: string): Promise<IAdminFacility | null>;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Loader2, Check, X } from "lucide-react";
+import { Plus, Trash2, Loader2, Check, X, Edit2, Save, X as XIcon } from "lucide-react";
 import { useAdminFacilities } from "@/hooks/admin/useAdminFacilities";
 import Loading from "@/components/global/Loading";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
@@ -19,6 +19,8 @@ export const AdminManageFacilities: React.FC = () => {
     addFacility,
     isCreating,
     updateStatus,
+    updateFacilityData,
+    isUpdatingFacility,
     removeFacility,
   } = useAdminFacilities();
   const [newFacilityName, setNewFacilityName] = useState("");
@@ -29,6 +31,13 @@ export const AdminManageFacilities: React.FC = () => {
   const [facilityToDelete, setFacilityToDelete] = useState<string | null>(null);
   const [validationError, setValidationError] = useState("");
   const [canAddMore, setCanAddMore] = useState(true);
+  
+  // Edit state
+  const [editingFacility, setEditingFacility] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editValidationError, setEditValidationError] = useState("");
 
   useEffect(() => {
     if (facilities) {
@@ -116,6 +125,86 @@ export const AdminManageFacilities: React.FC = () => {
       console.error("Error:", error);
       setValidationError("An unexpected error occurred");
     }
+  };
+
+  const handleEditFacility = (facility: any) => {
+    setEditingFacility(facility._id);
+    setEditName(facility.name);
+    setEditPrice(facility.price.toString());
+    setEditDescription(facility.description);
+    setEditValidationError("");
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      setEditValidationError("");
+
+      if (!editName.trim()) {
+        setEditValidationError("Facility name is required");
+        return;
+      }
+      if (!editPrice || parseFloat(editPrice) <= 0) {
+        setEditValidationError("Valid price is required");
+        return;
+      }
+      if (!editDescription.trim()) {
+        setEditValidationError("Description is required");
+        return;
+      }
+
+      if (!ALLOWED_FACILITIES.includes(editName.trim())) {
+        setEditValidationError(
+          "Only specific facilities are allowed: Catering Service, Deep Cleaning Service, Laundry Service"
+        );
+        return;
+      }
+
+      // Check if name already exists (excluding current facility)
+      const facilityExists = facilities.some(
+        (f: { name: string; _id: string }) =>
+          f.name.toLowerCase() === editName.trim().toLowerCase() && 
+          f._id !== editingFacility
+      );
+      if (facilityExists) {
+        setEditValidationError("This facility name already exists");
+        return;
+      }
+
+      const facilityData = {
+        name: editName.trim(),
+        price: editPrice,
+        description: editDescription.trim(),
+      };
+
+      updateFacilityData(
+        { facilityId: editingFacility!, facilityData },
+        {
+          onSuccess: () => {
+            setEditingFacility(null);
+            setEditName("");
+            setEditPrice("");
+            setEditDescription("");
+            setSuccessMessage("Facility updated successfully!");
+            setTimeout(() => setSuccessMessage(""), 3000);
+          },
+          onError: (error) => {
+            console.error("Error updating facility:", error);
+            setEditValidationError("Failed to update facility. Please try again.");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error:", error);
+      setEditValidationError("An unexpected error occurred");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingFacility(null);
+    setEditName("");
+    setEditPrice("");
+    setEditDescription("");
+    setEditValidationError("");
   };
 
   const handleRemoveFacility = (id: string) => {
@@ -271,79 +360,149 @@ export const AdminManageFacilities: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       className="flex flex-wrap items-start justify-between p-3 border border-gray-700 rounded-lg hover:border-[#C8ED4F]/50 transition-colors bg-[#242529]"
                     >
-                      <div className="flex items-start flex-1 min-w-0">
-                        <input
-                          type="checkbox"
-                          checked={facility.status}
-                          onChange={() =>
-                            handleToggleFacility(facility._id, facility.status)
-                          }
-                          className="mr-3 h-5 w-5 accent-[#C8ED4F] mt-1"
-                        />
-                        <div className="flex flex-col">
-                          <span
-                            className={
-                              facility.status
-                                ? "text-white font-medium"
-                                : "text-gray-400 line-through"
-                            }
-                          >
-                            {facility.name}
-                          </span>
-                          <span className="text-sm text-[#C8ED4F] font-semibold">
-                            ${facility.price}
-                          </span>
-                          <p className="text-sm text-gray-400 mt-1">
-                            {facility.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center mt-2 sm:mt-0 space-x-2">
-                        <AnimatePresence mode="wait">
-                          <motion.span
-                            key={`${facility._id}-${facility.status}`}
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            transition={{ duration: 0.2 }}
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                              facility.status
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {facility.status ? "Active" : "Blocked"}
-                          </motion.span>
-                        </AnimatePresence>
-                        <button
-                          onClick={() =>
-                            handleToggleFacility(facility._id, facility.status)
-                          }
-                          className={`px-2 py-1 rounded-lg text-white font-semibold transition-all duration-200 flex items-center text-xs ${
-                            facility.status
-                              ? "bg-red-500 hover:bg-red-600"
-                              : "bg-green-500 hover:bg-green-600"
-                          }`}
-                        >
-                          {facility.status ? (
-                            <>
-                              <X size={12} className="mr-1" /> Block
-                            </>
-                          ) : (
-                            <>
-                              <Check size={12} className="mr-1" /> Unblock
-                            </>
+                      {editingFacility === facility._id ? (
+                        // Edit Mode
+                        <div className="w-full space-y-3">
+                          <div className="grid grid-cols-1 gap-3">
+                            <input
+                              type="text"
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              placeholder="Facility name"
+                              className="px-3 py-2 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none text-sm"
+                            />
+                            <input
+                              type="number"
+                              value={editPrice}
+                              onChange={(e) => setEditPrice(e.target.value)}
+                              placeholder="Price"
+                              min="0"
+                              step="0.01"
+                              className="px-3 py-2 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none text-sm"
+                            />
+                            <textarea
+                              value={editDescription}
+                              onChange={(e) => setEditDescription(e.target.value)}
+                              placeholder="Description"
+                              rows={2}
+                              className="px-3 py-2 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none resize-none text-sm"
+                            />
+                          </div>
+                          {editValidationError && (
+                            <div className="text-red-400 text-xs">{editValidationError}</div>
                           )}
-                        </button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleRemoveFacility(facility._id)}
-                          className="text-red-400 hover:text-red-300 transition-colors p-1 bg-red-900/20 rounded-full"
-                        >
-                          <Trash2 size={14} />
-                        </motion.button>
-                      </div>
+                          <div className="flex items-center space-x-2">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={handleSaveEdit}
+                              disabled={isUpdatingFacility}
+                              className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center text-xs disabled:opacity-70"
+                            >
+                              {isUpdatingFacility ? (
+                                <Loader2 className="animate-spin mr-1" size={12} />
+                              ) : (
+                                <Save size={12} className="mr-1" />
+                              )}
+                              Save
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={handleCancelEdit}
+                              className="px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center text-xs"
+                            >
+                              <XIcon size={12} className="mr-1" />
+                              Cancel
+                            </motion.button>
+                          </div>
+                        </div>
+                      ) : (
+                        // View Mode
+                        <>
+                          <div className="flex items-start flex-1 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={facility.status}
+                              onChange={() =>
+                                handleToggleFacility(facility._id, facility.status)
+                              }
+                              className="mr-3 h-5 w-5 accent-[#C8ED4F] mt-1"
+                            />
+                            <div className="flex flex-col">
+                              <span
+                                className={
+                                  facility.status
+                                    ? "text-white font-medium"
+                                    : "text-gray-400 line-through"
+                                }
+                              >
+                                {facility.name}
+                              </span>
+                              <span className="text-sm text-[#C8ED4F] font-semibold">
+                                ${facility.price}
+                              </span>
+                              <p className="text-sm text-gray-400 mt-1">
+                                {facility.description}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center mt-2 sm:mt-0 space-x-2">
+                            <AnimatePresence mode="wait">
+                              <motion.span
+                                key={`${facility._id}-${facility.status}`}
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                transition={{ duration: 0.2 }}
+                                className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                                  facility.status
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                {facility.status ? "Active" : "Blocked"}
+                              </motion.span>
+                            </AnimatePresence>
+                            <button
+                              onClick={() =>
+                                handleToggleFacility(facility._id, facility.status)
+                              }
+                              className={`px-2 py-1 rounded-lg text-white font-semibold transition-all duration-200 flex items-center text-xs ${
+                                facility.status
+                                  ? "bg-red-500 hover:bg-red-600"
+                                  : "bg-green-500 hover:bg-green-600"
+                              }`}
+                            >
+                              {facility.status ? (
+                                <>
+                                  <X size={12} className="mr-1" /> Block
+                                </>
+                              ) : (
+                                <>
+                                  <Check size={12} className="mr-1" /> Unblock
+                                </>
+                              )}
+                            </button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleEditFacility(facility)}
+                              className="text-blue-400 hover:text-blue-300 transition-colors p-1 bg-blue-900/20 rounded-full"
+                            >
+                              <Edit2 size={14} />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleRemoveFacility(facility._id)}
+                              className="text-red-400 hover:text-red-300 transition-colors p-1 bg-red-900/20 rounded-full"
+                            >
+                              <Trash2 size={14} />
+                            </motion.button>
+                          </div>
+                        </>
+                      )}
                     </motion.div>
                   ))}
                 </div>

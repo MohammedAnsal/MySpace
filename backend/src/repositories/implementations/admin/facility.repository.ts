@@ -57,6 +57,23 @@ export class AdminFacilityRepository implements IAdminFacilityRepository {
     }
   }
 
+  //  For update facility :-
+
+  async updateFacility(
+    facilityId: string,
+    facilityData: Partial<IAdminFacility>
+  ): Promise<IAdminFacility | null> {
+    try {
+      return await AdminFacility.findByIdAndUpdate(
+        facilityId,
+        facilityData,
+        { new: true, runValidators: true }
+      );
+    } catch (error) {
+      throw new Error(`Error updating facility: ${error}`);
+    }
+  }
+
   //  For delete facility :-
 
   async deleteFacility(facilityId: string): Promise<IAdminFacility | null> {
