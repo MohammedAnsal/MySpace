@@ -1,3 +1,5 @@
+import { IBooking } from "../../models/booking.model";
+
 export interface BookingResponseDTO {
   _id: string;
   userId: {
@@ -73,4 +75,27 @@ export interface BookingFiltersDTO {
   startDate?: Date;
   endDate?: Date;
   sortBy?: "asc" | "desc";
+}
+
+export function mapToBookingDTO(booking: any): BookingResponseDTO {
+  return {
+    _id: booking._id.toString(),
+    userId: booking.userId,
+    hostelId: booking.hostelId,
+    providerId: booking.providerId,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    stayDurationInMonths: booking.stayDurationInMonths,
+    selectedFacilities: booking.selectedFacilities,
+    bookingDate: booking.bookingDate,
+    totalPrice: booking.totalPrice,
+    firstMonthRent: booking.firstMonthRent,
+    depositAmount: booking.depositAmount,
+    monthlyRent: booking.monthlyRent,
+    paymentStatus: booking.paymentStatus,
+    proof: booking.proof,
+    reason: booking.reason,
+    created_at: booking.createdAt,
+    updated_at: booking.updatedAt,
+  };
 }

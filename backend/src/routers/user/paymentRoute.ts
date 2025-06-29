@@ -4,6 +4,7 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const paymentRoute = express.Router();
 
@@ -12,13 +13,13 @@ paymentRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  paymentController.createCheckoutSession.bind(paymentController)
+  asyncHandler(paymentController.createCheckoutSession.bind(paymentController))
 );
 
 paymentRoute.post(
   "/webhook",
   express.raw({ type: "application/json" }),
-  paymentController.handleWebhook.bind(paymentController)
+  asyncHandler(paymentController.handleWebhook.bind(paymentController))
 );
 
 paymentRoute.post(
@@ -26,7 +27,7 @@ paymentRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  paymentController.reprocessPayment.bind(paymentController)
+  asyncHandler(paymentController.reprocessPayment.bind(paymentController))
 );
 
 export default paymentRoute;

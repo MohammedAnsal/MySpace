@@ -1,5 +1,4 @@
 import { Service } from "typedi";
-import { ILocation } from "../../../models/provider/location.model";
 import { locationRepository } from "../../../repositories/implementations/provider/location.repository";
 import { ILocationRepository } from "../../../repositories/interfaces/provider/location.Irepository";
 import {
@@ -10,9 +9,9 @@ import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { Container } from "typedi";
 import {
-  LocationResponseDTO,
   CreateLocationDTO,
   UpdateLocationDTO,
+  mapToLocationDTO,
 } from "../../../dtos/provider/location.dto";
 
 @Service()
@@ -21,20 +20,6 @@ class LocationService implements ILocationService {
 
   constructor() {
     this.locationRepositoryy = locationRepository;
-  }
-
-  //  For DTO check :-
-
-  private mapToLocationDTO(location: ILocation): LocationResponseDTO {
-    return {
-      _id: location._id.toString(),
-      latitude: location.latitude,
-      longitude: location.longitude,
-      address: location.address,
-      location: location.location,
-      created_at: location.created_at,
-      updated_at: location.updated_at,
-    };
   }
 
   //  Create location :-
@@ -55,7 +40,7 @@ class LocationService implements ILocationService {
       return {
         success: true,
         message: "Location created successfully",
-        locationData: this.mapToLocationDTO(location),
+        locationData: mapToLocationDTO(location),
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -93,7 +78,7 @@ class LocationService implements ILocationService {
       return {
         success: true,
         message: "Location updated successfully",
-        locationData: this.mapToLocationDTO(location),
+        locationData: mapToLocationDTO(location),
       };
     } catch (error) {
       if (error instanceof AppError) throw error;

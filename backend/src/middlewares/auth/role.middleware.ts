@@ -13,7 +13,7 @@ export const authorizeRoles = (...allowedRoles: string[]) => {
       const user = req.user;
 
       if (!user?.role) {
-        throw new AppError("Role not exists", 401);
+        throw new AppError("Role not exists", HttpStatus.FORBIDDEN);
       }
 
       if (!allowedRoles.includes(user.role)) {

@@ -8,6 +8,11 @@ import { S3Service } from "../../../services/implements/s3/s3.service";
 import IS3service from "../../../services/interface/s3/s3.service.interface";
 import { IChatRoomService } from "../../../services/interface/chat/chatRoom.service.interface";
 
+interface PopulatedProfile {
+  profile_picture?: string;
+  [key: string]: any;
+}
+
 @Service()
 export class ChatRoomController {
   private chatRoomService: IChatRoomService;
@@ -20,7 +25,7 @@ export class ChatRoomController {
 
   //  Create chat room :-
 
-  createChatRoom = async (req: Request, res: Response): Promise<void> => {
+  createChatRoom = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { userId, providerId } = req.body;
 
@@ -36,19 +41,19 @@ export class ChatRoomController {
         providerId
       );
 
-      res.status(HttpStatus.CREATED).json({
+      return res.status(HttpStatus.CREATED).json({
         success: true,
         chatRoom,
       });
     } catch (error) {
       console.error("Error creating chat room:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while creating the chat room",
         });
@@ -86,8 +91,8 @@ export class ChatRoomController {
         typeof result.userId === "object" &&
         "profile_picture" in result.userId
       ) {
-        const userProfile = result.userId as any;
-        if (userProfile.profile_picture) {
+        const userProfile = result.userId as PopulatedProfile;
+        if (userProfile && userProfile.profile_picture) {
           userProfile.profilePicture = await this.s3Service.generateSignedUrl(
             userProfile.profile_picture
           );
@@ -101,8 +106,8 @@ export class ChatRoomController {
         typeof result.providerId === "object" &&
         "profile_picture" in result.providerId
       ) {
-        const providerProfile = result.providerId as any;
-        if (providerProfile.profile_picture) {
+        const providerProfile = result.providerId as PopulatedProfile;
+        if (providerProfile && providerProfile.profile_picture) {
           providerProfile.profilePicture =
             await this.s3Service.generateSignedUrl(
               providerProfile.profile_picture
@@ -132,7 +137,7 @@ export class ChatRoomController {
 
   //  GetAll user chat room's :-
 
-  getUserChatRooms = async (req: Request, res: Response): Promise<void> => {
+  getUserChatRooms = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { userId } = req.params;
 
@@ -160,8 +165,8 @@ export class ChatRoomController {
             typeof result.providerId === "object" &&
             "profile_picture" in result.providerId
           ) {
-            const providerProfile = result.providerId as any;
-            if (providerProfile.profile_picture) {
+            const providerProfile = result.providerId as PopulatedProfile;
+            if (providerProfile && providerProfile.profile_picture) {
               providerProfile.profilePicture =
                 await this.s3Service.generateSignedUrl(
                   providerProfile.profile_picture
@@ -176,8 +181,8 @@ export class ChatRoomController {
             typeof result.userId === "object" &&
             "profile_picture" in result.userId
           ) {
-            const userProfile = result.userId as any;
-            if (userProfile.profile_picture) {
+            const userProfile = result.userId as PopulatedProfile;
+            if (userProfile && userProfile.profile_picture) {
               userProfile.profilePicture =
                 await this.s3Service.generateSignedUrl(
                   userProfile.profile_picture
@@ -189,19 +194,19 @@ export class ChatRoomController {
         })
       );
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         chatRooms: roomsWithSignedUrls,
       });
     } catch (error) {
       console.error("Error getting user chat rooms:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while retrieving user chat rooms",
         });
@@ -211,7 +216,10 @@ export class ChatRoomController {
 
   //  GetAll provider chat room's :-
 
-  getProviderChatRooms = async (req: Request, res: Response): Promise<void> => {
+  getProviderChatRooms = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     try {
       const { providerId } = req.params;
       const page = parseInt(req.query.page as string) || 1;
@@ -239,8 +247,8 @@ export class ChatRoomController {
             typeof result.userId === "object" &&
             "profile_picture" in result.userId
           ) {
-            const userProfile = result.userId as any;
-            if (userProfile.profile_picture) {
+            const userProfile = result.userId as PopulatedProfile;
+            if (userProfile && userProfile.profile_picture) {
               userProfile.profilePicture =
                 await this.s3Service.generateSignedUrl(
                   userProfile.profile_picture
@@ -253,8 +261,8 @@ export class ChatRoomController {
             typeof result.providerId === "object" &&
             "profile_picture" in result.providerId
           ) {
-            const providerProfile = result.providerId as any;
-            if (providerProfile.profile_picture) {
+            const providerProfile = result.providerId as PopulatedProfile;
+            if (providerProfile && providerProfile.profile_picture) {
               providerProfile.profilePicture =
                 await this.s3Service.generateSignedUrl(
                   providerProfile.profile_picture
@@ -266,19 +274,19 @@ export class ChatRoomController {
         })
       );
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         chatRooms: roomsWithSignedUrls,
       });
     } catch (error) {
       console.error("Error getting provider chat rooms:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while retrieving provider chat rooms",
         });
@@ -288,7 +296,7 @@ export class ChatRoomController {
 
   //  Soon :-
 
-  deleteChatRoom = async (req: Request, res: Response): Promise<void> => {
+  deleteChatRoom = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { chatRoomId } = req.params;
 
@@ -308,19 +316,19 @@ export class ChatRoomController {
         );
       }
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: "Chat room deleted successfully",
       });
     } catch (error) {
       console.error("Error deleting chat room:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while deleting the chat room",
         });

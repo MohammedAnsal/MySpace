@@ -12,21 +12,24 @@ export class ProviderController implements IProviderController {
 
   //  Find provider profile :-
 
-  async findUser(req: AuthRequset, res: Response): Promise<any> {
+  async findUser(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const { success, data } = await this.providerService.findProvider(
         providerId as string
       );
       if (success) {
-        res.status(HttpStatus.OK).json({ success: true, data });
+        return res.status(HttpStatus.OK).json({ success: true, data });
       } else
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: responseMessage.ACCESS_DENIED });
     } catch (error) {
@@ -44,12 +47,15 @@ export class ProviderController implements IProviderController {
 
   //  Change password :-
 
-  async changePassword(req: AuthRequset, res: Response): Promise<any> {
+  async changePassword(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const { email, currentPassword, newPassword } = req.body;
@@ -90,14 +96,17 @@ export class ProviderController implements IProviderController {
 
   //  Edit profile :-
 
-  async editProfile(req: AuthRequset, res: Response): Promise<any> {
+  async editProfile(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const formData = req.body;
       const profileImage = req.file;
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       if (!formData) {
@@ -135,12 +144,15 @@ export class ProviderController implements IProviderController {
 
   //  Get dashboard :-
 
-  async getDashboard(req: AuthRequset, res: Response): Promise<any> {
+  async getDashboard(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const getDashboardData = await this.providerService.getProviderDashboard(
@@ -148,9 +160,11 @@ export class ProviderController implements IProviderController {
       );
 
       if (getDashboardData) {
-        res.status(HttpStatus.OK).json({ success: true, getDashboardData });
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, getDashboardData });
       } else
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: responseMessage.ACCESS_DENIED });
     } catch (error) {
@@ -168,17 +182,20 @@ export class ProviderController implements IProviderController {
 
   //  Get all facility's :-
 
-  async findAllFacilities(req: AuthRequset, res: Response): Promise<any> {
+  async findAllFacilities(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const facilities = await this.providerService.findAllFacilities();
 
-      return res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: "Facilities fetched successfully",
         data: facilities,
@@ -191,7 +208,7 @@ export class ProviderController implements IProviderController {
           message: error.message,
         });
       }
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch facilities",
       });

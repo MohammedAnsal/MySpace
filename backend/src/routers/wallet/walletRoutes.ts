@@ -4,6 +4,7 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const walletRoute = express.Router();
 
@@ -12,27 +13,27 @@ walletRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  walletController.getUserWallet.bind(walletController)
+  asyncHandler(walletController.getUserWallet.bind(walletController))
 );
 walletRoute.get(
   "/provider-wallet",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
-  walletController.getProviderWallet.bind(walletController)
+  asyncHandler(walletController.getProviderWallet.bind(walletController))
 );
 walletRoute.get(
   "/admin-wallet",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  walletController.getAdminWallet.bind(walletController)
+  asyncHandler(walletController.getAdminWallet.bind(walletController))
 );
 walletRoute.get(
   "/transactions",
   authMiddleWare,
   autherization,
-  walletController.getTransactions.bind(walletController)
+  asyncHandler(walletController.getTransactions.bind(walletController))
 );
 
 export default walletRoute;

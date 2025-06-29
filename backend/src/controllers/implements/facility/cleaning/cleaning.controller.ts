@@ -4,6 +4,7 @@ import { ICleaningService } from "../../../../services/interface/facility/cleani
 import { Request, Response } from "express";
 import { AppError } from "../../../../utils/error";
 import { AuthRequset } from "../../../../types/api";
+import { HttpStatus } from "../../../../enums/http.status";
 
 @Service()
 export class CleaningController {
@@ -29,11 +30,11 @@ export class CleaningController {
       const userId = req.user?.id;
 
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       if (!providerId || !hostelId || !requestedDate || !preferredTimeSlot) {
-        throw new AppError("Missing required fields", 400);
+        throw new AppError("Missing required fields", HttpStatus.BAD_REQUEST);
       }
 
       const result = await this.cleaningService.createCleaningRequest(userId, {
@@ -45,15 +46,15 @@ export class CleaningController {
         specialInstructions,
       });
 
-      res.status(201).json(result);
+      return res.status(HttpStatus.CREATED).json(result);
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -68,19 +69,19 @@ export class CleaningController {
       const userId = req.user?.id;
 
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       const result = await this.cleaningService.getUserCleaningRequests(userId);
-      res.status(200).json(result);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -95,15 +96,15 @@ export class CleaningController {
       const { id } = req.params;
 
       const result = await this.cleaningService.getCleaningRequestById(id);
-      res.status(200).json(result);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -119,22 +120,22 @@ export class CleaningController {
       const { status } = req.body;
 
       if (!status) {
-        throw new AppError("Status is required", 400);
+        throw new AppError("Status is required", HttpStatus.BAD_REQUEST);
       }
 
       const result = await this.cleaningService.updateCleaningRequestStatus(
         id,
         { status }
       );
-      res.status(200).json(result);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -150,22 +151,22 @@ export class CleaningController {
       const userId = req.user?.id;
 
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       const result = await this.cleaningService.cancelCleaningRequest(
         id,
         userId
       );
-      res.status(200).json(result);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -180,21 +181,21 @@ export class CleaningController {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError("Provider not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       const result = await this.cleaningService.getProviderCleaningRequests(
         providerId
       );
-      res.status(200).json(result);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });

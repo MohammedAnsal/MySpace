@@ -4,53 +4,54 @@ import { messageController } from "../../controllers/implements/chat/message.con
 import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { upload } from "../../utils/multer";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const chatRoute = express.Router();
 
 // Chat Room routes
 chatRoute.post(
   "/rooms",
-  chatRoomController.createChatRoom.bind(chatRoomController)
+  asyncHandler(chatRoomController.createChatRoom.bind(chatRoomController))
 );
 chatRoute.get(
   "/rooms/:chatRoomId",
-  chatRoomController.getChatRoom.bind(chatRoomController)
+  asyncHandler(chatRoomController.getChatRoom.bind(chatRoomController))
 );
 chatRoute.get(
   "/users/:userId/rooms",
-  chatRoomController.getUserChatRooms.bind(chatRoomController)
+  asyncHandler(chatRoomController.getUserChatRooms.bind(chatRoomController))
 );
 chatRoute.get(
   "/providers/:providerId/rooms",
-  chatRoomController.getProviderChatRooms.bind(chatRoomController)
+  asyncHandler(chatRoomController.getProviderChatRooms.bind(chatRoomController))
 );
 chatRoute.delete(
   "/rooms/:chatRoomId",
-  chatRoomController.deleteChatRoom.bind(chatRoomController)
+  asyncHandler(chatRoomController.deleteChatRoom.bind(chatRoomController))
 );
 
 // Message routes
 chatRoute.post(
   "/messages",
-  messageController.sendMessage.bind(messageController)
+  asyncHandler(messageController.sendMessage.bind(messageController))
 );
 chatRoute.get(
   "/rooms/:chatRoomId/messages",
-  messageController.getChatMessages.bind(messageController)
+  asyncHandler(messageController.getChatMessages.bind(messageController))
 );
 chatRoute.patch(
   "/rooms/:chatRoomId/messages/seen",
-  messageController.markMessagesAsSeen.bind(messageController)
+  asyncHandler(messageController.markMessagesAsSeen.bind(messageController))
 );
 chatRoute.get(
   "/rooms/:chatRoomId/unread",
-  messageController.getUnreadMessageCount.bind(messageController)
+  asyncHandler(messageController.getUnreadMessageCount.bind(messageController))
 );
 
 chatRoute.post(
   "/messages/upload-image",
   upload.single("image"),
-  messageController.uploadMessageImage.bind(messageController)
+  asyncHandler(messageController.uploadMessageImage.bind(messageController))
 );
 
 export default chatRoute;

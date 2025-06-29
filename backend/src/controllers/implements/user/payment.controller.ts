@@ -19,7 +19,7 @@ export class PaymentController {
 
   //  Create payment :-
 
-  async createCheckoutSession(req: Request, res: Response) {
+  async createCheckoutSession(req: Request, res: Response): Promise<Response> {
     try {
       const {
         hostelId,
@@ -53,7 +53,7 @@ export class PaymentController {
         metadata,
       });
 
-      res.status(StatusCodes.OK).json({
+      return res.status(StatusCodes.OK).json({
         status: "success",
         data: {
           checkoutUrl,
@@ -72,7 +72,7 @@ export class PaymentController {
 
   //  Handle stripe web-hook :-
 
-  async handleWebhook(req: Request, res: Response): Promise<void> {
+  async handleWebhook(req: Request, res: Response): Promise<Response> {
     try {
       const signature = req.headers["stripe-signature"] as string;
       if (!signature) {
@@ -90,18 +90,18 @@ export class PaymentController {
       }
       await this.stripeService.handleWebhookEvent(req.body, signature);
 
-      res.json({ received: true });
-    } catch (error: any) {
-      console.error("Webhook Error:", error.message);
-      res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: error.message || "Webhook processing failed",
+      return res.json({ received: true });
+    } catch (error) {
+      console.error("Webhook Error:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: error || "Webhook processing failed",
       });
     }
   }
 
   //  Failed payment re-payment handle :-
 
-  async reprocessPayment(req: Request, res: Response) {
+  async reprocessPayment(req: Request, res: Response): Promise<Response> {
     try {
       const { bookingId } = req.params;
 
@@ -147,7 +147,7 @@ export class PaymentController {
         },
       });
 
-      res.status(StatusCodes.OK).json({
+      return res.status(StatusCodes.OK).json({
         status: "success",
         data: {
           checkoutUrl,
@@ -155,13 +155,12 @@ export class PaymentController {
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
-        return;
       }
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: "Error reprocessing payment",
       });

@@ -4,6 +4,7 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const ratingRoute = express.Router();
 
@@ -12,7 +13,7 @@ ratingRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  ratingController.createRating.bind(ratingController)
+  asyncHandler(ratingController.createRating.bind(ratingController))
 );
 
 ratingRoute.get(
@@ -20,7 +21,7 @@ ratingRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  ratingController.getUserRating.bind(ratingController)
+  asyncHandler(ratingController.getUserRating.bind(ratingController))
 );
 
 export default ratingRoute;

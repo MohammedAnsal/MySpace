@@ -20,7 +20,7 @@ export class MessageController {
 
   //   Send message :-
 
-  sendMessage = async (req: Request, res: Response): Promise<void> => {
+  sendMessage = async (req: Request, res: Response): Promise<Response> => {
     try {
       const {
         chatRoomId,
@@ -54,19 +54,19 @@ export class MessageController {
         replyToMessageId
       );
 
-      res.status(HttpStatus.CREATED).json({
+      return res.status(HttpStatus.CREATED).json({
         success: true,
         message,
       });
     } catch (error) {
       console.error("Error sending message:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while sending the message",
         });
@@ -76,7 +76,7 @@ export class MessageController {
 
   //  Get chat messages's :-
 
-  getChatMessages = async (req: Request, res: Response): Promise<void> => {
+  getChatMessages = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { chatRoomId } = req.params;
       const page = parseInt(req.query.page as string) || 1;
@@ -95,19 +95,19 @@ export class MessageController {
         limit
       );
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         messages,
       });
     } catch (error) {
       console.error("Error getting chat messages:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while retrieving chat messages",
         });
@@ -117,7 +117,7 @@ export class MessageController {
 
   //  Mark message seen :-
 
-  markMessagesAsSeen = async (req: Request, res: Response): Promise<void> => {
+  markMessagesAsSeen = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { chatRoomId } = req.params;
       const { recipientType } = req.body;
@@ -141,19 +141,19 @@ export class MessageController {
         recipientType
       );
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         messagesMarkedAsSeen: result,
       });
     } catch (error) {
       console.error("Error marking messages as seen:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while marking messages as seen",
         });
@@ -166,7 +166,7 @@ export class MessageController {
   getUnreadMessageCount = async (
     req: Request,
     res: Response
-  ): Promise<void> => {
+  ): Promise<Response> => {
     try {
       const { chatRoomId } = req.params;
       const { recipientType } = req.query;
@@ -193,19 +193,19 @@ export class MessageController {
         recipientType as "user" | "provider"
       );
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         unreadCount: count,
       });
     } catch (error) {
       console.error("Error getting unread message count:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while getting unread message count",
         });
@@ -215,7 +215,7 @@ export class MessageController {
 
   //  Upload image in message :-
 
-  uploadMessageImage = async (req: Request, res: Response): Promise<void> => {
+  uploadMessageImage = async (req: Request, res: Response): Promise<Response> => {
     try {
       if (!req.file) {
         throw new AppError("No image file provided", HttpStatus.BAD_REQUEST);
@@ -254,19 +254,19 @@ export class MessageController {
         replyToMessageId
       );
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message,
       });
     } catch (error) {
       console.error("Error uploading image:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "An error occurred while uploading the image",
         });

@@ -3,6 +3,7 @@ import { INotification } from "../../../models/notification/notification.model";
 import { Notification } from "../../../models/notification/notification.model";
 import { AppError } from "../../../utils/error";
 import { INotificationRepository } from "../../interfaces/notification/notification.Irepository";
+import { HttpStatus } from "../../../enums/http.status";
 @Service()
 export class NotificationRepository implements INotificationRepository {
   //  For create notification :-
@@ -14,7 +15,10 @@ export class NotificationRepository implements INotificationRepository {
       const notification = await Notification.create(notificationData);
       return notification;
     } catch (error) {
-      throw new AppError("Failed to create notification", 500);
+      throw new AppError(
+        "Failed to create notification",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -24,7 +28,10 @@ export class NotificationRepository implements INotificationRepository {
     try {
       return await Notification.findById(id).exec();
     } catch (error) {
-      throw new AppError("Failed to fetch notification", 500);
+      throw new AppError(
+        "Failed to fetch notification",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -39,7 +46,10 @@ export class NotificationRepository implements INotificationRepository {
         new: true,
       }).exec();
     } catch (error) {
-      throw new AppError("Failed to update notification", 500);
+      throw new AppError(
+        "Failed to update notification",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -49,7 +59,10 @@ export class NotificationRepository implements INotificationRepository {
     try {
       await Notification.findByIdAndDelete(id).exec();
     } catch (error) {
-      throw new AppError("Failed to delete notification", 500);
+      throw new AppError(
+        "Failed to delete notification",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -62,7 +75,10 @@ export class NotificationRepository implements INotificationRepository {
         isDeleted: false,
       }).exec();
     } catch (error) {
-      throw new AppError("Failed to fetch notifications", 500);
+      throw new AppError(
+        "Failed to fetch notifications",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -75,7 +91,10 @@ export class NotificationRepository implements INotificationRepository {
         { $set: { isRead: true } }
       );
     } catch (error) {
-      throw new AppError("Failed to mark all notifications as read", 500);
+      throw new AppError(
+        "Failed to mark all notifications as read",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 

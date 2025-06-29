@@ -1,3 +1,5 @@
+import { IUser } from "../../models/user.model";
+
 export interface ProviderResponseDTO {
   _id: string;
   fullName: string;
@@ -41,5 +43,20 @@ export interface DashboardResponseDTO {
       year: number;
       revenue: number;
     }[];
+  };
+}
+
+export function mapToProviderDTO(provider: IUser): ProviderResponseDTO {
+  return {
+    _id: provider._id.toString(),
+    fullName: provider.fullName,
+    email: provider.email,
+    phone: provider.phone,
+    profile_picture: provider.profile_picture,
+    role: provider.role,
+    is_verified: provider.is_verified,
+    is_blocked: provider.is_blocked,
+    created_at: provider.created_at,
+    updated_at: provider.updated_at,
   };
 }

@@ -15,7 +15,7 @@ export class WalletController {
 
   //  Get user wallet :-
 
-  async getUserWallet(req: AuthRequset, res: Response): Promise<any> {
+  async getUserWallet(req: AuthRequset, res: Response): Promise<Response> {
     try {
       if (!req.user) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -47,7 +47,7 @@ export class WalletController {
 
   //  Get provider wallet :-
 
-  async getProviderWallet(req: AuthRequset, res: Response): Promise<any> {
+  async getProviderWallet(req: AuthRequset, res: Response): Promise<Response> {
     try {
       if (!req.user?.id) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -79,7 +79,7 @@ export class WalletController {
 
   //  Get admin wallet :-
 
-  async getAdminWallet(req: AuthRequset, res: Response): Promise<any> {
+  async getAdminWallet(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const adminId = req.user?.id;
 
@@ -111,7 +111,7 @@ export class WalletController {
 
   //  Get wallet transaction :-
 
-  async getTransactions(req: AuthRequset, res: Response): Promise<any> {
+  async getTransactions(req: AuthRequset, res: Response): Promise<Response> {
     try {
       if (!req.user?.id) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -147,7 +147,7 @@ export class WalletController {
 
   //  Re-fund handling :- (User)
 
-  async processRefund(req: AuthRequset, res: Response): Promise<any> {
+  async processRefund(req: AuthRequset, res: Response): Promise<Response> {
     try {
       if (!req.user?.id) {
         return res.status(HttpStatus.UNAUTHORIZED).json({

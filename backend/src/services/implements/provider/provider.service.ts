@@ -1,6 +1,5 @@
 import { Service } from "typedi";
 import { HttpStatus } from "../../../enums/http.status";
-import { IUser } from "../../../models/user.model";
 import { ProviderRepository } from "../../../repositories/implementations/provider/provider.repository";
 import { AppError } from "../../../utils/error";
 import { IProviderService } from "../../interface/provider/provider.service.interface";
@@ -14,6 +13,7 @@ import { bookingRepository } from "../../../repositories/implementations/user/bo
 import {
   ProviderResponseDTO,
   UpdateProviderDTO,
+  mapToProviderDTO,
 } from "../../../dtos/provider/provider.dto";
 
 import { FacilityResponseDTO } from "../../../dtos/admin/facility.dto";
@@ -33,23 +33,6 @@ export class ProviderService implements IProviderService {
     this.bookingRepo = bookingRepository;
   }
 
-  //  For DTO check :-
-
-  private mapToProviderDTO(provider: IUser): ProviderResponseDTO {
-    return {
-      _id: provider._id.toString(),
-      fullName: provider.fullName,
-      email: provider.email,
-      phone: provider.phone,
-      profile_picture: provider.profile_picture,
-      role: provider.role,
-      is_verified: provider.is_verified,
-      is_blocked: provider.is_blocked,
-      created_at: provider.created_at,
-      updated_at: provider.updated_at,
-    };
-  }
-
   //  Find provider profile :-
 
   async findProvider(userId: string): Promise<{
@@ -67,7 +50,7 @@ export class ProviderService implements IProviderService {
           );
 
         const { password, ...rest } = currentProvider.toObject();
-        return { success: true, data: this.mapToProviderDTO(rest) };
+        return { success: true, data: mapToProviderDTO(rest) };
       } else throw new Error("failed to fetch");
     } catch (error) {
       if (error instanceof AppError) {

@@ -52,3 +52,32 @@ export interface HostelFiltersDTO {
   minRating?: number;
   sortByRating?: boolean;
 }
+
+export function mapToHostelDTO(hostel: any): HostelResponseDTO {
+  return {
+    _id: hostel._id.toString(),
+    hostel_name: hostel.hostel_name,
+    monthly_rent: hostel.monthly_rent,
+    deposit_amount: hostel.deposit_amount,
+    deposit_terms: hostel.deposit_terms,
+    maximum_occupancy: hostel.maximum_occupancy,
+    rules: hostel.rules,
+    gender: hostel.gender,
+    available_space: hostel.available_space,
+    total_space: hostel.total_space,
+    status: hostel.status,
+    photos: hostel.photos,
+    amenities: hostel.amenities,
+    description: hostel.description,
+    location: hostel.location,
+    provider_id: hostel.provider_id,
+    facilities: hostel.facilities,
+    is_verified: hostel.is_verified,
+    is_rejected: hostel.is_rejected,
+    reason: hostel.reason,
+    created_at: hostel.createdAt,
+    updated_at: hostel.updatedAt,
+    averageRating: hostel.averageRating || 0,
+    ratingCount: hostel.ratingCount || 0,
+  };
+}

@@ -17,7 +17,7 @@ export class RatingController {
 
   //  Create rating :-
 
-  async createRating(req: AuthRequset, res: Response): Promise<any> {
+  async createRating(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       const ratingData = req.body;
@@ -28,7 +28,7 @@ export class RatingController {
 
       const result = await this.ratingService.createRating(userId, ratingData);
 
-      res.status(StatusCodes.CREATED).json({
+      return res.status(StatusCodes.CREATED).json({
         success: true,
         message: "Rating submitted successfully",
         data: result,
@@ -48,11 +48,11 @@ export class RatingController {
 
   //  Get hostel's rating's :-
 
-  async getHostelRatings(req: AuthRequset, res: Response): Promise<void> {
+  async getHostelRatings(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { hostelId } = req.params;
 
@@ -62,20 +62,20 @@ export class RatingController {
 
       const result = await this.ratingService.getHostelRatings(hostelId);
 
-      res.status(StatusCodes.OK).json({
+      return res.status(StatusCodes.OK).json({
         success: true,
         message: "Hostel ratings fetched successfully",
         data: result,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
         console.error("Error in getHostelRatings:", error);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Internal server error",
         });
@@ -85,11 +85,11 @@ export class RatingController {
 
   //  Get user rating's :-
 
-  async getUserRating(req: AuthRequset, res: Response): Promise<void> {
+  async getUserRating(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { hostelId, bookingId } = req.params;
 
@@ -106,20 +106,20 @@ export class RatingController {
         bookingId
       );
 
-      res.status(StatusCodes.OK).json({
+      return res.status(StatusCodes.OK).json({
         success: true,
         message: existingRating ? "User rating found" : "No rating found",
         data: existingRating,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
         console.error("Error in getUserRating:", error);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Internal server error",
         });

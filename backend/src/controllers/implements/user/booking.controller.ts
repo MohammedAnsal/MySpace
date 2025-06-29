@@ -7,6 +7,7 @@ import Container, { Service } from "typedi";
 import { bookingService } from "../../../services/implements/user/booking.service";
 import { walletService } from "../../../services/implements/wallet/wallet.service";
 import { IWalletService } from "../../../services/interface/wallet/wallet.service.interface";
+import { HttpStatus } from "../../../enums/http.status";
 
 @Service()
 class BookingController implements IBookingController {
@@ -20,7 +21,7 @@ class BookingController implements IBookingController {
 
   //  Create booking :-
 
-  async createBooking(req: AuthRequset, res: Response): Promise<void> {
+  async createBooking(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const {
         hostelId,
@@ -34,7 +35,7 @@ class BookingController implements IBookingController {
 
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       let parsedFacilities = [];
@@ -44,7 +45,10 @@ class BookingController implements IBookingController {
           throw new Error("Invalid facilities format");
         }
       } catch (error) {
-        throw new AppError("Invalid facilities data format", 400);
+        throw new AppError(
+          "Invalid facilities data format",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       const bookingData = {
@@ -65,18 +69,18 @@ class BookingController implements IBookingController {
         parsedFacilities
       );
 
-      res.status(201).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: booking,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -86,23 +90,23 @@ class BookingController implements IBookingController {
 
   //  Get single booking details :-
 
-  async getBookingDetails(req: AuthRequset, res: Response): Promise<void> {
+  async getBookingDetails(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const { bookingId } = req.params;
       const booking = await this.bookingService.getBookingById(bookingId);
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: booking,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -112,29 +116,35 @@ class BookingController implements IBookingController {
 
   //  Get provider bookig's :-
 
-  async getProviderBookings(req: AuthRequset, res: Response): Promise<void> {
+  async getProviderBookings(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
     try {
       const providerId = req.user?.id;
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const bookings = await this.bookingService.getProviderBookings(
         providerId
       );
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: bookings,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -144,27 +154,27 @@ class BookingController implements IBookingController {
 
   //  Get user bookig's :-
 
-  async getUserBookings(req: AuthRequset, res: Response): Promise<void> {
+  async getUserBookings(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       const bookings = await this.bookingService.getUserBookings(userId);
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: bookings,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -174,27 +184,27 @@ class BookingController implements IBookingController {
 
   //  Get all bookig's :-
 
-  async getAllBookings(req: AuthRequset, res: Response): Promise<void> {
+  async getAllBookings(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       const bookings = await this.bookingService.getAllBookings();
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: bookings,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });
@@ -204,18 +214,21 @@ class BookingController implements IBookingController {
 
   //  Cancel booking :-
 
-  async cancelBooking(req: AuthRequset, res: Response): Promise<void> {
+  async cancelBooking(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const userId = req.user?.id;
 
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { bookingId } = req.params;
       const { reason } = req.body;
 
       if (!reason) {
-        throw new AppError("Cancellation reason is required", 400);
+        throw new AppError(
+          "Cancellation reason is required",
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       // Get the booking to check the check-in date
@@ -228,7 +241,7 @@ class BookingController implements IBookingController {
       if (today >= checkInDate) {
         throw new AppError(
           "Cancellation is only allowed before the check-in date",
-          400
+          HttpStatus.BAD_REQUEST
         );
       }
 
@@ -245,19 +258,19 @@ class BookingController implements IBookingController {
         }
       }
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         message: "Booking cancelled successfully",
         data: cancelledBooking,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           status: "error",
           message: error.message,
         });
       } else {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Internal server error",
         });

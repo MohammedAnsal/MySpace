@@ -12,17 +12,17 @@ class UserController implements IUserController {
 
   //  Get userProfile :-
 
-  async findUser(req: AuthRequset, res: Response): Promise<any> {
+  async findUser(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const user = req.user?.id;
       if (!user) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { success, data } = await this.userService.findUser(user as string);
       if (success) {
-        res.status(HttpStatus.OK).json({ success: true, data });
+        return res.status(HttpStatus.OK).json({ success: true, data });
       } else
-        res
+        return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: responseMessage.ACCESS_DENIED });
     } catch (error) {
@@ -40,7 +40,7 @@ class UserController implements IUserController {
 
   //  Change password :-
 
-  async changePassword(req: Request, res: Response): Promise<any> {
+  async changePassword(req: Request, res: Response): Promise<Response> {
     try {
       const { email, currentPassword, newPassword } = req.body;
 
@@ -80,7 +80,7 @@ class UserController implements IUserController {
 
   //  Edit profile :-
 
-  async editProfile(req: AuthRequset, res: Response): Promise<any> {
+  async editProfile(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const formData = req.body;
       const profileImage = req.file;
@@ -95,7 +95,7 @@ class UserController implements IUserController {
       }
 
       if (!userId) {
-        throw new AppError("User not authenticated", 401);
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
 
       const editProfile = await this.userService.editProfile(

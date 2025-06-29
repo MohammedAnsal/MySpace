@@ -1,3 +1,4 @@
+import { IWallet } from "../../models/wallet.model";
 
 export interface WalletResponseDTO {
   _id: string;
@@ -37,4 +38,31 @@ export interface TransactionDTO {
   description: string;
   bookingId?: string;
   metadata?: Record<string, unknown>;
+}
+
+export function mapToWalletDTO(wallet: IWallet): WalletResponseDTO {
+  return {
+    _id: wallet._id.toString(),
+    userId: wallet.userId
+      ? {
+          _id: wallet.userId.toString(),
+          fullName: "",
+          email: "",
+        }
+      : undefined,
+    adminId: wallet.adminId?.toString(),
+    balance: wallet.balance,
+    transactions: wallet.transactions.map((tx) => ({
+      _id: tx._id.toString(),
+      amount: tx.amount,
+      type: tx.type,
+      status: tx.status,
+      description: tx.description,
+      bookingId: tx.bookingId?.toString(),
+      metadata: tx.metadata,
+      created_at: tx.createdAt,
+    })),
+    created_at: wallet.createdAt,
+    updated_at: wallet.updatedAt,
+  };
 }

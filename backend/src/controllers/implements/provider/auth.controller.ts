@@ -13,7 +13,7 @@ export class AuthController implements IAuthController {
 
   //  Provider signUp :-
 
-  async signUp(req: Request, res: Response): Promise<any> {
+  async signUp(req: Request, res: Response): Promise<Response> {
     try {
       if (!req.body.email || !req.body.password) {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -41,7 +41,7 @@ export class AuthController implements IAuthController {
 
   //  SignIn :-
 
-  async signIn(req: Request, res: Response): Promise<any> {
+  async signIn(req: Request, res: Response): Promise<Response> {
     try {
       const { email, password } = req.body;
 
@@ -81,7 +81,7 @@ export class AuthController implements IAuthController {
 
   //  Verify otp :-
 
-  async verifyOtp(req: Request, res: Response): Promise<any> {
+  async verifyOtp(req: Request, res: Response): Promise<Response> {
     try {
       const otpData = req.body;
 
@@ -109,7 +109,7 @@ export class AuthController implements IAuthController {
 
   //  Re-send otp :-
 
-  async resendOtp(req: Request, res: Response): Promise<any> {
+  async resendOtp(req: Request, res: Response): Promise<Response> {
     try {
       const { email } = req.body;
 
@@ -139,12 +139,14 @@ export class AuthController implements IAuthController {
 
   //  Logout :-
 
-  async logout(req: Request, res: Response): Promise<any> {
+  async logout(req: Request, res: Response): Promise<Response> {
     try {
       const refreshToken = req.cookies.provider_rfr;
 
       if (!refreshToken) {
-        return res.status(400).json({ message: "No token provided" });
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: "No token provided" });
       }
 
       const tokenExpiration = 7 * 24 * 60 * 60; // 7 days in seconds
@@ -156,9 +158,11 @@ export class AuthController implements IAuthController {
       res.clearCookie("token");
       res.clearCookie("provider_rfr");
 
-      res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
+      return res
+        .status(HttpStatus.OK)
+        .json({ message: "Logged out successfully" });
     } catch (error) {
-      res
+      return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Server error" });
     }
@@ -166,7 +170,7 @@ export class AuthController implements IAuthController {
 
   //  Forgot password :-
 
-  async forgetPassword(req: Request, res: Response): Promise<any> {
+  async forgetPassword(req: Request, res: Response): Promise<Response> {
     try {
       const { email } = req.body;
 
@@ -196,7 +200,7 @@ export class AuthController implements IAuthController {
 
   //  Re-set password :-
 
-  async resetPassword(req: Request, res: Response): Promise<any> {
+  async resetPassword(req: Request, res: Response): Promise<Response> {
     try {
       const { email, newPassword } = req.body;
 
@@ -238,7 +242,7 @@ export class AuthController implements IAuthController {
 
   //  Google auth :-
 
-  async googleSign(req: Request, res: Response): Promise<any> {
+  async googleSign(req: Request, res: Response): Promise<Response> {
     const { token } = req.body;
     try {
       const { fullName, accessToken, refreshToken, email, role, userId } =
@@ -256,7 +260,7 @@ export class AuthController implements IAuthController {
         success: true,
         token: accessToken,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Google login error: ", error);
       if (error instanceof AppError) {
         return res
@@ -265,7 +269,7 @@ export class AuthController implements IAuthController {
       }
 
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: error.message || "Google Login Error",
+        message: error || "Google Login Error",
         success: false,
       });
     }

@@ -6,19 +6,20 @@ import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
 import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { authorizeRoles } from "../../middlewares/auth/role.middleware";
 import Roles from "../../enums/roles";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const adminUserRoute = Router();
 
 adminUserRoute.post(
   "/create-wallet",
-  adminUserControllerr.createWallet.bind(adminUserControllerr)
+  asyncHandler(adminUserControllerr.createWallet.bind(adminUserControllerr))
 );
 adminUserRoute.get(
   "/users",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.fetchUsers.bind(adminUserControllerr)
+  asyncHandler(adminUserControllerr.fetchUsers.bind(adminUserControllerr))
 );
 
 adminUserRoute.get(
@@ -26,7 +27,7 @@ adminUserRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.fetchProviders.bind(adminUserControllerr)
+  asyncHandler(adminUserControllerr.fetchProviders.bind(adminUserControllerr))
 );
 
 adminUserRoute.put(
@@ -34,7 +35,7 @@ adminUserRoute.put(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.updateUser.bind(adminUserControllerr)
+  asyncHandler(adminUserControllerr.updateUser.bind(adminUserControllerr))
 );
 
 adminUserRoute.get(
@@ -42,7 +43,9 @@ adminUserRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.getUnverifiedHostels.bind(adminUserControllerr)
+  asyncHandler(
+    adminUserControllerr.getUnverifiedHostels.bind(adminUserControllerr)
+  )
 );
 
 adminUserRoute.put(
@@ -50,7 +53,7 @@ adminUserRoute.put(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.verifyHostel.bind(adminUserControllerr)
+  asyncHandler(adminUserControllerr.verifyHostel.bind(adminUserControllerr))
 );
 
 adminUserRoute.get(
@@ -58,7 +61,9 @@ adminUserRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.getVerifiedHostels.bind(adminUserControllerr)
+  asyncHandler(
+    adminUserControllerr.getVerifiedHostels.bind(adminUserControllerr)
+  )
 );
 
 adminUserRoute.get(
@@ -66,7 +71,7 @@ adminUserRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.getHostelById.bind(adminUserControllerr)
+  asyncHandler(adminUserControllerr.getHostelById.bind(adminUserControllerr))
 );
 
 adminUserRoute.post(
@@ -74,7 +79,9 @@ adminUserRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminFacilityController.createFacility.bind(adminFacilityController)
+  asyncHandler(
+    adminFacilityController.createFacility.bind(adminFacilityController)
+  )
 );
 
 adminUserRoute.get(
@@ -82,7 +89,9 @@ adminUserRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminFacilityController.findAllFacilities.bind(adminFacilityController)
+  asyncHandler(
+    adminFacilityController.findAllFacilities.bind(adminFacilityController)
+  )
 );
 
 adminUserRoute.put(
@@ -90,7 +99,9 @@ adminUserRoute.put(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminFacilityController.updateFacilityStatus.bind(adminFacilityController)
+  asyncHandler(
+    adminFacilityController.updateFacilityStatus.bind(adminFacilityController)
+  )
 );
 
 adminUserRoute.delete(
@@ -98,7 +109,9 @@ adminUserRoute.delete(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminFacilityController.deleteFacility.bind(adminFacilityController)
+  asyncHandler(
+    adminFacilityController.deleteFacility.bind(adminFacilityController)
+  )
 );
 
 adminUserRoute.get(
@@ -106,7 +119,7 @@ adminUserRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  bookingContrller.getAllBookings.bind(bookingContrller)
+  asyncHandler(bookingContrller.getAllBookings.bind(bookingContrller))
 );
 
 adminUserRoute.get(
@@ -114,7 +127,7 @@ adminUserRoute.get(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  adminUserControllerr.getDashboard.bind(adminUserControllerr)
+  asyncHandler(adminUserControllerr.getDashboard.bind(adminUserControllerr))
 );
 
 export default adminUserRoute;

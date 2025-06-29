@@ -6,6 +6,7 @@ import { IMenuItem } from "../../../../models/facility/Food/menuItem.model";
 import { S3Service } from "../../../../services/implements/s3/s3.service";
 import IS3service from "../../../../services/interface/s3/s3.service.interface";
 import { IMenuItemService } from "../../../../services/interface/facility/food/menuItem.service.interface";
+import { HttpStatus } from "../../../../enums/http.status";
 
 @Service()
 export class MenuItemController {
@@ -19,14 +20,13 @@ export class MenuItemController {
 
   //  Create menu item :-
 
-  async createMenuItem(req: AuthRequset, res: Response): Promise<void> {
+  async createMenuItem(req: AuthRequset, res: Response): Promise<Response> {
     try {
       if (!req.file) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Image file is required",
         });
-        return;
       }
 
       const uploadResult = await this.s3Service.uploadFile(
@@ -39,11 +39,10 @@ export class MenuItemController {
         !("Location" in uploadResult) ||
         Array.isArray(uploadResult)
       ) {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Failed to upload image",
         });
-        return;
       }
 
       const menuItemData: Partial<IMenuItem> = {
@@ -56,13 +55,13 @@ export class MenuItemController {
       const newMenuItem = await this.menuItemService.createMenuItem(
         menuItemData as IMenuItem
       );
-      res.status(201).json({
+      return res.status(HttpStatus.CREATED).json({
         status: "success",
         data: newMenuItem,
       });
     } catch (error) {
       console.error("Error in createMenuItem:", error);
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -71,16 +70,14 @@ export class MenuItemController {
 
   //  Get all menu item's :-
 
-  async getAllMenuItems(req: AuthRequset, res: Response): Promise<void> {
+  async getAllMenuItems(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const menuItems = await this.menuItemService.getAllMenuItems();
 
       const menuItemsWithSignedUrls = await Promise.all(
         (menuItems.data as IMenuItem[])?.map(
-          async (item: { image: string; toObject: () => any }) => {
-            const signedUrl = await this.s3Service.generateSignedUrl(
-              item.image
-            );
+          async (item: IMenuItem & { toObject: () => IMenuItem }) => {
+            const signedUrl = await this.s3Service.generateSignedUrl(item.image);
             return {
               ...item.toObject(),
               image: signedUrl,
@@ -89,12 +86,12 @@ export class MenuItemController {
         )
       );
 
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: menuItemsWithSignedUrls,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -103,18 +100,21 @@ export class MenuItemController {
 
   //  Get menuItem by category :-
 
-  async getMenuItemsByCategory(req: AuthRequset, res: Response): Promise<void> {
+  async getMenuItemsByCategory(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
     try {
       const { category } = req.params;
       const menuItems = await this.menuItemService.getMenuItemsByCategory(
         category
       );
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: menuItems,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -123,22 +123,22 @@ export class MenuItemController {
 
   //  Get single menuItem :-
 
-  async getMenuItem(req: AuthRequset, res: Response): Promise<void> {
+  async getMenuItem(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const menuItem = await this.menuItemService.getMenuItem(id);
       if (!menuItem) {
-        res.status(404).json({
+        return res.status(HttpStatus.NOT_FOUND).json({
           status: "error",
           message: "Menu item not found",
         });
       }
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: menuItem,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -147,16 +147,15 @@ export class MenuItemController {
 
   //  Update menuItem :-
 
-  async updateMenuItem(req: AuthRequset, res: Response): Promise<void> {
+  async updateMenuItem(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
 
       if (!req.file) {
-        res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",
           message: "Image file is required",
         });
-        return;
       }
 
       const uploadResult = await this.s3Service.uploadFile(
@@ -169,11 +168,10 @@ export class MenuItemController {
         !("Location" in uploadResult) ||
         Array.isArray(uploadResult)
       ) {
-        res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           status: "error",
           message: "Failed to upload image",
         });
-        return;
       }
 
       const menuItemData: Partial<IMenuItem> = {
@@ -187,17 +185,17 @@ export class MenuItemController {
         menuItemData as IMenuItem
       );
       if (!updatedMenuItem) {
-        res.status(404).json({
+        return res.status(HttpStatus.NOT_FOUND).json({
           status: "error",
           message: "Menu item not found",
         });
       }
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         data: updatedMenuItem,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -206,16 +204,16 @@ export class MenuItemController {
 
   //  Delete mneuItem :-
 
-  async deleteMenuItem(req: AuthRequset, res: Response): Promise<void> {
+  async deleteMenuItem(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       await this.menuItemService.deleteMenuItem(id);
-      res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         status: "success",
         message: "Menu item deleted successfully",
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: error instanceof Error ? error.message : "An error occurred",
       });

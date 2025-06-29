@@ -10,11 +10,11 @@ import {
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import {
-  HostelResponseDTO,
   CreateHostelDTO,
   UpdateHostelDTO,
 } from "../../../dtos/provider/hostel.dto";
 import mongoose from "mongoose";
+import { mapToHostelDTO } from "../../../dtos/provider/hostel.dto";
 
 @Service()
 class HostelService implements IHostelService {
@@ -22,61 +22,6 @@ class HostelService implements IHostelService {
 
   constructor() {
     this.hostelRepositoryy = hostelRepository;
-  }
-
-  //  For DTO check :-
-
-  private mapToHostelDTO(hostel: IHostel): HostelResponseDTO {
-    return {
-      _id: (hostel._id as mongoose.Types.ObjectId).toString(),
-      hostel_name: hostel.hostel_name || "",
-      monthly_rent: hostel.monthly_rent || 0,
-      deposit_amount: hostel.deposit_amount || 0,
-      deposit_terms: hostel.deposit_terms || [],
-      maximum_occupancy: hostel.maximum_occupancy || 0,
-      rules: hostel.rules || "",
-      gender: hostel.gender || "",
-      available_space: hostel.available_space || 0,
-      total_space: hostel.total_space || 0,
-      status: hostel.status || false,
-      photos: hostel.photos || [],
-      amenities: hostel.amenities || [],
-      description: hostel.description || "",
-      location: hostel.location
-        ? {
-            _id: (hostel.location._id as mongoose.Types.ObjectId).toString(),
-            latitude: (hostel.location as any).latitude || 0,
-            longitude: (hostel.location as any).longitude || 0,
-            address: (hostel.location as any).address || "",
-          }
-        : {
-            _id: "",
-            latitude: 0,
-            longitude: 0,
-            address: "",
-          },
-      provider_id: hostel.provider_id
-        ? {
-            _id: (hostel.provider_id as mongoose.Types.ObjectId).toString(),
-            fullName: (hostel.provider_id as any).fullName || "",
-            email: (hostel.provider_id as any).email || "",
-          }
-        : {
-            _id: "",
-            fullName: "",
-            email: "",
-          },
-      facilities: (hostel.facilities || []).map((facility) => ({
-        _id: (facility._id as mongoose.Types.ObjectId).toString(),
-        name: (facility as any).name || "",
-        description: (facility as any).description || "",
-        status: (facility as any).status || false,
-      })),
-      is_verified: hostel.is_verified,
-      is_rejected: hostel.is_rejected,
-      created_at: hostel.created_at || new Date(),
-      updated_at: hostel.updated_at || new Date(),
-    };
   }
 
   //  Create hostel :-
@@ -130,7 +75,7 @@ class HostelService implements IHostelService {
       return {
         success: true,
         message: "Hostel created successfully",
-        hostelData: this.mapToHostelDTO(createdHostel),
+        hostelData: mapToHostelDTO(createdHostel),
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -149,7 +94,7 @@ class HostelService implements IHostelService {
       return {
         success: true,
         message: "Hostels fetched successfully",
-        hostelData: hostels.map((hostel) => this.mapToHostelDTO(hostel)),
+        hostelData: hostels.map((hostel) => mapToHostelDTO(hostel)),
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -176,7 +121,7 @@ class HostelService implements IHostelService {
       return {
         success: true,
         message: "Hostel fetched successfully",
-        hostelData: this.mapToHostelDTO(hostel),
+        hostelData: mapToHostelDTO(hostel),
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -229,7 +174,7 @@ class HostelService implements IHostelService {
       return {
         success: true,
         message: "Hostel updated successfully",
-        hostelData: this.mapToHostelDTO(updatedHostel),
+        hostelData: mapToHostelDTO(updatedHostel),
       };
     } catch (error) {
       if (error instanceof AppError) throw error;

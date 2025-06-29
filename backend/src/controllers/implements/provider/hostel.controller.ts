@@ -23,12 +23,15 @@ export class HostelController {
 
   //  Create hostel :-
 
-  async createHostel(req: AuthRequset, res: Response): Promise<void> {
+  async createHostel(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const files = req.files as Express.Multer.File[];
@@ -77,7 +80,7 @@ export class HostelController {
 
       const createdHostel = await this.hostelServicee.createHostel(hostelData);
 
-      res.status(HttpStatus.CREATED).json({
+      return res.status(HttpStatus.CREATED).json({
         success: true,
         message: "Hostel created successfully",
         data: createdHostel,
@@ -85,12 +88,12 @@ export class HostelController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to create hostel",
         });
@@ -100,12 +103,15 @@ export class HostelController {
 
   //  Get all hostel's :-
 
-  async getAllHostels(req: AuthRequset, res: Response): Promise<void> {
+  async getAllHostels(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const result = await this.hostelServicee.getAllHostels(providerId);
@@ -126,13 +132,13 @@ export class HostelController {
           })
         );
 
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: hostelsWithSignedUrls,
         });
       } else {
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: [],
@@ -141,12 +147,12 @@ export class HostelController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch unverified hostels",
         });
@@ -156,12 +162,15 @@ export class HostelController {
 
   //  Get single hostel :-
 
-  async getHostelById(req: AuthRequset, res: Response): Promise<void> {
+  async getHostelById(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const { hostelId } = req.params;
@@ -186,13 +195,13 @@ export class HostelController {
           ),
         };
 
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
           success: true,
           message: result.message,
           data: hostelWithSignedUrls,
         });
       } else {
-        res.status(HttpStatus.NOT_FOUND).json({
+        return res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           message: "Hostel not found",
         });
@@ -200,12 +209,12 @@ export class HostelController {
     } catch (error) {
       console.error("Controller error details:", error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to fetch hostel details",
         });
@@ -215,12 +224,15 @@ export class HostelController {
 
   //  Edit hostel :-
 
-  async editHostel(req: AuthRequset, res: Response): Promise<void> {
+  async editHostel(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const { hostelId } = req.params;
@@ -262,10 +274,10 @@ export class HostelController {
 
       let locationId;
       if (Array.isArray(existingHostel.hostelData)) {
-        const location = existingHostel.hostelData[0].location as any;
+        const location = existingHostel.hostelData[0].location;
         locationId = location?._id?.toString();
       } else {
-        const location = existingHostel.hostelData.location as any;
+        const location = existingHostel.hostelData.location;
         locationId = location?._id?.toString();
       }
 
@@ -331,19 +343,19 @@ export class HostelController {
         updateData
       );
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: result.message,
         data: result.hostelData,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to update hostel",
         });
@@ -353,29 +365,32 @@ export class HostelController {
 
   //  Delete hostel :-
 
-  async deleteHostel(req: AuthRequset, res: Response): Promise<void> {
+  async deleteHostel(req: AuthRequset, res: Response): Promise<Response> {
     try {
       const providerId = req.user?.id;
 
       if (!providerId) {
-        throw new AppError("Provider not authenticated", 401);
+        throw new AppError(
+          "Provider not authenticated",
+          HttpStatus.UNAUTHORIZED
+        );
       }
 
       const { hostelId } = req.params;
       const result = await this.hostelServicee.deleteHostelById(hostelId);
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: result.message,
       });
     } catch (error) {
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
           success: false,
           message: error.message,
         });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "Failed to delete hostel",
         });
