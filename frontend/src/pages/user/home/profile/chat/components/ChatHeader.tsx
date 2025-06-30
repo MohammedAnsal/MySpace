@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FaUsers } from "react-icons/fa";
 import { IChatRoom } from "@/types/chat";
 import { useSocket } from "@/contexts/SocketProvider";
 
@@ -33,10 +32,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowUserList(true)}
           className="p-2 hover:bg-gray-100 rounded-lg"
-        >
-          <FaUsers className="w-6 h-6 text-gray-600" />
-        </motion.button>
-        
+        ></motion.button>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -121,4 +118,4 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   return null;
 };
 
-export default ChatHeader; 
+export default ChatHeader;
