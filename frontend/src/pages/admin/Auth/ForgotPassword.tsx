@@ -16,7 +16,7 @@ export const ForgotPassword = () => {
     setLoading(true);
     try {
       const response = await forgotPssword(email);
-      if (response.data.success) {
+      if (response && response.data && response.data.success) {
         toast.success("Email verified. Please set a new password.");
         setEmailSubmitted(true);
       }
@@ -38,7 +38,7 @@ export const ForgotPassword = () => {
     setLoading(true);
     try {
       const response = await resetPassword(email, newPassword);
-      if (response.data.success) {
+      if (response && response.data && response.data.success) {
         toast.success("Password updated successfully!");
         navigate("/admin/signIn");
       }
