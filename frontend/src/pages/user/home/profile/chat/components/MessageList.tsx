@@ -24,7 +24,6 @@ const MessageList: React.FC<MessageListProps> = ({
   messagesEndRef,
   loading,
   handleScroll,
-  // userId,
   selectedChatRoom,
   getOtherUser,
   formatMessageTime,

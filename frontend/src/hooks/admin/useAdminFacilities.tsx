@@ -1,11 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createFacility,
   findAllFacilities,
   updateFacilityStatus,
   deleteFacility,
-  updateFacility
-} from '@/services/Api/admin/adminApi';
+  updateFacility,
+} from "@/services/Api/admin/adminApi";
+import { IFacilityData } from "@/types/Admin";
 
 export const useAdminFacilities = () => {
   const queryClient = useQueryClient();
@@ -16,7 +17,7 @@ export const useAdminFacilities = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['admin-facilities'],
+    queryKey: ["admin-facilities"],
     queryFn: findAllFacilities,
   });
 
@@ -25,33 +26,44 @@ export const useAdminFacilities = () => {
     mutationFn: createFacility,
     onSuccess: () => {
       // Invalidate and refetch facilities after successful creation
-      queryClient.invalidateQueries({ queryKey: ['admin-facilities'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
   });
 
   // Mutation for updating facility status
   const { mutate: updateStatus, isPending: isUpdating } = useMutation({
-    mutationFn: ({ facilityId, status }: { facilityId: string; status: boolean }) =>
-      updateFacilityStatus(facilityId, status),
+    mutationFn: ({
+      facilityId,
+      status,
+    }: {
+      facilityId: string;
+      status: boolean;
+    }) => updateFacilityStatus(facilityId, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-facilities'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
   });
 
   // Mutation for updating a facility
-  const { mutate: updateFacilityData, isPending: isUpdatingFacility } = useMutation({
-    mutationFn: ({ facilityId, facilityData }: { facilityId: string; facilityData: any }) =>
-      updateFacility(facilityId, facilityData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-facilities'] });
-    },
-  });
+  const { mutate: updateFacilityData, isPending: isUpdatingFacility } =
+    useMutation({
+      mutationFn: ({
+        facilityId,
+        facilityData,
+      }: {
+        facilityId: string;
+        facilityData: IFacilityData;
+      }) => updateFacility(facilityId, facilityData),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
+      },
+    });
 
   // Mutation for deleting a facility
   const { mutate: removeFacility, isPending: isDeleting } = useMutation({
     mutationFn: deleteFacility,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-facilities'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-facilities"] });
     },
   });
 

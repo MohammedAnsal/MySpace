@@ -1,3 +1,4 @@
+import { IFacilityData } from "@/types/Admin";
 import {
   adminAxiosInstance,
   publicAxiosInstance,
@@ -6,14 +7,29 @@ import {
 const public_api = publicAxiosInstance;
 const private_api = adminAxiosInstance;
 
-const handleResponse = (response: any, message: string) => {
+// const handleResponse = (response: any, message: string) => {
+//   if (!response) console.error(message);
+//   return response;
+// };
+
+const handleResponse = <T>(
+  response: T | null | undefined,
+  message: string
+): T | null => {
   if (!response) console.error(message);
-  return response;
+  return response ?? null;
 };
 
-const handleError = (error: any) => {
-  console.error(error);
-  throw error;
+// const handleError = (error: any) => {
+//   console.error(error);
+//   throw error;
+// };
+
+const handleError = (error: unknown) => {
+  if (error instanceof Error) {
+    console.error(error.message);
+    throw error;
+  }
 };
 
 export const signIn_Request = async (adminData: Object) => {
@@ -26,7 +42,6 @@ export const signIn_Request = async (adminData: Object) => {
 
 export const forgotPssword = async (email: string) => {
   try {
-
     const response = await public_api.post("/auth/admin/forgot-password", {
       email,
     });
@@ -50,7 +65,7 @@ export const resetPassword = async (email: string, newPassword: string) => {
 
 export const getAllUsers = async (searchQuery?: string) => {
   const response = await private_api.get("/admin/users", {
-    params: { search: searchQuery }
+    params: { search: searchQuery },
   });
 
   if (!response) console.log("Something Went Wrong in getUser's");
@@ -60,7 +75,7 @@ export const getAllUsers = async (searchQuery?: string) => {
 
 export const getAllProviders = async (searchQuery?: string) => {
   const response = await private_api.get("/admin/providers", {
-    params: { search: searchQuery }
+    params: { search: searchQuery },
   });
 
   if (!response) console.log("Failed Getting Providers");
@@ -131,7 +146,7 @@ export const getHostelById = async (hostelId: string) => {
   }
 };
 
-export const createFacility = async (facilityData: any) => {
+export const createFacility = async (facilityData: IFacilityData) => {
   try {
     const response = await private_api.post(
       "/admin/add-facility",
@@ -183,7 +198,7 @@ export const deleteFacility = async (facilityId: string) => {
   }
 };
 
-export const updateFacility = async (facilityId: string, facilityData: any) => {
+export const updateFacility = async (facilityId: string, facilityData: IFacilityData) => {
   try {
     const response = await private_api.put(
       `/admin/facility/${facilityId}`,
@@ -236,18 +251,6 @@ export const getAdminTransactions = async () => {
   try {
     const response = await private_api.get("/wallet/transactions");
     return handleResponse(response.data, "Error fetching wallet transactions");
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const processPayouts = async (payoutData: any) => {
-  try {
-    const response = await private_api.post(
-      "/wallet/process-payout",
-      payoutData
-    );
-    return handleResponse(response.data, "Error processing payout");
   } catch (error) {
     handleError(error);
   }

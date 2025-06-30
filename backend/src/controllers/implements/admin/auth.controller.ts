@@ -1,13 +1,17 @@
 import { Request, Response } from "express";
-import { AdminAuthService } from "../../../services/implements/admin/auth.admin.service";
+import { adminAuthService } from "../../../services/implements/admin/auth.admin.service";
 import Container, { Service } from "typedi";
 import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import { AppError } from "../../../utils/error";
 import { setCookie } from "../../../utils/cookies.util";
+import { IAdminAuthService } from "../../../services/interface/admin/auth.admin.service.interface";
 
 @Service()
 export class AdminController {
-  constructor(private readonly adminService: AdminAuthService) {}
+  private adminService: IAdminAuthService;
+  constructor() {
+    this.adminService = adminAuthService;
+  }
 
   //  Admin Signin :-
 

@@ -136,15 +136,15 @@ export class MessageService implements IMessageService {
 
       const messagesWithSignedUrls = await Promise.all(
         messages.map(async (message) => {
-          if (message.image) {
-            const signedUrl = await this.s3Service.generateSignedUrl(
-              message.image
-            );
-            return {
-              ...message,
-              image: signedUrl,
-            };
-          }
+          // if (message.image) {
+          //   const signedUrl = await this.s3Service.generateSignedUrl(
+          //     message.image
+          //   );
+          //   return {
+          //     ...message,
+          //     image: signedUrl,
+          //   };
+          // }
           return message;
         })
       );

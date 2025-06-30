@@ -50,8 +50,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           socketService.joinRoom(userId, room._id);
         });
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to load chat rooms");
+    } catch (err: unknown) {
+      setError("Failed to load chat rooms");
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
 
         // Load messages
         const messagesData = await chatApi.getChatMessages(chatRoomId);
-        
+
         setMessages(messagesData);
 
         // Reset unread count for this room
@@ -107,9 +107,9 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
             return room;
           })
         );
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error selecting chat room:", err);
-        setError(err.message || "Failed to select chat room");
+        setError("Failed to select chat room");
       } finally {
         setLoading(false);
       }
@@ -136,8 +136,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         setMessages((prev) => [...prev, ...moreMessages]);
         setPage(nextPage);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to load more messages");
+    } catch (err: unknown) {
+      setError("Failed to load more messages");
     } finally {
       setLoading(false);
     }
@@ -155,16 +155,16 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         // Create a temporary message for immediate display
         const tempId = `temp-${Date.now()}`;
         const tempMessage: IMessage = {
-          _id: tempId as any,
-          chatRoomId: selectedChatRoom._id as any,
-          senderId: userId as any,
+          _id: tempId,
+          chatRoomId: selectedChatRoom._id,
+          senderId: userId,
           senderType: userType,
           content: content || "", // Use empty string if no content
           image: image || undefined, // Include image if provided
           isSeen: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          replyToMessageId: replyToMessageId as any,
+          replyToMessageId: replyToMessageId || undefined,
         };
 
         // Add temp message to the UI immediately for responsiveness
@@ -220,7 +220,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           clearTimeout(typingTimeoutRef.current);
         }
         socketService.sendTypingStatus(selectedChatRoom._id, userId, false);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error sending message:", err);
 
         // Mark the temp message as failed but leave it visible
@@ -232,7 +232,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           )
         );
 
-        setError(err.message || "Failed to send message");
+        setError("Failed to send message");
       }
     },
     [selectedChatRoom, userId, userType]
@@ -281,7 +281,10 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         const targetId = userType === "user" ? otherUserId : userId;
         const currentUserId = userType === "user" ? userId : otherUserId;
 
-        const newRoomStub = await chatApi.createChatRoom(currentUserId, targetId);
+        const newRoomStub = await chatApi.createChatRoom(
+          currentUserId,
+          targetId
+        );
 
         if (!newRoomStub) {
           throw new Error("Room creation failed to return a room stub.");
@@ -297,8 +300,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         ]);
 
         return newRoomFull;
-      } catch (err: any) {
-        setError(err.message || "Failed to create chat room");
+      } catch (err: unknown) {
+        setError("Failed to create chat room");
         return null;
       } finally {
         setLoading(false);
@@ -339,14 +342,13 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           isSeen: true,
         }))
       );
-    } catch (err: any) {
-      setError(err.message || "Failed to mark messages as seen");
+    } catch (err: unknown) {
+      setError("Failed to mark messages as seen");
     }
   }, [selectedChatRoom, userType]);
 
   // Socket event listeners
   useEffect(() => {
-
     // Connect to socket server if not already connected
     if (!socketService.isConnected()) {
       socketService.connect();
@@ -382,9 +384,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
   useEffect(() => {
     if (!userId) return;
 
-
     const handleSocketMessage = (message: IMessage) => {
-
       // Update chat rooms list with the new message
       setChatRooms((prevRooms) => {
         // Find the room that needs to be updated
@@ -505,7 +505,6 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
       chatRoomId: string;
       message: IMessage;
     }) => {
-
       // Update chat rooms list with the new message
       setChatRooms((prev) => {
         const updatedRooms = prev.map((room) => {
@@ -573,29 +572,31 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
   }, [selectedChatRoomId, selectChatRoom, selectedChatRoom]);
 
   const uploadImage = useCallback(
-    async (file: File): Promise<string | null> => {
+    async (file: File, replyToMessageId?: string): Promise<IMessage | null> => {
       try {
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          throw new Error("Please select an image file");
-        }
+        if (!userId || !selectedChatRoom) return null;
 
-        // Validate file size (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          throw new Error("Image size should be less than 5MB");
-        }
-
-        if (!userId) {
-          return null;
-        }
-
-        const response = await chatApi.uploadMessageImage(
+        const message = await chatApi.uploadMessageImage(
           file,
-          String(selectedChatRoom?._id),
+          String(selectedChatRoom._id),
           userId,
-          userType
+          userType,
+          replyToMessageId
         );
-        return response.image || null;
+
+        setMessages((prev) => [message, ...prev]);
+
+        socketService.sendMessage({
+          chatRoomId: selectedChatRoom._id,
+          senderId: userId,
+          senderType: userType,
+          content: message.content || "",
+          image: message.image,
+          replyToMessageId,
+          _id: message._id,
+        });
+
+        return message;
       } catch (error) {
         console.error("Error uploading image:", error);
         setError(

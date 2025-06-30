@@ -1,5 +1,5 @@
-import { Service } from "typedi";
-import { AdminRepository } from "../../../repositories/implementations/admin/admin.repository";
+import Container, { Service } from "typedi";
+import { adminRepository } from "../../../repositories/implementations/admin/admin.repository";
 import { IAdminAuthService } from "../../interface/admin/auth.admin.service.interface";
 import {
   AdminSignInDTO,
@@ -19,13 +19,14 @@ import {
 } from "../../../utils/jwt.utils";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
+import { IAdminRepository } from "../../../repositories/interfaces/admin/admin.Irepository";
 
 @Service()
 export class AdminAuthService implements IAdminAuthService {
-  private adminRepo: AdminRepository;
+  private adminRepo: IAdminRepository;
 
   constructor() {
-    this.adminRepo = new AdminRepository();
+    this.adminRepo = adminRepository;
   }
 
   //  Admin signIn :-
@@ -184,3 +185,5 @@ export class AdminAuthService implements IAdminAuthService {
     }
   }
 }
+
+export const adminAuthService = Container.get(AdminAuthService);

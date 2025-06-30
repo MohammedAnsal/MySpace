@@ -1,4 +1,4 @@
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 import bcrypt from "bcryptjs";
 import { IOtp } from "../../../interface/otp.Imodel";
 import { IUser } from "../../../models/user.model";
@@ -31,14 +31,19 @@ import {
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Service()
-export class AuthService implements IAuthService {
-  private userRepo: UserRepository;
-  private otpRepo: OtpRepository;
+class AuthService implements IAuthService {
+  // private userRepo: UserRepository;
+  // private otpRepo: OtpRepository;
 
-  constructor() {
-    this.userRepo = new UserRepository();
-    this.otpRepo = new OtpRepository();
-  }
+  // constructor() {
+  //   this.userRepo = new UserRepository();
+  //   this.otpRepo = new OtpRepository();
+  // }
+
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly otpRepo: OtpRepository
+  ) {}
 
   //  User signUp :-
 
@@ -447,7 +452,7 @@ export class AuthService implements IAuthService {
 
   //  Set newToken :- (re-freashToken)
 
-  async checkToken(token: string) {
+  async checkToken(token: string): Promise<AuthResponse> {
     try {
       const response = verifyRefreshToken(token);
 
@@ -466,6 +471,11 @@ export class AuthService implements IAuthService {
           token: newAccessToken,
         };
       }
+
+      return {
+        success: false,
+        message: "Invalid token",
+      };
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -477,3 +487,5 @@ export class AuthService implements IAuthService {
     }
   }
 }
+
+export const authService = Container.get(AuthService);

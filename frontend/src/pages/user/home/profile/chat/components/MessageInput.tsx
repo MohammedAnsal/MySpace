@@ -39,7 +39,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const { uploadImage } = useChat({ selectedChatRoomId: chatRoomId, userType: "user" });
+  const { uploadImage } = useChat({
+    selectedChatRoomId: chatRoomId,
+    userType: "user",
+  });
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -49,13 +52,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+      toast.error("Image size should be less than 5MB");
       return;
     }
 
@@ -68,32 +71,34 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setSelectedImage(null);
     setImagePreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!messageInput.trim() && !selectedImage) return;
 
     try {
       setIsUploading(true);
-      let imageUrl: string | undefined;
 
       if (selectedImage) {
-        const uploadedUrl = await uploadImage(selectedImage);
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl; 
+        const uploadedMessage = await uploadImage(selectedImage);
+        if (uploadedMessage) {
+          setMessageInput("");
+          setReplyToMessage(null);
+          removeSelectedImage();
         }
+      } else {
+        handleSendMessage(e);
+        setMessageInput("");
+        setReplyToMessage(null);
       }
-
-      handleSendMessage(e, imageUrl);
-      setMessageInput("");
-      setReplyToMessage(null);
-      removeSelectedImage();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to send message');
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send message"
+      );
     } finally {
       setIsUploading(false);
     }
@@ -166,7 +171,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center gap-1 sm:gap-2"
+        >
           <input
             type="file"
             ref={fileInputRef}
@@ -175,7 +183,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             className="hidden"
             disabled={isUploading}
           />
-          
+
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -183,7 +191,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             onClick={handleImageClick}
             disabled={isUploading}
             className={`p-1.5 sm:p-2 text-gray-500 hover:text-[#b9a089] transition-colors rounded-full hover:bg-gray-100 ${
-              isUploading ? 'opacity-50 cursor-not-allowed' : ''
+              isUploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <FaImage className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -213,7 +221,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             type="submit"
             disabled={isUploading}
             className={`p-2 sm:p-3 bg-[#b9a089] text-white rounded-full hover:bg-[#b9a089]/90 transition-colors ${
-              isUploading ? 'opacity-50 cursor-not-allowed' : ''
+              isUploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {isUploading ? (
@@ -228,4 +236,4 @@ const MessageInput: React.FC<MessageInputProps> = ({
   );
 };
 
-export default MessageInput; 
+export default MessageInput;

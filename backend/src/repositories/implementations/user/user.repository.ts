@@ -1,4 +1,4 @@
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 import { IUser, User } from "../../../models/user.model";
 import { BaseRepository } from "../../base.repository";
 import { IUserRepository } from "../../interfaces/user/user.Irepository";
@@ -84,3 +84,5 @@ export class UserRepository
     }
   }
 }
+
+export const userRepository = Container.get(UserRepository);

@@ -1,6 +1,6 @@
 import { Service } from "typedi";
 import { IUser } from "../../../models/user.model";
-import { UserRepository } from "../../../repositories/implementations/user/user.repository";
+import { userRepository } from "../../../repositories/implementations/user/user.repository";
 import { IUserService } from "../../interface/user/user.service.interface";
 import { comparePassword, hashPassword } from "../../../utils/password.utils";
 import { AppError } from "../../../utils/error";
@@ -14,15 +14,17 @@ import {
   EditProfileDTO,
   ChangePasswordDTO,
 } from "../../../dtos/user/user.dto";
+import { IUserRepository } from "../../../repositories/interfaces/user/user.Irepository";
 
 @Service()
 export class UserService implements IUserService {
-  private userRepo: UserRepository;
+  // private userRepo: UserRepository;
+  private userRepo: IUserRepository;
   private s3Service: IS3service;
   private walletService: IWalletService;
 
   constructor() {
-    this.userRepo = new UserRepository();
+    this.userRepo = userRepository;
     this.s3Service = S3Service;
     this.walletService = walletService;
   }
