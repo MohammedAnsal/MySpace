@@ -7,6 +7,7 @@ import { adminFacilityRepository } from "../../../repositories/implementations/a
 import {
   CreateFacilityDTO,
   UpdateFacilityStatusDTO,
+  UpdateFacilityDTO,
   FacilityResponseDTO,
   FacilityDataDTO,
 } from "../../../dtos/admin/facility.dto";
@@ -134,6 +135,68 @@ export class AdminFacilityService implements IAdminFacilityService {
       if (error instanceof AppError) throw error;
       throw new AppError(
         "An error occurred while updating facility status",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  //  Update facility :-
+
+  async updateFacility(
+    facilityId: string,
+    data: UpdateFacilityDTO
+  ): Promise<FacilityResponseDTO> {
+    try {
+      const { name, price, description } = data;
+
+      if (!name || !price || !description) {
+        return {
+          success: false,
+          message: "Name, price, and description are required",
+        };
+      }
+
+      // Check if facility exists
+      const existingFacility = await this.adminFacilityRepository.findFacilityById(
+        facilityId
+      );
+
+      if (!existingFacility) {
+        return {
+          success: false,
+          message: "Facility not found",
+        };
+      }
+
+      // Check if name already exists (excluding current facility)
+      const allFacilities = await this.adminFacilityRepository.findAllFacilities();
+      const nameExists = allFacilities.some(
+        (facility) =>
+          facility.name.toLowerCase() === name.toLowerCase() &&
+          facility._id?.toString() !== facilityId
+      );
+
+      if (nameExists) {
+        return {
+          success: false,
+          message: "A facility with this name already exists",
+        };
+      }
+
+      const updatedFacility = await this.adminFacilityRepository.updateFacility(
+        facilityId,
+        { name, price, description }
+      );
+
+      return {
+        success: true,
+        message: "Facility updated successfully",
+        facilityData: updatedFacility,
+      };
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(
+        "An error occurred while updating facility",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

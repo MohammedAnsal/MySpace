@@ -13,6 +13,12 @@ export interface UpdateFacilityStatusDTO {
   status: boolean;
 }
 
+export interface UpdateFacilityDTO {
+  name: string;
+  price: number;
+  description: string;
+}
+
 // Response DTOs
 export interface FacilityResponseDTO {
   success: boolean;

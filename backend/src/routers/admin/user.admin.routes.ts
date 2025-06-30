@@ -104,6 +104,16 @@ adminUserRoute.put(
   )
 );
 
+adminUserRoute.put(
+  "/facility/:facilityId",
+  authMiddleWare,
+  autherization,
+  authorizeRoles(Roles.ADMIN),
+  asyncHandler(
+    adminFacilityController.updateFacility.bind(adminFacilityController)
+  )
+);
+
 adminUserRoute.delete(
   "/facility/:facilityId",
   authMiddleWare,

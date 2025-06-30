@@ -1,6 +1,6 @@
 import Container, { Service } from "typedi";
 import { IAuthController } from "../../interface/user/auth.controller.interface";
-import { AuthService } from "../../../services/implements/user/auth.service";
+import { authService } from "../../../services/implements/user/auth.service";
 import { Request, Response } from "express";
 import { registerSchema, signInSchema } from "../../../schema/user.Zschema";
 import { HttpStatus, responseMessage } from "../../../enums/http.status";
@@ -8,10 +8,14 @@ import { setCookie } from "../../../utils/cookies.util";
 import { AppError } from "../../../utils/error";
 import redisClient from "../../../config/redisConfig";
 import { StatusCodes } from "http-status-codes";
+import { IAuthService } from "../../../services/interface/user/auth.service.interface";
 
 @Service()
 export class AuthController implements IAuthController {
-  constructor(private readonly authSrvice: AuthService) {}
+  private authSrvice: IAuthService;
+  constructor() {
+    this.authSrvice = authService;
+  }
 
   //  User signUp :-
 

@@ -95,14 +95,6 @@ export const hostelValidationSchema = z.object({
 
   address: z.string().nonempty("Address is required"),
 
-  // photos: z
-  //   .array(z.any(), {
-  //     required_error: "Image is required",
-  //     invalid_type_error: "Photos must be an array",
-  //   })
-  //   .min(1, "At least one image is required")
-  //   .max(5, "You can upload up to 5 images only"),
-
   amenities: z
     .array(z.string(), {
       required_error: "Select at least one amenity",

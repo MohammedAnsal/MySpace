@@ -167,6 +167,56 @@ export class AdminFacilityController {
     }
   }
 
+  //  Update facility :-
+
+  async updateFacility(req: AuthRequset, res: Response): Promise<Response> {
+    try {
+      const adminId = req.user?.id;
+
+      if (!adminId) {
+        throw new AppError("Admin not authenticated", HttpStatus.FORBIDDEN);
+      }
+
+      const { facilityId } = req.params;
+      const { name, price, description } = req.body;
+
+      if (!name) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Name is required" });
+      }
+      if (!price) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Price is required" });
+      }
+      if (!description) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Description is required" });
+      }
+
+      const result = await this.adminFacilityService.updateFacility(
+        facilityId,
+        { name, price, description }
+      );
+
+      return res.status(HttpStatus.OK).json(result);
+    } catch (error) {
+      console.error("Controller error details:", error);
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      }
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to update facility",
+      });
+    }
+  }
+
   //  Delete facility :-
 
   async deleteFacility(req: AuthRequset, res: Response): Promise<Response> {

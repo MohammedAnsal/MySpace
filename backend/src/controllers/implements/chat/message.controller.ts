@@ -31,11 +31,29 @@ export class MessageController {
         replyToMessageId,
       } = req.body;
 
-      if (!chatRoomId || !senderId || !senderType || !content) {
-        throw new AppError(
-          "chatRoomId, senderId, senderType, and content are required",
-          HttpStatus.BAD_REQUEST
-        );
+      console.log(
+        chatRoomId,
+        senderId,
+        senderType,
+        content,
+        image,
+        replyToMessageId
+      );
+
+      if (image) {
+        if (!chatRoomId || !senderId || !senderType) {
+          throw new AppError(
+            "chatRoomId, senderId, senderType are required",
+            HttpStatus.BAD_REQUEST
+          );
+        }
+      } else {
+        if (!chatRoomId || !senderId || !senderType || !content) {
+          throw new AppError(
+            "chatRoomId, senderId, senderType, and content are required",
+            HttpStatus.BAD_REQUEST
+          );
+        }
       }
 
       if (!["user", "provider"].includes(senderType)) {
@@ -95,9 +113,22 @@ export class MessageController {
         limit
       );
 
+      const messagesWithSignedUrls = await Promise.all(
+        messages.map(async (message) => {
+          if (message.image) {
+            const signedUrl = await this.s3Service.generateSignedUrl(message.image);
+            return {
+              ...message,
+              image: signedUrl,
+            };
+          }
+          return message;
+        })
+      );
+
       return res.status(HttpStatus.OK).json({
         success: true,
-        messages,
+        messages: messagesWithSignedUrls,
       });
     } catch (error) {
       console.error("Error getting chat messages:", error);
@@ -117,7 +148,10 @@ export class MessageController {
 
   //  Mark message seen :-
 
-  markMessagesAsSeen = async (req: Request, res: Response): Promise<Response> => {
+  markMessagesAsSeen = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     try {
       const { chatRoomId } = req.params;
       const { recipientType } = req.body;
@@ -215,7 +249,10 @@ export class MessageController {
 
   //  Upload image in message :-
 
-  uploadMessageImage = async (req: Request, res: Response): Promise<Response> => {
+  uploadMessageImage = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
     try {
       if (!req.file) {
         throw new AppError("No image file provided", HttpStatus.BAD_REQUEST);
@@ -253,6 +290,11 @@ export class MessageController {
         uploadResult.Location,
         replyToMessageId
       );
+
+      // Generate signed URL for the image
+      if (message.image) {
+        message.image = await this.s3Service.generateSignedUrl(message.image);
+      }
 
       return res.status(HttpStatus.OK).json({
         success: true,

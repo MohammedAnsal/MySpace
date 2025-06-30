@@ -129,9 +129,8 @@ const ProviderChat = () => {
 
   const handleImageUpload = async (file: File) => {
     try {
-      const imageUrl = await uploadImage(file);
-      if (imageUrl) {
-        sendMessage("", imageUrl, replyToMessage?._id);
+      const uploadedMessage = await uploadImage(file, replyToMessage?._id);
+      if (uploadedMessage) {
         setReplyToMessage(null);
       }
     } catch (error) {

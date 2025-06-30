@@ -39,7 +39,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
           );
           setNotifications(filteredNotifications);
           setUnreadCount(
-            filteredNotifications.filter((n: { isRead: any }) => !n.isRead)
+            filteredNotifications.filter((n: { isRead: boolean }) => !n.isRead)
               .length
           );
         } catch (error) {

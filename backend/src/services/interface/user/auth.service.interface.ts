@@ -1,4 +1,10 @@
-import { SignUpDTO, SignInDTO, OtpVerificationDTO, ResetPasswordDTO, GoogleSignInDTO } from "../../../dtos/user/auth.dto";
+import {
+  SignUpDTO,
+  SignInDTO,
+  OtpVerificationDTO,
+  ResetPasswordDTO,
+  GoogleSignInDTO,
+} from "../../../dtos/user/auth.dto";
 import { AuthResponse, SignInResult } from "../../../types/types";
 
 export interface IAuthService {
@@ -9,4 +15,5 @@ export interface IAuthService {
   forgotPassword(email: string): Promise<AuthResponse>;
   resetPassword(data: ResetPasswordDTO): Promise<AuthResponse>;
   signInGoogle(data: GoogleSignInDTO): Promise<SignInResult>;
+  checkToken(token: string): Promise<AuthResponse>;
 }
