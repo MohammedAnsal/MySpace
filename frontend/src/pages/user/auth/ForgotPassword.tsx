@@ -2,7 +2,7 @@ import { useState } from "react";
 import forgotPass from "@/assets/user/forgott.png";
 import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "@/services/Api/userApi";
-  import { toast } from "sonner";
+import { toast } from "sonner";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -18,14 +18,14 @@ const ForgotPasswordPage = () => {
     setLoading(true);
     try {
       const response = await forgotPassword(email);
-      if (response.data.message) {
+      if (response && response.data && response.data.message) {
         localStorage.removeItem("otpExpiration");
         toast.success(response.data.message);
         navigate("/auth/verify-otp", {
           state: { email: email, forgott: forgot },
         });
       } else {
-        toast.error(response.data.message);
+        toast.error(response?.data?.message || "Something went wrong.");
       }
     } catch (error) {
       console.error("Signup error:", error);

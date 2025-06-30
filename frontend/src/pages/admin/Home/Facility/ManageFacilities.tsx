@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Loader2, Check, X, Edit2, Save, X as XIcon } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Loader2,
+  Check,
+  X,
+  Edit2,
+  Save,
+  X as XIcon,
+} from "lucide-react";
 import { useAdminFacilities } from "@/hooks/admin/useAdminFacilities";
 import Loading from "@/components/global/Loading";
 import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
@@ -31,7 +40,7 @@ export const AdminManageFacilities: React.FC = () => {
   const [facilityToDelete, setFacilityToDelete] = useState<string | null>(null);
   const [validationError, setValidationError] = useState("");
   const [canAddMore, setCanAddMore] = useState(true);
-  
+
   // Edit state
   const [editingFacility, setEditingFacility] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -103,7 +112,7 @@ export const AdminManageFacilities: React.FC = () => {
 
       const facilityData = {
         name: newFacilityName.trim(),
-        price: newFacilityPrice,
+        price: Number(newFacilityPrice),
         description: newFacilityDescription.trim(),
         status: true,
       };
@@ -162,7 +171,7 @@ export const AdminManageFacilities: React.FC = () => {
       // Check if name already exists (excluding current facility)
       const facilityExists = facilities.some(
         (f: { name: string; _id: string }) =>
-          f.name.toLowerCase() === editName.trim().toLowerCase() && 
+          f.name.toLowerCase() === editName.trim().toLowerCase() &&
           f._id !== editingFacility
       );
       if (facilityExists) {
@@ -172,7 +181,7 @@ export const AdminManageFacilities: React.FC = () => {
 
       const facilityData = {
         name: editName.trim(),
-        price: editPrice,
+        price: Number(editPrice),
         description: editDescription.trim(),
       };
 
@@ -189,7 +198,9 @@ export const AdminManageFacilities: React.FC = () => {
           },
           onError: (error) => {
             console.error("Error updating facility:", error);
-            setEditValidationError("Failed to update facility. Please try again.");
+            setEditValidationError(
+              "Failed to update facility. Please try again."
+            );
           },
         }
       );
@@ -382,14 +393,18 @@ export const AdminManageFacilities: React.FC = () => {
                             />
                             <textarea
                               value={editDescription}
-                              onChange={(e) => setEditDescription(e.target.value)}
+                              onChange={(e) =>
+                                setEditDescription(e.target.value)
+                              }
                               placeholder="Description"
                               rows={2}
                               className="px-3 py-2 bg-[#242529] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-[#C8ED4F] focus:border-[#C8ED4F] outline-none resize-none text-sm"
                             />
                           </div>
                           {editValidationError && (
-                            <div className="text-red-400 text-xs">{editValidationError}</div>
+                            <div className="text-red-400 text-xs">
+                              {editValidationError}
+                            </div>
                           )}
                           <div className="flex items-center space-x-2">
                             <motion.button
@@ -400,7 +415,10 @@ export const AdminManageFacilities: React.FC = () => {
                               className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center text-xs disabled:opacity-70"
                             >
                               {isUpdatingFacility ? (
-                                <Loader2 className="animate-spin mr-1" size={12} />
+                                <Loader2
+                                  className="animate-spin mr-1"
+                                  size={12}
+                                />
                               ) : (
                                 <Save size={12} className="mr-1" />
                               )}
@@ -425,7 +443,10 @@ export const AdminManageFacilities: React.FC = () => {
                               type="checkbox"
                               checked={facility.status}
                               onChange={() =>
-                                handleToggleFacility(facility._id, facility.status)
+                                handleToggleFacility(
+                                  facility._id,
+                                  facility.status
+                                )
                               }
                               className="mr-3 h-5 w-5 accent-[#C8ED4F] mt-1"
                             />
@@ -466,7 +487,10 @@ export const AdminManageFacilities: React.FC = () => {
                             </AnimatePresence>
                             <button
                               onClick={() =>
-                                handleToggleFacility(facility._id, facility.status)
+                                handleToggleFacility(
+                                  facility._id,
+                                  facility.status
+                                )
                               }
                               className={`px-2 py-1 rounded-lg text-white font-semibold transition-all duration-200 flex items-center text-xs ${
                                 facility.status
