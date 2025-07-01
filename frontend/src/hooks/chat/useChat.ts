@@ -385,6 +385,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     if (!userId) return;
 
     const handleSocketMessage = (message: IMessage) => {
+
+      console.log(message , 'mmmmmmmmmmm')
       // Update chat rooms list with the new message
       setChatRooms((prevRooms) => {
         // Find the room that needs to be updated
@@ -436,7 +438,6 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
       // If this message is for the currently selected chat room, add it to messages
       if (selectedChatRoom?._id === message.chatRoomId) {
         setMessages((prev) => {
-          // Skip if we already have this message
           if (prev.some((m) => m._id === message._id)) {
             return prev;
           }
@@ -571,6 +572,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     }
   }, [selectedChatRoomId, selectChatRoom, selectedChatRoom]);
 
+  //  Upload Image :- Send a image :-
+
   const uploadImage = useCallback(
     async (file: File, replyToMessageId?: string): Promise<IMessage | null> => {
       try {
@@ -583,6 +586,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           userType,
           replyToMessageId
         );
+
+        console.log(message.image)
 
         setMessages((prev) => [message, ...prev]);
 

@@ -84,7 +84,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
       setIsUploading(true);
 
       if (selectedImage) {
-        const uploadedMessage = await uploadImage(selectedImage);
+        const uploadedMessage = await uploadImage(
+          selectedImage,
+          replyToMessage?._id
+        );
         if (uploadedMessage) {
           setMessageInput("");
           setReplyToMessage(null);

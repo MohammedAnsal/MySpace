@@ -8,6 +8,8 @@ import { IMessageService } from "../../interface/chat/message.service.interface"
 import { IChatRoomService } from "../../interface/chat/chatRoom.service.interface";
 import { notificationService } from "../notification/notification.service";
 import { INotificationService } from "../../interface/notification/notification.service.interface";
+import { S3Service } from "../s3/s3.service";
+import IS3service from "../../interface/s3/s3.service.interface";
 
 @Service()
 export class SocketService {
@@ -17,11 +19,13 @@ export class SocketService {
   private notificationService: INotificationService;
   private onlineUsers: Map<string, { role: string; socketId: string }> =
     new Map();
+  private s3Service: IS3service;
 
   constructor() {
     this.messageService = messageService;
     this.chatRoomService = chatRoomService;
     this.notificationService = notificationService;
+    this.s3Service = S3Service;
   }
 
   initialize(httpServer: HttpServer): void {
@@ -108,8 +112,14 @@ export class SocketService {
             );
           }
 
-          // Broadcast to room
+          // If the message has an image, generate a signed URL
+          if (newMessage.image) {
+            newMessage.image = await this.s3Service.generateSignedUrl(
+              newMessage.image
+            );
+          }
 
+          // Broadcast to room
           this.io.to(chatRoomId).emit("receive_message", newMessage);
 
           // Also notify the other user if they're not in the room
