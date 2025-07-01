@@ -1,4 +1,4 @@
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { IHostel } from "../../models/provider/hostel.model";
 
 export interface HostelResponseDTO {
@@ -82,10 +82,55 @@ export interface UpdateHostelDTO {
   facilities?: string[];
 }
 
+interface PopulatedLocation {
+  _id: mongoose.Types.ObjectId | string;
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
+interface PopulatedProvider {
+  _id: mongoose.Types.ObjectId | string;
+  fullName: string;
+  email: string;
+}
+
+interface PopulatedFacility {
+  _id: mongoose.Types.ObjectId | string;
+  name: string;
+  description: string;
+  status: boolean;
+}
+
 /**
  * Maps an IHostel document to a HostelResponseDTO.
  */
 export function mapToHostelDTO(hostel: IHostel): HostelResponseDTO {
+  
+  function isPopulatedLocation(obj: unknown): obj is PopulatedLocation {
+    return (
+      !!obj &&
+      typeof (obj as PopulatedLocation).latitude === "number" &&
+      typeof (obj as PopulatedLocation).longitude === "number" &&
+      typeof (obj as PopulatedLocation).address === "string"
+    );
+  }
+  function isPopulatedProvider(obj: unknown): obj is PopulatedProvider {
+    return (
+      !!obj &&
+      typeof (obj as PopulatedProvider).fullName === "string" &&
+      typeof (obj as PopulatedProvider).email === "string"
+    );
+  }
+  function isPopulatedFacility(obj: unknown): obj is PopulatedFacility {
+    return (
+      !!obj &&
+      typeof (obj as PopulatedFacility).name === "string" &&
+      typeof (obj as PopulatedFacility).description === "string" &&
+      typeof (obj as PopulatedFacility).status === "boolean"
+    );
+  }
+
   return {
     _id: (hostel._id as mongoose.Types.ObjectId).toString(),
     hostel_name: hostel.hostel_name || "",
@@ -101,12 +146,12 @@ export function mapToHostelDTO(hostel: IHostel): HostelResponseDTO {
     photos: hostel.photos || [],
     amenities: hostel.amenities || [],
     description: hostel.description || "",
-    location: hostel.location
+    location: isPopulatedLocation(hostel.location)
       ? {
-          _id: (hostel.location._id as mongoose.Types.ObjectId).toString(),
-          latitude: (hostel.location as any).latitude || 0,
-          longitude: (hostel.location as any).longitude || 0,
-          address: (hostel.location as any).address || "",
+          _id: hostel.location._id.toString(),
+          latitude: hostel.location.latitude,
+          longitude: hostel.location.longitude,
+          address: hostel.location.address,
         }
       : {
           _id: "",
@@ -114,23 +159,32 @@ export function mapToHostelDTO(hostel: IHostel): HostelResponseDTO {
           longitude: 0,
           address: "",
         },
-    provider_id: hostel.provider_id
+    provider_id: isPopulatedProvider(hostel.provider_id)
       ? {
-          _id: (hostel.provider_id as mongoose.Types.ObjectId).toString(),
-          fullName: (hostel.provider_id as any).fullName || "",
-          email: (hostel.provider_id as any).email || "",
+          _id: hostel.provider_id._id.toString(),
+          fullName: hostel.provider_id.fullName,
+          email: hostel.provider_id.email,
         }
       : {
           _id: "",
           fullName: "",
           email: "",
         },
-    facilities: (hostel.facilities || []).map((facility) => ({
-      _id: (facility._id as mongoose.Types.ObjectId).toString(),
-      name: (facility as any).name || "",
-      description: (facility as any).description || "",
-      status: (facility as any).status || false,
-    })),
+    facilities: (hostel.facilities || []).map((facility) =>
+      isPopulatedFacility(facility)
+        ? {
+            _id: facility._id.toString(),
+            name: facility.name,
+            description: facility.description,
+            status: facility.status,
+          }
+        : {
+            _id: "",
+            name: "",
+            description: "",
+            status: false,
+          }
+    ),
     is_verified: hostel.is_verified,
     is_rejected: hostel.is_rejected,
     created_at: hostel.created_at || new Date(),

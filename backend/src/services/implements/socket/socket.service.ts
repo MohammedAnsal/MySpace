@@ -10,6 +10,17 @@ import { notificationService } from "../notification/notification.service";
 import { INotificationService } from "../../interface/notification/notification.service.interface";
 import { S3Service } from "../s3/s3.service";
 import IS3service from "../../interface/s3/s3.service.interface";
+import { IBooking } from "../../../models/booking.model";
+import { Types } from "mongoose";
+
+interface SocketNotification {
+  recipient: string;
+  title: string;
+  message: string;
+  type: string;
+  // relatedId: string;
+  // Add more fields if your notification payload requires them
+}
 
 @Service()
 export class SocketService {
@@ -395,7 +406,7 @@ export class SocketService {
   }
 
   // Method to emit events to specific users or rooms
-  emitToUser(userId: string, event: string, data: any): void {
+  emitToUser(userId: string, event: string, data: unknown): void {
     redisClient
       .hGet(`user:${userId}`, "socketId")
       .then((socketId) => {
@@ -406,12 +417,15 @@ export class SocketService {
       .catch((err) => console.error("Error emitting to user:", err));
   }
 
-  emitToRoom(roomId: string, event: string, data: any): void {
+  emitToRoom(roomId: string, event: string, data: unknown): void {
     this.io.to(roomId).emit(event, data);
   }
 
   // Add method to emit notifications
-  emitNotification(recipientId: string, notification: any): void {
+  emitNotification(
+    recipientId: string,
+    notification: SocketNotification
+  ): void {
     redisClient
       .hGet(`user:${recipientId}`, "socketId")
       .then(async (socketId) => {
@@ -430,35 +444,32 @@ export class SocketService {
   }
 
   // Add these methods to emit notifications for different events
-  emitNewBooking(booking: any, providerId: string): void {
-    const notification = {
+  emitNewBooking(booking: IBooking, providerId: string): void {
+    const notification: SocketNotification = {
       recipient: providerId,
       title: "New Booking Request",
-      message: `You have received a new booking request for ${booking.hostelName}`,
+      message: `You have received a new booking request for ${booking.hostelId}`,
       type: "booking",
-      relatedId: booking._id,
     };
     this.emitNotification(providerId, notification);
   }
 
-  emitBookingCancelled(booking: any, providerId: string): void {
-    const notification = {
+  emitBookingCancelled(booking: IBooking, providerId: string): void {
+    const notification: SocketNotification = {
       recipient: providerId,
       title: "Booking Cancelled",
-      message: `A booking for ${booking.hostelName} has been cancelled`,
+      message: `A booking for ${booking.hostelId} has been cancelled`,
       type: "booking",
-      relatedId: booking._id,
     };
     this.emitNotification(providerId, notification);
   }
 
-  emitBookingStatusUpdate(booking: any, userId: string): void {
-    const notification = {
+  emitBookingStatusUpdate(booking: IBooking, userId: string): void {
+    const notification: SocketNotification = {
       recipient: userId,
       title: "Booking Status Updated",
-      message: `Your booking status has been updated to ${booking.status}`,
+      message: `Your booking status has been updated to ${booking.paymentStatus}`,
       type: "booking",
-      relatedId: booking._id,
     };
     this.emitNotification(userId, notification);
   }

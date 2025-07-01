@@ -1,5 +1,4 @@
 import { INotification } from "../../../models/notification/notification.model";
-import { AppError } from "../../../utils/error";
 
 export interface INotificationService {
   createNotification(
