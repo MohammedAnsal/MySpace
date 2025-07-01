@@ -44,7 +44,7 @@ export class PaymentController {
       const checkoutUrl = await this.stripeService.createCheckoutSession({
         hostelId: new Types.ObjectId(hostelId),
         userId: new Types.ObjectId(userId),
-        providerId: new Types.ObjectId(providerId),
+        providerId: new Types.ObjectId(providerId._id.toString()),
         bookingId: new Types.ObjectId(bookingId),
         amount,
         currency,

@@ -195,7 +195,7 @@ export class StripeService {
             // Emit real-time notification
             socketService.emitNotification(
               String(bookingData?.providerId),
-              notification
+              { ...notification, recipient: notification.recipient.toString() }
             );
           }
 
