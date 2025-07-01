@@ -64,7 +64,7 @@ export class CronService {
 
       socketService.emitNotification(
         booking.userId.toString(),
-        { ...userNotification, recipient: userNotification.recipient.toString() }
+        userNotification
       );
 
       // notification for provider
@@ -80,7 +80,7 @@ export class CronService {
 
       socketService.emitNotification(
         booking.providerId.toString(),
-        { ...providerNotification, recipient: providerNotification.recipient.toString() }
+        providerNotification
       );
     }
   }

@@ -297,10 +297,7 @@ export class BookingService implements IBookingService {
         type: "booking",
       });
 
-      socketService.emitNotification(
-        String(booking?.providerId),
-        { ...notification, recipient: notification.recipient.toString() }
-      );
+      socketService.emitNotification(String(booking?.providerId), notification);
     }
 
     if (!cancelledBooking) {
