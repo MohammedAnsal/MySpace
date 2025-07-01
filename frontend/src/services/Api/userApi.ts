@@ -1,4 +1,4 @@
-import {
+  import {
   publicAxiosInstance,
   userAxiosInstance,
 } from "../axiosInstance/userInstance";
