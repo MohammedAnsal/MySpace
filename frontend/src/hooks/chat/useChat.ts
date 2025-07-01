@@ -385,8 +385,6 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
     if (!userId) return;
 
     const handleSocketMessage = (message: IMessage) => {
-
-      console.log(message , 'mmmmmmmmmmm')
       // Update chat rooms list with the new message
       setChatRooms((prevRooms) => {
         // Find the room that needs to be updated
@@ -586,8 +584,6 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           userType,
           replyToMessageId
         );
-
-        console.log(message.image)
 
         setMessages((prev) => [message, ...prev]);
 
