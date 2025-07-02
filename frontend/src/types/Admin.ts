@@ -11,3 +11,4 @@ export interface IFacilityData {
   status?: boolean;
   description?: string;
 }
+ 
