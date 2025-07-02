@@ -33,6 +33,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           const response = await getNotificationsByRecipient(userId);
 
+          console.log(response, 'oooooooo')
+
           // Filter out notifications we've already received via socket
           const filteredNotifications = response.filter(
             (notification: INotification) =>
@@ -53,15 +55,24 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     // Listen for new notifications
-    const handleNewNotification = (notification: INotification) => {
-      receivedSocketNotifications.add(notification._id);
+    const handleNewNotification = (notification: any) => {
+      // If notification has a _doc property, use that as the real notification
+      const raw = notification._doc ? notification._doc : notification;
+
+      receivedSocketNotifications.add(raw._id);
+
+      const fixedNotification: INotification = {
+        ...raw,
+        createdAt: new Date(raw.createdAt),
+        updatedAt: new Date(raw.updatedAt),
+      };
 
       setNotifications((prev) => {
-        const exists = prev.some((n) => n._id === notification._id);
+        const exists = prev.some((n) => n._id === fixedNotification._id);
         if (exists) {
           return prev;
         }
-        return [notification, ...prev];
+        return [fixedNotification, ...prev];
       });
       setUnreadCount((prev) => prev + 1);
     };
