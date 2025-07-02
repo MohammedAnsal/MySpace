@@ -56,7 +56,7 @@ export const getNotificationsByRecipient = async (recipientId: string): Promise<
     const response = await userAxiosInstance.get(
       `${API_BASE_URL}/recipient/${recipientId}` 
     );
-    return response.data as INotification[];
+    return response.data.data as INotification[];
   } catch (error) {
     const err = error as AxiosError<{ message?: string }>;
     throw new Error(
