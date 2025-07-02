@@ -1,10 +1,16 @@
 import { userAxiosInstance } from "../axiosInstance/userInstance";
 import { AxiosError } from "axios";
-import { INotification, CreateNotificationDTO, UpdateNotificationDTO } from "../../types/notification";
+import {
+  INotification,
+  CreateNotificationDTO,
+  UpdateNotificationDTO,
+} from "../../types/notification";
 
-const API_BASE_URL = "https://api.my-space.shop/notification";
+const API_BASE_URL = "https://api/my-space.shop/notification";
 
-export const createNotification = async (data: CreateNotificationDTO): Promise<INotification> => {
+export const createNotification = async (
+  data: CreateNotificationDTO
+): Promise<INotification> => {
   try {
     const response = await userAxiosInstance.post(API_BASE_URL, data);
     return response.data as INotification;
@@ -16,7 +22,9 @@ export const createNotification = async (data: CreateNotificationDTO): Promise<I
   }
 };
 
-export const getNotificationById = async (id: string): Promise<INotification> => {
+export const getNotificationById = async (
+  id: string
+): Promise<INotification> => {
   try {
     const response = await userAxiosInstance.get(`${API_BASE_URL}/${id}`);
     return response.data as INotification;
@@ -28,7 +36,10 @@ export const getNotificationById = async (id: string): Promise<INotification> =>
   }
 };
 
-export const updateNotification = async (id: string, data: UpdateNotificationDTO): Promise<INotification> => {
+export const updateNotification = async (
+  id: string,
+  data: UpdateNotificationDTO
+): Promise<INotification> => {
   try {
     const response = await userAxiosInstance.put(`${API_BASE_URL}/${id}`, data);
     return response.data as INotification;
@@ -51,10 +62,12 @@ export const deleteNotification = async (id: string): Promise<void> => {
   }
 };
 
-export const getNotificationsByRecipient = async (recipientId: string): Promise<INotification[]> => {
+export const getNotificationsByRecipient = async (
+  recipientId: string
+): Promise<INotification[]> => {
   try {
     const response = await userAxiosInstance.get(
-      `${API_BASE_URL}/recipient/${recipientId}` 
+      `${API_BASE_URL}/recipient/${recipientId}`
     );
     return response.data.data as INotification[];
   } catch (error) {

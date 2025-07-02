@@ -194,10 +194,10 @@ export class StripeService {
               });
 
             // Emit real-time notification
-            socketService.emitNotification(String(bookingData?.providerId), {
-              ...notification,
-              recipient: notification.recipient.toString(),
-            });
+            socketService.emitNotification(
+              String(bookingData?.providerId),
+              { ...notification, recipient: notification.recipient.toString() }
+            );
           }
 
           // Update Hostel Available Space Status
