@@ -21,7 +21,7 @@ class SocketService {
     }
 
     const apiUrl =
-      import.meta.env.VITE_USER_BASE_URL || "https://http://localhost:7001";
+      import.meta.env.VITE_USER_BASE_URL || "https://http://my-space.shop";
 
     this.socket = io(apiUrl, {
       withCredentials: true,
