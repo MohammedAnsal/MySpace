@@ -33,7 +33,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           const response = await getNotificationsByRecipient(userId);
           // Filter out notifications we've already received via socket
-          const filteredNotifications = response.data.filter(
+          const filteredNotifications = response.filter(
             (notification: INotification) =>
               !receivedSocketNotifications.has(notification._id)
           );
