@@ -2,7 +2,7 @@ import { userAxiosInstance } from "../axiosInstance/userInstance";
 import { AxiosError } from "axios";
 import { INotification, CreateNotificationDTO, UpdateNotificationDTO } from "../../types/notification";
 
-const API_BASE_URL = "https://localhost:7001/notification";
+const API_BASE_URL = "https://my-space.shop/notification";
 
 export const createNotification = async (data: CreateNotificationDTO): Promise<INotification> => {
   try {
