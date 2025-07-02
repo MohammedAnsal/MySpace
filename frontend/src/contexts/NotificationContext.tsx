@@ -31,10 +31,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     const fetchInitialNotifications = async () => {
       if (userId) {
         try {
-          console.log(userId)
           const response = await getNotificationsByRecipient(userId);
 
-          console.log(response,'oooo')
           // Filter out notifications we've already received via socket
           const filteredNotifications = response.filter(
             (notification: INotification) =>
