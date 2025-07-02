@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import forgotPassword_img from "../../../assets/provider/signUp.jpg";
 import { forgotPssword, resetPassword } from "@/services/Api/providerApi";
+import { AxiosError } from "axios";
 
 export const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
@@ -20,9 +21,11 @@ export const ForgotPassword = () => {
         toast.success("Email verified. Please set a new password.");
         setEmailSubmitted(true);
       }
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
       const errorMessage =
-        error.response?.data?.message ||
+        err.response?.data?.message ||
+        err.message ||
         "Failed to verify email. Please try again.";
       toast.error(errorMessage);
     } finally {

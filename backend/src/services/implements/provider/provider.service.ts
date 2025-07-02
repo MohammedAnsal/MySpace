@@ -14,6 +14,7 @@ import {
   ProviderResponseDTO,
   UpdateProviderDTO,
   mapToProviderDTO,
+  ProviderDashboardDTO,
 } from "../../../dtos/provider/provider.dto";
 
 import { FacilityResponseDTO } from "../../../dtos/admin/facility.dto";
@@ -182,7 +183,7 @@ export class ProviderService implements IProviderService {
 
   //  Get dashboard :- (Provider)
 
-  async getProviderDashboard(providerId: string): Promise<any> {
+  async getProviderDashboard(providerId: string): Promise<ProviderDashboardDTO> {
     try {
       const totalUsers = await this.userRepo.findUserByRole("user");
       const totalBookings = await this.bookingRepo.getProviderBookings(

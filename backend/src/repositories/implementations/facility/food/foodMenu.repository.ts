@@ -2,6 +2,7 @@ import Container, { Service } from "typedi";
 import { IFoodMenuRepository } from "../../../interfaces/facility/food/foodMenu.Irepository";
 import FoodMenu, {
   IFoodMenu,
+  IDayMeal,
 } from "../../../../models/facility/Food/foodMenu.model";
 import { Types, HydratedDocument } from "mongoose";
 
@@ -90,7 +91,7 @@ export class FoodMenuRepository implements IFoodMenuRepository {
 
   //  For get day meal :-
 
-  async getDayMeal(menuId: string, day: string): Promise<any | null> {
+  async getDayMeal(menuId: string, day: string): Promise<IDayMeal | null> {
     const menu = await FoodMenu.findOne(
       { _id: menuId },
       { menu: { $elemMatch: { day } } }

@@ -1,6 +1,11 @@
 import { Schema, model, Types } from "mongoose";
 
-export type PaymentStatus = "pending" | "completed" | "failed";
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
+
+// Define a proper metadata interface
+export interface PaymentMetadata {
+  [key: string]: string | number | boolean | null | undefined;
+}
 
 export interface IHostelPayment {
   _id: Types.ObjectId;
@@ -12,9 +17,9 @@ export interface IHostelPayment {
   currency: string;
   status: PaymentStatus;
   paymentMethod: string;
-  stripePaymentId: string;
+  stripePaymentId?: string;
   stripeSessionId: string;
-  metadata?: Record<string, any>;
+  metadata?: PaymentMetadata;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,14 +39,14 @@ const HostelPaymentSchema = new Schema<IHostelPayment>(
     currency: { type: String, default: "INR" },
     status: {
       type: String,
-      enum: ["pending", "completed", "failed"],
+      enum: ["pending", "completed", "failed", "refunded"],
       default: "pending",
     },
     paymentMethod: { type: String, required: true },
 
     stripePaymentId: { type: String },
     stripeSessionId: { type: String, required: true },
-    metadata: { type: Map, of: Schema.Types.Mixed },
+    metadata: { type: Schema.Types.Mixed },
   },
   {
     timestamps: true,

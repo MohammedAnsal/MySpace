@@ -3,6 +3,7 @@ import forgotPass from "@/assets/user/forgott.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { resetPassword } from "@/services/Api/userApi";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -47,10 +48,11 @@ const ResetPassword = () => {
       } else {
         toast.error(response.data.message || "Failed to reset password");
       }
-    } catch (error: any) {
-      console.error("Failed to reset password:", error);
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("Failed to reset password:", err);
       const errorMessage =
-        error.response?.data?.message || "An unexpected error occurred";
+        err.response?.data?.message || err.message || "An unexpected error occurred";
       toast.error(errorMessage);
     } finally {
       setLoading(false);

@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { signUpRequest } from "../../../services/Api/providerApi";
 import { Link, useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
 
 const ProviderSignup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -47,15 +48,15 @@ const ProviderSignup: React.FC = () => {
           state: { email: data.email, provider: flag },
         });
       }
-    } catch (error: any) {
-      console.error("Signup error:", error);
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("Signup error:", err);
 
-      if (error.response) {
-        const errorMessage = error.response.data?.message || "Signup failed";
-        toast.error(errorMessage);
-      } else {
-        toast.error("Unable to connect to the server. Please try again later.");
-      }
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to connect to the server. Please try again later.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

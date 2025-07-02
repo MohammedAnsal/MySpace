@@ -2,6 +2,7 @@ import Container, { Service } from "typedi";
 import { IUser, User } from "../../../models/user.model";
 import { BaseRepository } from "../../base.repository";
 import { IUserRepository } from "../../interfaces/user/user.Irepository";
+import { FilterQuery } from "mongoose";
 
 @Service()
 export class UserRepository
@@ -29,7 +30,7 @@ export class UserRepository
     searchQuery?: string
   ): Promise<IUser[] | never> {
     try {
-      let query: any = { role };
+      let query: FilterQuery<IUser> = { role };
 
       if (searchQuery) {
         query = {

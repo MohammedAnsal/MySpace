@@ -6,7 +6,7 @@ import {
   AdminUserUpdateResponseDTO,
   AdminHostelResponseDTO,
   AdminDashboardResponseDTO,
-  AdminWalletDTO
+  // AdminWalletDTO
 } from "../../../dtos/admin/user.dto";
 
 export type AdminResult = {
@@ -16,7 +16,7 @@ export type AdminResult = {
 };
 
 export interface IAdminUserService {
-  createWallet(adminId: string): Promise<AdminWalletDTO>;
+  // createWallet(adminId: string): Promise<AdminWalletDTO>;
   findAllUser(data: AdminSearchDTO): Promise<AdminUserResponseDTO>;
   findAllProvider(data: AdminSearchDTO): Promise<AdminUserResponseDTO>;
   updateUser(email: string): Promise<AdminUserUpdateResponseDTO>;

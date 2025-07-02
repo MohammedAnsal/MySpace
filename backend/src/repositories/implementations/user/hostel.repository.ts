@@ -6,6 +6,25 @@ import { Rating } from "../../../models/rating.model";
 import mongoose from "mongoose";
 import { Location } from "../../../models/provider/location.model";
 
+// Extended interface for hostels with rating information :-
+
+export interface IHostelWithRatings extends IHostel {
+  averageRating: number;
+  ratingCount: number;
+}
+
+// Type for rating aggregation result :-
+
+interface RatingAggregationResult {
+  _id: ObjectId;
+  averageRating: number;
+  count: number;
+}
+
+// Type for rating map :-
+
+type RatingMap = Map<string, { averageRating: number; count: number }>;
+
 @Service()
 export class HostelRepository implements IHostelRepository {
   //  For get all verified hostel's :-
@@ -19,7 +38,7 @@ export class HostelRepository implements IHostelRepository {
     sortBy?: "asc" | "desc";
     minRating?: number;
     sortByRating?: boolean;
-  }): Promise<IHostel[]> {
+  }): Promise<IHostelWithRatings[]> {
     try {
       let query: FilterQuery<IHostel> = {
         is_verified: true,
@@ -101,7 +120,7 @@ export class HostelRepository implements IHostelRepository {
 
       // Fetch ratings for all hostels :-
 
-      const ratingsAggregation = await Rating.aggregate([
+      const ratingsAggregation: RatingAggregationResult[] = await Rating.aggregate([
         { $match: { hostel_id: { $in: hostelIds } } },
         {
           $group: {
@@ -114,10 +133,7 @@ export class HostelRepository implements IHostelRepository {
 
       // Create a map for easy lookup :- (Rating Filter)
 
-      const ratingsMap = new Map<
-        string,
-        { averageRating: number; count: number }
-      >();
+      const ratingsMap: RatingMap = new Map();
       ratingsAggregation.forEach((item) => {
         ratingsMap.set(item._id.toString(), {
           averageRating: item.averageRating,
@@ -125,7 +141,7 @@ export class HostelRepository implements IHostelRepository {
         });
       });
 
-      let hostelsWithRatings: IHostel[] = hostels.map((hostel) => {
+      let hostelsWithRatings: IHostelWithRatings[] = hostels.map((hostel) => {
         const hostelObj =
           typeof hostel.toObject === "function"
             ? hostel.toObject()
@@ -138,20 +154,20 @@ export class HostelRepository implements IHostelRepository {
           ...hostelObj,
           averageRating: ratingInfo ? ratingInfo.averageRating : 0,
           ratingCount: ratingInfo ? ratingInfo.count : 0,
-        } as unknown as IHostel;
+        } as IHostelWithRatings;
       });
 
       if (filters.minRating !== undefined) {
         hostelsWithRatings = hostelsWithRatings.filter((hostel) => {
-          const rating = (hostel as any).averageRating || 0;
+          const rating = hostel.averageRating || 0;
           return rating >= (filters.minRating || 0);
         });
       }
 
       if (filters.sortByRating) {
         hostelsWithRatings.sort((a, b) => {
-          const aRating = (a as any).averageRating || 0;
-          const bRating = (b as any).averageRating || 0;
+          const aRating = a.averageRating || 0;
+          const bRating = b.averageRating || 0;
 
           return filters.sortBy === "desc"
             ? bRating - aRating
@@ -167,7 +183,7 @@ export class HostelRepository implements IHostelRepository {
 
   //  For all verified hostel's :- (For home)
 
-  async getVerifiedHostelsForHome(): Promise<IHostel[]> {
+  async getVerifiedHostelsForHome(): Promise<IHostelWithRatings[]> {
     try {
       const hostels = await Hostel.find({ is_verified: true })
         .populate("provider_id", "fullName email phone")
@@ -176,7 +192,7 @@ export class HostelRepository implements IHostelRepository {
 
       const hostelIds = hostels.map((hostel) => hostel._id);
 
-      const ratingsAggregation = await Rating.aggregate([
+      const ratingsAggregation: RatingAggregationResult[] = await Rating.aggregate([
         { $match: { hostel_id: { $in: hostelIds } } },
         {
           $group: {
@@ -187,10 +203,7 @@ export class HostelRepository implements IHostelRepository {
         },
       ]);
 
-      const ratingsMap = new Map<
-        string,
-        { averageRating: number; count: number }
-      >();
+      const ratingsMap: RatingMap = new Map();
       ratingsAggregation.forEach((item) => {
         ratingsMap.set(item._id.toString(), {
           averageRating: item.averageRating,
@@ -198,7 +211,7 @@ export class HostelRepository implements IHostelRepository {
         });
       });
 
-      const hostelsWithRatings: IHostel[] = hostels.map((hostel) => {
+      const hostelsWithRatings: IHostelWithRatings[] = hostels.map((hostel) => {
         const hostelObj =
           typeof hostel.toObject === "function"
             ? hostel.toObject()
@@ -211,7 +224,7 @@ export class HostelRepository implements IHostelRepository {
           ...hostelObj,
           averageRating: ratingInfo ? ratingInfo.averageRating : 0,
           ratingCount: ratingInfo ? ratingInfo.count : 0,
-        } as unknown as IHostel;
+        } as IHostelWithRatings;
       });
 
       return hostelsWithRatings;
@@ -269,7 +282,7 @@ export class HostelRepository implements IHostelRepository {
     latitude: number,
     longitude: number,
     maxDistance: number = 100000
-  ): Promise<IHostel[]> {
+  ): Promise<IHostelWithRatings[]> {
     try {
       const hostels = await Hostel.find({
         is_verified: true,
@@ -297,7 +310,7 @@ export class HostelRepository implements IHostelRepository {
 
       const hostelIds = filteredHostels.map((hostel) => hostel._id);
 
-      const ratingsAggregation = await Rating.aggregate([
+      const ratingsAggregation: RatingAggregationResult[] = await Rating.aggregate([
         { $match: { hostel_id: { $in: hostelIds } } },
         {
           $group: {
@@ -308,10 +321,7 @@ export class HostelRepository implements IHostelRepository {
         },
       ]);
 
-      const ratingsMap = new Map<
-        string,
-        { averageRating: number; count: number }
-      >();
+      const ratingsMap: RatingMap = new Map();
       ratingsAggregation.forEach((item) => {
         ratingsMap.set(item._id.toString(), {
           averageRating: item.averageRating,
@@ -319,7 +329,7 @@ export class HostelRepository implements IHostelRepository {
         });
       });
 
-      const hostelsWithRatings: IHostel[] = filteredHostels.map((hostel) => {
+      const hostelsWithRatings: IHostelWithRatings[] = filteredHostels.map((hostel) => {
         const hostelObj =
           typeof hostel.toObject === "function"
             ? hostel.toObject()
@@ -332,7 +342,7 @@ export class HostelRepository implements IHostelRepository {
           ...hostelObj,
           averageRating: ratingInfo ? ratingInfo.averageRating : 0,
           ratingCount: ratingInfo ? ratingInfo.count : 0,
-        } as unknown as IHostel;
+        } as IHostelWithRatings;
       });
 
       return hostelsWithRatings;

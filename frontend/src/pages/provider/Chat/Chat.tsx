@@ -16,6 +16,17 @@ import {
 } from "@/pages/provider/Chat/components";
 import { format } from "date-fns";
 
+type EmojiData = { emoji: string };
+
+const isUserObject = (
+  obj: any
+): obj is { fullName: string; email: string; _id: string } =>
+  obj &&
+  typeof obj === "object" &&
+  "fullName" in obj &&
+  "email" in obj &&
+  "_id" in obj;
+
 const ProviderChat = () => {
   const { userId } = useSelector((state: RootState) => state.user);
   const [selectedChatRoomId, setSelectedChatRoomId] = useState<
@@ -91,7 +102,7 @@ const ProviderChat = () => {
     startTyping();
   };
 
-  const handleEmojiClick = (emojiData: any) => {
+  const handleEmojiClick = (emojiData: EmojiData) => {
     setMessageInput((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
@@ -137,6 +148,19 @@ const ProviderChat = () => {
       toast.error("Failed to upload image");
     }
   };
+
+  const filteredChatRooms = chatRooms.filter((room) => {
+    // For provider, the "other" user is always room.userId
+    if (!isUserObject(room.userId)) return false;
+
+    const userFullName = room.userId.fullName || "";
+    const userEmail = room.userId.email || "";
+
+    return (
+      userFullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      userEmail.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
 
   if (error) {
     toast.error(error);
@@ -187,7 +211,7 @@ const ProviderChat = () => {
         <AnimatePresence>
           {(!isMobile || showUserList) && (
             <ChatSidebar
-              chatRooms={chatRooms}
+              chatRooms={filteredChatRooms}
               selectedChatRoom={selectedChatRoom}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}

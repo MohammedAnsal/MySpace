@@ -4,6 +4,7 @@ import type React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { resendOtp, verifyOtp } from "../../../services/Api/userApi";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 const OTP_EXPIRATION_TIME = 90;
 
@@ -80,10 +81,12 @@ export default function OTPVerification() {
           navigate("/auth/signIn");
         }
       }
-    } catch (error: any) {
-      console.error("OTP verification error:", error);
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("OTP verification error:", err);
       const errorMessage =
-        error.response?.data?.message ||
+        err.response?.data?.message ||
+        err.message ||
         "Failed to verify OTP. Please try again.";
       toast.error(errorMessage);
     }

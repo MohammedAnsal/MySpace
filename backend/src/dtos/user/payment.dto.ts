@@ -1,3 +1,5 @@
+import { IHostelPayment, PaymentMetadata } from "../../models/payment.model";
+
 export interface PaymentResponseDTO {
   _id: string;
   userId: string;
@@ -8,7 +10,7 @@ export interface PaymentResponseDTO {
   status: "pending" | "completed" | "failed" | "refunded";
   stripeSessionId?: string;
   stripePaymentIntentId?: string;
-  metadata?: Record<string, any>;
+  metadata?: PaymentMetadata;
   created_at: Date;
   updated_at: Date;
 }
@@ -19,14 +21,14 @@ export interface CreatePaymentDTO {
   bookingId: string;
   amount: number;
   currency?: string;
-  metadata?: Record<string, any>;
+  metadata?: PaymentMetadata;
 }
 
 export interface UpdatePaymentStatusDTO {
   status: "pending" | "completed" | "failed" | "refunded";
 }
 
-export function mapToPaymentDTO(payment: any): PaymentResponseDTO {
+export function mapToPaymentDTO(payment: IHostelPayment): PaymentResponseDTO {
   return {
     _id: payment._id.toString(),
     userId: payment.userId.toString(),
@@ -36,7 +38,7 @@ export function mapToPaymentDTO(payment: any): PaymentResponseDTO {
     currency: payment.currency,
     status: payment.status,
     stripeSessionId: payment.stripeSessionId,
-    stripePaymentIntentId: payment.stripePaymentIntentId,
+    stripePaymentIntentId: payment.stripePaymentId,
     metadata: payment.metadata,
     created_at: payment.createdAt,
     updated_at: payment.updatedAt,
