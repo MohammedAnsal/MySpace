@@ -12,6 +12,7 @@ import { signUpRequest } from "../../../services/Api/userApi";
 import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useGoogle } from "@/hooks/user/useGoogle";
+import { AxiosError } from "axios";
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
@@ -47,9 +48,10 @@ const SignUp: React.FC = () => {
       } else {
         toast.error(response.data.message);
       }
-    } catch (error: any) {
-      console.error("Signup error:", error.message);
-      toast.error(error.message);
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("Signup error:", err.message);
+      toast.error(err.response?.data?.message || err.message || "Sign up failed");
     } finally {
       setLoading(false);
     }

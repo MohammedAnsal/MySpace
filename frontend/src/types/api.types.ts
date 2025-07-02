@@ -4,7 +4,7 @@ export interface HostelFilters {
   gender?: string;
   amenities?: string[];
   search?: string;
-  sortBy?: 'asc' | 'desc';
+  sortBy?: "asc" | "desc";
   minRating?: number;
   sortByRating?: boolean;
 }
@@ -16,8 +16,8 @@ export interface ApiResponse<T> {
 }
 
 export interface Hostel {
-  reason: any;
-  is_rejected: any;
+  reason: string;
+  is_rejected: boolean;
   _id: string;
   hostel_name: string;
   photos: string[];
@@ -38,11 +38,11 @@ export interface Hostel {
   available_space: number;
   total_space: number;
   deposit_amount: number;
-  is_verified:boolean
+  is_verified: boolean;
   maximum_occupancy: number;
   facilities: Array<{
     name: string;
     price: number;
     description: string;
   }>;
-} 
+}

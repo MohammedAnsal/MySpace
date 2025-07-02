@@ -1,9 +1,9 @@
-import { Schema, model, Document, ObjectId } from "mongoose";
+import { Schema, model, Document, ObjectId , Types } from "mongoose";
 
 export interface IRating extends Document {
-  user_id: ObjectId;
-  hostel_id: ObjectId;
-  booking_id: ObjectId;
+  user_id: Types.ObjectId;
+  hostel_id: Types.ObjectId;
+  booking_id: Types.ObjectId;
   rating: number;
   comment?: string;
   created_at: Date;

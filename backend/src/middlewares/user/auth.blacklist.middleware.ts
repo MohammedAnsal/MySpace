@@ -13,18 +13,18 @@ export const userTokenBlackList = async (
   req: AuthRequset,
   res: Response,
   next: NextFunction
-): Promise<any> => {
+): Promise<void> => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-    return res.status(HttpStatus.FORBIDDEN).json({ message: "Unauthorized" });
+     res.status(HttpStatus.FORBIDDEN).json({ message: "Unauthorized" });
   }
 
   try {
     // Check if token is blacklisted
     const isBlacklisted = await redisClient.get(refreshToken);
     if (isBlacklisted) {
-      return res
+       res
         .status(HttpStatus.FORBIDDEN)
         .json({ message: "Token has been blacklisted" });
     }

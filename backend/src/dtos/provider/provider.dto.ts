@@ -25,25 +25,18 @@ export interface ChangePasswordDTO {
   newPassword: string;
 }
 
-export interface DashboardResponseDTO {
+interface RevenueData {
+  weekly: { week: string; revenue: number }[];
+  monthly: { month: string; revenue: number }[];
+  yearly: { year: number; revenue: number }[];
+}
+
+export interface ProviderDashboardDTO {
   hostels: number;
   bookings: number;
   users: number;
   totalRevenue: number;
-  revenueData: {
-    weekly: {
-      week: string;
-      revenue: number;
-    }[];
-    monthly: {
-      month: string;
-      revenue: number;
-    }[];
-    yearly: {
-      year: number;
-      revenue: number;
-    }[];
-  };
+  revenueData: RevenueData;
 }
 
 export function mapToProviderDTO(provider: IUser): ProviderResponseDTO {

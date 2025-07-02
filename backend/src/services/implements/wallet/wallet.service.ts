@@ -35,9 +35,9 @@ export class WalletService implements IWalletService {
   async createUserWallet(userId: string): Promise<WalletResponseDTO> {
     try {
       const walletData: Partial<IWallet> = {
-        userId: userId as any,
+        userId: new Types.ObjectId(userId),
         balance: 0,
-        transactions: [] as any,
+        transactions: [],
       };
 
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
@@ -55,9 +55,9 @@ export class WalletService implements IWalletService {
   async createProviderWallet(providerId: string): Promise<WalletResponseDTO> {
     try {
       const walletData: Partial<IWallet> = {
-        userId: providerId as any,
+        userId: new Types.ObjectId(providerId),
         balance: 0,
-        transactions: [] as any,
+        transactions: [],
       };
 
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
@@ -75,9 +75,9 @@ export class WalletService implements IWalletService {
   async createAdminWallet(adminId: string): Promise<WalletResponseDTO> {
     try {
       const walletData: Partial<IWallet> = {
-        adminId: adminId as any,
+        adminId: new Types.ObjectId(adminId),
         balance: 0,
-        transactions: [] as any,
+        transactions: [],
       };
 
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);

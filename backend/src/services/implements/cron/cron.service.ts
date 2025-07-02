@@ -50,8 +50,12 @@ export class CronService {
     });
 
     for (const booking of bookings) {
+      type PopulatedHostel = { hostel_name: string };
+
       const hostelName =
-        (booking.hostelId as any)?.hostel_name || "your hostel";
+        typeof booking.hostelId === "object" && booking.hostelId && "hostel_name" in booking.hostelId
+          ? (booking.hostelId as PopulatedHostel).hostel_name
+          : "your hostel";
 
       // notification for user
       const userNotification = await notificationService.createNotification({

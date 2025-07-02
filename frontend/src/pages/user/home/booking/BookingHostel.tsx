@@ -202,14 +202,14 @@ const Checkout: React.FC = () => {
       const facilitiesData = JSON.stringify(
         formData.selectedFacilities.map((f) => ({
           id: f.id.toString(),
-          duration: f.duration.toString()
+          duration: f.duration.toString(),
         }))
       );
       bookingFormData.append("selectedFacilities", facilitiesData);
       bookingFormData.append("proof", formData.userProof);
 
       const response = await bookingHostel(bookingFormData);
-      
+
       if (response) {
         toast.success("Redirecting to payment...");
         // Add navigation to payment page if needed
@@ -217,7 +217,9 @@ const Checkout: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Booking error:", error);
-      toast.error(error.response?.data?.message || "Error processing your request");
+      toast.error(
+        error.response?.data?.message || "Error processing your request"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -246,7 +248,7 @@ const Checkout: React.FC = () => {
           <div className="flex flex-col md:flex-row">
             <div className="flex-grow p-5 border-r border-gray-200">
               {/* Identity Verification Section */}
-              <IdentityVerification 
+              <IdentityVerification
                 userProof={formData.userProof}
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
@@ -263,13 +265,19 @@ const Checkout: React.FC = () => {
               />
 
               {/* Facilities Section */}
-              <FacilitiesSelection
-                facilities={hostel?.facilities || []}
-                selectedFacilities={formData.selectedFacilities}
-                selectedMonths={formData.selectedMonths}
-                onFacilityToggle={handleFacilityToggle}
-                onFacilityDurationChange={handleFacilityDurationChange}
-              />
+              {hostel?.facilities && hostel.facilities.length > 0 ? (
+                <FacilitiesSelection
+                  facilities={hostel.facilities}
+                  selectedFacilities={formData.selectedFacilities}
+                  selectedMonths={formData.selectedMonths}
+                  onFacilityToggle={handleFacilityToggle}
+                  onFacilityDurationChange={handleFacilityDurationChange}
+                />
+              ) : (
+                <div className="my-8 text-center text-blue-400">
+                  This hostel does not provide any additional facilities.
+                </div>
+              )}
 
               {/* Rules Section */}
               <RulesSection
@@ -290,7 +298,7 @@ const Checkout: React.FC = () => {
               calculatePaymentTotal={calculatePaymentTotal}
             />
           </div>
-          
+
           {/* Payment Section */}
           <div className="px-5 pb-5">
             <PaymentSection

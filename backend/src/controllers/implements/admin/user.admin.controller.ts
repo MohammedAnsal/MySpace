@@ -25,24 +25,24 @@ class AdminUserController implements IAdminController {
 
   //  Admin create wallet :-
 
-  async createWallet(req: AuthRequset, res: Response): Promise<Response> {
-    try {
-      if (!AdminId) {
-        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
-      }
-      const adminWallet = await this.userService.createWallet(AdminId);
-      if (adminWallet) {
-        return res.status(HttpStatus.OK).json(adminWallet);
-      } else {
-        throw new Error("failed to  fetch user");
-      }
-    } catch (walletError) {
-      console.error("Error creating wallet for provider:", walletError);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Internal server error" });
-    }
-  }
+  // async createWallet(req: AuthRequset, res: Response): Promise<Response> {
+  //   try {
+  //     if (!AdminId) {
+  //       throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
+  //     }
+  //     const adminWallet = await this.userService.createWallet(AdminId);
+  //     if (adminWallet) {
+  //       return res.status(HttpStatus.OK).json(adminWallet);
+  //     } else {
+  //       throw new Error("failed to  fetch user");
+  //     }
+  //   } catch (walletError) {
+  //     console.error("Error creating wallet for provider:", walletError);
+  //     return res
+  //       .status(HttpStatus.INTERNAL_SERVER_ERROR)
+  //       .json({ success: false, message: "Internal server error" });
+  //   }
+  // }
 
   //  Find all user's :-
 

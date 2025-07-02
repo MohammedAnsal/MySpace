@@ -334,7 +334,7 @@ export class SocketService {
         await redisClient.hSet(`user:${userId}`, "socketId", socket.id);
         await redisClient.hSet(`socket:${socket.id}`, "userId", userId);
 
-        // You can emit any pending notifications here
+        // You can emit pending notifications here
         // For example, unread message counts, etc.
       } catch (error) {
         console.error("Error handling user connection:", error);

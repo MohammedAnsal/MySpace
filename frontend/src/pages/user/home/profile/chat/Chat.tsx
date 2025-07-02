@@ -17,6 +17,8 @@ import {
   EmptyChat,
 } from "@/pages/user/home/profile/chat/components";
 
+type EmojiData = { emoji: string };
+
 export const Chat = () => {
   const location = useLocation();
   const { userId } = useSelector((state: RootState) => state.user);
@@ -109,12 +111,25 @@ export const Chat = () => {
     }
   }, [loading, hasMore, loadMoreMessages]);
 
-  // Filter chat rooms based on search query
-  const filteredChatRooms = chatRooms.filter((room) => {
-    if (!room.userId || typeof room.userId !== "object") return false;
+  const isUserObject = (obj: any): obj is { fullName: string; email: string } =>
+    obj && typeof obj === "object" && "fullName" in obj && "email" in obj;
 
-    const userFullName = (room.userId as any).fullName || "";
-    const userEmail = (room.userId as any).email || "";
+  const filteredChatRooms = chatRooms.filter((room) => {
+    // Find the "other" user in the chat room
+    let otherUser = null;
+    if (isUserObject(room.userId) && room.userId._id !== userId) {
+      otherUser = room.userId;
+    } else if (
+      isUserObject(room.providerId) &&
+      room.providerId._id !== userId
+    ) {
+      otherUser = room.providerId;
+    }
+
+    if (!otherUser) return false;
+
+    const userFullName = otherUser.fullName || "";
+    const userEmail = otherUser.email || "";
 
     return (
       userFullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -191,7 +206,7 @@ export const Chat = () => {
     );
   };
 
-  const handleEmojiClick = (emojiData: any) => {
+  const handleEmojiClick = (emojiData: EmojiData) => {
     setMessageInput((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };

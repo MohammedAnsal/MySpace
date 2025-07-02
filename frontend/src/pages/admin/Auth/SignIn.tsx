@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../../redux/slice/adminSlice";
 import { Link } from "react-router-dom";
+import { AxiosError } from "axios";
 
 const AdminSignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,8 +30,8 @@ const AdminSignIn = () => {
   });
 
   useEffect(() => {
-    Object.values(errors).forEach((error: any) => {
-      toast.error(error.message);
+    Object.values(errors).forEach((error) => {
+      if (error?.message) toast.error(error.message);
     });
   }, [errors]);
 
@@ -52,9 +53,10 @@ const AdminSignIn = () => {
         );
         navigate("/admin/dashboard");
       }
-    } catch (error: any) {
-      console.error("SignIn error:", error);
-      const errorMessage = error.response.data?.message;
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("SignIn error:", err);
+      const errorMessage = err.response?.data?.message || err.message || "Sign in failed";
       toast.error(errorMessage);
     } finally {
       setLoading(false);

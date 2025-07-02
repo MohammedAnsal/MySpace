@@ -6,12 +6,35 @@ import { IRatingRepository } from "../../../repositories/interfaces/user/rating.
 import { AppError } from "../../../utils/error";
 import { IRatingService } from "../../interface/user/rating.service.interface";
 import Container, { Service } from "typedi";
-import mongoose, { Types } from "mongoose";
+import mongoose, { ObjectId, Types } from "mongoose";
 import { S3Service } from "../s3/s3.service";
 import {
   HostelRatingsResponseDTO,
   RatingResponseDTO,
+  CreateRatingDTO,
 } from "../../../dtos/user/rating.dto";
+import { IRating } from "../../../models/rating.model";
+
+// Interface for populated user data in rating
+interface PopulatedUser {
+  _id: Types.ObjectId;
+  fullName: string;
+  profile_picture?: string;
+}
+
+// Interface for rating with populated user
+interface IRatingWithPopulatedUser extends Omit<IRating, "user_id"> {
+  user_id: PopulatedUser;
+}
+
+// Interface for rating data creation
+interface CreateRatingData {
+  user_id: Types.ObjectId;
+  hostel_id: Types.ObjectId;
+  booking_id: Types.ObjectId;
+  rating: number;
+  comment?: string;
+}
 
 @Service()
 export class RatingService implements IRatingService {
@@ -25,7 +48,10 @@ export class RatingService implements IRatingService {
 
   //  Create rating :-
 
-  async createRating(userId: string, ratingData: any): Promise<any> {
+  async createRating(
+    userId: string,
+    ratingData: CreateRatingDTO
+  ): Promise<IRating> {
     try {
       if (!ratingData.hostel_id || !ratingData.rating) {
         throw new AppError(
@@ -59,15 +85,19 @@ export class RatingService implements IRatingService {
         );
       }
 
-      const newRatingData = {
+      console.log(existingRating);
+
+      const newRatingData: CreateRatingData = {
         user_id: new mongoose.Types.ObjectId(userId),
         hostel_id: new mongoose.Types.ObjectId(ratingData.hostel_id),
         booking_id: new mongoose.Types.ObjectId(ratingData.booking_id),
         rating: ratingData.rating,
-        comment: ratingData.comment || undefined,
-      } as any;
+        comment: ratingData.comment,
+      };
 
-      const savedRating = await this.ratingRepo.createRating(newRatingData);
+      const savedRating = await this.ratingRepo.createRating(
+        newRatingData as IRating
+      );
       return savedRating;
     } catch (error) {
       if (error instanceof AppError) {
@@ -95,11 +125,14 @@ export class RatingService implements IRatingService {
         ratings.map(async (rating) => {
           const ratingObj = rating.toObject ? rating.toObject() : rating;
 
-          if (ratingObj.user_id && ratingObj.user_id.profile_picture) {
+          if (
+            ratingObj.user_id &&
+            (ratingObj.user_id as PopulatedUser).profile_picture
+          ) {
             try {
-              ratingObj.user_id.profile_picture =
+              (ratingObj.user_id as PopulatedUser).profile_picture =
                 await S3Service.generateSignedUrl(
-                  ratingObj.user_id.profile_picture
+                  (ratingObj.user_id as PopulatedUser).profile_picture!
                 );
             } catch (err) {
               console.error(
@@ -120,7 +153,7 @@ export class RatingService implements IRatingService {
           : 0;
 
       return {
-        ratings: processedRatings,
+        ratings: processedRatings as RatingResponseDTO[],
         averageRating: Math.round(averageRating * 10) / 10,
         totalRatings,
       };
@@ -165,9 +198,6 @@ export class RatingService implements IRatingService {
         _id: (existingRating._id as Types.ObjectId).toString(),
         user_id: {
           _id: userId.toString(),
-          fullName: (existingRating.user_id as any).fullName || "",
-          profile_picture:
-            (existingRating.user_id as any).profile_picture || "",
         },
         hostel_id: existingRating.hostel_id.toString(),
         booking_id: existingRating.booking_id.toString(),

@@ -15,6 +15,7 @@ import { loginSuccess } from "../../../redux/slice/userSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { useProviderGoogle } from "@/hooks/provider/useProviderGoogle";
 import socketService from "@/services/socket/socket.service";
+import { AxiosError } from "axios";
 
 const ProviderLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,14 +64,14 @@ const ProviderLogin = () => {
 
         navigate("/provider/dashboard");
       }
-    } catch (error: any) {
-      if (error.response) {
-        const errorMessage = error.response.data?.message || "Login failed";
-        toast.error(errorMessage);
-      } else {
-        toast.error("Unable to connect to the server. Please try again later.");
-      }
-      console.error("Login error:", error);
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to connect to the server. Please try again later.";
+      toast.error(errorMessage);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }

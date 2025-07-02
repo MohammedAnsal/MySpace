@@ -16,6 +16,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 import { useGoogle } from "@/hooks/user/useGoogle";
 import socketService from "@/services/socket/socket.service";
+import { AxiosError } from "axios";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
@@ -71,8 +72,10 @@ export default function SignIn() {
         toast.error(response.data.message);
         setLoading(false);
       }
-    } catch (error: any) {
-      console.error("SignIn error:", error);
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("SignIn error:", err);
+      toast.error(err.response?.data?.message || err.message || "Sign in failed");
     } finally {
       setLoading(false);
     }

@@ -10,10 +10,11 @@ import { asyncHandler } from "../../utils/asyncHandler";
 
 const adminUserRoute = Router();
 
-adminUserRoute.post(
-  "/create-wallet",
-  asyncHandler(adminUserControllerr.createWallet.bind(adminUserControllerr))
-);
+// adminUserRoute.post(
+//   "/create-wallet",
+//   asyncHandler(adminUserControllerr.createWallet.bind(adminUserControllerr))
+// );
+
 adminUserRoute.get(
   "/users",
   authMiddleWare,

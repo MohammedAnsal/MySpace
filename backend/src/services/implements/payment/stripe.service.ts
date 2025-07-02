@@ -14,6 +14,7 @@ import { IWalletService } from "../../interface/wallet/wallet.service.interface"
 import { INotificationService } from "../../interface/notification/notification.service.interface";
 import { notificationService } from "../notification/notification.service";
 import socketService from "../socket/socket.service";
+import { PaymentMetadata } from "../../../models/payment.model";
 
 interface CreateCheckoutSessionParams {
   hostelId: Types.ObjectId;
@@ -24,7 +25,7 @@ interface CreateCheckoutSessionParams {
   currency: string;
   successUrl: string;
   cancelUrl: string;
-  metadata?: Record<string, any>;
+  metadata?: PaymentMetadata;
 }
 
 @Service()
@@ -143,9 +144,9 @@ export class StripeService {
 
   //  For handle Webhook :-
 
-  async handleWebhookEvent(payload: any, signature: string): Promise<void> {
+  async handleWebhookEvent(payload: string, signature: string): Promise<void> {
     try {
-      const event = this.stripe.webhooks.constructEvent(
+      const event: Stripe.Event = this.stripe.webhooks.constructEvent(
         payload,
         signature,
         process.env.STRIPE_WEBHOOK_SECRET!
@@ -193,10 +194,10 @@ export class StripeService {
               });
 
             // Emit real-time notification
-            socketService.emitNotification(
-              String(bookingData?.providerId),
-              { ...notification, recipient: notification.recipient.toString() }
-            );
+            socketService.emitNotification(String(bookingData?.providerId), {
+              ...notification,
+              recipient: notification.recipient.toString(),
+            });
           }
 
           // Update Hostel Available Space Status

@@ -21,7 +21,7 @@ import {
   AdminUserUpdateResponseDTO,
   AdminHostelResponseDTO,
   AdminDashboardResponseDTO,
-  AdminWalletDTO,
+  // AdminWalletDTO,
 } from "../../../dtos/admin/user.dto";
 
 @Service()
@@ -42,23 +42,23 @@ export class AdminUserService implements IAdminUserService {
 
   //  Admin create wallet :-
 
-  async createWallet(adminId: string): Promise<AdminWalletDTO> {
-    try {
-      const adminWallet = await walletService.createAdminWallet(adminId);
-      if (!adminWallet) {
-        throw new AppError(
-          "Failed to add admin wallet",
-          HttpStatus.BAD_REQUEST
-        );
-      }
-      return adminWallet;
-    } catch (error) {
-      throw new AppError(
-        "Failed to create wallet",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
+  // async createWallet(adminId: string): Promise<AdminWalletDTO> {
+  //   try {
+  //     const adminWallet = await walletService.createAdminWallet(adminId);
+  //     if (!adminWallet) {
+  //       throw new AppError(
+  //         "Failed to add admin wallet",
+  //         HttpStatus.BAD_REQUEST
+  //       );
+  //     }
+  //     return adminWallet;
+  //   } catch (error) {
+  //     throw new AppError(
+  //       "Failed to create wallet",
+  //       HttpStatus.INTERNAL_SERVER_ERROR
+  //     );
+  //   }
+  // }
 
   //  Find all user's :-
 

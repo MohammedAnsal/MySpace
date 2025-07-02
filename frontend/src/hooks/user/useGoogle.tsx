@@ -36,7 +36,7 @@ export const useGoogle = () => {
         navigate("/home");
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Google login failed:", error);
       toast.error("Google login failed. Please try again.");
     },
