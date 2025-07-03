@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { findProvider } from "@/services/Api/providerApi";
 import { toast } from "sonner";
 import { useProviderDashboard } from "@/hooks/provider/dashboard/useDashboard";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import RevenueAnalytics from "@/pages/provider/Home/components/RevenueAnalytics";
 import DistributionChart from "@/pages/provider/Home/components/DistributionChart";
 import WalletTransactionsChart from "@/pages/provider/Home/components/WalletTransactionsChart";

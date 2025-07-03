@@ -1,6 +1,6 @@
 import { Users, Hotel, Calendar, DollarSign } from "lucide-react";
 import { useAdminDashboard } from "@/hooks/admin/useAdminQueries";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import RevenueAnalytics from "@/pages/admin/Home/Dashboard/components/RevenueAnalytics";
 import DistributionChart from "@/pages/admin/Home/Dashboard/components/DistributionChart";
 import { motion } from "framer-motion";

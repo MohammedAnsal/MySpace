@@ -13,7 +13,7 @@ import {
   FaChartLine,
 } from "react-icons/fa";
 import { format } from "date-fns";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 
 interface Transaction {
   _id: string;

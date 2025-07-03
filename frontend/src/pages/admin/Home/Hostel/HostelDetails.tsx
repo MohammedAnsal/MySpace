@@ -21,7 +21,7 @@ import {
   Cctv,
   GlassWaterIcon,
 } from "lucide-react";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import { useHostelDetails } from "@/hooks/admin/useAdminQueries";
 
 const getAmenityIcon = (amenity: string) => {

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import main_pic_1 from "../../assets/user/main1.jpg";
 import m1 from "../../assets/user/m1.jpg";
 import m2 from "../../assets/user/m2.jpg";
-import Scroll from "@/components/global/scroll";
-import Footer from "../layouts/footer";
+import Scroll from "@/components/global/Scroll";
+import Footer from "../layouts/Footer";
 
 export const Landing = () => {
   const navigate = useNavigate();

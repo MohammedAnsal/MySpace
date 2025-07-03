@@ -10,8 +10,8 @@ import {
   X as XIcon,
 } from "lucide-react";
 import { useAdminFacilities } from "@/hooks/admin/useAdminFacilities";
-import Loading from "@/components/global/loading";
-import { ConfirmationModal } from "@/components/modals/confirmationModal";
+import Loading from "@/components/global/Loading";
+import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ALLOWED_FACILITIES = [

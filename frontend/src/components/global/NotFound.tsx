@@ -1,5 +1,5 @@
-import Navbar from "../layouts/navbar";
-import Footer from "../layouts/footer";
+import Navbar from "../layouts/Navbar";
+import Footer from "../layouts/Footer";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store/store";

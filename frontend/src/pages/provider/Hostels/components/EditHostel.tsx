@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getHostelById, updateHostel } from "@/services/Api/providerApi";
 import { toast } from "sonner";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import MapPicker from "@/pages/provider/AddProperty/components/MapPicker";
 import { HouseRules } from "../../AddProperty/components/HouseRules";
 import { AmenitiesSection } from "../../AddProperty/components/AmenitiesSection";

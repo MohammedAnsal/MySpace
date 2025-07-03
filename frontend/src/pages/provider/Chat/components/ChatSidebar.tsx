@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FaSearch, FaUsers } from "react-icons/fa";
 import { IChatRoom } from "@/types/chat";
-import { OnlineStatusDot } from "@/components/shared/onlineStatusDot";
+import { OnlineStatusDot } from "@/components/shared/OnlineStatusDot";
 
 interface ChatSidebarProps {
   chatRooms: IChatRoom[];

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, User, ChevronUp, ChevronDown } from "lucide-react";
-import RatingStars from "@/components/global/ratingStars";
+import RatingStars from "@/components/global/RatingStars";
 
 interface RatingSectionProps {
   ratingData: any;

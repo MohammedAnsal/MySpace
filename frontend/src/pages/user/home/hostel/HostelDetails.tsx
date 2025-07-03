@@ -23,20 +23,20 @@ import {
   GlassWaterIcon,
   Maximize2,
 } from "lucide-react";
-import Navbar from "@/components/layouts/navbar";
-import Footer from "@/components/layouts/footer";
+import Navbar from "@/components/layouts/Navbar";
+import Footer from "@/components/layouts/Footer";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import {
   useHostelDetails,
   useHostelRatings,
 } from "@/hooks/user/hostel/useHostel";
 import RatingSection from "@/pages/user/home/hostel/components/RatingSection";
-import Scroll from "@/components/global/scroll";
+import Scroll from "@/components/global/Scroll";
 import ImageGalleryPopup from "./components/ImageGalleryPopup";
 import MapModal from "./components/MapModal";
 
