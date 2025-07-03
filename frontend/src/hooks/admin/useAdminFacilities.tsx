@@ -6,7 +6,7 @@ import {
   deleteFacility,
   updateFacility,
 } from "@/services/Api/admin/adminApi";
-import { IFacilityData } from "@/types/admin";
+import { IFacilityData } from "@/types/Admin";
 
 export const useAdminFacilities = () => {
   const queryClient = useQueryClient();
