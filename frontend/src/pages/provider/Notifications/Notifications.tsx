@@ -10,7 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { useNotifications } from "@/contexts/notificationContext";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 const Notifications: React.FC = () => {
   const {

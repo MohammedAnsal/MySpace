@@ -16,9 +16,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import { toast } from "sonner";
-import { ConfirmationModal } from "@/components/modals/confirmationModal";
+import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 import ViewHostel from "./components/ViewHostel";
 import { useProviderHostels } from "@/hooks/provider/hostel/useHostel";
 import { Hostel } from "@/types/api.types";

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import DataTable from "@/components/global/dataTable";
+import DataTable from "@/components/global/DataTable";
 import { updateStatus } from "@/services/Api/admin/adminApi";
 import { IUser } from "@/types/types";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProviders } from "@/hooks/admin/useAdminQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const Providers = () => {

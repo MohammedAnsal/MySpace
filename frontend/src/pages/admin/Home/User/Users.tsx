@@ -1,6 +1,6 @@
 import { useState } from "react";
-import DataTable from "@/components/global/dataTable";
-import Loading from "@/components/global/loading";
+import DataTable from "@/components/global/DataTable";
+import Loading from "@/components/global/Loading";
 import { useUsers } from "@/hooks/admin/useAdminQueries";
 import { updateStatus } from "@/services/Api/admin/adminApi";
 import { IUser } from "@/types/types";

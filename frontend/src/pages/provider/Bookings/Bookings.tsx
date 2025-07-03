@@ -19,7 +19,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useProviderBookings } from "@/hooks/provider/booking/useBooking";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 
 interface Facility {
   facilityId: {

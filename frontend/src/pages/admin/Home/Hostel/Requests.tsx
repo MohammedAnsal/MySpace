@@ -2,7 +2,7 @@ import { verifyHostel } from "@/services/Api/admin/adminApi";
 import { Eye, MapPin, Users, Bed, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import { useState } from "react";
 import { HostelDetailsDialog } from "@/pages/admin/Home/Hostel/components/HostelDetailsDialog";
 import { useUnverifiedHostels } from "@/hooks/admin/useAdminQueries";

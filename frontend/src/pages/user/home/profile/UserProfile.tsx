@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { SquarePen, Mail, Phone, Wallet, User } from "lucide-react";
 import { toast } from "sonner";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import EditProfileModal from "./components/EditProfileModal";
 import ChangePasswordModal from "./components/ChangePasswordModal";
 import { useUserProfile } from "@/hooks/user/profile/useProfile";

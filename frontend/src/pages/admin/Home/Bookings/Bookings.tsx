@@ -19,7 +19,7 @@ import {
   CheckCircle,
   Search,
 } from "lucide-react";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import { useProviderBookings } from "@/hooks/admin/useAdminQueries";
 
 interface Facility {

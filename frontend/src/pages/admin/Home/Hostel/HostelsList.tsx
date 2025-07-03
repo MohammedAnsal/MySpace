@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Eye, MapPin, Users, Bed } from "lucide-react";
 import { motion } from "framer-motion";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import { useVerifiedHostels } from "@/hooks/admin/useAdminQueries";
 
 interface Hostel {
