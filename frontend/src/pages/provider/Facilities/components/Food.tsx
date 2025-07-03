@@ -15,7 +15,7 @@ import {
 } from "@/hooks/provider/facility/useFacility";
 import { toast } from "sonner";
 import { useParams } from "react-router-dom";
-import Modal from "@/components/global/Modal";
+import Modal from "@/components/global/modal";
 
 // Demo data for menu items
 export interface MenuItem {

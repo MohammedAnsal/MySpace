@@ -1,15 +1,15 @@
 import { Search, ChevronDown, MapPin } from "lucide-react";
 import HostelCard from "./components/HostelCard";
 import Sidebar from "./components/Sidebar";
-import Footer from "@/components/layouts/Footer";
-import Navbar from "@/components/layouts/Navbar";
+import Footer from "@/components/layouts/footer";
+import Navbar from "@/components/layouts/navbar";
 import main from "@/assets/user/m2.jpg";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 import { useHostels, useNearbyHostels } from "@/hooks/user/hostel/useHostel";
-import { Pagination } from "@/components/global/Pagination";
-import Scroll from "@/components/global/Scroll";
+import { Pagination } from "@/components/global/pagination";
+import Scroll from "@/components/global/scroll";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 6;

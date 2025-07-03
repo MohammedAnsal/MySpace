@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store/store";
 import { IMessage } from "../../../types/chat";
 import { toast } from "sonner";
-import { useSocket } from "../../../contexts/SocketProvider";
+import { useSocket } from "../../../contexts/socketProvider";
 import {
   ChatSidebar,
   ChatHeader,

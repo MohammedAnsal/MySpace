@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -6,7 +6,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "../../components/ui/pagination";
+} from "../ui/pagination";
 import { cn } from "../../lib/utils";
 
 interface IColumns<T> {
@@ -19,28 +19,21 @@ interface IColumns<T> {
 interface TableProps<T> {
   data: T[];
   columns: IColumns<T>[];
-  itemsPerPage?: number;
+  total: number;
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void;
 }
 
 export default function DataTable<T extends Record<string, any>>({
   data,
   columns,
-  itemsPerPage = 5,
+  total,
+  page,
+  limit,
+  onPageChange,
 }: TableProps<T>) {
-  const [currentPage, setCurrentpage] = useState(1);
-
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-
-  const currentData = useMemo(() => {
-    const safeData = Array.isArray(data) ? data : []; // Ensure data is always an array
-    const firstPage = (currentPage - 1) * itemsPerPage;
-    const lastPage = firstPage + itemsPerPage;
-    return safeData.slice(firstPage, lastPage);
-  }, [currentPage, data, itemsPerPage]);
-
-  const pageChange = (page: number) => {
-    setCurrentpage(page);
-  };
+  const totalPages = Math.ceil(total / limit);
 
   const columnWidths = useMemo(() => {
     return columns.map((col) => {
@@ -71,15 +64,15 @@ export default function DataTable<T extends Record<string, any>>({
 
       {/* Body Section */}
       <div className="bg-[#242529] border border-[#C8ED4F] rounded-2xl overflow-hidden">
-        {currentData.length ? (
-          currentData.map((item, ind) => (
+        {data && data.length ? (
+          data.map((item, ind) => (
             <div
               key={(item as T)._id || ind}
               className="grid hover:bg-zinc-900/50 transition-colors"
               style={{
                 gridTemplateColumns: columnWidths.join(" "),
                 borderBottom:
-                  ind !== currentData.length - 1
+                  ind !== data.length - 1
                     ? "1px solid rgba(255, 255, 255, 0.1)"
                     : "none",
               }}
@@ -112,26 +105,26 @@ export default function DataTable<T extends Record<string, any>>({
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={() => currentPage > 1 && pageChange(currentPage - 1)}
+                  onClick={() => page > 1 && onPageChange(page - 1)}
                   className={cn(
                     "border border-[#C8ED4F] bg-[#242529] text-gray-400 hover:bg-zinc-900 hover:text-gray-300",
-                    currentPage <= 1 && "pointer-events-none opacity-50"
+                    page <= 1 && "pointer-events-none opacity-50"
                   )}
                 />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <PaginationItem key={page}>
+                (p) => (
+                  <PaginationItem key={p}>
                     <PaginationLink
-                      onClick={() => pageChange(page)}
-                      isActive={currentPage === page}
+                      onClick={() => onPageChange(p)}
+                      isActive={page === p}
                       className={cn(
                         "border border-[#C8ED4F] bg-[#242529] text-gray-400 hover:bg-zinc-900 hover:text-gray-300",
-                        currentPage === page &&
+                        page === p &&
                           "bg-[#C8ED4F] text-black hover:bg-[#C8ED4F] hover:text-black"
                       )}
                     >
-                      {page}
+                      {p}
                     </PaginationLink>
                   </PaginationItem>
                 )
@@ -139,11 +132,11 @@ export default function DataTable<T extends Record<string, any>>({
               <PaginationItem>
                 <PaginationNext
                   onClick={() =>
-                    currentPage < totalPages && pageChange(currentPage + 1)
+                    page < totalPages && onPageChange(page + 1)
                   }
                   className={cn(
                     "border border-[#C8ED4F] bg-[#242529] text-gray-400 hover:bg-zinc-900 hover:text-gray-300",
-                    currentPage >= totalPages &&
+                    page >= totalPages &&
                       "pointer-events-none opacity-50"
                   )}
                 />

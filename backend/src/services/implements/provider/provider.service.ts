@@ -192,7 +192,7 @@ export class ProviderService implements IProviderService {
       const hostels = (await this.hostelRepo.getAllHostels(providerId)).length;
 
       const bookings = totalBookings.length;
-      const users = totalUsers.length;
+      const users = totalUsers.total;
 
       // Calculate total revenue (from completed bookings only)
       const totalRevenue = totalBookings

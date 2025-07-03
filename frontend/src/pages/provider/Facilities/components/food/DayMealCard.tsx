@@ -17,7 +17,7 @@ import {
   useDeleteFoodMenu,
 } from "@/hooks/provider/facility/useFacility";
 import { toast } from "sonner";
-import Modal from "@/components/global/Modal";
+import Modal from "@/components/global/modal";
 
 interface DayMealCardProps {
   day: string;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
-import Modal from "@/components/global/Modal";
+import Modal from "@/components/global/modal";
 import { toast } from "sonner";
 import { changePassword } from "@/services/Api/userApi";
 import { z } from "zod";

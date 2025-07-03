@@ -11,13 +11,30 @@ import {
   getAdminTransactions,
 } from "@/services/Api/admin/adminApi";
 
-const fetchUsers = async (searchQuery?: string) => {
-  const { data } = await getAllUsers(searchQuery);
-  return data;
+// Add type for paginated user response if not already present
+interface AdminUserResponseDTO {
+  success: boolean;
+  data: any[]; // Replace with IUser[] if you have the type
+  total?: number;
+  page?: number;
+  limit?: number;
+}
+
+const fetchUsers = async (
+  searchQuery?: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<AdminUserResponseDTO> => {
+  // getAllUsers should return the full paginated response
+  return await getAllUsers(searchQuery, page, limit);
 };
 
-const fetchProviders = async (searchQuery?: string) => {
-  const { data } = await getAllProviders(searchQuery);
+const fetchProviders = async (
+  searchQuery?: string,
+  page: number = 1,
+  limit: number = 10
+) => {
+  const { data } = await getAllProviders(searchQuery, page, limit);
   return data;
 };
 
@@ -36,17 +53,27 @@ const fetchVerifiedHostels = async () => {
   return response;
 };
 
-export const useUsers = (searchQuery?: string) => {
-  return useQuery({
-    queryKey: ["admin-users", searchQuery],
-    queryFn: () => fetchUsers(searchQuery),
+// Updated useUsers hook for server-side pagination
+export const useUsers = (
+  searchQuery?: string,
+  page: number = 1,
+  limit: number = 5
+) => {
+  return useQuery<AdminUserResponseDTO>({
+    queryKey: ["admin-users", searchQuery, page, limit],
+    queryFn: () => fetchUsers(searchQuery, page, limit),
+    // keepPreviousData: true,
   });
 };
 
-export const useProviders = (searchQuery?: string) => {
+export const useProviders = (
+  searchQuery?: string,
+  page: number = 1,
+  limit: number = 5
+) => {
   return useQuery({
-    queryKey: ["admin-providers", searchQuery],
-    queryFn: () => fetchProviders(searchQuery),
+    queryKey: ["admin-providers", searchQuery, page, limit],
+    queryFn: () => fetchProviders(searchQuery, page, limit),
   });
 };
 

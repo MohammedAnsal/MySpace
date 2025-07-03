@@ -62,37 +62,40 @@ export class AdminUserService implements IAdminUserService {
 
   //  Find all user's :-
 
-  async findAllUser(data: AdminSearchDTO): Promise<AdminUserResponseDTO> {
+  async findAllUser(data: AdminSearchDTO & { page?: number; limit?: number }): Promise<AdminUserResponseDTO> {
     try {
-      const allUsers = await this.userRepo.findUserByRole(
+      const { searchQuery, page = 1, limit = 5 } = data;
+      const { users, total } = await this.userRepo.findUserByRole(
         "user",
-        data.searchQuery
+        page,
+        limit,
+        searchQuery
       );
-      if (!allUsers) {
+      if (!users) {
         throw new AppError("Failed to fetch users", HttpStatus.BAD_REQUEST);
       }
-      return { success: true, data: allUsers };
+      return { success: true, data: users, total, page, limit };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError(
-        "Failed to fetch users",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new AppError("Failed to fetch users", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   //  Find all provider's :-
 
-  async findAllProvider(data: AdminSearchDTO): Promise<AdminUserResponseDTO> {
+  async findAllProvider(data: AdminSearchDTO & { page?: number; limit?: number }): Promise<AdminUserResponseDTO> {
     try {
-      const allProviders = await this.userRepo.findUserByRole(
+      const { searchQuery, page = 1, limit = 5 } = data;
+      const { users, total} = await this.userRepo.findUserByRole(
         "provider",
-        data.searchQuery
+        page,
+        limit,
+        searchQuery
       );
-      if (!allProviders) {
+      if (!users) {
         throw new AppError("Failed to fetch providers", HttpStatus.BAD_REQUEST);
       }
-      return { success: true, data: allProviders };
+      return { success: true, data: users, total, page, limit };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -263,8 +266,8 @@ export class AdminUserService implements IAdminUserService {
       const totalBookings = await this.bookingRepo.getAllBookings();
 
       const bookings = totalBookings.length;
-      const users = totalUsers.length;
-      const providers = totalProviders.length;
+      const users = totalUsers.total;
+      const providers = totalProviders.total;
 
       const totalRevenue = totalBookings
         .filter((booking) => booking.paymentStatus === "completed")

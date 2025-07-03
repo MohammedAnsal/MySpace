@@ -49,6 +49,9 @@ export class FoodMenuController {
     try {
       const { facilityId, hostelId } = req.params;
 
+      console.log(facilityId)
+      console.log(hostelId)
+
       if (!facilityId) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           status: "error",

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Loader2, Camera } from "lucide-react";
-import Modal from "@/components/global/Modal";
+import Modal from "@/components/global/modal";
 import { toast } from "sonner";
 import { editProfile } from "@/services/Api/userApi";
 import { profileSchema } from "@/utils/validation/user.z.validation";

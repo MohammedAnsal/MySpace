@@ -1,4 +1,4 @@
-import { IFacilityData } from "@/types/Admin";
+import { IFacilityData } from "@/types/admin";
 import {
   adminAxiosInstance,
   publicAxiosInstance,
@@ -35,7 +35,7 @@ const handleError = (error: unknown) => {
 export const signIn_Request = async (adminData: Object) => {
   const response = await public_api.post("/auth/admin/sign-in", adminData);
 
-  if (!response) console.log("returning is not getting correctly");
+  if (!response) console.error("returning is not getting correctly");
 
   return response;
 };
@@ -63,22 +63,26 @@ export const resetPassword = async (email: string, newPassword: string) => {
   }
 };
 
-export const getAllUsers = async (searchQuery?: string) => {
+export const getAllUsers = async (searchQuery?: string, page: number = 1, limit: number = 5) => {
   const response = await private_api.get("/admin/users", {
-    params: { search: searchQuery },
+    params: { search: searchQuery, page, limit },
   });
 
-  if (!response) console.log("Something Went Wrong in getUser's");
+  if (!response) console.error("Something Went Wrong in getUser's");
 
-  return response;
+  return response.data;
 };
 
-export const getAllProviders = async (searchQuery?: string) => {
+export const getAllProviders = async (
+  searchQuery?: string,
+  page: number = 1,
+  limit: number = 5
+) => {
   const response = await private_api.get("/admin/providers", {
-    params: { search: searchQuery },
+    params: { search: searchQuery, page, limit },
   });
 
-  if (!response) console.log("Failed Getting Providers");
+  if (!response) console.error("Failed Getting Providers");
 
   return response;
 };
@@ -86,7 +90,7 @@ export const getAllProviders = async (searchQuery?: string) => {
 export const updateStatus = async (email: string) => {
   const response = await private_api.put("/admin/updateUser", { email });
 
-  if (!response) console.log("Somthing Went Wrong in updateUser");
+  if (!response) console.error("Somthing Went Wrong in updateUser");
 
   return response;
 };
@@ -94,7 +98,7 @@ export const updateStatus = async (email: string) => {
 export const admin_logout = async () => {
   const response = await public_api.post("/auth/admin/logout");
 
-  if (!response) console.log("Error in admin logout");
+  if (!response) console.error("Error in admin logout");
 
   return response;
 };

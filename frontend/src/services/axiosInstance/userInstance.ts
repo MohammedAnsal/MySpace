@@ -53,7 +53,6 @@ userAxiosInstance.interceptors.response.use(
 
         try {
           const newAccessToken = await getNewAccessToken();
-          console.log(newAccessToken);
           if (newAccessToken) {
             localStorage.setItem("access-token", newAccessToken);
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

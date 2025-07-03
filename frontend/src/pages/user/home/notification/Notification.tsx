@@ -6,7 +6,7 @@ import {
   Star,
   X,
 } from "lucide-react";
-import { useNotifications } from '@/contexts/NotificationContext';
+import { useNotifications } from '@/contexts/notificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 

@@ -8,7 +8,7 @@ import {
   Info,
 } from "lucide-react";
 import { useProviderHostels } from "@/hooks/provider/hostel/useHostel";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 
 export const ListHostelFacility = () => {
   const navigate = useNavigate();

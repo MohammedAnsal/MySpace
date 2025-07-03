@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHostelsHome } from "@/hooks/user/hostel/useHostel";
-import Navbar from "@/components/layouts/Navbar";
-import Footer from "@/components/layouts/Footer";
+import Navbar from "@/components/layouts/navbar";
+import Footer from "@/components/layouts/footer";
 import HeroSection from "./components/HeroSection";
 import FeaturesSection from "./components/FeaturesSection";
 import RoomOptionsSection from "./components/RoomOptionsSection";
 import FeaturedStaysSection from "./components/FeaturedStaysSection";
 import CTASection from "./components/CTASection";
-import Scroll from "@/components/global/Scroll";
+import Scroll from "@/components/global/scroll";
 
 export default function HomePage() {
   const { data } = useHostelsHome();

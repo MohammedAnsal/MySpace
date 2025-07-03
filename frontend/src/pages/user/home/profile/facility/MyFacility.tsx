@@ -12,7 +12,9 @@ import { motion } from "framer-motion";
 interface Facility {
   _id: string;
   type: string;
-  facilityId: string;
+  facilityId: {
+    _id : string
+  };
   duration: number;
   startDate: string;
   endDate: string;
@@ -55,9 +57,10 @@ export const MyFacility = () => {
     hostelId: string,
     providerId: string
   ) => {
+ 
     switch (facility.type.toLowerCase()) {
       case "catering service":
-        navigate(`/user/facility/food/${facility.facilityId}/${hostelId}`);
+        navigate(`/user/facility/food/${facility.facilityId._id}/${hostelId}`);
         break;
       case "laundry service":
         navigate(
