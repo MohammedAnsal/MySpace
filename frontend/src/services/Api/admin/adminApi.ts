@@ -1,4 +1,4 @@
-import { IFacilityData } from "@/types/admin";
+import { IFacilityData } from "@/types/Admin";
 import {
   adminAxiosInstance,
   publicAxiosInstance,

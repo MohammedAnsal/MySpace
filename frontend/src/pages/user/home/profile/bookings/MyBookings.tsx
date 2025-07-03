@@ -12,7 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useUserBookings } from "@/hooks/user/booking/useBooking";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 import BookingDetails from "./components/BookingDetails";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
