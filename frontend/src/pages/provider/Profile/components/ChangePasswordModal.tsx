@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Save, X } from "lucide-react";
-import Modal from "@/components/global/Modal";
+import Modal from "@/components/global/modal";
 import { toast } from "sonner";
 import { changePassword } from "@/services/Api/providerApi";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 
 interface PasswordChange {
   currentPassword: string;

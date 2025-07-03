@@ -1,41 +1,39 @@
 import { useState } from "react";
-import DataTable from "@/components/global/DataTable";
+import DataTable from "@/components/global/dataTable";
 import { updateStatus } from "@/services/Api/admin/adminApi";
 import { IUser } from "@/types/types";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProviders } from "@/hooks/admin/useAdminQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const Providers = () => {
+  const limit = 2;
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms delay
-  const { data, isLoading, isError } = useProviders(debouncedSearchQuery);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError } = useProviders(
+    debouncedSearchQuery,
+    page,
+    limit
+  );
   const queryClient = useQueryClient();
 
   const toggleUserStatus = useMutation({
     mutationFn: (email: string) => updateStatus(email),
     onSuccess: (responseData, email) => {
       queryClient.setQueryData(
-        ["admin-providers", debouncedSearchQuery],
+        ["admin-providers", debouncedSearchQuery, page, limit],
         (oldData: any) => {
           if (!oldData) return oldData;
-
           const updatedUsers = oldData.data.map((user: any) =>
             user.email === email
-              ? {
-                  ...user,
-                  is_active: !user.is_active,
-                }
+              ? { ...user, is_active: !user.is_active }
               : user
           );
-
-          return {
-            ...oldData,
-            data: updatedUsers,
-          };
+          return { ...oldData, data: updatedUsers };
         }
       );
 
@@ -172,7 +170,15 @@ const Providers = () => {
           </svg>
         </div>
       </div>
-      <DataTable data={data?.data} columns={columns} />
+      {/* <DataTable data={data?.data} columns={columns} /> */}
+      <DataTable
+        data={data?.data || []}
+        columns={columns}
+        total={data?.total ?? 0}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+      />
     </div>
   );
 };

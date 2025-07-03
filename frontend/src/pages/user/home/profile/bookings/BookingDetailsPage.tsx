@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useUserBookingsDetails } from "@/hooks/user/booking/useBooking";
 import BookingDetails from "./components/BookingDetails";
 import { ArrowLeft, CreditCard, XCircle, Loader2 } from "lucide-react";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 import { motion } from "framer-motion";
 import CancelBookingModal from "./components/CancelBookingModal";
 import { reprocessBookingPayment, cancelBooking } from "@/services/Api/userApi";

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { editProfile } from "@/services/Api/providerApi";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 import ChangePasswordModal from "./components/ChangePasswordModal";
 import WalletSummary from "../wallet/components/WalletSummary";
 import { useProviderProfile } from "@/hooks/provider/profile/useProfile";

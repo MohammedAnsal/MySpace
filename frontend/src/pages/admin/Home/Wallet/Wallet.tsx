@@ -10,7 +10,7 @@ import WalletSummary from "./components/WalletSummary";
 import WalletStats from "./components/WalletStats";
 import TransactionHistory from "./components/TransactionHistory";
 import WalletInfo from "./components/WalletInfo";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 
 export const Wallet = () => {
   const {

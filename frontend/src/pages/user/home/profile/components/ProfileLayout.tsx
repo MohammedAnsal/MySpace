@@ -10,15 +10,15 @@ import {
   User,
   Wallet,
 } from "lucide-react";
-import Scroll from "@/components/global/Scroll";
+import Scroll from "@/components/global/scroll";
 import { userLogout } from "@/services/Api/userApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slice/userSlice";
-import Footer from "@/components/layouts/Footer";
-import Navbar from "@/components/layouts/Navbar";
+import Footer from "@/components/layouts/footer";
+import Navbar from "@/components/layouts/navbar";
 import socketService from "@/services/socket/socket.service";
-import { useNotifications } from "@/contexts/NotificationContext";
+import { useNotifications } from "@/contexts/notificationContext";
 
 const ProfileLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

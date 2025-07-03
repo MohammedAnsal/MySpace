@@ -52,7 +52,9 @@ class AdminUserController implements IAdminController {
       throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
     }
     const searchQuery = req.query.search as string;
-    const getAllUsers = await this.userService.findAllUser({ searchQuery });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const getAllUsers = await this.userService.findAllUser({ searchQuery, page, limit });
 
     if (getAllUsers) {
       return res.status(HttpStatus.OK).json(getAllUsers);
@@ -69,8 +71,10 @@ class AdminUserController implements IAdminController {
       throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
     }
     const searchQuery = req.query.search as string;
+     const page = parseInt(req.query.page as string) || 1;
+     const limit = parseInt(req.query.limit as string) || 5;
     const getAllProviders = await this.userService.findAllProvider({
-      searchQuery,
+      searchQuery, page, limit
     });
 
     if (getAllProviders) {

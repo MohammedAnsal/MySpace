@@ -17,6 +17,9 @@ export interface AdminVerifyHostelDTO {
 export interface AdminUserResponseDTO {
   success: boolean;
   data: IUser[];
+  total?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface AdminUserUpdateResponseDTO {

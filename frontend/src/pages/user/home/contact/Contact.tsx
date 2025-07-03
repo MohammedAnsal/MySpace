@@ -1,6 +1,6 @@
-import Navbar from '../../../../components/layouts/Navbar';
-import Footer from '../../../../components/layouts/Footer';
-import Scroll from '@/components/global/Scroll';
+import Navbar from '../../../../components/layouts/navbar';
+import Footer from '../../../../components/layouts/footer';
+import Scroll from '@/components/global/scroll';
 import { HeroSection } from './components/HeroSection';
 import { ContactInfo } from './components/ContactInfo';
 import { ContactForm } from './components/ContactForm';

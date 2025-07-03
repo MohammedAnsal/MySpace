@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getWalletTransactions } from '@/services/Api/providerApi';
-import Loading from '@/components/global/Loading';
+import Loading from '@/components/global/loading';
 
 interface TransactionData {
   month: string;

@@ -45,7 +45,6 @@ export default function SignIn() {
     setLoading(true);
     try {
       const response = await signInRequest(data);
-      console.log(response.data)
       if (response.data.success) {
         localStorage.setItem("role", response.data.role);
         localStorage.setItem("access-token", response.data.token);

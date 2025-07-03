@@ -30,6 +30,7 @@ export class FoodMenuService implements IFoodMenuService {
         facilityId,
         hostelId
       );
+
       if (!menu) {
         throw new AppError("Food menu not found", HttpStatus.NOT_FOUND);
       }

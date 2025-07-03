@@ -1,11 +1,11 @@
 import { RouteObject } from "react-router-dom";
 import AdminSignIn from "../pages/admin/Auth/SignIn";
 import Home from "../pages/admin/Home/HomeLayout";
-import { ProtectedRoute } from "./authRoutes/admin/ProtectRoute";
+import { ProtectedRoute } from "./authRoutes/admin/protectRoute";
 import Users from "@/pages/admin/Home/User/Users";
 import Providers from "@/pages/admin/Home/Provider/Providers";
 import Dash from "@/pages/admin/Home/Dashboard/Dashboard";
-import { PublicRoute } from "./authRoutes/admin/PublicRoute";
+import { PublicRoute } from "./authRoutes/admin/publicRoute";
 import { Role } from "@/types/types";
 import { Requests } from "@/pages/admin/Home/Hostel/Requests";
 import HostelsList from "@/pages/admin/Home/Hostel/HostelsList";

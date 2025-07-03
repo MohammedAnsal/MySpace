@@ -17,7 +17,7 @@ import {
   Filter,
 } from "lucide-react";
 import { format } from "date-fns";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 
 interface Transaction {
   _id: string;

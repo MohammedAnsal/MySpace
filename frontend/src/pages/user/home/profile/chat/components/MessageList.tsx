@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaReply } from "react-icons/fa";
 import { IChatRoom, IMessage } from "@/types/chat";
-import ImageModal from "@/components/shared/ImageModal";
+import ImageModal from "@/components/shared/imageModal";
 
 interface MessageListProps {
   messages: IMessage[];

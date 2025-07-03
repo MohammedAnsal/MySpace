@@ -1,11 +1,11 @@
-import Footer from "@/components/layouts/Footer";
-import Navbar from "@/components/layouts/Navbar";
+import Footer from "@/components/layouts/footer";
+import Navbar from "@/components/layouts/navbar";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { bookingHostel, hostelDetails } from "@/services/Api/userApi";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 import { addDays, format } from "date-fns";
 
 // Import components

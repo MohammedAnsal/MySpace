@@ -27,8 +27,10 @@ export class UserRepository
 
   async findUserByRole(
     role: string,
+    page: number = 1,
+    limit: number = 5,
     searchQuery?: string
-  ): Promise<IUser[] | never> {
+  ): Promise<{ users: IUser[]; total: number }> {
     try {
       let query: FilterQuery<IUser> = { role };
 
@@ -42,7 +44,12 @@ export class UserRepository
         };
       }
 
-      return await User.find(query, "-password");
+      const skip = (page - 1) * limit;
+      const [users, total] = await Promise.all([
+        User.find(query, "-password").skip(skip).limit(limit),
+        User.countDocuments(query),
+      ]);
+      return { users, total };
     } catch (error) {
       return Promise.reject(new Error(`Error finding users by role: ${error}`));
     }
