@@ -1,5 +1,5 @@
 import React from "react";
-import { useSocket } from "@/contexts/socketProvider";
+import { useSocket } from "@/contexts/socketProviderr";
 
 interface OnlineStatusDotProps {
   userId: string;

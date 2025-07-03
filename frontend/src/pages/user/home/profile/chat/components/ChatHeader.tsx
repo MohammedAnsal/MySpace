@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { IChatRoom } from "@/types/chat";
-import { useSocket } from "@/contexts/socketProvider";
+import { useSocket } from "@/contexts/socketProviderr";
 
 interface ChatHeaderProps {
   isMobile: boolean;
