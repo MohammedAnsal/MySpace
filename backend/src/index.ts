@@ -41,7 +41,7 @@ const morganFormat = ":method :url :status :response-time ms";
 const app = express();
 
 const corsOptions = {
-  origin: [process.env.CLIENT_URL],
+  origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -59,7 +59,7 @@ app.use("/user/payments/webhook", express.raw({ type: "application/json" }));
 app.use(morgan(morganFormat, morganOptions));
 
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
