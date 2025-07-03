@@ -138,12 +138,7 @@ export const createHostel = async (formData: FormData) => {
   try {
     const response = await privateApi.post(
       "/provider/create-hostel",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+      formData
     );
     return handleResponse(response.data, "Error adding hostel");
   } catch (error) {
