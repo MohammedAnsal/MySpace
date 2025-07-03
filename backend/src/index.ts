@@ -40,9 +40,6 @@ const morganFormat = ":method :url :status :response-time ms";
 
 const app = express();
 
-console.log("Allowed CORS Origin:", process.env.CLIENT_URL);
-
-
 const corsOptions = {
   origin: process.env.CLIENT_URL,
   credentials: true,
