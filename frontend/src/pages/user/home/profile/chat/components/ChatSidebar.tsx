@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaUsers } from "react-icons/fa";
 import { IChatRoom } from "@/types/chat";
 import { OnlineStatusDot } from "@/components/shared/OnlineStatusDot";
-import { useSocket } from "@/contexts/socketProvider";
+import { useSocket } from "@/contexts/socketProviderr";
 
 interface ChatSidebarProps {
   isMobile: boolean;
