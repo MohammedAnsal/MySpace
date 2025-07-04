@@ -17,6 +17,8 @@ import { createHostel } from "@/services/Api/providerApi";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { isValidImageFormat, compressImage } from "@/utils/imageCompression";
+import { ImageCompressionProgress } from "@/components/ui/ImageCompressionProgress";
 
 interface PropertyForm {
   hostel_name: string;
@@ -68,6 +70,8 @@ export const AddHostel: React.FC = () => {
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof HostelFormData, string>>
   >({});
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
 
   let flag = 0;
 
@@ -120,19 +124,24 @@ export const AddHostel: React.FC = () => {
 
   //  Handle Image Upload
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newImages = Array.from(e.target.files || []);
 
       // Check file types and sizes
       for (const file of newImages) {
-        if (file.size > 5 * 1024 * 1024) {
-          setImageError("Each image must be less than 5MB");
+        if (file.size > 10 * 1024 * 1024) {
+          // 10MB limit
+          setImageError(
+            `File "${file.name}" is too large. Maximum size is 10MB`
+          );
           return;
         }
 
-        if (!file.type.startsWith("image/")) {
-          setImageError("Please upload only image files");
+        if (!isValidImageFormat(file)) {
+          setImageError(
+            `File "${file.name}" is not supported. Please use JPG, JPEG, or PNG files.`
+          );
           return;
         }
       }
@@ -144,8 +153,32 @@ export const AddHostel: React.FC = () => {
         return;
       }
 
-      setImages((prev) => [...prev, ...newImages]);
-      setImageError("");
+      try {
+        setIsCompressing(true);
+        setCompressionProgress(0);
+
+        const compressedImages: File[] = [];
+
+        for (let i = 0; i < newImages.length; i++) {
+          const compressed = await compressImage(newImages[i], {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            fileType: "image/jpeg",
+          });
+
+          compressedImages.push(compressed);
+          setCompressionProgress(((i + 1) / newImages.length) * 100);
+        }
+
+        setImages((prev) => [...prev, ...compressedImages]);
+        setImageError("");
+      } catch (error) {
+        console.error("Image compression error:", error);
+        setImageError("Failed to compress images. Please try again.");
+      } finally {
+        setIsCompressing(false);
+        setCompressionProgress(0);
+      }
     }
   };
 
@@ -282,6 +315,11 @@ export const AddHostel: React.FC = () => {
     <div className="bg-gray-50 w-full min-h-screen pb-8">
       <Toaster position="top-right" richColors />
 
+      <ImageCompressionProgress
+        isCompressing={isCompressing}
+        progress={compressionProgress}
+      />
+
       {showInstructions && (
         <HostelInstructionModal onClose={handleCloseInstructions} />
       )}
@@ -397,7 +435,9 @@ export const AddHostel: React.FC = () => {
               <div className="flex flex-col mt-6 sm:flex-row sm:justify-end sm:space-x-4 sm:space-y-0 space-y-3">
                 <button
                   type="button"
-                  onClick={() => {navigate(-1)}}
+                  onClick={() => {
+                    navigate(-1);
+                  }}
                   className="border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 px-6 py-3 transition-colors"
                 >
                   Cancel
