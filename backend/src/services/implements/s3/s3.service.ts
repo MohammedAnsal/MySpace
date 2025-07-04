@@ -10,11 +10,13 @@ import { NodeHttpHandler } from "@aws-sdk/node-http-handler";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
+import { ImageOptimizationService } from "../../../utils/imageOptimization";
 
 @Service()
 export class s3Service implements IS3service {
   private s3Service: S3Client;
   private bucket: string;
+  private imageOptimizationService: ImageOptimizationService;
 
   constructor() {
     this.s3Service = new S3Client({
@@ -31,6 +33,7 @@ export class s3Service implements IS3service {
     });
 
     this.bucket = process.env.BUCKET_NAME!;
+    this.imageOptimizationService = new ImageOptimizationService();
   }
 
   //  For validate the file :-
@@ -61,7 +64,16 @@ export class s3Service implements IS3service {
 
       files.forEach((file) => this.validate_Files(file));
 
-      const uploadPromises = files.map(async (file) => {
+      // Optimize images before upload
+      const optimizedFiles =
+        await this.imageOptimizationService.optimizeMultipleImages(files, {
+          quality: 80,
+          width: 1920,
+          height: 1080,
+          format: "jpeg",
+        });
+
+      const uploadPromises = optimizedFiles.map(async (file) => {
         const params = {
           Bucket: this.bucket,
           Key: `${folder}/${Date.now()}-${file.originalname}`,
