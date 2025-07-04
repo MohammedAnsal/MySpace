@@ -48,16 +48,15 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.use("/user/payments/webhook", express.raw({ type: "application/json" }));
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 const httpServer = createServer(app);
 
-console.log("CORS allowed origin:", process.env.CLIENT_URL);
-
 socketService.initialize(httpServer);
-
-app.use("/user/payments/webhook", express.raw({ type: "application/json" }));
 
 app.use(morgan(morganFormat, morganOptions));
 
