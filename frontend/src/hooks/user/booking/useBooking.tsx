@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  addFacilitiesToBooking,
   listUserBookings,
   listUserBookingsDetails,
 } from "@/services/Api/userApi";
@@ -25,5 +26,17 @@ export const useUserBookingsDetails = (bookingId: string) => {
   return useQuery({
     queryKey: ["user-bookings-details"],
     queryFn: () => fetchUserBookingsDetails(bookingId),
+  });
+};
+
+export const useAddFacilitiesToBooking = () => {
+  return useMutation({
+    mutationFn: ({
+      bookingId,
+      facilities,
+    }: {
+      bookingId: string;
+      facilities: { id: string; startDate: string; duration: number }[];
+    }) => addFacilitiesToBooking(bookingId, facilities),
   });
 };

@@ -63,4 +63,9 @@ export interface IBookingService {
       totalCost: number;
     }>;
   }>;
+  addFacilitiesToBooking(
+    bookingId: string,
+    userId: string,
+    facilities: { id: string; startDate: string; duration: number }[]
+  ): Promise<BookingResponseDTO>;
 }

@@ -18,11 +18,20 @@ interface PopulatedHostel {
     latitude: number;
     longitude: number;
   };
+  facilities: any[]; // <-- Add this line
 }
 
 interface PopulatedFacility {
   _id: mongoose.Types.ObjectId;
   name: string;
+  description: string;
+}
+
+// Add this interface for a facility
+interface FacilityDTO {
+  _id: string;
+  name: string;
+  price: number;
   description: string;
 }
 
@@ -43,6 +52,7 @@ export interface BookingResponseDTO {
       latitude: number;
       longitude: number;
     };
+    facilities: FacilityDTO[]; // <-- Add this line
   };
   providerId: {
     _id: string;
@@ -155,6 +165,14 @@ export function mapToBookingDTO(booking: IBooking): BookingResponseDTO {
             latitude: booking.hostelId.location.latitude,
             longitude: booking.hostelId.location.longitude,
           },
+          facilities: Array.isArray(booking.hostelId.facilities)
+            ? booking.hostelId.facilities.map((f: any) => ({
+                _id: f._id.toString(),
+                name: f.name,
+                price: f.price,
+                description: f.description,
+              }))
+            : [],
         }
       : {
           _id: booking.hostelId.toString(),
@@ -165,6 +183,7 @@ export function mapToBookingDTO(booking: IBooking): BookingResponseDTO {
             latitude: 0,
             longitude: 0,
           },
+          facilities: [],
         },
     providerId: isPopulatedUser(booking.providerId)
       ? {

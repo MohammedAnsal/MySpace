@@ -1,4 +1,4 @@
-  import {
+import {
   publicAxiosInstance,
   userAxiosInstance,
 } from "../axiosInstance/userInstance";
@@ -352,7 +352,6 @@ export const getWalletTransactions = async () => {
 
 export const getFoodMenu = async (facilityId: string, hostelId: string) => {
   try {
-
     const response = await api.get(
       `/facility/food-menu/${facilityId}/${hostelId}`
     );
@@ -413,7 +412,10 @@ export const createWashingRequest = async (data: {
 export const getUserWashingRequests = async () => {
   try {
     const response = await api.get("/facility/washing/user");
-    return handleResponse(response.data.data, "Error fetching washing requests");
+    return handleResponse(
+      response.data.data,
+      "Error fetching washing requests"
+    );
   } catch (error) {
     handleError(error);
     return { success: false, data: [] };
@@ -494,5 +496,22 @@ export const addCleaningFeedback = async (
       success: false,
       message: error instanceof Error ? error.message : "An error occurred",
     };
+  }
+};
+
+export const addFacilitiesToBooking = async (
+  bookingId: string,
+  facilities: { id: string; startDate: string; duration: number }[]
+) => {
+  try {
+    const response = await api.post(
+      `/user/bookings/${bookingId}/add-facilities`,
+      {
+        facilities,
+      }
+    );
+    return handleResponse(response, "Error adding facilities to booking");
+  } catch (error) {
+    handleError(error);
   }
 };

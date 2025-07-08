@@ -31,7 +31,20 @@ export class BookingRepository implements IBookingRepository {
   async getBookingById(bookingId: string): Promise<IBooking | null> {
     return await Booking.findById(bookingId)
       .populate("userId", "fullName email phone")
-      .populate("hostelId", "hostel_name location")
+      .populate({
+        path: "hostelId",
+        select: "hostel_name location facilities", // <-- use facilities
+        populate: [
+          {
+            path: "facilities", // <-- use facilities
+            select: "name price description",
+          },
+          {
+            path: "location",
+            select: "latitude longitude address",
+          },
+        ],
+      })
       .populate("providerId", "fullName email phone");
   }
 
@@ -125,6 +138,21 @@ export class BookingRepository implements IBookingRepository {
       },
       { new: true }
     );
+  }
+
+  async addFacilitiesToBooking(
+    bookingId: string,
+    facilities: any[]
+  ): Promise<IBooking | null> {
+    return await Booking.findByIdAndUpdate(
+      bookingId,
+      { $push: { selectedFacilities: { $each: facilities } } },
+      { new: true }
+    )
+      .populate("userId", "fullName email phone")
+      .populate("hostelId", "hostel_name location")
+      .populate("providerId", "fullName email phone")
+      .populate("selectedFacilities.facilityId", "name description");
   }
 }
 

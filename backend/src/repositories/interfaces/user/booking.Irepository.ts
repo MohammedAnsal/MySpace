@@ -38,4 +38,8 @@ export interface IBookingRepository {
     bookingId: string,
     status: "pending" | "completed" | "cancelled"
   ): Promise<IBooking | null>;
+  addFacilitiesToBooking(
+    bookingId: string,
+    facilities: any[]
+  ): Promise<IBooking | null>;
 }
