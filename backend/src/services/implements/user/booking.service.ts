@@ -123,7 +123,8 @@ export class BookingService implements IBookingService {
         selectedFacilitiess.map((facility) => ({
           id: facility.id.toString(),
           duration: String(facility.duration),
-        }))
+        })),
+        bookingData.checkIn // <-- Pass checkIn here
       );
 
       // Create booking with properly formatted ObjectIds
@@ -318,7 +319,8 @@ export class BookingService implements IBookingService {
   async calculateBookingCost(
     hostelId: string,
     stayDurationInMonths: number,
-    selectedFacilities: { id: string; duration: string }[]
+    selectedFacilities: { id: string; duration: string }[],
+    checkIn: Date // <-- Add this parameter
   ): Promise<{
     totalPrice: number;
     depositAmount: number;
@@ -375,6 +377,11 @@ export class BookingService implements IBookingService {
         facilityCharges += totalCost;
         facilityInitialCharge += firstMonthFacility;
 
+        // Use checkIn as the start date
+        const startDate = new Date(checkIn);
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + parseInt(selected.duration));
+
         // Create facility selection object
         const facilitySelection = {
           facilityId: facility.id.toString(),
@@ -382,10 +389,8 @@ export class BookingService implements IBookingService {
             | "Catering Service"
             | "Laundry Service"
             | "Deep Cleaning Service",
-          startDate: new Date(),
-          endDate: new Date(
-            Date.now() + parseInt(selected.duration) * 30 * 24 * 60 * 60 * 1000
-          ),
+          startDate, // <-- Use checkIn
+          endDate,   // <-- Calculated based on duration
           duration: Number(selected.duration),
           ratePerMonth: facility.price,
           totalCost: totalCost,

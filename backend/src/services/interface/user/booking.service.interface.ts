@@ -45,7 +45,8 @@ export interface IBookingService {
   calculateBookingCost(
     hostelId: string,
     stayDurationInMonths: number,
-    selectedFacilities: Array<{ id: string; duration: string }>
+    selectedFacilities: Array<{ id: string; duration: string }>,
+    checkIn: Date
   ): Promise<{
     totalPrice: number;
     depositAmount: number;
