@@ -8,6 +8,8 @@ import { motion } from "framer-motion";
 import CancelBookingModal from "./components/CancelBookingModal";
 import { reprocessBookingPayment, cancelBooking } from "@/services/Api/userApi";
 import { toast } from "sonner";
+import BuyFacilityModal from "./components/BuyFacilityModal";
+import { useAddFacilitiesToBooking } from "@/hooks/user/booking/useBooking";
 
 const BookingDetailsPage: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -24,6 +26,7 @@ const BookingDetailsPage: React.FC = () => {
   } = useUserBookingsDetails(bookingId);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isBuyFacilityOpen, setIsBuyFacilityOpen] = useState(false);
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -77,6 +80,26 @@ const BookingDetailsPage: React.FC = () => {
     }
   };
 
+  const { mutate: addFacilities } = useAddFacilitiesToBooking();
+
+  const handleBuyFacility = (
+    selectedFacilities: { id: string; startDate: string; duration: number }[]
+  ) => {
+    addFacilities(
+      { bookingId: booking._id, facilities: selectedFacilities },
+      {
+        onSuccess: () => {
+          toast.success("Facilities added!");
+          setIsBuyFacilityOpen(false);
+          refetch();
+        },
+        onError: () => {
+          toast.error("Failed to add facilities.");
+        },
+      }
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="p-8 max-w-6xl mx-auto flex items-center justify-center h-[600px]">
@@ -106,6 +129,10 @@ const BookingDetailsPage: React.FC = () => {
       </div>
     );
   }
+
+  const hostelFacilities = booking.hostelId.facilities || [];
+  const hasAvailableFacilities =
+    Array.isArray(hostelFacilities) && hostelFacilities.length > 0;
 
   return (
     <motion.div
@@ -188,6 +215,15 @@ const BookingDetailsPage: React.FC = () => {
             Cancel Booking
           </button>
         )}
+
+        {booking.selectedFacilities.length === 0 && hasAvailableFacilities && (
+          <button
+            onClick={() => setIsBuyFacilityOpen(true)}
+            className="px-4 py-2 bg-[#b9a089] text-white rounded-md"
+          >
+            Buy Facility
+          </button>
+        )}
       </motion.div>
 
       {/* Cancel Booking Modal */}
@@ -196,6 +232,15 @@ const BookingDetailsPage: React.FC = () => {
         onClose={() => setIsCancelModalOpen(false)}
         bookingId={booking._id}
         onSubmit={handleSubmitCancellation}
+      />
+
+      <BuyFacilityModal
+        isOpen={isBuyFacilityOpen}
+        onClose={() => setIsBuyFacilityOpen(false)}
+        hostelFacilities={hostelFacilities}
+        checkIn={booking.checkIn}
+        checkOut={booking.checkOut}
+        onSubmit={handleBuyFacility}
       />
     </motion.div>
   );

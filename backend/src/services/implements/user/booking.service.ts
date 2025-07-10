@@ -298,10 +298,10 @@ export class BookingService implements IBookingService {
         type: "booking",
       });
 
-      socketService.emitNotification(
-        String(booking?.providerId),
-        { ...notification, recipient: notification.recipient.toString() }
-      );
+      socketService.emitNotification(String(booking?.providerId), {
+        ...notification,
+        recipient: notification.recipient.toString(),
+      });
     }
 
     if (!cancelledBooking) {
@@ -390,7 +390,7 @@ export class BookingService implements IBookingService {
             | "Laundry Service"
             | "Deep Cleaning Service",
           startDate, // <-- Use checkIn
-          endDate,   // <-- Calculated based on duration
+          endDate, // <-- Calculated based on duration
           duration: Number(selected.duration),
           ratePerMonth: facility.price,
           totalCost: totalCost,
@@ -430,6 +430,53 @@ export class BookingService implements IBookingService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  async addFacilitiesToBooking(
+    bookingId: string,
+    userId: string,
+    facilities: { id: string; startDate: string; duration: number }[]
+  ): Promise<BookingResponseDTO> {
+    const booking = await this.bookingRepository.getBookingById(bookingId);
+    if (!booking) throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
+
+    if (booking.userId.toString() !== userId)
+      throw new AppError("Unauthorized", HttpStatus.UNAUTHORIZED);
+
+    const transformedFacilities = [];
+    for (const f of facilities) {
+      const facility = await this.facilityRepository.findFacilityById(f.id);
+      if (!facility)
+        throw new AppError("Facility not found", HttpStatus.NOT_FOUND);
+
+      const startDate = new Date(f.startDate);
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + f.duration);
+
+      transformedFacilities.push({
+        facilityId: facility._id,
+        type: facility.name,
+        startDate,
+        endDate,
+        duration: f.duration,
+        ratePerMonth: facility.price,
+        totalCost: facility.price * f.duration,
+      });
+    }
+
+    const updatedBooking = await this.bookingRepository.addFacilitiesToBooking(
+      bookingId,
+      transformedFacilities
+    );
+
+    if (!updatedBooking) {
+      throw new AppError(
+        "Booking not found after update",
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    return mapToBookingDTO(updatedBooking);
   }
 }
 

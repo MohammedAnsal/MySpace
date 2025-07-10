@@ -40,4 +40,12 @@ bookingRoute.post(
   asyncHandler(bookingContrller.cancelBooking.bind(bookingContrller))
 );
 
+bookingRoute.post(
+  "/bookings/:bookingId/add-facilities",
+  authMiddleWare,
+  autherization,
+  authorizeRoles(Roles.USER),
+  asyncHandler(bookingContrller.addFacilitiesToBooking.bind(bookingContrller))
+);
+
 export default bookingRoute;
