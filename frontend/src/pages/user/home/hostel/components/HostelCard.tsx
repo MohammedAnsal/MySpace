@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Users, Star } from 'lucide-react';
+import { MapPin, Users, Star, Bed, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Hostel {
@@ -17,6 +17,8 @@ interface Hostel {
   };
   averageRating?: number;
   ratingCount?: number;
+  available_space: number;
+  total_space: number;
 }
 
 interface HostelCardProps {
@@ -25,6 +27,7 @@ interface HostelCardProps {
 
 const HostelCard: React.FC<HostelCardProps> = ({ hostel }) => {
   const navigate = useNavigate();
+  const isNoBedsAvailable = hostel.available_space <= 0;
 
   return (
     <motion.div
@@ -56,6 +59,18 @@ const HostelCard: React.FC<HostelCardProps> = ({ hostel }) => {
           </span>
         </div>
       )}
+
+      {/* Availability Badge */}
+      <div className="absolute top-12 left-3 z-20">
+        <span className={`backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold flex items-center ${
+          isNoBedsAvailable 
+            ? 'bg-red-500 text-white' 
+            : 'bg-blue-500 text-white'
+        }`}>
+          <Bed className="w-3.5 h-3.5 mr-1" />
+          {isNoBedsAvailable ? 'Full' : `${hostel.available_space}/${hostel.total_space}`}
+        </span>
+      </div>
 
       <motion.div
         variants={{

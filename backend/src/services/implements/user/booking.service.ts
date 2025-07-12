@@ -50,11 +50,10 @@ export class BookingService implements IBookingService {
     bookingData: CreateBookingDTO,
     selectedFacilitiess: FacilityI[]
   ): Promise<BookingResponseDTO> {
-    // Start MongoDB session for transaction
     const session = await mongoose.startSession();
+    let uploadResult: any = null; // Declare here
     
     try {
-      // Start transaction
       session.startTransaction();
 
       if (
@@ -123,7 +122,7 @@ export class BookingService implements IBookingService {
         );
       }
 
-      const uploadResult = await this.s3Service.uploadFile(
+      uploadResult = await this.s3Service.uploadFile(
         bookingData.proof,
         "proof"
       );
@@ -189,9 +188,16 @@ export class BookingService implements IBookingService {
       // Rollback transaction on error
       await session.abortTransaction();
       
-      if (error instanceof AppError && bookingData.proof) {
+      // Only try to delete S3 file if upload was successful
+      if (error instanceof AppError && uploadResult) {
         try {
-          await this.s3Service.delete_File([String(bookingData.proof)]);
+          const s3Url = Array.isArray(uploadResult) 
+            ? uploadResult[0].Location 
+            : uploadResult.Location;
+          
+          if (s3Url) {
+            await this.s3Service.delete_File([s3Url]);
+          }
         } catch (deleteError) {
           console.error(
             "Failed to delete S3 file after booking error:",
