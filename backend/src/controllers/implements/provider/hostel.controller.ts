@@ -244,6 +244,7 @@ export class HostelController {
         "monthly_rent",
         "deposit_amount",
         "maximum_occupancy",
+        "available_space",
         "total_space",
       ];
       const stringFields = [

@@ -8,6 +8,7 @@ interface DetailsSectionProps {
     deposit_terms: string;
     total_space: string;
     maximum_occupancy: string;
+    available_space:string
   };
   errors: {
     monthly_rent?: string;
@@ -15,6 +16,7 @@ interface DetailsSectionProps {
     deposit_terms?: string;
     total_space?: string;
     maximum_occupancy?: string;
+    available_space?:string
   };
   handleInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -121,7 +123,32 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
             />
           </div>
           {errors.maximum_occupancy && (
-            <p className="mt-1 text-sm text-red-500">{errors.maximum_occupancy}</p>
+            <p className="mt-1 text-sm text-red-500">
+              {errors.maximum_occupancy}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="text-gray-700 text-sm block font-medium mb-2">
+            Available Space
+          </label>
+          <div className="relative">
+            <span className="text-gray-500 absolute left-3 top-2">
+              <Users size={20} />
+            </span>
+            <input
+              type="number"
+              name="available_space"
+              value={formData.available_space}
+              onChange={handleInputChange}
+              className="border border-gray-300 rounded-lg w-full focus:border-amber-300 focus:ring-2 focus:ring-amber-300 outline-none pl-10 pr-3 py-2"
+              placeholder="Max number of guests"
+            />
+          </div>
+          {errors.maximum_occupancy && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.available_space}
+            </p>
           )}
         </div>
 
