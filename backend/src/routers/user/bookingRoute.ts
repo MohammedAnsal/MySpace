@@ -40,12 +40,20 @@ bookingRoute.post(
   asyncHandler(bookingContrller.cancelBooking.bind(bookingContrller))
 );
 
+// bookingRoute.post(
+//   "/bookings/:bookingId/add-facilities",
+//   authMiddleWare,
+//   autherization,
+//   authorizeRoles(Roles.USER),
+//   asyncHandler(bookingContrller.addFacilitiesToBooking.bind(bookingContrller))
+// );
+
 bookingRoute.post(
-  "/bookings/:bookingId/add-facilities",
+  "/bookings/:bookingId/facility-payment",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  asyncHandler(bookingContrller.addFacilitiesToBooking.bind(bookingContrller))
+  asyncHandler(bookingContrller.createFacilityPaymentSession.bind(bookingContrller))
 );
 
 export default bookingRoute;

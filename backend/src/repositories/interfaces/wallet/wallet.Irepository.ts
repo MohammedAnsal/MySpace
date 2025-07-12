@@ -13,7 +13,8 @@ export interface IWalletRepository {
         userId: string, 
         providerId: string, 
         adminId: string, 
-        amount: number
+        amount: number,
+        hostelName:string
     ): Promise<boolean>;
 
 }

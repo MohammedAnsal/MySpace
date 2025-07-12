@@ -107,7 +107,7 @@ export class BookingRepository implements IBookingRepository {
 
   async cancelBooking(
     bookingId: string,
-    reason: string
+    reason: string,
   ): Promise<IBooking | null> {
     return await Booking.findByIdAndUpdate(
       bookingId,

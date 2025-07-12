@@ -1,9 +1,12 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-  addFacilitiesToBooking,
+  // addFacilitiesToBooking,
   listUserBookings,
   listUserBookingsDetails,
+  cancelBooking,
+  reprocessBookingPayment,
 } from "@/services/Api/userApi";
+import { createFacilityPaymentSession } from "@/services/Api/userApi";
 
 const fetchUserBookings = async () => {
   const response = await listUserBookings();
@@ -29,7 +32,33 @@ export const useUserBookingsDetails = (bookingId: string) => {
   });
 };
 
-export const useAddFacilitiesToBooking = () => {
+// export const useAddFacilitiesToBooking = () => {
+//   return useMutation({
+//     mutationFn: ({
+//       bookingId,
+//       facilities,
+//     }: {
+//       bookingId: string;
+//       facilities: { id: string; startDate: string; duration: number }[];
+//     }) => addFacilitiesToBooking(bookingId, facilities),
+//   });
+// };
+
+// New hooks for cancel and reprocess
+export const useCancelBooking = () => {
+  return useMutation({
+    mutationFn: ({ bookingId, reason }: { bookingId: string; reason: string }) =>
+      cancelBooking(bookingId, reason),
+  });
+};
+
+export const useReprocessBookingPayment = () => {
+  return useMutation({
+    mutationFn: (bookingId: string) => reprocessBookingPayment(bookingId),
+  });
+};
+
+export const useFacilityPayment = () => {
   return useMutation({
     mutationFn: ({
       bookingId,
@@ -37,6 +66,6 @@ export const useAddFacilitiesToBooking = () => {
     }: {
       bookingId: string;
       facilities: { id: string; startDate: string; duration: number }[];
-    }) => addFacilitiesToBooking(bookingId, facilities),
+    }) => createFacilityPaymentSession(bookingId, facilities),
   });
 };

@@ -8,15 +8,21 @@ import { bookingService } from "../../../services/implements/user/booking.servic
 import { walletService } from "../../../services/implements/wallet/wallet.service";
 import { IWalletService } from "../../../services/interface/wallet/wallet.service.interface";
 import { HttpStatus } from "../../../enums/http.status";
+import { IAdminFacilityService } from "../../../services/interface/admin/facility.service.interface";
+import { adminFacilityService } from "../../../services/implements/admin/facility.service";
+import { StripeService } from "../../../services/implements/payment/stripe.service";
+import { Types } from "mongoose";
 
 @Service()
 class BookingController implements IBookingController {
   private bookingService: IBookingService;
   private walletService: IWalletService;
+  private adminFacilityService: IAdminFacilityService;
 
-  constructor() {
+  constructor(private stripeService: StripeService) {
     this.bookingService = bookingService;
     this.walletService = walletService;
+    this.adminFacilityService = adminFacilityService;
   }
 
   //  Create booking :-
@@ -162,7 +168,6 @@ class BookingController implements IBookingController {
       }
 
       const bookings = await this.bookingService.getUserBookings(userId);
-
       return res.status(HttpStatus.OK).json({
         status: "success",
         data: bookings,
@@ -245,6 +250,8 @@ class BookingController implements IBookingController {
         );
       }
 
+      const hostelName = booking.hostelId.hostel_name;
+
       const cancelledBooking = await this.bookingService.cancelBooking(
         bookingId,
         reason
@@ -252,7 +259,7 @@ class BookingController implements IBookingController {
 
       if (cancelledBooking.paymentStatus === "cancelled") {
         try {
-          await this.walletService.processRefund(bookingId);
+          await this.walletService.processRefund(bookingId, hostelName);
         } catch (refundError) {
           console.error("Refund processing error:", refundError);
         }
@@ -278,28 +285,116 @@ class BookingController implements IBookingController {
     }
   }
 
-  async addFacilitiesToBooking(req: AuthRequset, res: Response): Promise<Response> {
+  // async addFacilitiesToBooking(
+  //   req: AuthRequset,
+  //   res: Response
+  // ): Promise<Response> {
+  //   try {
+  //     const userId = req.user?.id;
+  //     const { bookingId } = req.params;
+  //     const { facilities } = req.body;
+
+  //     if (!userId) {
+  //       throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
+  //     }
+  //     if (
+  //       !facilities ||
+  //       !Array.isArray(facilities) ||
+  //       facilities.length === 0
+  //     ) {
+  //       throw new AppError("No facilities provided", HttpStatus.BAD_REQUEST);
+  //     }
+
+  //     const updatedBooking = await this.bookingService.addFacilitiesToBooking(
+  //       bookingId,
+  //       userId,
+  //       facilities
+  //     );
+
+  //     return res.status(HttpStatus.OK).json({
+  //       status: "success",
+  //       data: updatedBooking,
+  //     });
+  //   } catch (error) {
+  //     if (error instanceof AppError) {
+  //       return res.status(error.statusCode).json({
+  //         status: "error",
+  //         message: error.message,
+  //       });
+  //     } else {
+  //       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+  //         status: "error",
+  //         message: "Internal server error",
+  //       });
+  //     }
+  //   }
+  // }
+
+  async createFacilityPaymentSession(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
     try {
       const userId = req.user?.id;
       const { bookingId } = req.params;
-      const { facilities } = req.body; 
+      const { facilities } = req.body;
 
       if (!userId) {
         throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
       }
-      if (!facilities || !Array.isArray(facilities) || facilities.length === 0) {
+      if (
+        !facilities ||
+        !Array.isArray(facilities) ||
+        facilities.length === 0
+      ) {
         throw new AppError("No facilities provided", HttpStatus.BAD_REQUEST);
       }
 
-      const updatedBooking = await this.bookingService.addFacilitiesToBooking(
-        bookingId,
-        userId,
-        facilities
-      );
+      // Calculate total cost for selected facilities
+      let totalAmount = 0;
+      for (const f of facilities) {
+        const facility = await this.adminFacilityService.findFacilityById(f.id);
+        if (!facility || !facility.facilityData)
+          throw new AppError("Facility not found", HttpStatus.NOT_FOUND);
+
+        let facilityData = facility.facilityData;
+        if (Array.isArray(facilityData)) {
+          facilityData = facilityData[0];
+        }
+        if (!facilityData || typeof facilityData.price !== "number") {
+          throw new AppError("Facility not found", HttpStatus.NOT_FOUND);
+        }
+        totalAmount += facilityData.price * f.duration;
+      }
+
+      // Get booking to fetch hostelId, providerId, etc.
+      const booking = await bookingService.getBookingById(bookingId);
+      if (!booking)
+        throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
+
+      // --- UPDATED SUCCESS & CANCEL URLS ---
+      const successUrl = `${process.env.CLIENT_URL}/user/bookings/${bookingId}?facilityPayment=success`;
+      const cancelUrl = `${process.env.CLIENT_URL}/user/bookings/${bookingId}?facilityPayment=cancel`;
+
+      // Create Stripe session
+      const sessionUrl = await this.stripeService.createCheckoutSession({
+        hostelId: new Types.ObjectId(booking.hostelId._id),
+        userId: new Types.ObjectId(userId),
+        providerId: new Types.ObjectId(booking.providerId._id),
+        bookingId: new Types.ObjectId(bookingId),
+        amount: totalAmount,
+        currency: "USD",
+        successUrl,
+        cancelUrl,
+        metadata: {
+          type: "facility",
+          facilities: JSON.stringify(facilities),
+        },
+      });
 
       return res.status(HttpStatus.OK).json({
         status: "success",
-        data: updatedBooking,
+        checkoutUrl: sessionUrl,
       });
     } catch (error) {
       if (error instanceof AppError) {

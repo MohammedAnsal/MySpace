@@ -499,18 +499,33 @@ export const addCleaningFeedback = async (
   }
 };
 
-export const addFacilitiesToBooking = async (
+// export const addFacilitiesToBooking = async (
+//   bookingId: string,
+//   facilities: { id: string; startDate: string; duration: number }[]
+// ) => {
+//   try {
+//     const response = await api.post(
+//       `/user/bookings/${bookingId}/add-facilities`,
+//       {
+//         facilities,
+//       }
+//     );
+//     return handleResponse(response, "Error adding facilities to booking");
+//   } catch (error) {
+//     handleError(error);
+//   }
+// };
+
+export const createFacilityPaymentSession = async (
   bookingId: string,
   facilities: { id: string; startDate: string; duration: number }[]
 ) => {
   try {
     const response = await api.post(
-      `/user/bookings/${bookingId}/add-facilities`,
-      {
-        facilities,
-      }
+      `/user/bookings/${bookingId}/facility-payment`,
+      { facilities }
     );
-    return handleResponse(response, "Error adding facilities to booking");
+    return response.data;
   } catch (error) {
     handleError(error);
   }
