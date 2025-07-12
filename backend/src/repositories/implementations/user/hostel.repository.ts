@@ -299,8 +299,7 @@ export class HostelRepository implements IHostelRepository {
     return await Hostel.findByIdAndUpdate(
       hostelId,
       { 
-        $inc: { available_space: -1 },
-        $min: { available_space: 0 } // Prevent negative values
+        $inc: { available_space: -1 }
       },
       { 
         new: true,
