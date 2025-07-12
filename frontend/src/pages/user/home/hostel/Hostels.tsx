@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Loading from "@/components/global/Loading";
 import { useHostels, useNearbyHostels } from "@/hooks/user/hostel/useHostel";
-import { Pagination } from "@/components/global/Pagination";
+import { Pagination } from "@/components/global/pagination";
 import Scroll from "@/components/global/Scroll";
 import { toast } from "sonner";
 
