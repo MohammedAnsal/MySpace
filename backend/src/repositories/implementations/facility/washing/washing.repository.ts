@@ -12,7 +12,6 @@ export class WashingRepository implements IWashingRepository {
   async createWashingRequest(
     washingRequest: Partial<IWashing>
   ): Promise<IWashing> {
-    console.log(washingRequest);
     const newRequest = new WashingRequest(washingRequest);
     return await newRequest.save();
   }

@@ -276,6 +276,39 @@ export class HostelRepository implements IHostelRepository {
     );
   }
 
+  // Get hostel with session for transaction
+  async getHostelByIdWithLock(
+    hostelId: string, 
+    session: mongoose.ClientSession
+  ): Promise<IHostel | null> {
+    return await Hostel.findById(hostelId)
+      .session(session)
+      .populate({
+        path: "location",
+        select: "address latitude longitude",
+      })
+      .populate("provider_id", "fullName email phone")
+      .populate("facilities");
+  }
+
+  // Atomic decrease of available space
+  async decreaseAvailableSpace(
+    hostelId: string,
+    session: mongoose.ClientSession
+  ): Promise<IHostel | null> {
+    return await Hostel.findByIdAndUpdate(
+      hostelId,
+      { 
+        $inc: { available_space: -1 },
+        $min: { available_space: 0 } // Prevent negative values
+      },
+      { 
+        new: true,
+        session: session
+      }
+    );
+  }
+
   //  For find all near-by hostel's :-
 
   async getNearbyHostels(

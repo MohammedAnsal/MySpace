@@ -26,6 +26,27 @@ export class BookingRepository implements IBookingRepository {
     }
   }
 
+  // Create booking with session
+  async createBookingWithSession(
+    bookingData: CreateBookingData,
+    session: mongoose.ClientSession
+  ): Promise<IBooking> {
+    try {
+      const booking = await Booking.create([bookingData], { session });
+
+      const populatedBooking = await booking[0].populate([
+        { path: "userId", model: "User" },
+        { path: "hostelId", model: "Hostel" },
+        { path: "selectedFacilities.facilityId", model: "Facility" },
+      ]);
+
+      return populatedBooking;
+    } catch (error) {
+      console.error("Error in repository createBooking:", error);
+      throw error;
+    }
+  }
+
   //  For get single booking :-
 
   async getBookingById(bookingId: string): Promise<IBooking | null> {

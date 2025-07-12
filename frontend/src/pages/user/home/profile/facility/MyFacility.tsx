@@ -31,6 +31,10 @@ interface Facility {
   totalCost: number;
 }
 
+interface Provider {
+  _id: string;
+}
+
 // interface Booking {
 //   _id: string;
 //   selectedFacilities: Facility[];
@@ -80,20 +84,21 @@ export const MyFacility = () => {
   const handleViewFacility = (
     facility: Facility,
     hostelId: string,
-    providerId: string
+    providerId: Provider
   ) => {
     switch (facility.type.toLowerCase()) {
       case "catering service":
         navigate(`/user/facility/food/${facility.facilityId._id}/${hostelId}`);
         break;
       case "laundry service":
+        console.log(providerId);
         navigate(
-          `/user/facility/washing/${facility.facilityId}/${hostelId}/${providerId}`
+          `/user/facility/washing/${facility.facilityId._id}/${hostelId}/${providerId._id}`
         );
         break;
       case "deep cleaning service":
         navigate(
-          `/user/facility/cleaning/${facility.facilityId}/${hostelId}/${providerId}`
+          `/user/facility/cleaning/${facility.facilityId._id}/${hostelId}/${providerId._id}`
         );
         break;
       default:
@@ -340,7 +345,7 @@ export const MyFacility = () => {
                                 handleViewFacility(
                                   facility,
                                   booking.hostelId._id,
-                                  booking.providerId
+                                  booking.providerId as any
                                 )
                               }
                               className="flex items-center justify-center p-2 bg-[#b9a089]/10 hover:bg-[#b9a089]/20 rounded-lg transition-colors"
