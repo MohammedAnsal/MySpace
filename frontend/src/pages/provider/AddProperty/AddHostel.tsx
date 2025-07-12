@@ -31,7 +31,7 @@ interface PropertyForm {
   maximum_occupancy: string;
   deposit_amount: string;
   rules: string;
-  availability: string;
+  available_space: string;
   facilities: string[];
   latitude: number | null;
   longitude: number | null;
@@ -50,9 +50,9 @@ export const AddHostel: React.FC = () => {
     gender: "",
     amenities: [],
     maximum_occupancy: "",
+    available_space: "",
     deposit_amount: "",
     rules: "",
-    availability: "",
     facilities: [],
     latitude: null,
     longitude: null,
@@ -289,9 +289,9 @@ export const AddHostel: React.FC = () => {
           gender: "",
           amenities: [],
           maximum_occupancy: "",
+          available_space: "",
           deposit_amount: "",
           rules: "",
-          availability: "",
           facilities: [],
           latitude: null,
           longitude: null,
