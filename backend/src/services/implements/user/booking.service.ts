@@ -6,6 +6,7 @@ import { IBookingRepository } from "../../../repositories/interfaces/user/bookin
 import { IHostelRepository } from "../../../repositories/interfaces/user/hostel.Irepository";
 import { AppError } from "../../../utils/error";
 import mongoose from "mongoose";
+import { Types } from "mongoose";
 import { s3Service } from "../s3/s3.service";
 import Container, { Service } from "typedi";
 import { hostelRepository } from "../../../repositories/implementations/user/hostel.repository";
@@ -22,6 +23,10 @@ import {
 } from "../../../dtos/user/booking.dto";
 import socketService from "../socket/socket.service";
 import { HttpStatus } from "../../../enums/http.status";
+
+interface PopulatedId {
+  _id: Types.ObjectId;
+}
 
 @Service()
 export class BookingService implements IBookingService {
@@ -248,7 +253,6 @@ export class BookingService implements IBookingService {
   async getAllBookings(): Promise<BookingResponseDTO[]> {
     try {
       const bookings = await this.bookingRepository.getAllBookings();
-
       const bookingsWithSignedUrls = await Promise.all(
         bookings.map(async (booking) => {
           if (booking.proof) {
@@ -282,7 +286,7 @@ export class BookingService implements IBookingService {
 
     const cancelledBooking = await this.bookingRepository.cancelBooking(
       bookingId,
-      reason.reason
+      reason.reason,
     );
 
     if (booking) {
@@ -320,7 +324,7 @@ export class BookingService implements IBookingService {
     hostelId: string,
     stayDurationInMonths: number,
     selectedFacilities: { id: string; duration: string }[],
-    checkIn: Date // <-- Add this parameter
+    checkIn: Date
   ): Promise<{
     totalPrice: number;
     depositAmount: number;
@@ -435,12 +439,16 @@ export class BookingService implements IBookingService {
   async addFacilitiesToBooking(
     bookingId: string,
     userId: string,
-    facilities: { id: string; startDate: string; duration: number }[]
+    facilities: { id: string; startDate: string; duration: number; name?: string }[]
   ): Promise<BookingResponseDTO> {
+
+    console.log(facilities , "in servicee")
+
     const booking = await this.bookingRepository.getBookingById(bookingId);
     if (!booking) throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
 
-    if (booking.userId.toString() !== userId)
+    const userIdd = (booking.userId as unknown as PopulatedId)._id.toString();
+    if (userIdd !== userId)
       throw new AppError("Unauthorized", HttpStatus.UNAUTHORIZED);
 
     const transformedFacilities = [];

@@ -164,7 +164,7 @@ export class WalletController {
         });
       }
 
-      const result = await this.walletService.processRefund(bookingId);
+      const result = await this.walletService.processRefund(bookingId , "");
 
       return res.status(HttpStatus.OK).json({
         success: true,

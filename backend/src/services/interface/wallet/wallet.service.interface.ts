@@ -16,5 +16,5 @@ export interface IWalletService {
     providerId: string,
     amount: number
   ): Promise<boolean>;
-  processRefund(bookingId: string): Promise<boolean>;
+  processRefund(bookingId: string , hostelName:string): Promise<boolean>;
 }

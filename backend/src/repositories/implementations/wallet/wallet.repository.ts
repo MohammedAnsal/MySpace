@@ -147,7 +147,8 @@ export class WalletRepository implements IWalletRepository {
     userId: string,
     providerId: string,
     adminId: string,
-    amount: number
+    amount: number,
+    hostelName: string
   ): Promise<boolean> {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -198,7 +199,7 @@ export class WalletRepository implements IWalletRepository {
         amount: providerAmount,
         type: "debit",
         status: "completed",
-        description: `Refund payment for cancelled booking #${bookingId}`,
+        description: `Refund payment for cancelled booking #${hostelName}`,
         bookingId: new mongoose.Types.ObjectId(bookingId),
         createdAt: new Date(),
       });
@@ -207,7 +208,7 @@ export class WalletRepository implements IWalletRepository {
         amount: adminAmount,
         type: "debit",
         status: "completed",
-        description: `Refund commission for cancelled booking #${bookingId}`,
+        description: `Refund commission for cancelled booking #${hostelName}`,
         bookingId: new mongoose.Types.ObjectId(bookingId),
         createdAt: new Date(),
       });
@@ -216,7 +217,7 @@ export class WalletRepository implements IWalletRepository {
         amount: amount,
         type: "re-fund",
         status: "completed",
-        description: `Refund received for cancelled booking #${bookingId}`,
+        description: `Refund received for cancelled booking #${hostelName}`,
         bookingId: new mongoose.Types.ObjectId(bookingId),
         createdAt: new Date(),
       });

@@ -11,6 +11,8 @@ import {
   FaHistory,
   FaUndo,
   FaChartLine,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 import { format } from "date-fns";
 import Loading from "@/components/global/Loading";
@@ -30,6 +32,10 @@ export const Wallet: React.FC = () => {
   const [filter, setFilter] = useState<"all" | "credit" | "debit" | "re-fund">(
     "all"
   );
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 3;
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -95,6 +101,17 @@ export const Wallet: React.FC = () => {
     wallet?.transactions?.filter((transaction: Transaction) =>
       filter === "all" ? true : transaction.type === filter
     ) || [];
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+  const startIndex = (currentPage - 1) * transactionsPerPage;
+  const endIndex = startIndex + transactionsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
+
+  // Reset to first page when filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
 
   const getTransactionStats = () => {
     if (!wallet?.transactions) return { credits: 0, debits: 0, refunds: 0 };
@@ -242,70 +259,119 @@ export const Wallet: React.FC = () => {
               </p>
             </div>
           ) : filteredTransactions.length > 0 ? (
-            <div className="divide-y divide-gray-100">
-              {filteredTransactions.map(
-                (transaction: Transaction, index: number) => (
-                  <motion.div
-                    key={transaction._id}
-                    className="p-3 sm:p-4 hover:bg-gray-50 transition-colors"
-                    custom={index}
-                    variants={itemVariants}
-                    initial="initial"
-                    animate="animate"
-                  >
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      <div
-                        className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl flex-shrink-0 ${
-                          transaction.type === "credit"
-                            ? "bg-emerald-100"
-                            : transaction.type === "debit"
-                            ? "bg-rose-100"
-                            : "bg-blue-100"
-                        }`}
-                      >
-                        {getTransactionIcon(transaction.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2 sm:gap-4">
-                          <div>
-                            <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">
-                              {transaction.description}
-                            </h4>
-                            <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
-                              {formatDate(transaction.created_at)}
-                            </p>
-                          </div>
-                          <div className="flex items-center sm:block justify-between gap-2">
-                            <span
-                              className={`font-semibold text-base sm:text-lg ${getTransactionColor(
-                                transaction.type
-                              )}`}
-                            >
-                              {transaction.type === "credit" ||
-                              transaction.type === "re-fund"
-                                ? "+"
-                                : "-"}
-                              ₹{transaction.amount.toFixed(2)}
-                            </span>
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full ${
-                                transaction.status === "completed"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : transaction.status === "pending"
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {transaction.status}
-                            </span>
+            <>
+              <div className="divide-y divide-gray-100">
+                {paginatedTransactions.map(
+                  (transaction: Transaction, index: number) => (
+                    <motion.div
+                      key={transaction._id}
+                      className="p-3 sm:p-4 hover:bg-gray-50 transition-colors"
+                      custom={index}
+                      variants={itemVariants}
+                      initial="initial"
+                      animate="animate"
+                    >
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div
+                          className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl flex-shrink-0 ${
+                            transaction.type === "credit"
+                              ? "bg-emerald-100"
+                              : transaction.type === "debit"
+                              ? "bg-rose-100"
+                              : "bg-blue-100"
+                          }`}
+                        >
+                          {getTransactionIcon(transaction.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2 sm:gap-4">
+                            <div>
+                              <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                                {transaction.description}
+                              </h4>
+                              <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
+                                {formatDate(transaction.created_at)}
+                              </p>
+                            </div>
+                            <div className="flex items-center sm:block justify-between gap-2">
+                              <span
+                                className={`font-semibold text-base px-2 sm:text-lg ${getTransactionColor(
+                                  transaction.type
+                                )}`}
+                              >
+                                {transaction.type === "credit" ||
+                                transaction.type === "re-fund"
+                                  ? "+"
+                                  : "-"}
+                                ₹{transaction.amount.toFixed(2)}
+                              </span>
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full ${
+                                  transaction.status === "completed"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : transaction.status === "pending"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {transaction.status}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    </motion.div>
+                  )
+                )}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <motion.div 
+                  className="flex items-center justify-between px-4 py-4 border-t border-gray-100"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="text-sm text-gray-500">
+                    Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <FaChevronLeft className="w-4 h-4 text-gray-600" />
+                    </button>
+                    
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                            currentPage === page
+                              ? "bg-[#a58e77] text-white"
+                              : "text-gray-600 hover:bg-gray-100"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
                     </div>
-                  </motion.div>
-                )
+                    
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <FaChevronRight className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+                </motion.div>
               )}
-            </div>
+            </>
           ) : (
             <div className="text-center py-12 sm:py-16">
               <FaHistory className="mx-auto text-3xl sm:text-4xl text-gray-300 mb-3 sm:mb-4" />

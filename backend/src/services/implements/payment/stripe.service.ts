@@ -15,6 +15,8 @@ import { INotificationService } from "../../interface/notification/notification.
 import { notificationService } from "../notification/notification.service";
 import socketService from "../socket/socket.service";
 import { PaymentMetadata } from "../../../models/payment.model";
+import { IBookingService } from "../../interface/user/booking.service.interface";
+import { bookingService } from "../user/booking.service";
 
 interface CreateCheckoutSessionParams {
   hostelId: Types.ObjectId;
@@ -32,6 +34,7 @@ interface CreateCheckoutSessionParams {
 export class StripeService {
   private stripe!: Stripe;
   private bookingRepo: IBookingRepository;
+  private bookingService: IBookingService;
   private hostelRepo: IHostelRepository;
   private paymentRepo: IPaymentRepository;
   private walletService: IWalletService;
@@ -40,6 +43,7 @@ export class StripeService {
   constructor() {
     this.paymentRepo = paymentRepository;
     this.bookingRepo = bookingRepository;
+    this.bookingService = bookingService;
     this.hostelRepo = hostelRepository;
     this.walletService = walletService;
     this.notificationService = notificationService;
@@ -155,76 +159,90 @@ export class StripeService {
       switch (event.type) {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
-          const amount = session.amount_total! / 100;
-
           const payment = await this.paymentRepo.findByStripeSessionId(
             session.id
           );
-          if (!payment) {
+          if (!payment)
             throw new AppError(
               "Payment record not found",
               StatusCodes.NOT_FOUND
             );
-          }
 
-          // Update Payment Status
-          const bookingData = await this.bookingRepo.updatePaymentStatus(
-            payment.bookingId.toString(),
-            "completed"
-          );
+          // Check if this is a facility payment
+          if (
+            session.metadata?.type === "facility" &&
+            session.metadata.facilities
+          ) {
+            // Parse facilities from metadata
+            const facilities = JSON.parse(session.metadata.facilities)
 
-          // Create and emit real-time notification for the provider
-          if (bookingData) {
-            const hostel = await this.hostelRepo.getHostelById(
-              String(bookingData.hostelId)
-            );
-
-            // Create notification in database
-            const notification =
-              await this.notificationService.createNotification({
-                recipient: new mongoose.Types.ObjectId(
-                  String(bookingData?.providerId)
-                ),
-                sender: new mongoose.Types.ObjectId(
-                  String(bookingData?.userId)
-                ),
-                title: "New Booking Request",
-                message: `You have received a new booking request for ${hostel?.hostel_name}`,
-                type: "booking",
-              });
-
-            // Emit real-time notification
-            socketService.emitNotification(
-              String(bookingData?.providerId),
-              { ...notification, recipient: notification.recipient.toString() }
-            );
-          }
-
-          // Update Hostel Available Space Status
-          await this.hostelRepo.updateHostelAvailableSpace(
-            payment.hostelId.toString()
-          );
-
-          // Update Payment Status
-          await this.paymentRepo.updateStatus(payment._id, "completed");
-
-          // Get booking details for amount distribution
-          const booking = await this.bookingRepo.getBookingById(
-            payment.bookingId.toString()
-          );
-          if (!booking) {
-            throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
-          }
-
-          // Distribute the booking amount
-          try {
-            await this.walletService.distributeBookingAmount(
+            // Add facilities to booking
+            await this.bookingService.addFacilitiesToBooking(
               payment.bookingId.toString(),
-              payment.providerId.toString(),
-              booking.firstMonthRent || amount
+              String(payment.userId),
+              facilities
             );
-          } catch (error) {
-            console.error("Error distributing booking amount:", error);
+          } else {
+            const amount = session.amount_total! / 100;
+
+            const bookingData = await this.bookingRepo.updatePaymentStatus(
+              payment.bookingId.toString(),
+              "completed"
+            );
+
+            // Create and emit real-time notification for the provider
+            if (bookingData) {
+              const hostel = await this.hostelRepo.getHostelById(
+                String(bookingData.hostelId)
+              );
+
+              // Create notification in database
+              const notification =
+                await this.notificationService.createNotification({
+                  recipient: new mongoose.Types.ObjectId(
+                    String(bookingData?.providerId)
+                  ),
+                  sender: new mongoose.Types.ObjectId(
+                    String(bookingData?.userId)
+                  ),
+                  title: "New Booking Request",
+                  message: `You have received a new booking request for ${hostel?.hostel_name}`,
+                  type: "booking",
+                });
+
+              // Emit real-time notification
+              socketService.emitNotification(String(bookingData?.providerId), {
+                ...notification,
+                recipient: notification.recipient.toString(),
+              });
+            }
+
+            // Update Hostel Available Space Status
+            await this.hostelRepo.updateHostelAvailableSpace(
+              payment.hostelId.toString()
+            );
+
+            // Update Payment Status
+            await this.paymentRepo.updateStatus(payment._id, "completed");
+
+            // Get booking details for amount distribution
+            const booking = await this.bookingRepo.getBookingById(
+              payment.bookingId.toString()
+            );
+            if (!booking) {
+              throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
+            }
+
+            // Distribute the booking amount
+            try {
+              await this.walletService.distributeBookingAmount(
+                payment.bookingId.toString(),
+                payment.providerId.toString(),
+                booking.firstMonthRent || amount
+              );
+            } catch (error) {
+              console.error("Error distributing booking amount:", error);
+            }
           }
 
           break;

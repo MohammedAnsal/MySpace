@@ -12,6 +12,9 @@ import {
   TransactionDTO,
   mapToWalletDTO,
 } from "../../../dtos/wallet/wallet.dto";
+import { notificationService } from "../notification/notification.service";
+import { INotificationService } from "../../interface/notification/notification.service.interface";
+import socketService from "../socket/socket.service";
 
 interface PopulatedId {
   _id: Types.ObjectId;
@@ -21,10 +24,12 @@ interface PopulatedId {
 export class WalletService implements IWalletService {
   private walletRepo: IWalletRepository;
   private adminId: string;
+  private notificationService: INotificationService;
 
   constructor() {
     this.walletRepo = walletRepository;
     this.adminId = process.env.ADMIN_ID || "";
+    this.notificationService = notificationService;
     if (!this.adminId) {
       console.warn("ADMIN_ID is not defined in environment variables");
     }
@@ -233,7 +238,7 @@ export class WalletService implements IWalletService {
 
   //  Re-fund handling :- (User)
 
-  async processRefund(bookingId: string): Promise<boolean> {
+  async processRefund(bookingId: string, hostelName: string): Promise<boolean> {
     try {
       if (!this.adminId) {
         throw new AppError(
@@ -284,8 +289,44 @@ export class WalletService implements IWalletService {
         userId.toString(),
         providerId.toString(),
         this.adminId,
-        amount
+        amount,
+        hostelName
       );
+
+      // Create notification for user about refund
+      const userNotification =
+        await this.notificationService.createNotification({
+          recipient: new Types.ObjectId(userId.toString()),
+          sender: new Types.ObjectId(this.adminId),
+          title: "Refund Processed Successfully",
+          message: `Your refund of ₹${amount.toFixed(
+            2
+          )} for the cancelled booking at "${hostelName}" has been processed and added to your wallet.`,
+          type: "refund",
+        });
+
+      // Create notification for provider about refund
+      const providerNotification =
+        await this.notificationService.createNotification({
+          recipient: new Types.ObjectId(providerId.toString()),
+          sender: new Types.ObjectId(this.adminId),
+          title: "Booking Refund Processed",
+          message: `A refund of ₹${amount.toFixed(
+            2
+          )} has been processed for the cancelled booking at "${hostelName}". The amount has been deducted from your wallet.`,
+          type: "refund",
+        });
+
+      // Emit socket notifications
+      socketService.emitNotification(userId.toString(), {
+        ...userNotification,
+        recipient: userNotification.recipient.toString(),
+      });
+
+      socketService.emitNotification(providerId.toString(), {
+        ...providerNotification,
+        recipient: providerNotification.recipient.toString(),
+      });
 
       return true;
     } catch (error) {

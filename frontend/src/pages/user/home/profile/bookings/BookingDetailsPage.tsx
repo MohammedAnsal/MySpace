@@ -1,15 +1,18 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useUserBookingsDetails } from "@/hooks/user/booking/useBooking";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import {
+  useUserBookingsDetails,
+  useCancelBooking,
+  useReprocessBookingPayment,
+  useFacilityPayment,
+} from "@/hooks/user/booking/useBooking";
 import BookingDetails from "./components/BookingDetails";
 import { ArrowLeft, CreditCard, XCircle, Loader2 } from "lucide-react";
 import Loading from "@/components/global/Loading";
 import { motion } from "framer-motion";
 import CancelBookingModal from "./components/CancelBookingModal";
-import { reprocessBookingPayment, cancelBooking } from "@/services/Api/userApi";
 import { toast } from "sonner";
 import BuyFacilityModal from "./components/BuyFacilityModal";
-import { useAddFacilitiesToBooking } from "@/hooks/user/booking/useBooking";
 
 const BookingDetailsPage: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -17,16 +20,40 @@ const BookingDetailsPage: React.FC = () => {
   if (!bookingId) {
     return toast.error("BookingId not valid!");
   }
+
+  const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const facilityPayment = params.get("facilityPayment");
+
+    if (facilityPayment === "success") {
+      toast.success("Facility purchase successful!");
+      // Remove the query param from the URL after showing the toast
+      navigate(location.pathname, { replace: true });
+    } else if (facilityPayment === "cancel") {
+      toast.error("Facility purchase was cancelled or failed.");
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
+
   const {
     data: booking,
     isLoading,
     error,
     refetch,
   } = useUserBookingsDetails(bookingId);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isBuyFacilityOpen, setIsBuyFacilityOpen] = useState(false);
+
+  // Use the new hooks
+  const { mutate: cancelBookingMutation, isPending: isCancelling } =
+    useCancelBooking();
+  const { mutate: reprocessPaymentMutation, isPending: isProcessingPayment } =
+    useReprocessBookingPayment();
+  const { mutate: startFacilityPayment } = useFacilityPayment();
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -43,58 +70,59 @@ const BookingDetailsPage: React.FC = () => {
     navigate("/user/bookings");
   };
 
-  const handleReprocessPayment = async () => {
+  const handleReprocessPayment = () => {
     if (!booking || !bookingId) return;
 
-    try {
-      setIsProcessingPayment(true);
-
-      // Use the updated API function with bookingId
-      const response = await reprocessBookingPayment(bookingId);
-
-      if (response?.data?.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl;
-      } else {
-        throw new Error("Payment session creation failed");
-      }
-    } catch (error) {
-      console.error("Payment processing error:", error);
-      toast.error("Failed to process payment. Please try again later.");
-    } finally {
-      setIsProcessingPayment(false);
-    }
+    reprocessPaymentMutation(bookingId, {
+      onSuccess: (response) => {
+        if (response?.data?.checkoutUrl) {
+          window.location.href = response.data.checkoutUrl;
+          console.log(response.data.checkoutUrl,'pppppppp')
+          toast.success("Facilities added successfully!");
+        } else {
+          toast.error("Payment session creation failed");
+        }
+      },
+      onError: (error) => {
+        console.error("Payment processing error:", error);
+        toast.error("Failed to process payment. Please try again later.");
+      },
+    });
   };
 
   const handleSubmitCancellation = async (reason: string) => {
     if (!booking || !bookingId) return;
 
-    try {
-      await cancelBooking(bookingId, reason);
-
-      refetch(); // Refresh the bookings data
-      navigate("/user/bookings");
-      return Promise.resolve();
-    } catch (error) {
-      console.error("Cancellation error:", error);
-      return Promise.reject(error);
-    }
+    cancelBookingMutation(
+      { bookingId, reason },
+      {
+        onSuccess: () => {
+          refetch();
+          navigate("/user/bookings");
+        },
+        onError: (error) => {
+          console.error("Cancellation error:", error);
+          toast.error("Failed to cancel booking");
+        },
+      }
+    );
   };
-
-  const { mutate: addFacilities } = useAddFacilitiesToBooking();
 
   const handleBuyFacility = (
     selectedFacilities: { id: string; startDate: string; duration: number }[]
   ) => {
-    addFacilities(
+    startFacilityPayment(
       { bookingId: booking._id, facilities: selectedFacilities },
       {
-        onSuccess: () => {
-          toast.success("Facilities added!");
-          setIsBuyFacilityOpen(false);
-          refetch();
+        onSuccess: (data) => {
+          if (data?.checkoutUrl) {
+            window.location.href = data.checkoutUrl;
+          } else {
+            toast.error("Failed to start payment session");
+          }
         },
         onError: () => {
-          toast.error("Failed to add facilities.");
+          toast.error("Failed to start payment session");
         },
       }
     );
@@ -140,7 +168,7 @@ const BookingDetailsPage: React.FC = () => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="p-8 max-w-6xl mx-auto bg-white rounded-lg shadow-md"
+      className="p-8 mt-4 max-w-6xl mx-auto bg-white rounded-lg shadow-md"
     >
       <div className="flex justify-between items-center mb-6">
         <button
@@ -209,21 +237,33 @@ const BookingDetailsPage: React.FC = () => {
         {booking.paymentStatus === "completed" && (
           <button
             onClick={() => setIsCancelModalOpen(true)}
-            className="flex items-center justify-center px-6 py-3 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-colors"
+            disabled={isCancelling}
+            className="flex items-center justify-center px-6 py-3 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-colors disabled:opacity-50"
           >
-            <XCircle className="mr-2" size={18} />
-            Cancel Booking
+            {isCancelling ? (
+              <>
+                <Loader2 className="mr-2 animate-spin" size={18} />
+                Cancelling...
+              </>
+            ) : (
+              <>
+                <XCircle className="mr-2" size={18} />
+                Cancel Booking
+              </>
+            )}
           </button>
         )}
 
-        {booking.selectedFacilities.length === 0 && hasAvailableFacilities && (
-          <button
-            onClick={() => setIsBuyFacilityOpen(true)}
-            className="px-4 py-2 bg-[#b9a089] text-white rounded-md"
-          >
-            Buy Facility
-          </button>
-        )}
+        {booking.selectedFacilities.length === 0 &&
+          hasAvailableFacilities &&
+          booking.paymentStatus === "completed" && (
+            <button
+              onClick={() => setIsBuyFacilityOpen(true)}
+              className="px-4 py-2 bg-[#b9a089] text-white rounded-md"
+            >
+              Buy Facility
+            </button>
+          )}
       </motion.div>
 
       {/* Cancel Booking Modal */}

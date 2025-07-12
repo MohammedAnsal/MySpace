@@ -66,6 +66,11 @@ export interface IBookingService {
   addFacilitiesToBooking(
     bookingId: string,
     userId: string,
-    facilities: { id: string; startDate: string; duration: number }[]
+    facilities: {
+      id: string;
+      startDate: string;
+      duration: number;
+      name?: string;
+    }[]
   ): Promise<BookingResponseDTO>;
 }
