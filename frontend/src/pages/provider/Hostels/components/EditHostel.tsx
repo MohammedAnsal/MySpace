@@ -30,6 +30,7 @@ interface PropertyForm {
   latitude: number | null;
   longitude: number | null;
   total_space: string;
+  available_space: string;
   deposit_terms: string;
 }
 
@@ -59,6 +60,7 @@ const EditHostel = () => {
     latitude: null,
     longitude: null,
     total_space: "",
+    available_space: "",
     deposit_terms: "",
   });
 
@@ -97,6 +99,7 @@ const EditHostel = () => {
         latitude: data.location?.latitude || null,
         longitude: data.location?.longitude || null,
         total_space: data.total_space?.toString() || "",
+        available_space: data.available_space.toString() || "",
         deposit_terms: data.deposit_terms || "",
       });
 
@@ -209,6 +212,7 @@ const EditHostel = () => {
         monthly_rent: formData.monthly_rent,
         deposit_amount: formData.deposit_amount,
         maximum_occupancy: formData.maximum_occupancy,
+        available_space: formData.available_space,
         total_space: formData.total_space,
         gender: formData.gender,
         rules: formData.rules,
