@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Loading from "@/components/global/Loading";
 import { useHostels, useNearbyHostels } from "@/hooks/user/hostel/useHostel";
-import { Pagination } from "@/components/global/pagination";
+import { Pagination } from "@/components/global/Pagination";
 import Scroll from "@/components/global/Scroll";
 import { toast } from "sonner";
 
@@ -350,7 +350,7 @@ const Hostels = () => {
                         <Pagination
                           currentPage={currentPage}
                           totalPages={totalPages}
-                          onPageChange={(page) => setCurrentPage(page)}
+                          onPageChange={(page: number) => setCurrentPage(page)}
                         />
                       </motion.div>
                     )}

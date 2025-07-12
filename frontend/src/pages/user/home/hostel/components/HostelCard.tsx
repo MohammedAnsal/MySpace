@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Users, Star, Bed, X } from 'lucide-react';
+import { MapPin, Users, Star, Bed} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Hostel {
