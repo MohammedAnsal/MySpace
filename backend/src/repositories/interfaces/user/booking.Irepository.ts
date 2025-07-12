@@ -28,6 +28,7 @@ export interface UpdateBookingData {
 
 export interface IBookingRepository {
   createBooking(bookingData: CreateBookingData): Promise<IBooking>;
+  createBookingWithSession(bookingData: CreateBookingData, session: mongoose.ClientSession): Promise<IBooking>;
   getBookingById(bookingId: string): Promise<IBooking | null>;
   getBookingByIdUnPopulated(bookingId: string): Promise<IBooking | null>;
   getUserBookings(userId: string): Promise<IBooking[]>;

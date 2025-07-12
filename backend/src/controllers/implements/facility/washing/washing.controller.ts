@@ -39,6 +39,16 @@ export class WashingController {
         specialInstructions,
       } = req.body;
 
+      console.log(
+        providerId,
+        hostelId,
+        facilityId,
+        requestedDate,
+        preferredTimeSlot,
+        itemsCount,
+        specialInstructions
+      );
+
       if (
         !providerId ||
         !hostelId ||

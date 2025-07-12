@@ -50,7 +50,13 @@ export class BookingService implements IBookingService {
     bookingData: CreateBookingDTO,
     selectedFacilitiess: FacilityI[]
   ): Promise<BookingResponseDTO> {
+    // Start MongoDB session for transaction
+    const session = await mongoose.startSession();
+    
     try {
+      // Start transaction
+      session.startTransaction();
+
       if (
         !bookingData.userId ||
         !bookingData.hostelId ||
@@ -59,6 +65,7 @@ export class BookingService implements IBookingService {
         throw new AppError("Missing required IDs", HttpStatus.BAD_REQUEST);
       }
 
+      // Validate ObjectIds
       if (!mongoose.Types.ObjectId.isValid(bookingData.userId)) {
         throw new AppError(
           `Invalid user ID format: ${bookingData.userId}`,
@@ -78,12 +85,16 @@ export class BookingService implements IBookingService {
         );
       }
 
-      const hostel = await this.hostelRepository.getHostelById(
-        bookingData.hostelId
+      // CRITICAL: Atomic check and update of available space
+      const hostel = await this.hostelRepository.getHostelByIdWithLock(
+        bookingData.hostelId,
+        session
       );
+      
       if (!hostel) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
+      
       if (hostel.available_space !== null && hostel.available_space <= 0) {
         throw new AppError(
           "No beds available in this hostel",
@@ -91,6 +102,20 @@ export class BookingService implements IBookingService {
         );
       }
 
+      // Decrease available space atomically
+      const updatedHostel = await this.hostelRepository.decreaseAvailableSpace(
+        bookingData.hostelId,
+        session
+      );
+
+      if (!updatedHostel || (updatedHostel.available_space !== null && updatedHostel.available_space < 0)) {
+        throw new AppError(
+          "No beds available in this hostel",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      // Upload proof document
       if (!bookingData.proof || !bookingData.proof.buffer) {
         throw new AppError(
           "Proof document is required",
@@ -129,10 +154,10 @@ export class BookingService implements IBookingService {
           id: facility.id.toString(),
           duration: String(facility.duration),
         })),
-        bookingData.checkIn // <-- Pass checkIn here
+        bookingData.checkIn
       );
 
-      // Create booking with properly formatted ObjectIds
+      // Create booking with session
       const bookingDataToCreate = {
         ...bookingData,
         userId: new mongoose.Types.ObjectId(bookingData.userId),
@@ -151,12 +176,19 @@ export class BookingService implements IBookingService {
         })),
       };
 
-      const booking = await this.bookingRepository.createBooking(
-        bookingDataToCreate
+      const booking = await this.bookingRepository.createBookingWithSession(
+        bookingDataToCreate,
+        session
       );
+
+      // Commit transaction
+      await session.commitTransaction();
 
       return mapToBookingDTO(booking);
     } catch (error) {
+      // Rollback transaction on error
+      await session.abortTransaction();
+      
       if (error instanceof AppError && bookingData.proof) {
         try {
           await this.s3Service.delete_File([String(bookingData.proof)]);
@@ -169,6 +201,9 @@ export class BookingService implements IBookingService {
       }
       console.error("Error creating booking in repository:", error);
       throw error;
+    } finally {
+      // End session
+      session.endSession();
     }
   }
 

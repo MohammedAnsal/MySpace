@@ -28,7 +28,7 @@ const BookingModal = ({
   const [timeSlot, setTimeSlot] = useState("");
   const [itemsCount, setItemsCount] = useState(1);
   const [instructions, setInstructions] = useState("");
-
+  
   // Use mutation hook
   const createWashingMutation = useCreateWashingRequest();
 
