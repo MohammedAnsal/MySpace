@@ -5,6 +5,9 @@ import { Types } from "mongoose";
 import { StripeService } from "../../../services/implements/payment/stripe.service";
 import { AppError } from "../../../utils/error";
 import { BookingService } from "../../../services/implements/user/booking.service";
+import { AuthRequset } from "../../../types/api";
+import { PaymentService } from "../../../services/implements/user/payment.service";
+import { HttpStatus, responseMessage } from "../../../enums/http.status";
 
 interface PopulatedId {
   _id: Types.ObjectId;
@@ -14,7 +17,8 @@ interface PopulatedId {
 export class PaymentController {
   constructor(
     private stripeService: StripeService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private paymentService: PaymentService
   ) {}
 
   //  Create payment :-
@@ -163,6 +167,110 @@ export class PaymentController {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: "Error reprocessing payment",
+      });
+    }
+  }
+
+  // async findByStripeSessionId(
+  //   req: AuthRequset,
+  //   res: Response
+  // ): Promise<Response> {
+  //   try {
+  //     const { sessionId } = req.query;
+
+  //     console.log(sessionId);
+
+  //     const findPayment = await this.paymentService.getPaymentByStripeSessionId(
+  //       String(sessionId)
+  //     );
+
+  //     console.log(findPayment, "from controller ");
+
+  //     if (!findPayment) {
+  //       throw new AppError(
+  //         "Payment not found in this stripe id",
+  //         HttpStatus.BAD_REQUEST
+  //       );
+  //     }
+
+  //     return res
+  //       .status(HttpStatus.OK)
+  //       .json({ message: "Payment found successfully", data: findPayment });
+  //   } catch (error) {
+  //     if (error instanceof AppError) {
+  //       return res.status(error.statusCode).json({
+  //         status: "error",
+  //         message: error.message,
+  //       });
+  //     }
+  //     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+  //       status: "error",
+  //       message: "Error finding payment",
+  //     });
+  //   }
+  // }
+
+  async findByStripeSessionId(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const { sessionId } = req.params;
+
+      if (!sessionId) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          status: "error",
+          message: "Session ID is required",
+        });
+      }
+
+      const payment = await this.paymentService.getPaymentByStripeSessionId(
+        String(sessionId)
+      );
+
+      if (!payment) {
+        return res.status(HttpStatus.NOT_FOUND).json({
+          status: "expired",
+          message: "No payment record found",
+          data: null,
+        });
+      }
+
+      let booking;
+      try {
+        booking = await this.bookingService.getBookingById(
+          payment.bookingId.toString()
+        );
+      } catch (error) {
+        return res.status(HttpStatus.OK).json({
+          status: "expired",
+          message: "Booking not found or already expired",
+          data: payment,
+        });
+      }
+
+      // Check if expired
+      if (
+        !booking ||
+        booking.paymentStatus === "expired" ||
+        Date.now() > new Date(booking.paymentExpiry).getTime()
+      ) {
+        return res.status(HttpStatus.OK).json({
+          status: "expired",
+          message: "Booking has expired",
+          data: payment,
+        });
+      }
+
+      return res.status(HttpStatus.OK).json({
+        status: "success",
+        message: "Payment found successfully",
+        data: payment,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        status: "error",
+        message: "Error finding payment",
       });
     }
   }

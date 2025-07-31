@@ -30,4 +30,12 @@ paymentRoute.post(
   asyncHandler(paymentController.reprocessPayment.bind(paymentController))
 );
 
+paymentRoute.get(
+  "/check-payment/:sessionId",
+  authMiddleWare,
+  autherization,
+  authorizeRoles(Roles.USER),
+  asyncHandler(paymentController.findByStripeSessionId.bind(paymentController))
+);
+
 export default paymentRoute;

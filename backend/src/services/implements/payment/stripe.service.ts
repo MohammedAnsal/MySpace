@@ -174,7 +174,7 @@ export class StripeService {
             session.metadata.facilities
           ) {
             // Parse facilities from metadata
-            const facilities = JSON.parse(session.metadata.facilities)
+            const facilities = JSON.parse(session.metadata.facilities);
 
             // Add facilities to booking
             await this.bookingService.addFacilitiesToBooking(
@@ -185,6 +185,26 @@ export class StripeService {
           } else {
             const amount = session.amount_total! / 100;
 
+            const userbooking = await this.bookingRepo.getBookingById(
+              payment.bookingId.toString()
+            );
+
+            if (!userbooking) {
+              throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
+            }
+
+            const now = Date.now();
+            const expiry = new Date(userbooking.paymentExpiry).getTime();
+
+            const isExpired = userbooking.paymentStatus == "expired";
+
+            if (isExpired) {
+              console.warn("Payment received for expired booking. Skipping...");
+              await this.paymentRepo.updateStatus(payment._id, "cancelled");
+              console.log("byeeeee");
+              break;
+            }
+
             const bookingData = await this.bookingRepo.updatePaymentStatus(
               payment.bookingId.toString(),
               "completed"
@@ -192,6 +212,7 @@ export class StripeService {
 
             // Create and emit real-time notification for the provider
             if (bookingData) {
+              console.log("pppppppppppppppppppppppppppppppp");
               const hostel = await this.hostelRepo.getHostelById(
                 String(bookingData.hostelId)
               );

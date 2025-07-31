@@ -7,15 +7,15 @@ export interface PaymentResponseDTO {
   bookingId: string;
   amount: number;
   currency: string;
-  status: "pending" | "completed" | "failed" | "refunded";
+  status: "pending" | "completed" | "failed" | "expired" | "refunded";
   stripeSessionId?: string;
-  stripePaymentIntentId?: string;
+  // stripePaymentIntentId?: string;
   metadata?: PaymentMetadata;
   created_at: Date;
   updated_at: Date;
 }
 
-export interface CreatePaymentDTO {
+export interface  CreatePaymentDTO {
   userId: string;
   hostelId: string;
   bookingId: string;
@@ -25,7 +25,7 @@ export interface CreatePaymentDTO {
 }
 
 export interface UpdatePaymentStatusDTO {
-  status: "pending" | "completed" | "failed" | "refunded";
+  status: "pending" | "completed" | "failed" | "expired" | "refunded";
 }
 
 export function mapToPaymentDTO(payment: IHostelPayment): PaymentResponseDTO {
@@ -38,7 +38,7 @@ export function mapToPaymentDTO(payment: IHostelPayment): PaymentResponseDTO {
     currency: payment.currency,
     status: payment.status,
     stripeSessionId: payment.stripeSessionId,
-    stripePaymentIntentId: payment.stripePaymentId,
+    // stripePaymentIntentId: payment.stripePaymentId,
     metadata: payment.metadata,
     created_at: payment.createdAt,
     updated_at: payment.updatedAt,

@@ -530,3 +530,13 @@ export const createFacilityPaymentSession = async (
     handleError(error);
   }
 };
+
+export const checkPaymentStatus = async (sessionId: string) => {
+  try {
+    const response = await api.get(`/user/payments/check-payment/${sessionId}`);
+
+    return handleResponse(response.data, "Error while checking payment status");
+  } catch (error) {
+    handleError(error);
+  }
+};
