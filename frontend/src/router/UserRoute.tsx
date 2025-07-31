@@ -5,9 +5,9 @@ import HomePage from "@/pages/user/home/Home";
 import Auth from "@/pages/user/auth/Auth";
 import { PublicRoute } from "@/router/authRoutes/user/publicRoute";
 import OTPVerification from "@/pages/user/auth/Otp";
-import NotFound from "@/components/global/notFound";
+import NotFound from "@/components/global/NotFound";
 import { Role } from "@/types/types";
-import { ProtecteddRoute } from "@/router/authRoutes/user/protectRoute";
+import { ProtecteddRoute } from "@/router/authRoutes/user/ProtectRoute";
 import ForgotPassword from "@/pages/user/auth/ForgotPassword";
 import ResetPassword from "@/pages/user/auth/ResetPassword";
 import ProfileLayout from "@/pages/user/home/profile/components/ProfileLayout";
@@ -18,7 +18,7 @@ import Checkout from "@/pages/user/home/booking/BookingHostel";
 import { SuccessPayment } from "@/components/client/payment/successPaymentt";
 import { CancelPayment } from "@/components/client/payment/cancelPaymentt";
 import { MyBookings } from "@/pages/user/home/profile/bookings/MyBookings";
-import RootPage from "@/router/rootpage";
+import RootPage from "@/router/Rootpage";
 import Contact from "@/pages/user/home/contact/Contact";
 import About from "@/pages/user/home/about/About";
 import BookingDetailsPage from "@/pages/user/home/profile/bookings/BookingDetailsPage";
@@ -48,7 +48,7 @@ export const UserRoutes: RouteObject[] = [
         path: "signIn",
         element: (
           <PublicRoute routeType={Role.USER}>
-            <SignIn  />
+            <SignIn />
           </PublicRoute>
         ),
       },
