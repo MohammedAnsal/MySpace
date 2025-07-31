@@ -10,10 +10,14 @@ import {
   UpdatePaymentStatusDTO,
   mapToPaymentDTO,
 } from "../../../dtos/user/payment.dto";
+import { paymentRepository } from "../../../repositories/implementations/user/payment.repository";
 
 @Service()
 export class PaymentService implements IPaymentService {
-  constructor(private paymentRepository: IPaymentRepository) {}
+  private paymentRepository: IPaymentRepository;
+  constructor() {
+    this.paymentRepository = paymentRepository;
+  }
 
   //  Create payment :-
 
@@ -147,16 +151,15 @@ export class PaymentService implements IPaymentService {
       const payment = await this.paymentRepository.findByStripeSessionId(
         stripeSessionId
       );
-
       if (!payment) {
         throw new AppError(
           "Payment not found for this Stripe session",
           StatusCodes.NOT_FOUND
         );
       }
-
       return mapToPaymentDTO(payment);
     } catch (error) {
+      console.error("Service error:", error);
       if (error instanceof AppError) {
         throw error;
       }

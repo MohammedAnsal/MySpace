@@ -50,9 +50,10 @@ export class BookingService implements IBookingService {
     bookingData: CreateBookingDTO,
     selectedFacilitiess: FacilityI[]
   ): Promise<BookingResponseDTO> {
+
     const session = await mongoose.startSession();
-    let uploadResult: any = null; // Declare here
-    
+    let uploadResult: any = null; 
+
     try {
       session.startTransaction();
 
@@ -89,11 +90,11 @@ export class BookingService implements IBookingService {
         bookingData.hostelId,
         session
       );
-      
+
       if (!hostel) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
-      
+
       if (hostel.available_space !== null && hostel.available_space <= 0) {
         throw new AppError(
           "No beds available in this hostel",
@@ -102,17 +103,21 @@ export class BookingService implements IBookingService {
       }
 
       // Decrease available space atomically
-      const updatedHostel = await this.hostelRepository.decreaseAvailableSpace(
+      await this.hostelRepository.decreaseAvailableSpace(
         bookingData.hostelId,
         session
       );
 
-      if (!updatedHostel || (updatedHostel.available_space !== null && updatedHostel.available_space < 0)) {
-        throw new AppError(
-          "No beds available in this hostel",
-          HttpStatus.BAD_REQUEST
-        );
-      }
+      // if (
+      //   !updatedHostel ||
+      //   (updatedHostel.available_space !== null &&
+      //     updatedHostel.available_space < 0)
+      // ) {
+      //   throw new AppError(
+      //     "No beds available in this hostel",
+      //     HttpStatus.BAD_REQUEST
+      //   );
+      // }
 
       // Upload proof document
       if (!bookingData.proof || !bookingData.proof.buffer) {
@@ -169,6 +174,7 @@ export class BookingService implements IBookingService {
         firstMonthRent,
         depositAmount,
         monthlyRent,
+        paymentExpiry: new Date(Date.now() + 1 * 60 * 1000),
         selectedFacilities: transformedFacilities.map((facility) => ({
           ...facility,
           facilityId: new mongoose.Types.ObjectId(facility.facilityId),
@@ -187,14 +193,14 @@ export class BookingService implements IBookingService {
     } catch (error) {
       // Rollback transaction on error
       await session.abortTransaction();
-      
+
       // Only try to delete S3 file if upload was successful
       if (error instanceof AppError && uploadResult) {
         try {
-          const s3Url = Array.isArray(uploadResult) 
-            ? uploadResult[0].Location 
+          const s3Url = Array.isArray(uploadResult)
+            ? uploadResult[0].Location
             : uploadResult.Location;
-          
+
           if (s3Url) {
             await this.s3Service.delete_File([s3Url]);
           }
@@ -327,7 +333,7 @@ export class BookingService implements IBookingService {
 
     const cancelledBooking = await this.bookingRepository.cancelBooking(
       bookingId,
-      reason.reason,
+      reason.reason
     );
 
     if (booking) {
@@ -480,10 +486,14 @@ export class BookingService implements IBookingService {
   async addFacilitiesToBooking(
     bookingId: string,
     userId: string,
-    facilities: { id: string; startDate: string; duration: number; name?: string }[]
+    facilities: {
+      id: string;
+      startDate: string;
+      duration: number;
+      name?: string;
+    }[]
   ): Promise<BookingResponseDTO> {
-
-    console.log(facilities , "in servicee")
+    console.log(facilities, "in servicee");
 
     const booking = await this.bookingRepository.getBookingById(bookingId);
     if (!booking) throw new AppError("Booking not found", HttpStatus.NOT_FOUND);

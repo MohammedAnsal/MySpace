@@ -81,9 +81,10 @@ export interface BookingResponseDTO {
   firstMonthRent: number;
   depositAmount: number;
   monthlyRent: number;
-  paymentStatus: "pending" | "completed" | "cancelled";
+  paymentStatus: "pending" | "completed" | "cancelled" | "expired";
   proof: string;
   reason: string;
+  paymentExpiry: Date;
   created_at: Date;
   updated_at: Date;
 }
@@ -128,7 +129,7 @@ export function mapToBookingDTO(booking: IBooking): BookingResponseDTO {
     return (
       !!obj &&
       typeof (obj as PopulatedHostel).hostel_name === "string" &&
-      !!((obj as PopulatedHostel).location)
+      !!(obj as PopulatedHostel).location
     );
   }
 
@@ -228,6 +229,7 @@ export function mapToBookingDTO(booking: IBooking): BookingResponseDTO {
     paymentStatus: booking.paymentStatus,
     proof: booking.proof,
     reason: booking.reason,
+    paymentExpiry: booking.paymentExpiry,
     created_at: booking.createdAt,
     updated_at: booking.updatedAt,
   };

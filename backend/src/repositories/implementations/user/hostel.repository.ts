@@ -277,6 +277,7 @@ export class HostelRepository implements IHostelRepository {
   }
 
   // Get hostel with session for transaction
+  
   async getHostelByIdWithLock(
     hostelId: string, 
     session: mongoose.ClientSession
