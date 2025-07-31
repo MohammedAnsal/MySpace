@@ -1,9 +1,9 @@
 import { RootState } from "@/redux/store/store";
 import { useSelector } from "react-redux";
-import { ProtecteddRoute } from "./authRoutes/user/protectRoute";
+import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
 import { Role } from "@/types/types";
 import HomePage from "@/pages/user/home/Home";
-import { Landing } from "@/components/global/landing";
+import { Landing } from "@/components/global/Landing";
 import ProviderDashboard from "@/pages/provider/Home/Home";
 
 const RootPage = () => {
