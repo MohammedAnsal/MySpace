@@ -6,8 +6,8 @@ import {
   UpdateNotificationDTO,
 } from "../../types/notification";
 
-// const API_BASE_URL = "https://api.my-space.shop/notification";
-const API_BASE_URL = "http://localhost:7001/notification";
+const API_BASE_URL = "https://api.my-space.shop/notification";
+// const API_BASE_URL = "http://localhost:7001/notification";
 
 export const createNotification = async (
   data: CreateNotificationDTO
