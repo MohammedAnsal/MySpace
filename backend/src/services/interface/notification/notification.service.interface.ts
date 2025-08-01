@@ -23,5 +23,7 @@ export interface INotificationService {
     recipientId: string
   ): Promise<NotificationListResponseDTO>;
 
+  markAllNotificationsAsRead(userId: string): Promise<void>;
+
   getUnreadCount(userId: string): Promise<number>;
 }

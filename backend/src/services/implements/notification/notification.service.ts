@@ -107,6 +107,18 @@ export class NotificationService implements INotificationService {
     }
   }
 
+  // Mark all notifications as read
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    try {
+      await this.notificationRepo.markAllAsRead(userId);
+    } catch (error) {
+      throw new AppError(
+        responseMessage.ERROR_MESSAGE,
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   // Get unread count
   async getUnreadCount(userId: string): Promise<number> {
     return await this.notificationRepo.countUnread(userId);
