@@ -4,15 +4,22 @@ import { Notification } from "../../../models/notification/notification.model";
 import { AppError } from "../../../utils/error";
 import { INotificationRepository } from "../../interfaces/notification/notification.Irepository";
 import { HttpStatus } from "../../../enums/http.status";
+import { CreateNotificationDTO, UpdateNotificationDTO } from "../../../dtos/notification/notification.dto";
+import { Types } from "mongoose";
+
 @Service()
 export class NotificationRepository implements INotificationRepository {
-  //  For create notification :-
-
-  async create(
-    notificationData: Partial<INotification>
-  ): Promise<INotification> {
+  // Create notification
+  async create(notificationData: CreateNotificationDTO): Promise<INotification> {
     try {
-      const notification = await Notification.create(notificationData);
+      // Convert string IDs to ObjectId if needed
+      const dataToCreate = {
+        ...notificationData,
+        recipient: new Types.ObjectId(notificationData.recipient),
+        sender: notificationData.sender ? new Types.ObjectId(notificationData.sender) : undefined,
+      };
+      
+      const notification = await Notification.create(dataToCreate);
       return notification;
     } catch (error) {
       throw new AppError(
@@ -22,8 +29,7 @@ export class NotificationRepository implements INotificationRepository {
     }
   }
 
-  //  For find singe notification byId :-
-
+  // Find single notification by ID
   async findById(id: string): Promise<INotification | null> {
     try {
       return await Notification.findById(id).exec();
@@ -35,11 +41,10 @@ export class NotificationRepository implements INotificationRepository {
     }
   }
 
-  //  For update notification status :-
-
+  // Update notification
   async update(
     id: string,
-    updateData: Partial<INotification>
+    updateData: UpdateNotificationDTO
   ): Promise<INotification | null> {
     try {
       return await Notification.findByIdAndUpdate(id, updateData, {
@@ -53,8 +58,7 @@ export class NotificationRepository implements INotificationRepository {
     }
   }
 
-  //  For delete notification :-
-
+  // Delete notification
   async delete(id: string): Promise<void> {
     try {
       await Notification.findByIdAndDelete(id).exec();
@@ -66,8 +70,7 @@ export class NotificationRepository implements INotificationRepository {
     }
   }
 
-  //  For find all notification's :-
-
+  // Find all notifications by recipient
   async findAllByRecipient(recipientId: string): Promise<INotification[]> {
     try {
       return await Notification.find({
@@ -82,8 +85,7 @@ export class NotificationRepository implements INotificationRepository {
     }
   }
 
-  //  For markAll notification's :-
-
+  // Mark all notifications as read
   async markAllAsRead(userId: string): Promise<void> {
     try {
       await Notification.updateMany(
@@ -98,8 +100,7 @@ export class NotificationRepository implements INotificationRepository {
     }
   }
 
-  //  For un-read notification count :-
-
+  // Count unread notifications
   async countUnread(userId: string): Promise<number> {
     return await Notification.countDocuments({
       recipient: userId,

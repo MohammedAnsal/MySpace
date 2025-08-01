@@ -1,16 +1,27 @@
-import { INotification } from "../../../models/notification/notification.model";
+import {
+  CreateNotificationDTO,
+  UpdateNotificationDTO,
+  NotificationResponseDTO,
+  NotificationListResponseDTO,
+} from "../../../dtos/notification/notification.dto";
 
 export interface INotificationService {
   createNotification(
-    notificationData: Partial<INotification>
-  ): Promise<INotification>;
-  getNotificationById(id: string): Promise<INotification | null>;
+    notificationData: CreateNotificationDTO
+  ): Promise<NotificationResponseDTO>;
+
+  getNotificationById(id: string): Promise<NotificationResponseDTO | null>;
+
   updateNotification(
     id: string,
-    updateData: Partial<INotification>
-  ): Promise<INotification | null>;
+    updateData: UpdateNotificationDTO
+  ): Promise<NotificationResponseDTO | null>;
+
   deleteNotification(id: string): Promise<void>;
-  getNotificationsByRecipient(recipientId: string): Promise<INotification[]>;
-  markAllNotificationsAsRead(userId: string): Promise<void>;
+
+  getNotificationsByRecipient(
+    recipientId: string
+  ): Promise<NotificationListResponseDTO>;
+
   getUnreadCount(userId: string): Promise<number>;
 }

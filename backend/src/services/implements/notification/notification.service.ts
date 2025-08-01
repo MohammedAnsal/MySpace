@@ -1,21 +1,28 @@
 import { NotificationRepository } from "../../../repositories/implementations/notification/notification.repository";
-import { INotification } from "../../../models/notification/notification.model";
 import { AppError } from "../../../utils/error";
 import { HttpStatus, responseMessage } from "../../../enums/http.status";
 import Container, { Service } from "typedi";
 import { INotificationService } from "../../../services/interface/notification/notification.service.interface";
+import {
+  CreateNotificationDTO,
+  UpdateNotificationDTO,
+  NotificationResponseDTO,
+  NotificationListResponseDTO,
+  mapToNotificationResponseDTO,
+  mapToNotificationListResponseDTO,
+} from "../../../dtos/notification/notification.dto";
 
 @Service()
 export class NotificationService implements INotificationService {
   constructor(private readonly notificationRepo: NotificationRepository) {}
 
-  //  Create notification :-
-
+  // Create notification
   async createNotification(
-    notificationData: Partial<INotification>
-  ): Promise<INotification> {
+    notificationData: CreateNotificationDTO
+  ): Promise<NotificationResponseDTO> {
     try {
-      return await this.notificationRepo.create(notificationData);
+      const notification = await this.notificationRepo.create(notificationData);
+      return mapToNotificationResponseDTO(notification);
     } catch (error) {
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
@@ -24,15 +31,16 @@ export class NotificationService implements INotificationService {
     }
   }
 
-  //  Get single notification :-
-
-  async getNotificationById(id: string): Promise<INotification | null> {
+  // Get single notification
+  async getNotificationById(
+    id: string
+  ): Promise<NotificationResponseDTO | null> {
     try {
       const notification = await this.notificationRepo.findById(id);
       if (!notification) {
         throw new AppError(responseMessage.NOT_FOUND, HttpStatus.NOT_FOUND);
       }
-      return notification;
+      return mapToNotificationResponseDTO(notification);
     } catch (error) {
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
@@ -41,18 +49,17 @@ export class NotificationService implements INotificationService {
     }
   }
 
-  //  Update notification :-
-
+  // Update notification
   async updateNotification(
     id: string,
-    updateData: Partial<INotification>
-  ): Promise<INotification | null> {
+    updateData: UpdateNotificationDTO
+  ): Promise<NotificationResponseDTO | null> {
     try {
       const notification = await this.notificationRepo.update(id, updateData);
       if (!notification) {
         throw new AppError(responseMessage.NOT_FOUND, HttpStatus.NOT_FOUND);
       }
-      return notification;
+      return mapToNotificationResponseDTO(notification);
     } catch (error) {
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
@@ -60,8 +67,8 @@ export class NotificationService implements INotificationService {
       );
     }
   }
-  //  Delete notification :-
 
+  // Delete notification
   async deleteNotification(id: string): Promise<void> {
     try {
       const notification = await this.notificationRepo.findById(id);
@@ -77,13 +84,21 @@ export class NotificationService implements INotificationService {
     }
   }
 
-  //  Get notification by recipient :-
-
+  // Get notifications by recipient
   async getNotificationsByRecipient(
     recipientId: string
-  ): Promise<INotification[]> {
+  ): Promise<NotificationListResponseDTO> {
     try {
-      return await this.notificationRepo.findAllByRecipient(recipientId);
+      const notifications = await this.notificationRepo.findAllByRecipient(
+        recipientId
+      );
+      const unreadCount = await this.notificationRepo.countUnread(recipientId);
+
+      return mapToNotificationListResponseDTO(
+        notifications,
+        notifications.length,
+        unreadCount
+      );
     } catch (error) {
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
@@ -92,21 +107,7 @@ export class NotificationService implements INotificationService {
     }
   }
 
-  //  Mark all seen notification :-
-
-  async markAllNotificationsAsRead(userId: string): Promise<void> {
-    try {
-      await this.notificationRepo.markAllAsRead(userId);
-    } catch (error) {
-      throw new AppError(
-        responseMessage.ERROR_MESSAGE,
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  //  Gett all un-read count notification :-
-
+  // Get unread count
   async getUnreadCount(userId: string): Promise<number> {
     return await this.notificationRepo.countUnread(userId);
   }
