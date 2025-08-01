@@ -94,7 +94,10 @@ export class BookingRepository implements IBookingRepository {
   //  For get user booking's :-
 
   async getUserBookings(userId: string): Promise<IBooking[]> {
-    return await Booking.find({ userId: new mongoose.Types.ObjectId(userId) })
+    return await Booking.find({
+      userId: new mongoose.Types.ObjectId(userId),
+      paymentStatus: { $ne: "expired" },
+    })
       .populate({
         path: "hostelId",
         select: "hostel_name location", // Include location field
@@ -128,7 +131,7 @@ export class BookingRepository implements IBookingRepository {
 
   async cancelBooking(
     bookingId: string,
-    reason: string,
+    reason: string
   ): Promise<IBooking | null> {
     return await Booking.findByIdAndUpdate(
       bookingId,
