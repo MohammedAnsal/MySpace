@@ -50,9 +50,8 @@ export class BookingService implements IBookingService {
     bookingData: CreateBookingDTO,
     selectedFacilitiess: FacilityI[]
   ): Promise<BookingResponseDTO> {
-
     const session = await mongoose.startSession();
-    let uploadResult: any = null; 
+    let uploadResult: any = null;
 
     try {
       session.startTransaction();
@@ -174,7 +173,7 @@ export class BookingService implements IBookingService {
         firstMonthRent,
         depositAmount,
         monthlyRent,
-        paymentExpiry: new Date(Date.now() + 1 * 60 * 1000),
+        paymentExpiry: new Date(Date.now() + 15 * 60 * 1000), // 15 minitues
         selectedFacilities: transformedFacilities.map((facility) => ({
           ...facility,
           facilityId: new mongoose.Types.ObjectId(facility.facilityId),

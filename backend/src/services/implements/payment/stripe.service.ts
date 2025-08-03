@@ -197,7 +197,6 @@ export class StripeService {
 
             if (isExpired) {
               console.warn("Payment received for expired booking. Skipping...");
-              await this.paymentRepo.updateStatus(payment._id, "cancelled");
               break;
             }
 
