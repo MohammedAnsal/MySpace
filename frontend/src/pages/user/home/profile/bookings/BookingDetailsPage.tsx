@@ -92,7 +92,7 @@ const BookingDetailsPage: React.FC = () => {
       { bookingId, reason },
       {
         onSuccess: () => {
-          // navigate("/user/bookings");
+          navigate("/user/bookings");
         },
         onError: (error) => {
           console.error("Cancellation error:", error);

@@ -120,16 +120,17 @@ export class HostelRepository implements IHostelRepository {
 
       // Fetch ratings for all hostels :-
 
-      const ratingsAggregation: RatingAggregationResult[] = await Rating.aggregate([
-        { $match: { hostel_id: { $in: hostelIds } } },
-        {
-          $group: {
-            _id: "$hostel_id",
-            averageRating: { $avg: "$rating" },
-            count: { $sum: 1 },
+      const ratingsAggregation: RatingAggregationResult[] =
+        await Rating.aggregate([
+          { $match: { hostel_id: { $in: hostelIds } } },
+          {
+            $group: {
+              _id: "$hostel_id",
+              averageRating: { $avg: "$rating" },
+              count: { $sum: 1 },
+            },
           },
-        },
-      ]);
+        ]);
 
       // Create a map for easy lookup :- (Rating Filter)
 
@@ -192,16 +193,17 @@ export class HostelRepository implements IHostelRepository {
 
       const hostelIds = hostels.map((hostel) => hostel._id);
 
-      const ratingsAggregation: RatingAggregationResult[] = await Rating.aggregate([
-        { $match: { hostel_id: { $in: hostelIds } } },
-        {
-          $group: {
-            _id: "$hostel_id",
-            averageRating: { $avg: "$rating" },
-            count: { $sum: 1 },
+      const ratingsAggregation: RatingAggregationResult[] =
+        await Rating.aggregate([
+          { $match: { hostel_id: { $in: hostelIds } } },
+          {
+            $group: {
+              _id: "$hostel_id",
+              averageRating: { $avg: "$rating" },
+              count: { $sum: 1 },
+            },
           },
-        },
-      ]);
+        ]);
 
       const ratingsMap: RatingMap = new Map();
       ratingsAggregation.forEach((item) => {
@@ -277,9 +279,9 @@ export class HostelRepository implements IHostelRepository {
   }
 
   // Get hostel with session for transaction
-  
+
   async getHostelByIdWithLock(
-    hostelId: string, 
+    hostelId: string,
     session: mongoose.ClientSession
   ): Promise<IHostel | null> {
     return await Hostel.findById(hostelId)
@@ -299,12 +301,25 @@ export class HostelRepository implements IHostelRepository {
   ): Promise<IHostel | null> {
     return await Hostel.findByIdAndUpdate(
       hostelId,
-      { 
-        $inc: { available_space: -1 }
+      {
+        $inc: { available_space: -1 },
       },
-      { 
+      {
         new: true,
-        session: session
+        session: session,
+      }
+    );
+  }
+
+  // Atomic increase of available space (for booking cancellation)
+  async increaseAvailableSpace(hostelId: string): Promise<IHostel | null> {
+    return await Hostel.findByIdAndUpdate(
+      hostelId,
+      {
+        $inc: { available_space: 1 },
+      },
+      {
+        new: true,
       }
     );
   }
@@ -343,16 +358,17 @@ export class HostelRepository implements IHostelRepository {
 
       const hostelIds = filteredHostels.map((hostel) => hostel._id);
 
-      const ratingsAggregation: RatingAggregationResult[] = await Rating.aggregate([
-        { $match: { hostel_id: { $in: hostelIds } } },
-        {
-          $group: {
-            _id: "$hostel_id",
-            averageRating: { $avg: "$rating" },
-            count: { $sum: 1 },
+      const ratingsAggregation: RatingAggregationResult[] =
+        await Rating.aggregate([
+          { $match: { hostel_id: { $in: hostelIds } } },
+          {
+            $group: {
+              _id: "$hostel_id",
+              averageRating: { $avg: "$rating" },
+              count: { $sum: 1 },
+            },
           },
-        },
-      ]);
+        ]);
 
       const ratingsMap: RatingMap = new Map();
       ratingsAggregation.forEach((item) => {
@@ -362,21 +378,23 @@ export class HostelRepository implements IHostelRepository {
         });
       });
 
-      const hostelsWithRatings: IHostelWithRatings[] = filteredHostels.map((hostel) => {
-        const hostelObj =
-          typeof hostel.toObject === "function"
-            ? hostel.toObject()
-            : { ...hostel };
+      const hostelsWithRatings: IHostelWithRatings[] = filteredHostels.map(
+        (hostel) => {
+          const hostelObj =
+            typeof hostel.toObject === "function"
+              ? hostel.toObject()
+              : { ...hostel };
 
-        const hostelId = (hostel._id as mongoose.Types.ObjectId).toString();
-        const ratingInfo = ratingsMap.get(hostelId);
+          const hostelId = (hostel._id as mongoose.Types.ObjectId).toString();
+          const ratingInfo = ratingsMap.get(hostelId);
 
-        return {
-          ...hostelObj,
-          averageRating: ratingInfo ? ratingInfo.averageRating : 0,
-          ratingCount: ratingInfo ? ratingInfo.count : 0,
-        } as IHostelWithRatings;
-      });
+          return {
+            ...hostelObj,
+            averageRating: ratingInfo ? ratingInfo.averageRating : 0,
+            ratingCount: ratingInfo ? ratingInfo.count : 0,
+          } as IHostelWithRatings;
+        }
+      );
 
       return hostelsWithRatings;
     } catch (error) {
