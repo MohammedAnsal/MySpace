@@ -33,18 +33,18 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           const response = await getNotificationsByRecipient(userId);
 
-          console.log(response)
+          // Handle the new response structure
+          const notificationsArray = response.notifications || response;
+          const unreadCountFromResponse = response.unreadCount || 0;
 
           // Filter out notifications we've already received via socket
-          const filteredNotifications = response.filter(
+          const filteredNotifications = notificationsArray.filter(
             (notification: INotification) =>
               !receivedSocketNotifications.has(notification._id)
           );
+          
           setNotifications(filteredNotifications);
-          setUnreadCount(
-            filteredNotifications.filter((n: { isRead: boolean }) => !n.isRead)
-              .length
-          );
+          setUnreadCount(unreadCountFromResponse);
         } catch (error) {
           console.error("Error fetching notifications:", error);
         }

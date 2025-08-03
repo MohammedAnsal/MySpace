@@ -340,6 +340,10 @@ export class BookingService implements IBookingService {
         String(booking.hostelId)
       );
 
+      await this.hostelRepository.increaseAvailableSpace(
+        String(booking.hostelId)
+      );
+
       const notification = await this.notificationService.createNotification({
         recipient: new mongoose.Types.ObjectId(String(hostel?.provider_id)),
         sender: new mongoose.Types.ObjectId(String(booking?.userId)),
