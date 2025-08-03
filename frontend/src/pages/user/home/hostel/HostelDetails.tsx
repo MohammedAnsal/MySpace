@@ -81,6 +81,8 @@ const HostelDetails = () => {
 
   const navigate = useNavigate();
 
+  console.log(hostel)
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -246,41 +248,40 @@ const HostelDetails = () => {
               </motion.div>
 
               {/* Facilities */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-xl shadow-sm p-6"
-              >
-                <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Shield className="w-6 h-6 text-main-color mr-2" />
-                  Additional Facilities
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {hostel.facilities?.map((facility: any, index: number) => (
-                    <motion.div
-                      key={facility._id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="bg-gradient-to-br from-[#384f9514] to-[#384f9514] rounded-xl p-6 border border-amber-200/30"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {facility.name}
-                        </h3>
-                        <div className="flex items-center text-main-color font-semibold bg-[#384f9514] px-3 py-1 rounded-full">
-                          <DollarSign className="w-4 h-4 mr-1" />
-                          {facility.price}
+              {hostel.facilities && hostel.facilities.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-xl shadow-sm p-6"
+                >
+                  <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                    <Shield className="w-6 h-6 text-main-color mr-2" />
+                    Additional Facilities
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {hostel.facilities.map((facility: any, index: number) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                        className="flex items-center space-x-3 bg-[#384f9514] p-3 rounded-lg"
+                      >
+                        <span className="text-main-color">
+                          <CheckCircle className="w-5 h-5" />
+                        </span>
+                        <div>
+                          <span className="text-gray-700 font-medium">{facility.type}</span>
+                          <p className="text-sm text-gray-500">₹{facility.ratePerMonth}/month</p>
                         </div>
-                      </div>
-                      <p className="text-gray-600">{facility.description}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Sidebar */}
