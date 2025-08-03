@@ -3,18 +3,26 @@ import ChatRoom, { IChatRoom } from "../../../models/chat/chatRoom.model";
 import { IChatRoomRepository } from "../../interfaces/chat/chatRoom.Irepository";
 import { IMessage } from "../../../models/chat/message.model";
 import Container, { Service } from "typedi";
+import { CreateChatRoomDTO, UpdateChatRoomDTO } from "../../../dtos/chat/chat.room.dto";
+
 @Service()
 export class ChatRoomRepository implements IChatRoomRepository {
-  //  For create chatRoom :-
-
-  async createChatRoom(chatRoomData: IChatRoom): Promise<IChatRoom> {
-    const chatRoom = new ChatRoom(chatRoomData);
+  // Create chat room
+  async createChatRoom(chatRoomData: CreateChatRoomDTO): Promise<IChatRoom> {
+    const dataToCreate = {
+      userId: new Types.ObjectId(chatRoomData.userId.toString()),
+      providerId: new Types.ObjectId(chatRoomData.providerId.toString()),
+      userUnreadCount: 0,
+      providerUnreadCount: 0,
+      lastMessageTime: new Date(),
+    };
+    
+    const chatRoom = new ChatRoom(dataToCreate);
     const savedChatRoom = await chatRoom.save();
     return savedChatRoom as IChatRoom;
   }
 
-  //  For find single chatRoom :-
-
+  // Find single chat room
   async findChatRoomById(
     chatRoomId: string | Types.ObjectId
   ): Promise<IChatRoom | null> {
@@ -27,8 +35,7 @@ export class ChatRoomRepository implements IChatRoomRepository {
     return chatRoom.toObject() as IChatRoom;
   }
 
-  //  For create chatRoom :-
-
+  // Find chat room by user and provider
   async findChatRoomByUserAndProvider(
     userId: string | Types.ObjectId,
     providerId: string | Types.ObjectId
@@ -36,19 +43,17 @@ export class ChatRoomRepository implements IChatRoomRepository {
     return await ChatRoom.findOne({ userId, providerId });
   }
 
-  //  For update single chatRoom :-
-
+  // Update chat room
   async updateChatRoom(
     chatRoomId: string | Types.ObjectId,
-    updateData: Partial<IChatRoom>
+    updateData: UpdateChatRoomDTO
   ): Promise<IChatRoom | null> {
     return await ChatRoom.findByIdAndUpdate(chatRoomId, updateData, {
       new: true,
     });
   }
 
-  //  For increment un-read count :-
-
+  // Increment unread count
   async incrementUnreadCount(
     chatRoomId: string | Types.ObjectId,
     userType: "user" | "provider"
@@ -62,8 +67,7 @@ export class ChatRoomRepository implements IChatRoomRepository {
     );
   }
 
-  //  For re-set unread count :-
-
+  // Reset unread count
   async resetUnreadCount(
     chatRoomId: string | Types.ObjectId,
     userType: "user" | "provider"
@@ -77,8 +81,7 @@ export class ChatRoomRepository implements IChatRoomRepository {
     );
   }
 
-  //  For update latest message :-
-
+  // Update last message
   async updateLastMessage(
     chatRoomId: string | Types.ObjectId,
     message: IMessage,
@@ -91,8 +94,7 @@ export class ChatRoomRepository implements IChatRoomRepository {
     );
   }
 
-  //  For user chat room's :-
-
+  // Get chat rooms for user
   async getChatRoomsForUser(
     userId: string | Types.ObjectId,
     page: number = 1,
@@ -107,8 +109,7 @@ export class ChatRoomRepository implements IChatRoomRepository {
     return chatRooms.map((room) => room.toObject()) as IChatRoom[];
   }
 
-  //  For provider chat room's :-
-
+  // Get chat rooms for provider
   async getChatRoomsForProvider(
     providerId: string | Types.ObjectId,
     page: number = 1,
@@ -124,8 +125,7 @@ export class ChatRoomRepository implements IChatRoomRepository {
     return chatRooms.map((room) => room.toObject()) as IChatRoom[];
   }
 
-  //  For delete chat room :-
-
+  // Delete chat room
   async deleteChatRoom(chatRoomId: string | Types.ObjectId): Promise<boolean> {
     const result = await ChatRoom.deleteOne({ _id: chatRoomId });
     return result.deletedCount > 0;

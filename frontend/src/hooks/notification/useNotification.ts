@@ -33,7 +33,6 @@ export const useNotification = (recipientId?: string) => {
     staleTime: 1000 * 60, // 1 minute freshness
   });
 
-  // ✅ Create a new notification
   const createMutation = useMutation({
     mutationFn: (data: CreateNotificationDTO) => createNotification(data),
     onSuccess: () => {
@@ -45,7 +44,6 @@ export const useNotification = (recipientId?: string) => {
     },
   });
 
-  // ✅ Update a notification
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateNotificationDTO }) =>
       updateNotification(id, data),
@@ -58,7 +56,6 @@ export const useNotification = (recipientId?: string) => {
     },
   });
 
-  // ✅ Delete a notification
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteNotification(id),
     onSuccess: () => {
@@ -70,7 +67,6 @@ export const useNotification = (recipientId?: string) => {
     },
   });
 
-  // ✅ Get a single notification by ID (on-demand)
   const getById = (id: string) => getNotificationById(id);
 
   return {

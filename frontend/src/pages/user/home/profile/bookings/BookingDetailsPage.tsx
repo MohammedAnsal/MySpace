@@ -38,12 +38,7 @@ const BookingDetailsPage: React.FC = () => {
     }
   }, [location, navigate]);
 
-  const {
-    data: booking,
-    isLoading,
-    error,
-    refetch,
-  } = useUserBookingsDetails(bookingId);
+  const { data: booking, isLoading, error } = useUserBookingsDetails(bookingId);
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isBuyFacilityOpen, setIsBuyFacilityOpen] = useState(false);
@@ -77,7 +72,7 @@ const BookingDetailsPage: React.FC = () => {
       onSuccess: (response) => {
         if (response?.data?.checkoutUrl) {
           window.location.href = response.data.checkoutUrl;
-          console.log(response.data.checkoutUrl,'pppppppp')
+          console.log(response.data.checkoutUrl, "pppppppp");
           toast.success("Facilities added successfully!");
         } else {
           toast.error("Payment session creation failed");
@@ -97,8 +92,7 @@ const BookingDetailsPage: React.FC = () => {
       { bookingId, reason },
       {
         onSuccess: () => {
-          refetch();
-          navigate("/user/bookings");
+          // navigate("/user/bookings");
         },
         onError: (error) => {
           console.error("Cancellation error:", error);

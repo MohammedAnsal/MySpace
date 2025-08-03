@@ -1,9 +1,10 @@
 import { Types } from "mongoose";
 import { IChatRoom } from "../../../models/chat/chatRoom.model";
 import { IMessage } from "../../../models/chat/message.model";
+import { CreateChatRoomDTO, UpdateChatRoomDTO } from "../../../dtos/chat/chat.room.dto";
 
 export interface IChatRoomRepository {
-  createChatRoom(chatRoomData: IChatRoom): Promise<IChatRoom>;
+  createChatRoom(chatRoomData: CreateChatRoomDTO): Promise<IChatRoom>;
   findChatRoomById(
     chatRoomId: string | Types.ObjectId
   ): Promise<IChatRoom | null>;
@@ -13,7 +14,7 @@ export interface IChatRoomRepository {
   ): Promise<IChatRoom | null>;
   updateChatRoom(
     chatRoomId: string | Types.ObjectId,
-    updateData: Partial<IChatRoom>
+    updateData: UpdateChatRoomDTO
   ): Promise<IChatRoom | null>;
   incrementUnreadCount(
     chatRoomId: string | Types.ObjectId,

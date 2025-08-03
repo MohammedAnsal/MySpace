@@ -191,24 +191,6 @@ export const SuccessPayment = () => {
             <p className="text-gray-600 mb-4">
               Your booking has been confirmed.
             </p>
-
-            {paymentData && (
-              <div className="text-left text-gray-700 text-sm mb-6 space-y-1">
-                <p>
-                  <strong>Booking ID:</strong> {paymentData.bookingId}
-                </p>
-                <p>
-                  <strong>Amount:</strong> ${paymentData.amount}
-                </p>
-                <p>
-                  <strong>Hostel:</strong> {paymentData.hostelName || "N/A"}
-                </p>
-                <p>
-                  <strong>Stay Duration:</strong> {paymentData.stayDuration}{" "}
-                  month(s)
-                </p>
-              </div>
-            )}
           </>
         ) : (
           <>

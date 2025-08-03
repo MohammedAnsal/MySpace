@@ -1,13 +1,19 @@
 import Container, { Service } from "typedi";
 import { Types } from "mongoose";
 import { IChatRoomService } from "../../interface/chat/chatRoom.service.interface";
-import { IChatRoom } from "../../../models/chat/chatRoom.model";
 import { AppError } from "../../../utils/error";
 import { HttpStatus } from "../../../enums/http.status";
 import { IMessageRepository } from "../../../repositories/interfaces/chat/message.Irepository";
 import { IChatRoomRepository } from "../../../repositories/interfaces/chat/chatRoom.Irepository";
 import { chatRoomRepository } from "../../../repositories/implementations/chat/chatRoom.repository";
 import { messageRepository } from "../../../repositories/implementations/chat/message.repository";
+import {
+  CreateChatRoomDTO,
+  ChatRoomResponseDTO,
+  ChatRoomListResponseDTO,
+  mapToChatRoomResponseDTO,
+  mapToChatRoomListResponseDTO,
+} from "../../../dtos/chat/chat.room.dto";
 
 @Service()
 export class ChatRoomService implements IChatRoomService {
@@ -19,12 +25,11 @@ export class ChatRoomService implements IChatRoomService {
     this.messageRepository = messageRepository;
   }
 
-  //  Create chat room :-
-
+  // Create chat room
   async createChatRoom(
     userId: string | Types.ObjectId,
     providerId: string | Types.ObjectId
-  ): Promise<IChatRoom> {
+  ): Promise<ChatRoomResponseDTO> {
     try {
       const existingChatRoom =
         await this.chatRoomRepository.findChatRoomByUserAndProvider(
@@ -33,18 +38,16 @@ export class ChatRoomService implements IChatRoomService {
         );
 
       if (existingChatRoom) {
-        return existingChatRoom;
+        return mapToChatRoomResponseDTO(existingChatRoom, true, true);
       }
 
-      const chatRoomData: IChatRoom = {
-        userId: new Types.ObjectId(userId.toString()),
-        providerId: new Types.ObjectId(providerId.toString()),
-        userUnreadCount: 0,
-        providerUnreadCount: 0,
-        lastMessageTime: new Date(),
+      const chatRoomData: CreateChatRoomDTO = {
+        userId: userId.toString(),
+        providerId: providerId.toString(),
       };
 
-      return await this.chatRoomRepository.createChatRoom(chatRoomData);
+      const chatRoom = await this.chatRoomRepository.createChatRoom(chatRoomData);
+      return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -54,13 +57,15 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
-  //  Get single chatRoom :-
-
+  // Get single chat room
   async getChatRoomById(
     chatRoomId: string | Types.ObjectId
-  ): Promise<IChatRoom | null> {
+  ): Promise<ChatRoomResponseDTO | null> {
     try {
-      return await this.chatRoomRepository.findChatRoomById(chatRoomId);
+      const chatRoom = await this.chatRoomRepository.findChatRoomById(chatRoomId);
+      if (!chatRoom) return null;
+      
+      return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -70,13 +75,12 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
-  //  Update latest message :-
-
+  // Update latest message
   async updateLastMessage(
     chatRoomId: string | Types.ObjectId,
     messageId: string | Types.ObjectId,
     messageTime: Date
-  ): Promise<IChatRoom | null> {
+  ): Promise<ChatRoomResponseDTO | null> {
     try {
       const message = await this.messageRepository.findMessageById(messageId);
 
@@ -84,11 +88,14 @@ export class ChatRoomService implements IChatRoomService {
         throw new AppError("Message not found", HttpStatus.NOT_FOUND);
       }
 
-      return await this.chatRoomRepository.updateLastMessage(
+      const chatRoom = await this.chatRoomRepository.updateLastMessage(
         chatRoomId,
         message,
         messageTime
       );
+      
+      if (!chatRoom) return null;
+      return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -101,12 +108,15 @@ export class ChatRoomService implements IChatRoomService {
   async incrementUnreadCount(
     chatRoomId: string | Types.ObjectId,
     userType: "user" | "provider"
-  ): Promise<IChatRoom | null> {
+  ): Promise<ChatRoomResponseDTO | null> {
     try {
-      return await this.chatRoomRepository.incrementUnreadCount(
+      const chatRoom = await this.chatRoomRepository.incrementUnreadCount(
         chatRoomId,
         userType
       );
+      
+      if (!chatRoom) return null;
+      return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -119,12 +129,15 @@ export class ChatRoomService implements IChatRoomService {
   async resetUnreadCount(
     chatRoomId: string | Types.ObjectId,
     userType: "user" | "provider"
-  ): Promise<IChatRoom | null> {
+  ): Promise<ChatRoomResponseDTO | null> {
     try {
-      return await this.chatRoomRepository.resetUnreadCount(
+      const chatRoom = await this.chatRoomRepository.resetUnreadCount(
         chatRoomId,
         userType
       );
+      
+      if (!chatRoom) return null;
+      return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -134,18 +147,28 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
-  //  Get All user chat room's :-
-
+  // Get all user chat rooms
   async getUserChatRooms(
     userId: string | Types.ObjectId,
     page: number = 1,
     limit: number = 10
-  ): Promise<IChatRoom[]> {
+  ): Promise<ChatRoomListResponseDTO> {
     try {
-      return await this.chatRoomRepository.getChatRoomsForUser(
+      const chatRooms = await this.chatRoomRepository.getChatRoomsForUser(
         userId,
         page,
         limit
+      );
+      
+      const totalCount = chatRooms.length;
+      const hasMore = totalCount === limit;
+      
+      return mapToChatRoomListResponseDTO(
+        chatRooms,
+        totalCount,
+        hasMore,
+        true,
+        true
       );
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -156,18 +179,28 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
-  //  Get All provider chat room's :-
-
+  // Get all provider chat rooms
   async getProviderChatRooms(
     providerId: string | Types.ObjectId,
     page: number = 1,
     limit: number = 10
-  ): Promise<IChatRoom[]> {
+  ): Promise<ChatRoomListResponseDTO> {
     try {
-      return await this.chatRoomRepository.getChatRoomsForProvider(
+      const chatRooms = await this.chatRoomRepository.getChatRoomsForProvider(
         providerId,
         page,
         limit
+      );
+      
+      const totalCount = chatRooms.length;
+      const hasMore = totalCount === limit;
+      
+      return mapToChatRoomListResponseDTO(
+        chatRooms,
+        totalCount,
+        hasMore,
+        true,
+        true
       );
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -178,8 +211,7 @@ export class ChatRoomService implements IChatRoomService {
     }
   }
 
-  //  Soon :-
-
+  // Delete chat room
   async deleteChatRoom(chatRoomId: string | Types.ObjectId): Promise<boolean> {
     try {
       return await this.chatRoomRepository.deleteChatRoom(chatRoomId);
