@@ -23,10 +23,10 @@ export class CronService {
       }
     });
 
-    // ✅ NEW: Expired bookings cleanup (runs every 5 minutes)
     cron.schedule("* * * * *", async () => {
       try {
         await this.cleanUpExpiredBookings();
+        await this.deleteExpiredBookings();
       } catch (error) {
         console.error("Error in expired booking cleanup cron job:", error);
       }
@@ -70,7 +70,6 @@ export class CronService {
           ? (booking.hostelId as PopulatedHostel).hostel_name
           : "your hostel";
 
-      // notification for user
       const userNotification = await notificationService.createNotification({
         recipient: new mongoose.Types.ObjectId(booking.userId.toString()),
         sender: new mongoose.Types.ObjectId(booking.providerId.toString()),
@@ -84,7 +83,6 @@ export class CronService {
         recipient: userNotification.recipient.toString(),
       });
 
-      // notification for provider
       const providerNotification = await notificationService.createNotification(
         {
           recipient: new mongoose.Types.ObjectId(booking.providerId.toString()),
@@ -111,7 +109,6 @@ export class CronService {
     });
 
     for (const booking of expiredBookings) {
-      // 1. Expire the booking
       await Booking.updateOne(
         { _id: booking._id },
         { $set: { paymentStatus: "expired" } }
@@ -122,14 +119,40 @@ export class CronService {
         { $set: { status: "expired" } }
       );
 
-      // 2. Restore the room count
       await Hostel.updateOne(
         { _id: booking.hostelId },
         { $inc: { available_space: 1 } }
       );
-
-      console.log(`✅ Expired booking ${booking._id} cleaned up`);
     }
+  }
+
+  private async deleteExpiredBookings() {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+    const expiredBookingsToDelete = await Booking.find({
+      paymentStatus: "expired",
+      paymentExpiry: { $lt: oneHourAgo },
+    });
+
+    if (expiredBookingsToDelete.length > 0) {
+      for (const booking of expiredBookingsToDelete) {
+        try {
+          // Delete the booking
+          await Booking.findByIdAndDelete(booking._id);
+
+          // Also delete related payment records
+          await HostelPaymentModel.deleteOne({ bookingId: booking._id });
+
+          console.log(`Deleted expired booking: ${booking._id}`);
+        } catch (error) {
+          console.error(`Error deleting booking ${booking._id}:`, error);
+        }
+      }
+    }
+
+    console.log(
+      `Successfully deleted ${expiredBookingsToDelete.length} expired bookings`
+    );
   }
 }
 
