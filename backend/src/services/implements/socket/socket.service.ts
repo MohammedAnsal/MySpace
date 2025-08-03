@@ -12,14 +12,12 @@ import { S3Service } from "../s3/s3.service";
 import IS3service from "../../interface/s3/s3.service.interface";
 import { IBooking } from "../../../models/booking.model";
 
-// If you have a notification type/interface, import it. Otherwise, define a minimal one:
 interface SocketNotification {
   recipient: string;
   title: string;
   message: string;
   type: string;
   // relatedId: string;
-  // Add more fields if your notification payload requires them
 }
 
 @Service()
@@ -42,7 +40,7 @@ export class SocketService {
   initialize(httpServer: HttpServer): void {
     this.io = new Server(httpServer, {
       cors: {
-        origin: process.env.CLIENT_URL || "https://my-space.shop",
+        origin: process.env.CLIENT_URL || "http://localhost:7001",
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         credentials: true,
       },

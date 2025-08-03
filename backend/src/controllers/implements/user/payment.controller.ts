@@ -171,45 +171,6 @@ export class PaymentController {
     }
   }
 
-  // async findByStripeSessionId(
-  //   req: AuthRequset,
-  //   res: Response
-  // ): Promise<Response> {
-  //   try {
-  //     const { sessionId } = req.query;
-
-  //     console.log(sessionId);
-
-  //     const findPayment = await this.paymentService.getPaymentByStripeSessionId(
-  //       String(sessionId)
-  //     );
-
-  //     console.log(findPayment, "from controller ");
-
-  //     if (!findPayment) {
-  //       throw new AppError(
-  //         "Payment not found in this stripe id",
-  //         HttpStatus.BAD_REQUEST
-  //       );
-  //     }
-
-  //     return res
-  //       .status(HttpStatus.OK)
-  //       .json({ message: "Payment found successfully", data: findPayment });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       return res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     }
-  //     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-  //       status: "error",
-  //       message: "Error finding payment",
-  //     });
-  //   }
-  // }
-
   async findByStripeSessionId(
     req: AuthRequset,
     res: Response
@@ -249,7 +210,6 @@ export class PaymentController {
         });
       }
 
-      // Check if expired
       if (
         !booking ||
         booking.paymentStatus === "expired" ||

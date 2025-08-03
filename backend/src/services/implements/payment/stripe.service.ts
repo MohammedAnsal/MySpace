@@ -193,15 +193,11 @@ export class StripeService {
               throw new AppError("Booking not found", StatusCodes.NOT_FOUND);
             }
 
-            const now = Date.now();
-            const expiry = new Date(userbooking.paymentExpiry).getTime();
-
             const isExpired = userbooking.paymentStatus == "expired";
 
             if (isExpired) {
               console.warn("Payment received for expired booking. Skipping...");
               await this.paymentRepo.updateStatus(payment._id, "cancelled");
-              console.log("byeeeee");
               break;
             }
 
@@ -212,7 +208,6 @@ export class StripeService {
 
             // Create and emit real-time notification for the provider
             if (bookingData) {
-              console.log("pppppppppppppppppppppppppppppppp");
               const hostel = await this.hostelRepo.getHostelById(
                 String(bookingData.hostelId)
               );

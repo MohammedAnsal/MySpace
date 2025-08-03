@@ -6,8 +6,8 @@ import {
   UpdateNotificationDTO,
 } from "../../types/notification";
 
-const API_BASE_URL = "https://api.my-space.shop/notification";
-// const API_BASE_URL = "http://localhost:7001/notification";
+// const API_BASE_URL = "https://api.my-space.shop/notification";
+const API_BASE_URL = "http://localhost:7001/notification";
 
 export const createNotification = async (
   data: CreateNotificationDTO
@@ -63,14 +63,12 @@ export const deleteNotification = async (id: string): Promise<void> => {
   }
 };
 
-export const getNotificationsByRecipient = async (
-  recipientId: string
-): Promise<INotification[]> => {
+export const getNotificationsByRecipient = async (recipientId: string) => {
   try {
     const response = await userAxiosInstance.get(
       `${API_BASE_URL}/recipient/${recipientId}`
     );
-    return response.data.data as INotification[];
+    return response.data.data;
   } catch (error) {
     const err = error as AxiosError<{ message?: string }>;
     throw new Error(

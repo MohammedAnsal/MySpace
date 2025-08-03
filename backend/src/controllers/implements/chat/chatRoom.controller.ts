@@ -148,14 +148,14 @@ export class ChatRoomController {
         throw new AppError("Valid userId is required", HttpStatus.BAD_REQUEST);
       }
 
-      const chatRooms = await this.chatRoomService.getUserChatRooms(
+      const chatRoomsResponse = await this.chatRoomService.getUserChatRooms(
         userId,
         page,
         limit
       );
 
       const roomsWithSignedUrls = await Promise.all(
-        chatRooms.map(async (room) => {
+        chatRoomsResponse.chatRooms.map(async (room: any) => {
           const result = { ...room };
 
           // If providerId is populated :-
@@ -197,6 +197,8 @@ export class ChatRoomController {
       return res.status(HttpStatus.OK).json({
         success: true,
         chatRooms: roomsWithSignedUrls,
+        totalCount: chatRoomsResponse.totalCount,
+        hasMore: chatRoomsResponse.hasMore,
       });
     } catch (error) {
       console.error("Error getting user chat rooms:", error);
@@ -232,14 +234,14 @@ export class ChatRoomController {
         );
       }
 
-      const chatRooms = await this.chatRoomService.getProviderChatRooms(
+      const chatRoomsResponse = await this.chatRoomService.getProviderChatRooms(
         providerId,
         page,
         limit
       );
 
       const roomsWithSignedUrls = await Promise.all(
-        chatRooms.map(async (room) => {
+        chatRoomsResponse.chatRooms.map(async (room: any) => {
           const result = { ...room };
 
           if (
@@ -277,6 +279,8 @@ export class ChatRoomController {
       return res.status(HttpStatus.OK).json({
         success: true,
         chatRooms: roomsWithSignedUrls,
+        totalCount: chatRoomsResponse.totalCount,
+        hasMore: chatRoomsResponse.hasMore,
       });
     } catch (error) {
       console.error("Error getting provider chat rooms:", error);

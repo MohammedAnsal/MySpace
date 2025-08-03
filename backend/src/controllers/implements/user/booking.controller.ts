@@ -367,16 +367,13 @@ class BookingController implements IBookingController {
         totalAmount += facilityData.price * f.duration;
       }
 
-      // Get booking to fetch hostelId, providerId, etc.
       const booking = await bookingService.getBookingById(bookingId);
       if (!booking)
         throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
 
-      // --- UPDATED SUCCESS & CANCEL URLS ---
       const successUrl = `${process.env.CLIENT_URL}/user/bookings/${bookingId}?facilityPayment=success`;
       const cancelUrl = `${process.env.CLIENT_URL}/user/bookings/${bookingId}?facilityPayment=cancel`;
 
-      // Create Stripe session
       const sessionUrl = await this.stripeService.createCheckoutSession({
         hostelId: new Types.ObjectId(booking.hostelId._id),
         userId: new Types.ObjectId(userId),
