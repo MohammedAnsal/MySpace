@@ -10,6 +10,13 @@ import { IMessageRepository } from "../../../repositories/interfaces/chat/messag
 import { IChatRoomRepository } from "../../../repositories/interfaces/chat/chatRoom.Irepository";
 import { S3Service } from "../../../services/implements/s3/s3.service";
 import IS3service from "../../interface/s3/s3.service.interface";
+import {
+  mapToMessageResponseDTO,
+  mapToMessageListResponseDTO,
+  MessageResponseDTO,
+  MessageListResponseDTO,
+  UnreadCountDTO,
+} from "../../../dtos/chat/message.dto";
 
 @Service()
 export class MessageService implements IMessageService {
@@ -32,7 +39,7 @@ export class MessageService implements IMessageService {
     content: string,
     image?: string,
     replyToMessageId?: string | Types.ObjectId
-  ): Promise<IMessage> {
+  ): Promise<MessageResponseDTO> {
     try {
       const chatRoom = await this.chatRoomRepository.findChatRoomById(
         chatRoomId
@@ -87,7 +94,7 @@ export class MessageService implements IMessageService {
         recipientType
       );
 
-      return newMessage;
+      return mapToMessageResponseDTO(newMessage, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -101,9 +108,10 @@ export class MessageService implements IMessageService {
 
   async getMessageById(
     messageId: string | Types.ObjectId
-  ): Promise<IMessage | null> {
+  ): Promise<MessageResponseDTO | null> {
     try {
-      return await this.messageRepository.findMessageById(messageId);
+      const message = await this.messageRepository.findMessageById(messageId);
+      return message ? mapToMessageResponseDTO(message, true, true) : null;
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -119,7 +127,7 @@ export class MessageService implements IMessageService {
     chatRoomId: string | Types.ObjectId,
     page: number = 1,
     limit: number = 20
-  ): Promise<IMessage[]> {
+  ): Promise<MessageListResponseDTO> {
     try {
       const chatRoom = await this.chatRoomRepository.findChatRoomById(
         chatRoomId
@@ -134,22 +142,16 @@ export class MessageService implements IMessageService {
         limit
       );
 
-      const messagesWithSignedUrls = await Promise.all(
-        messages.map(async (message) => {
-          // if (message.image) {
-          //   const signedUrl = await this.s3Service.generateSignedUrl(
-          //     message.image
-          //   );
-          //   return {
-          //     ...message,
-          //     image: signedUrl,
-          //   };
-          // }
-          return message;
-        })
-      );
+      const totalCount = messages.length; // Replace with actual count if paginated
+      const hasMore = false; // Replace with actual logic if paginated
 
-      return messagesWithSignedUrls;
+      return mapToMessageListResponseDTO(
+        messages,
+        totalCount,
+        hasMore,
+        true,
+        true
+      );
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -163,9 +165,10 @@ export class MessageService implements IMessageService {
 
   async markMessageAsSeen(
     messageId: string | Types.ObjectId
-  ): Promise<IMessage | null> {
+  ): Promise<MessageResponseDTO | null> {
     try {
-      return await this.messageRepository.markMessageAsSeen(messageId);
+      const updated = await this.messageRepository.markMessageAsSeen(messageId);
+      return updated ? mapToMessageResponseDTO(updated, true, true) : null;
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -180,7 +183,7 @@ export class MessageService implements IMessageService {
   async markAllMessagesAsSeenInChatRoom(
     chatRoomId: string | Types.ObjectId,
     recipientType: "user" | "provider"
-  ): Promise<boolean> {
+  ): Promise<{ success: boolean; messagesMarkedAsSeen: boolean }> {
     try {
       const chatRoom = await this.chatRoomRepository.findChatRoomById(
         chatRoomId
@@ -202,7 +205,7 @@ export class MessageService implements IMessageService {
         );
       }
 
-      return result;
+      return { success: true, messagesMarkedAsSeen: result };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -217,7 +220,7 @@ export class MessageService implements IMessageService {
   async getUnreadMessageCount(
     chatRoomId: string | Types.ObjectId,
     recipientType: "user" | "provider"
-  ): Promise<number> {
+  ): Promise<UnreadCountDTO> {
     try {
       const chatRoom = await this.chatRoomRepository.findChatRoomById(
         chatRoomId
@@ -226,10 +229,16 @@ export class MessageService implements IMessageService {
         throw new AppError("Chat room not found", HttpStatus.NOT_FOUND);
       }
 
-      return await this.messageRepository.countUnreadMessages(
+      const count = await this.messageRepository.countUnreadMessages(
         chatRoomId,
         recipientType
       );
+
+      return {
+        chatRoomId: chatRoomId.toString(),
+        recipientType,
+        unreadCount: count,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(

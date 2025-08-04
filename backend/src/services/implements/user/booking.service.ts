@@ -102,21 +102,21 @@ export class BookingService implements IBookingService {
       }
 
       // Decrease available space atomically
-      await this.hostelRepository.decreaseAvailableSpace(
+      const updatedHostel = await this.hostelRepository.decreaseAvailableSpace(
         bookingData.hostelId,
         session
       );
 
-      // if (
-      //   !updatedHostel ||
-      //   (updatedHostel.available_space !== null &&
-      //     updatedHostel.available_space < 0)
-      // ) {
-      //   throw new AppError(
-      //     "No beds available in this hostel",
-      //     HttpStatus.BAD_REQUEST
-      //   );
-      // }
+      if (
+        !updatedHostel ||
+        (updatedHostel.available_space !== null &&
+          updatedHostel.available_space < 0)
+      ) {
+        throw new AppError(
+          "No beds available in this hostel",
+          HttpStatus.BAD_REQUEST
+        );
+      }
 
       // Upload proof document
       if (!bookingData.proof || !bookingData.proof.buffer) {

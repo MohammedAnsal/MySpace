@@ -7,6 +7,7 @@ import { HttpStatus } from "../../../enums/http.status";
 import { IMessageService } from "../../../services/interface/chat/message.service.interface";
 import { S3Service } from "../../../services/implements/s3/s3.service";
 import IS3service from "../../../services/interface/s3/s3.service.interface";
+import { MessageListResponseDTO } from "../../../dtos/chat/message.dto";
 
 @Service()
 export class MessageController {
@@ -107,14 +108,14 @@ export class MessageController {
         );
       }
 
-      const messages = await this.messageService.getChatMessages(
+      const messageListDTO = await this.messageService.getChatMessages(
         chatRoomId,
         page,
         limit
       );
 
       const messagesWithSignedUrls = await Promise.all(
-        messages.map(async (message) => {
+        messageListDTO.messages.map(async (message) => {
           if (message.image) {
             const signedUrl = await this.s3Service.generateSignedUrl(message.image);
             return {
@@ -128,7 +129,8 @@ export class MessageController {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        messages: messagesWithSignedUrls,
+        ...messageListDTO,
+        messages: messagesWithSignedUrls, // override messages with signed URLs
       });
     } catch (error) {
       console.error("Error getting chat messages:", error);

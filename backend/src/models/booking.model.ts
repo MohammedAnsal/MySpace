@@ -30,6 +30,8 @@ export interface IBooking extends Document {
   proof: string;
   reason: string;
   paymentExpiry: Date;
+  stayDurationReminderSent: Date; // Track stay duration reminders
+  monthlyRentReminderSent: Date; // Track monthly rent reminders
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,6 +80,15 @@ const BookingSchema: Schema<IBooking> = new Schema(
     paymentExpiry: {
       type: Date,
       required: true,
+    },
+
+    stayDurationReminderSent: {
+      type: Date,
+      default: null,
+    },
+    monthlyRentReminderSent: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

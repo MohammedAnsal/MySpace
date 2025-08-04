@@ -45,6 +45,8 @@ export interface MessageListResponseDTO {
   messages: MessageResponseDTO[];
   totalCount: number;
   hasMore: boolean;
+  lastMessage?: MessageResponseDTO; // Add this if you want last message
+  unreadCount?: number; // Add this if you want unread count
 }
 
 // DTO for message filters
@@ -65,6 +67,7 @@ export interface MarkAsSeenDTO {
 export interface UnreadCountDTO {
   chatRoomId: string;
   recipientType: "user" | "provider";
+  unreadCount: number; // <-- Add this line
 }
 
 // Utility function to map model to response DTO
@@ -76,26 +79,30 @@ export function mapToMessageResponseDTO(
   return {
     _id: message._id.toString(),
     chatRoomId: message.chatRoomId.toString(),
-    senderId: populateSender && message.senderId && typeof message.senderId === 'object'
-      ? {
-          _id: message.senderId._id.toString(),
-          fullName: message.senderId.fullName,
-          email: message.senderId.email,
-          profile_picture: message.senderId.profile_picture,
-        }
-      : { _id: message.senderId.toString() },
+    senderId:
+      populateSender && message.senderId && typeof message.senderId === "object"
+        ? {
+            _id: message.senderId._id.toString(),
+            fullName: message.senderId.fullName,
+            email: message.senderId.email,
+            profile_picture: message.senderId.profile_picture,
+          }
+        : { _id: message.senderId.toString() },
     senderType: message.senderType,
     content: message.content,
     image: message.image,
-    replyToMessageId: populateReply && message.replyToMessageId && typeof message.replyToMessageId === 'object'
-      ? {
-          _id: message.replyToMessageId._id.toString(),
-          content: message.replyToMessageId.content,
-          senderType: message.replyToMessageId.senderType,
-        }
-      : message.replyToMessageId
-      ? { _id: message.replyToMessageId.toString() }
-      : undefined,
+    replyToMessageId:
+      populateReply &&
+      message.replyToMessageId &&
+      typeof message.replyToMessageId === "object"
+        ? {
+            _id: message.replyToMessageId._id.toString(),
+            content: message.replyToMessageId.content,
+            senderType: message.replyToMessageId.senderType,
+          }
+        : message.replyToMessageId
+        ? { _id: message.replyToMessageId.toString() }
+        : undefined,
     isSeen: message.isSeen,
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
@@ -111,7 +118,7 @@ export function mapToMessageListResponseDTO(
   populateReply?: boolean
 ): MessageListResponseDTO {
   return {
-    messages: messages.map(message =>
+    messages: messages.map((message) =>
       mapToMessageResponseDTO(message, populateSender, populateReply)
     ),
     totalCount,
