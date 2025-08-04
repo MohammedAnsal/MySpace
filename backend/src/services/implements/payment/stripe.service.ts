@@ -232,11 +232,6 @@ export class StripeService {
               });
             }
 
-            // Update Hostel Available Space Status
-            await this.hostelRepo.updateHostelAvailableSpace(
-              payment.hostelId.toString()
-            );
-
             // Update Payment Status
             await this.paymentRepo.updateStatus(payment._id, "completed");
 

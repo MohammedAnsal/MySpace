@@ -1,5 +1,9 @@
 import { Types } from "mongoose";
-import { IMessage } from "../../../models/chat/message.model";
+import {
+  MessageResponseDTO,
+  MessageListResponseDTO,
+  UnreadCountDTO,
+} from "../../../dtos/chat/message.dto";
 
 export interface IMessageService {
   sendMessage(
@@ -9,22 +13,29 @@ export interface IMessageService {
     content: string,
     image?: string,
     replyToMessageId?: string | Types.ObjectId
-  ): Promise<IMessage>;
-  getMessageById(messageId: string | Types.ObjectId): Promise<IMessage | null>;
+  ): Promise<MessageResponseDTO>;
+
+  getMessageById(
+    messageId: string | Types.ObjectId
+  ): Promise<MessageResponseDTO | null>;
+
   getChatMessages(
     chatRoomId: string | Types.ObjectId,
     page?: number,
     limit?: number
-  ): Promise<IMessage[]>;
+  ): Promise<MessageListResponseDTO>;
+
   markMessageAsSeen(
     messageId: string | Types.ObjectId
-  ): Promise<IMessage | null>;
+  ): Promise<MessageResponseDTO | null>;
+
   markAllMessagesAsSeenInChatRoom(
     chatRoomId: string | Types.ObjectId,
     recipientType: "user" | "provider"
-  ): Promise<boolean>;
+  ): Promise<{ success: boolean; messagesMarkedAsSeen: boolean }>;
+
   getUnreadMessageCount(
     chatRoomId: string | Types.ObjectId,
     recipientType: "user" | "provider"
-  ): Promise<number>;
+  ): Promise<UnreadCountDTO>;
 }

@@ -46,7 +46,9 @@ export class ChatRoomService implements IChatRoomService {
         providerId: providerId.toString(),
       };
 
-      const chatRoom = await this.chatRoomRepository.createChatRoom(chatRoomData);
+      const chatRoom = await this.chatRoomRepository.createChatRoom(
+        chatRoomData
+      );
       return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -62,9 +64,11 @@ export class ChatRoomService implements IChatRoomService {
     chatRoomId: string | Types.ObjectId
   ): Promise<ChatRoomResponseDTO | null> {
     try {
-      const chatRoom = await this.chatRoomRepository.findChatRoomById(chatRoomId);
+      const chatRoom = await this.chatRoomRepository.findChatRoomById(
+        chatRoomId
+      );
       if (!chatRoom) return null;
-      
+
       return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -93,7 +97,7 @@ export class ChatRoomService implements IChatRoomService {
         message,
         messageTime
       );
-      
+
       if (!chatRoom) return null;
       return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
@@ -114,7 +118,7 @@ export class ChatRoomService implements IChatRoomService {
         chatRoomId,
         userType
       );
-      
+
       if (!chatRoom) return null;
       return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
@@ -135,7 +139,7 @@ export class ChatRoomService implements IChatRoomService {
         chatRoomId,
         userType
       );
-      
+
       if (!chatRoom) return null;
       return mapToChatRoomResponseDTO(chatRoom, true, true);
     } catch (error) {
@@ -159,10 +163,10 @@ export class ChatRoomService implements IChatRoomService {
         page,
         limit
       );
-      
+
       const totalCount = chatRooms.length;
       const hasMore = totalCount === limit;
-      
+
       return mapToChatRoomListResponseDTO(
         chatRooms,
         totalCount,
@@ -191,10 +195,10 @@ export class ChatRoomService implements IChatRoomService {
         page,
         limit
       );
-      
+
       const totalCount = chatRooms.length;
       const hasMore = totalCount === limit;
-      
+
       return mapToChatRoomListResponseDTO(
         chatRooms,
         totalCount,

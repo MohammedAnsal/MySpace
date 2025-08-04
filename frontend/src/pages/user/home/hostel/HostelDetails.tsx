@@ -81,7 +81,7 @@ const HostelDetails = () => {
 
   const navigate = useNavigate();
 
-  console.log(hostel)
+  console.log(hostel);
 
   if (isLoading) {
     return (
@@ -274,8 +274,12 @@ const HostelDetails = () => {
                           <CheckCircle className="w-5 h-5" />
                         </span>
                         <div>
-                          <span className="text-gray-700 font-medium">{facility.type}</span>
-                          <p className="text-sm text-gray-500">₹{facility.ratePerMonth}/month</p>
+                          <span className="text-gray-700 font-medium">
+                            {facility.type}
+                          </span>
+                          <p className="text-sm text-gray-500">
+                            ₹{facility.ratePerMonth}/month
+                          </p>
                         </div>
                       </motion.div>
                     ))}
