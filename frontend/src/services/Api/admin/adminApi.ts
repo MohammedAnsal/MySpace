@@ -1,4 +1,4 @@
-import { IFacilityData } from "@/types/Admin";
+import { IFacilityData } from "@/types/admin";
 import {
   adminAxiosInstance,
   publicAxiosInstance,
@@ -7,11 +7,6 @@ import {
 const public_api = publicAxiosInstance;
 const private_api = adminAxiosInstance;
 
-// const handleResponse = (response: any, message: string) => {
-//   if (!response) console.error(message);
-//   return response;
-// };
-
 const handleResponse = <T>(
   response: T | null | undefined,
   message: string
@@ -19,11 +14,6 @@ const handleResponse = <T>(
   if (!response) console.error(message);
   return response ?? null;
 };
-
-// const handleError = (error: any) => {
-//   console.error(error);
-//   throw error;
-// };
 
 const handleError = (error: unknown) => {
   if (error instanceof Error) {
@@ -255,6 +245,15 @@ export const getAdminTransactions = async () => {
   try {
     const response = await private_api.get("/wallet/transactions");
     return handleResponse(response.data, "Error fetching wallet transactions");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const verifyProviderDocument = async (email: string) => {
+  try {
+    const response = await private_api.put("/admin/verify-provider-document", { email });
+    return handleResponse(response, "Provider document verification failed");
   } catch (error) {
     handleError(error);
   }

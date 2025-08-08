@@ -16,6 +16,10 @@ export interface IUser extends Document {
   is_active: boolean;
   google_id: string;
   created_at: Date;
+  // Document verification fields
+  documentType?: "aadhar" | "pan" | "passport" | "driving_license";
+  documentImage?: string;
+  isDocumentVerified?: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -44,6 +48,14 @@ const userSchema = new Schema<IUser>(
     is_active: { type: Boolean, default: true },
     google_id: { type: String },
     created_at: { type: Date },
+    // Document verification fields
+    documentType: { 
+      type: String, 
+      enum: ["aadhar", "pan", "passport", "driving_license"],
+      required: function() { return this.role === "provider"; }
+    },
+    documentImage: { type: String },
+    isDocumentVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -7,6 +7,7 @@ import { AppError } from "../../../utils/error";
 import { IAuthController } from "../../interface/provider/auth.controller.interface";
 import redisClient from "../../../config/redisConfig";
 import { StatusCodes } from "http-status-codes";
+
 @Service()
 export class AuthController implements IAuthController {
   constructor(private readonly providerService: AuthProviderService) {}
@@ -22,7 +23,17 @@ export class AuthController implements IAuthController {
         });
       }
 
-      const response = await this.providerService.signUp(req.body);
+      const providerData = {
+        fullName: req.body.fullName,
+        email: req.body.email,
+        phone: req.body.phone,
+        password: req.body.password,
+        gender: req.body.gender,
+        documentType: req.body.documentType,
+        documentImage: req.file, 
+      };
+
+      const response = await this.providerService.signUp(providerData);
       return res
         .status(response.success ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
         .json(response);

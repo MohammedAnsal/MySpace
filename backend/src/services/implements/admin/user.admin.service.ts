@@ -21,8 +21,9 @@ import {
   AdminUserUpdateResponseDTO,
   AdminHostelResponseDTO,
   AdminDashboardResponseDTO,
-  // AdminWalletDTO,
+  AdminWalletDTO,
 } from "../../../dtos/admin/user.dto";
+import socketService from "../socket/socket.service";
 
 @Service()
 export class AdminUserService implements IAdminUserService {
@@ -42,27 +43,32 @@ export class AdminUserService implements IAdminUserService {
 
   //  Admin create wallet :-
 
-  // async createWallet(adminId: string): Promise<AdminWalletDTO> {
-  //   try {
-  //     const adminWallet = await walletService.createAdminWallet(adminId);
-  //     if (!adminWallet) {
-  //       throw new AppError(
-  //         "Failed to add admin wallet",
-  //         HttpStatus.BAD_REQUEST
-  //       );
-  //     }
-  //     return adminWallet;
-  //   } catch (error) {
-  //     throw new AppError(
-  //       "Failed to create wallet",
-  //       HttpStatus.INTERNAL_SERVER_ERROR
-  //     );
-  //   }
-  // }
+  async createWallet(adminId: string): Promise<AdminWalletDTO> {
+    try {
+      const adminWallet = await walletService.createAdminWallet(adminId);
+      if (!adminWallet) {
+        throw new AppError(
+          "Failed to add admin wallet",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+      return {
+        ...adminWallet,
+        transactions: [] // Override with empty array to match AdminWalletDTO
+      };
+    } catch (error) {
+      throw new AppError(
+        "Failed to create wallet",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 
   //  Find all user's :-
 
-  async findAllUser(data: AdminSearchDTO & { page?: number; limit?: number }): Promise<AdminUserResponseDTO> {
+  async findAllUser(
+    data: AdminSearchDTO & { page?: number; limit?: number }
+  ): Promise<AdminUserResponseDTO> {
     try {
       const { searchQuery, page = 1, limit = 5 } = data;
       const { users, total } = await this.userRepo.findUserByRole(
@@ -77,16 +83,21 @@ export class AdminUserService implements IAdminUserService {
       return { success: true, data: users, total, page, limit };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError("Failed to fetch users", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        "Failed to fetch users",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
   //  Find all provider's :-
 
-  async findAllProvider(data: AdminSearchDTO & { page?: number; limit?: number }): Promise<AdminUserResponseDTO> {
+  async findAllProvider(
+    data: AdminSearchDTO & { page?: number; limit?: number }
+  ): Promise<AdminUserResponseDTO> {
     try {
       const { searchQuery, page = 1, limit = 5 } = data;
-      const { users, total} = await this.userRepo.findUserByRole(
+      const { users, total } = await this.userRepo.findUserByRole(
         "provider",
         page,
         limit,
@@ -95,7 +106,32 @@ export class AdminUserService implements IAdminUserService {
       if (!users) {
         throw new AppError("Failed to fetch providers", HttpStatus.BAD_REQUEST);
       }
-      return { success: true, data: users, total, page, limit };
+
+      // Generate signed URLs for document images
+      const providersWithSignedUrls = await Promise.all(
+        users.map(async (provider) => {
+          let signedDocumentImage = "";
+          if (provider.documentImage) {
+            signedDocumentImage =
+              await this.s3ServiceInstance.generateSignedUrl(
+                provider.documentImage
+              );
+          }
+
+          return {
+            ...provider.toObject(),
+            documentImage: signedDocumentImage,
+          };
+        })
+      );
+
+      return {
+        success: true,
+        data: providersWithSignedUrls,
+        total,
+        page,
+        limit,
+      };
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError(
@@ -123,6 +159,57 @@ export class AdminUserService implements IAdminUserService {
           findUser.role === "user"
             ? "User status updated"
             : "Provider status updated",
+      };
+    } catch (error) {
+      throw new AppError("Internal error", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  //  Verify provider document :-
+
+  async verifyProviderDocument(
+    email: string
+  ): Promise<AdminUserUpdateResponseDTO> {
+    try {
+      const findProvider = await this.userRepo.findUserByEmail(email);
+      console.log(findProvider);
+      if (!findProvider) {
+        return { success: false, message: "Provider not found" };
+      }
+
+      if (findProvider.role !== "provider") {
+        return { success: false, message: "User is not a provider" };
+      }
+
+      if (!findProvider.documentImage) {
+        return {
+          success: false,
+          message: "Provider has not uploaded any document",
+        };
+      }
+
+      findProvider.isDocumentVerified = true;
+      await findProvider.save();
+
+      // Create notification
+      const notification = await this.notificationService.createNotification({
+        recipient: new Types.ObjectId(findProvider._id),
+        sender: new Types.ObjectId(process.env.ADMIN_ID!),
+        title: "Document Verification",
+        message:
+          "Your document has been verified successfully. You can now access all provider features.",
+        type: "message",
+      });
+
+      // Emit socket notification
+      socketService.emitNotification(String(findProvider._id), {
+        ...notification,
+        recipient: notification.recipient.toString(),
+      });
+
+      return {
+        success: true,
+        message: "Provider document verified successfully",
       };
     } catch (error) {
       throw new AppError("Internal error", HttpStatus.INTERNAL_SERVER_ERROR);

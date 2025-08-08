@@ -11,6 +11,10 @@ import {
   Calendar,
   Shield,
   DollarSign,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { editProfile } from "@/services/Api/providerApi";
@@ -24,6 +28,9 @@ export interface ProviderProfile {
   email: string;
   phone: string;
   profile_picture: string;
+  documentType?: "aadhar" | "pan" | "passport" | "driving_license";
+  documentImage?: string;
+  isDocumentVerified?: boolean;
 }
 
 const Profile: React.FC = () => {
@@ -36,11 +43,12 @@ const Profile: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false);
+  const [showDocumentImage, setShowDocumentImage] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [tempProfile, setTempProfile] = useState<ProviderProfile | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [activeTab, setActiveTab] = useState<"personal" | "wallet">("personal");
+  const [activeTab, setActiveTab] = useState<"personal" | "wallet" | "documents">("personal");
 
   useEffect(() => {
     if (profile) {
@@ -113,6 +121,21 @@ const Profile: React.FC = () => {
         }
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const getDocumentTypeLabel = (type?: string) => {
+    switch (type) {
+      case "aadhar":
+        return "Aadhar Card";
+      case "pan":
+        return "PAN Card";
+      case "passport":
+        return "Passport";
+      case "driving_license":
+        return "Driving License";
+      default:
+        return "Not Provided";
     }
   };
 
@@ -289,6 +312,19 @@ const Profile: React.FC = () => {
               </button>
               <button
                 className={`flex-1 py-3 px-4 font-medium text-center ${
+                  activeTab === "documents"
+                    ? "text-amber-600 border-b-2 border-amber-400"
+                    : "text-gray-600 hover:text-amber-500"
+                }`}
+                onClick={() => setActiveTab("documents")}
+              >
+                <div className="flex items-center justify-center">
+                  <FileText size={16} className="mr-2" />
+                  <span>Documents</span>
+                </div>
+              </button>
+              <button
+                className={`flex-1 py-3 px-4 font-medium text-center ${
                   activeTab === "wallet"
                     ? "text-amber-600 border-b-2 border-amber-400"
                     : "text-gray-600 hover:text-amber-500"
@@ -406,6 +442,86 @@ const Profile: React.FC = () => {
               </div>
             )}
 
+            {activeTab === "documents" && (
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                <h3 className="text-lg font-semibold mb-6 flex items-center text-gray-800">
+                  <FileText size={20} className="mr-2 text-amber-500" />
+                  Document Verification
+                </h3>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 className="text-md font-semibold mb-4 text-gray-800">
+                      Document Information
+                    </h4>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-gray-500 font-medium mb-1">
+                          Document Type
+                        </p>
+                        <div className="flex items-center bg-gray-50 p-3 rounded-lg">
+                          <FileText className="text-amber-500 mr-3" size={18} />
+                          <p className="text-gray-800">
+                            {getDocumentTypeLabel(profile.documentType)}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <p className="text-sm text-gray-500 font-medium mb-1">
+                          Verification Status
+                        </p>
+                        <div className="flex items-center bg-gray-50 p-3 rounded-lg">
+                          {profile.isDocumentVerified ? (
+                            <>
+                              <CheckCircle className="text-green-500 mr-3" size={18} />
+                              <p className="text-green-600 font-medium">Verified</p>
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="text-yellow-500 mr-3" size={18} />
+                              <p className="text-yellow-600 font-medium">Pending Verification</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 className="text-md font-semibold mb-4 text-gray-800">
+                      Document Image
+                    </h4>
+                    {profile.documentImage ? (
+                      <div className="relative">
+                        <img
+                          src={profile.documentImage}
+                          alt="Document"
+                          className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://via.placeholder.com/400x200?text=Document+Image";
+                          }}
+                        />
+                        <button
+                          onClick={() => setShowDocumentImage(true)}
+                          className="absolute top-2 right-2 bg-amber-500 text-white p-2 rounded-full hover:bg-amber-600 transition-colors"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-full h-48 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                        <div className="text-center">
+                          <FileText size={48} className="text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-500 text-sm">No document uploaded</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === "wallet" && (
               <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
                 <WalletSummary />
@@ -414,6 +530,31 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Document Image Modal */}
+      {showDocumentImage && profile.documentImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl max-h-[90vh] overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Document Image</h3>
+              <button
+                onClick={() => setShowDocumentImage(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <img
+              src={profile.documentImage}
+              alt="Document"
+              className="w-full h-auto rounded-lg"
+              onError={(e) => {
+                e.currentTarget.src = "https://via.placeholder.com/600x400?text=Document+Image";
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <ChangePasswordModal
         isOpen={isChangingPassword}

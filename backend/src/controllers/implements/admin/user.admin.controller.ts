@@ -25,24 +25,24 @@ class AdminUserController implements IAdminController {
 
   //  Admin create wallet :-
 
-  // async createWallet(req: AuthRequset, res: Response): Promise<Response> {
-  //   try {
-  //     if (!AdminId) {
-  //       throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
-  //     }
-  //     const adminWallet = await this.userService.createWallet(AdminId);
-  //     if (adminWallet) {
-  //       return res.status(HttpStatus.OK).json(adminWallet);
-  //     } else {
-  //       throw new Error("failed to  fetch user");
-  //     }
-  //   } catch (walletError) {
-  //     console.error("Error creating wallet for provider:", walletError);
-  //     return res
-  //       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-  //       .json({ success: false, message: "Internal server error" });
-  //   }
-  // }
+  async createWallet(req: AuthRequset, res: Response): Promise<Response> {
+    try {
+      if (!AdminId) {
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
+      }
+      const adminWallet = await this.userService.createWallet(AdminId);
+      if (adminWallet) {
+        return res.status(HttpStatus.OK).json(adminWallet);
+      } else {
+        throw new Error("failed to  fetch user");
+      }
+    } catch (walletError) {
+      console.error("Error creating wallet for provider:", walletError);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
 
   //  Find all user's :-
 
@@ -54,7 +54,11 @@ class AdminUserController implements IAdminController {
     const searchQuery = req.query.search as string;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 5;
-    const getAllUsers = await this.userService.findAllUser({ searchQuery, page, limit });
+    const getAllUsers = await this.userService.findAllUser({
+      searchQuery,
+      page,
+      limit,
+    });
 
     if (getAllUsers) {
       return res.status(HttpStatus.OK).json(getAllUsers);
@@ -71,10 +75,12 @@ class AdminUserController implements IAdminController {
       throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
     }
     const searchQuery = req.query.search as string;
-     const page = parseInt(req.query.page as string) || 1;
-     const limit = parseInt(req.query.limit as string) || 5;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
     const getAllProviders = await this.userService.findAllProvider({
-      searchQuery, page, limit
+      searchQuery,
+      page,
+      limit,
     });
 
     if (getAllProviders) {
@@ -331,6 +337,46 @@ class AdminUserController implements IAdminController {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Internal server error" });
+    }
+  }
+
+  //  Verify provider document :-
+
+  async verifyProviderDocument(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
+      }
+      const { email } = req.body;
+
+      console.log(email);
+
+      if (!email) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Provider email is required",
+        });
+      }
+
+      const result = await this.userService.verifyProviderDocument(email);
+
+      return res.status(HttpStatus.OK).json(result);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      }
+      console.error("Error in verifyProviderDocument:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error",
+      });
     }
   }
 }

@@ -24,7 +24,9 @@ import {
   OtpVerificationDTO,
   ResetPasswordDTO,
   GoogleSignInDTO,
-} from "../../../dtos/user/auth.dto";
+} from "../../../dtos/provider/auth.dto";
+import { S3Service } from "../s3/s3.service";
+import IS3service from "../../interface/s3/s3.service.interface";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -32,21 +34,39 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export class AuthProviderService implements IAuthService {
   private providerRepo: ProviderRepository;
   private otpRepo: OtpRepository;
+  private s3Service: IS3service;
 
   constructor() {
     this.providerRepo = new ProviderRepository();
     this.otpRepo = new OtpRepository();
+    this.s3Service = S3Service;
   }
 
   //  Provider signUp :-
 
   async signUp(providerData: SignUpDTO): Promise<AuthResponse> {
     try {
-      const { fullName, email, phone, password, gender } = providerData;
+      const {
+        fullName,
+        email,
+        phone,
+        password,
+        gender,
+        documentType,
+        documentImage,
+      } = providerData;
 
       if (!email || !password) {
         throw new AppError(
           "Email and password are required",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      // Validate document verification fields for providers
+      if (!documentType || !documentImage) {
+        throw new AppError(
+          "Document verification is required for provider registration",
           HttpStatus.BAD_REQUEST
         );
       }
@@ -84,6 +104,26 @@ export class AuthProviderService implements IAuthService {
         };
       }
 
+      // Upload document image to S3
+      let documentImageUrl = "";
+      if (documentImage) {
+        try {
+          const uploadResult = await this.s3Service.uploadFile(
+            documentImage,
+            "documents"
+          );
+          // Handle both single file and array of files
+          documentImageUrl = Array.isArray(uploadResult)
+            ? uploadResult[0].Location
+            : uploadResult.Location;
+        } catch (uploadError) {
+          throw new AppError(
+            "Failed to upload document image",
+            HttpStatus.INTERNAL_SERVER_ERROR
+          );
+        }
+      }
+
       const hashedPassword = await hashPassword(password);
       await this.providerRepo.create({
         fullName,
@@ -92,6 +132,9 @@ export class AuthProviderService implements IAuthService {
         password: hashedPassword,
         role: "provider",
         gender,
+        documentType,
+        documentImage: documentImageUrl,
+        isDocumentVerified: false, // Will be verified by admin
       } as IUser);
 
       const newOtp = generateOtp();
@@ -134,6 +177,14 @@ export class AuthProviderService implements IAuthService {
       if (!existingUser.is_verified) {
         throw new AppError(
           "Please verify your email first",
+          HttpStatus.UNAUTHORIZED
+        );
+      }
+
+      // Check if document is verified for providers
+      if (existingUser.documentType && !existingUser.isDocumentVerified) {
+        throw new AppError(
+          "Your document verification is pending. Please wait for admin approval.",
           HttpStatus.UNAUTHORIZED
         );
       }

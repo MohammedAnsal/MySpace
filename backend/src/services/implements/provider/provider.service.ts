@@ -45,10 +45,19 @@ export class ProviderService implements IProviderService {
       const currentProvider = await this.providerRepo.findById(userId);
 
       if (currentProvider) {
+        // Generate signed URLs for images
         currentProvider.profile_picture =
           await this.s3Service.generateSignedUrl(
             currentProvider.profile_picture
           );
+
+        // Generate signed URL for document image if exists
+        if (currentProvider.documentImage) {
+          currentProvider.documentImage =
+            await this.s3Service.generateSignedUrl(
+              currentProvider.documentImage
+            );
+        }
 
         const { password, ...rest } = currentProvider.toObject();
         return { success: true, data: mapToProviderDTO(rest) };
