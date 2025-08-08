@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { authController } from "../../controllers/implements/provider/auth.controller";
 import { asyncHandler } from "../../utils/asyncHandler";
+import { upload } from "../../utils/multer";
 
 const authProviderRoute = Router();
 
 authProviderRoute.post(
   "/provider/sign-up",
+  upload.single("documentImage"),
   asyncHandler(authController.signUp.bind(authController))
 );
 authProviderRoute.post(

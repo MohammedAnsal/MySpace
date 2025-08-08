@@ -16,9 +16,13 @@ const handleError = (error: any) => {
   throw error;
 };
 
-export const signUpRequest = async (formData: Object) => {
+export const signUpRequest = async (formData: FormData) => {
   try {
-    const response = await publicApi.post("/auth/provider/sign-up", formData);
+    const response = await publicApi.post("/auth/provider/sign-up", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return handleResponse(response, "Signup response not received correctly");
   } catch (error) {
     handleError(error);

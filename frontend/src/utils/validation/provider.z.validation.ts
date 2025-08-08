@@ -20,6 +20,11 @@ export const signUpSchema = z
     gender: z.enum(["male", "female", "other"], {
       errorMap: () => ({ message: "Please select a gender" }),
     }),
+    // Document verification fields
+    documentType: z.enum(["aadhar", "pan", "passport", "driving_license"], {
+      errorMap: () => ({ message: "Please select a document type" }),
+    }),
+    documentImage: z.instanceof(File, { message: "Please upload your document image" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

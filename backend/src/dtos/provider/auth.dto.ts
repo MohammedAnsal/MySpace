@@ -4,6 +4,8 @@ export interface SignUpDTO {
   phone?: string;
   password: string;
   gender?: "male" | "female" | "other";
+  documentType: "aadhar" | "pan" | "passport" | "driving_license";
+  documentImage?: Express.Multer.File;
 }
 
 export interface SignInDTO {

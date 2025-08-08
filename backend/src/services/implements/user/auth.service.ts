@@ -32,13 +32,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Service()
 class AuthService implements IAuthService {
-  // private userRepo: UserRepository;
-  // private otpRepo: OtpRepository;
-
-  // constructor() {
-  //   this.userRepo = new UserRepository();
-  //   this.otpRepo = new OtpRepository();
-  // }
 
   constructor(
     private readonly userRepo: UserRepository,

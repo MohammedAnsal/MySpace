@@ -420,7 +420,10 @@ export class SocketService {
   }
 
   // Add method to emit notifications
-  emitNotification(recipientId: string, notification: SocketNotification): void {
+  emitNotification(
+    recipientId: string,
+    notification: SocketNotification
+  ): void {
     redisClient
       .hGet(`user:${recipientId}`, "socketId")
       .then(async (socketId) => {

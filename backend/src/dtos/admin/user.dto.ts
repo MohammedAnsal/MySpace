@@ -55,8 +55,8 @@ export interface AdminDashboardResponseDTO {
 }
 
 // Internal DTOs
-// export interface AdminWalletDTO {
-//   adminId?: string;
-//   balance: number;
-//   transactions: [];
-// }
+export interface AdminWalletDTO {
+  adminId?: string;
+  balance: number;
+  transactions: [];
+}

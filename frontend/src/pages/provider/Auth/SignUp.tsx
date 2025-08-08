@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Upload, X } from "lucide-react";
 import signUp_img from "../../../assets/provider/signUp.jpg";
 import {
   FormValues,
@@ -15,16 +15,22 @@ import { AxiosError } from "axios";
 const ProviderSignup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(signUpSchema),
   });
+
+  const documentType = watch("documentType");
 
   // Handle form validation errors
   useEffect(() => {
@@ -35,11 +41,57 @@ const ProviderSignup: React.FC = () => {
     }
   }, [errors]);
 
+  // Handle file selection
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
+
+      setSelectedFile(file);
+      setValue("documentImage", file);
+
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  // Remove selected file
+  const removeFile = () => {
+    setSelectedFile(null);
+    setValue("documentImage", undefined as any);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+  };
+
   const onSubmit = async (data: FormValues) => {
     const flag = 1;
     setLoading(true);
     try {
-      const response = await signUpRequest(data);
+      const formData = new FormData();
+      formData.append("fullName", data.fullName);
+      formData.append("email", data.email);
+      formData.append("phone", data.phone);
+      formData.append("password", data.password);
+      formData.append("gender", data.gender);
+      formData.append("documentType", data.documentType);
+      if (data.documentImage) {
+        formData.append("documentImage", data.documentImage);
+      }
+
+      const response = await signUpRequest(formData);
 
       if (response.data.success) {
         localStorage.removeItem("otpExpiration");
@@ -65,129 +117,206 @@ const ProviderSignup: React.FC = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
       {/* Left Side (Form Section) */}
-      <div className="w-full md:w-1/2 bg-gray-100 flex flex-col justify-center items-center p-6 md:p-10 min-h-screen md:min-h-0">
-        <h2 className="text-xl md:text-2xl font-semibold mb-2">
-          Welcome to MySpace
-        </h2>
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">Provider SignUp</h1>
+      <div className="w-full md:w-1/2 bg-gray-100 flex flex-col justify-center items-center p-4 md:p-8 min-h-screen md:min-h-0">
+        <div className="w-full max-w-sm">
+          <h2 className="text-lg md:text-xl font-semibold mb-1 text-center">
+            Welcome to MySpace
+          </h2>
+          <h1 className="text-2xl md:text-3xl font-bold mb-4 text-center">
+            Provider SignUp
+          </h1>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-sm space-y-3"
-        >
-          <div>
-            <input
-              {...register("fullName")}
-              type="text"
-              placeholder="Full Name"
-              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
-            />
-          </div>
-
-          <div>
-            <input
-              {...register("email")}
-              type="email"
-              placeholder="Email"
-              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
-            />
-          </div>
-
-          <div>
-            <input
-              {...register("phone")}
-              type="text"
-              placeholder="Phone Number"
-              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
-            />
-          </div>
-
-          <div>
-            <select
-              {...register("gender")}
-              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div className="relative">
-            <input
-              {...register("password")}
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              className="w-full p-3 border rounded pr-10 focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
-            />
-            <span
-              className="absolute top-4 right-3 cursor-pointer text-gray-600"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {!showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </span>
-          </div>
-
-          <div className="relative">
-            <input
-              {...register("confirmPassword")}
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm Password"
-              className="w-full p-3 border rounded pr-10 focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
-            />
-            <span
-              className="absolute top-4 right-3 cursor-pointer text-gray-600"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {!showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </span>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#c3a07c] text-white p-3 rounded hover:bg-[#a38565] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-          >
-            {loading ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+            {/* Personal Information - 2 columns */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <input
+                  {...register("fullName")}
+                  type="text"
+                  placeholder="Full Name"
+                  className="w-full p-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+                />
+              </div>
+              <div>
+                <select
+                  {...register("gender")}
+                  className="w-full p-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Signing Up...
-              </>
-            ) : (
-              "Sign Up"
-            )}
-          </button>
-        </form>
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
 
-        <p className="mt-4 text-sm md:text-base">
-          Already have an account?{" "}
-          <Link
-            to={"/provider/signIn"}
-            className="font-bold cursor-pointer text-[#c3a07c] hover:underline"
-          >
-            Sign In
-          </Link>
-        </p>
+            {/* Contact Information */}
+            <div>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="Email"
+                className="w-full p-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+              />
+            </div>
+
+            <div>
+              <input
+                {...register("phone")}
+                type="text"
+                placeholder="Phone Number"
+                className="w-full p-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+              />
+            </div>
+
+            {/* Password Fields - 2 columns */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="relative">
+                <input
+                  {...register("password")}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className="w-full p-2 text-sm border rounded pr-8 focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+                />
+                <span
+                  className="absolute top-2 right-2 cursor-pointer text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {!showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                </span>
+              </div>
+
+              <div className="relative">
+                <input
+                  {...register("confirmPassword")}
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  className="w-full p-2 text-sm border rounded pr-8 focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+                />
+                <span
+                  className="absolute top-2 right-2 cursor-pointer text-gray-600"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {!showConfirmPassword ? (
+                    <EyeOff size={14} />
+                  ) : (
+                    <Eye size={14} />
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {/* Document Verification - Compact with Type Selection */}
+            <div className="border-t pt-2 mt-2">
+              <h3 className="text-xs font-semibold mb-2 text-gray-700">
+                Document Verification
+              </h3>
+
+              {/* Document Type Selection */}
+              <div className="mb-2">
+                <select
+                  {...register("documentType")}
+                  className="w-full p-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#c3a07c]"
+                >
+                  <option value="">Select Document Type</option>
+                  <option value="aadhar">Aadhar Card</option>
+                  <option value="pan">PAN Card</option>
+                  <option value="passport">Passport</option>
+                  <option value="driving_license">Driving License</option>
+                </select>
+              </div>
+
+              {/* File Upload */}
+              <div className="border-2 border-dashed border-gray-300 rounded p-2">
+                {!selectedFile ? (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-6 w-6 text-gray-400 mb-1" />
+                    <p className="text-xs text-gray-600 mb-1">
+                      Upload{" "}
+                      {documentType
+                        ? documentType.replace("_", " ")
+                        : "document"}{" "}
+                      image
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      name="documentImage"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="document-upload"
+                    />
+                    <label
+                      htmlFor="document-upload"
+                      className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-[#c3a07c] hover:bg-[#a38565] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c3a07c] cursor-pointer"
+                    >
+                      Choose File
+                    </label>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={previewUrl!}
+                      alt="Document preview"
+                      className="max-h-16 mx-auto rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeFile}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600"
+                    >
+                      <X size={10} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#c3a07c] text-white p-2 rounded hover:bg-[#a38565] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm"
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Signing Up...
+                </>
+              ) : (
+                "Sign Up"
+              )}
+            </button>
+          </form>
+
+          <p className="mt-3 text-xs md:text-sm text-center">
+            Already have an account?{" "}
+            <Link
+              to={"/provider/signIn"}
+              className="font-bold cursor-pointer text-[#c3a07c] hover:underline"
+            >
+              Sign In
+            </Link>
+          </p>
+        </div>
       </div>
 
       {/* Right Side (Image Section) */}

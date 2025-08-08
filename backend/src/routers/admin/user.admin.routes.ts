@@ -10,10 +10,10 @@ import { asyncHandler } from "../../utils/asyncHandler";
 
 const adminUserRoute = Router();
 
-// adminUserRoute.post(
-//   "/create-wallet",
-//   asyncHandler(adminUserControllerr.createWallet.bind(adminUserControllerr))
-// );
+adminUserRoute.post(
+  "/create-wallet",
+  asyncHandler(adminUserControllerr.createWallet.bind(adminUserControllerr))
+);
 
 adminUserRoute.get(
   "/users",
@@ -139,6 +139,14 @@ adminUserRoute.get(
   autherization,
   authorizeRoles(Roles.ADMIN),
   asyncHandler(adminUserControllerr.getDashboard.bind(adminUserControllerr))
+);
+
+adminUserRoute.put(
+  "/verify-provider-document",
+  authMiddleWare,
+  autherization,
+  authorizeRoles(Roles.ADMIN),
+  asyncHandler(adminUserControllerr.verifyProviderDocument.bind(adminUserControllerr))
 );
 
 export default adminUserRoute;
