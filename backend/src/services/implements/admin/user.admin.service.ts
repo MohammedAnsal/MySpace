@@ -54,7 +54,7 @@ export class AdminUserService implements IAdminUserService {
       }
       return {
         ...adminWallet,
-        transactions: [] // Override with empty array to match AdminWalletDTO
+        transactions: [], // Override with empty array to match AdminWalletDTO
       };
     } catch (error) {
       throw new AppError(
@@ -327,7 +327,13 @@ export class AdminUserService implements IAdminUserService {
             this.s3ServiceInstance.generateSignedUrl(photo)
           )
         );
+        const signedProof = hostel.property_proof
+          ? await this.s3ServiceInstance.generateSignedUrl(
+              hostel.property_proof
+            )
+          : "";
         hostel.photos = signedPhotos;
+        hostel.property_proof = signedProof;
       }
 
       return {

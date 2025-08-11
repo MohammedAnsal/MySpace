@@ -23,6 +23,7 @@ export interface Hostel {
   photos: string[];
   gender: string;
   monthly_rent: number;
+  property_proof: string; // NEW
   location: {
     address: string;
     latitude: number;

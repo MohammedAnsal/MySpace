@@ -34,16 +34,31 @@ export class HostelController {
         );
       }
 
-      const files = req.files as Express.Multer.File[];
+      const filesAny = req.files as
+        | Express.Multer.File[]
+        | { [fieldname: string]: Express.Multer.File[] };
 
-      if (!files || files.length === 0) {
+      // Support both array (legacy) and fields map
+      let photoFiles: Express.Multer.File[] = [];
+      let proofFile: Express.Multer.File | undefined;
+
+      if (Array.isArray(filesAny)) {
+        photoFiles = filesAny;
+      } else if (filesAny) {
+        photoFiles = filesAny["photos"] || [];
+        proofFile =
+          (filesAny["property_proof"] && filesAny["property_proof"][0]) ||
+          undefined;
+      }
+
+      if (!photoFiles || photoFiles.length === 0) {
         throw new AppError(
           "At least one image is required",
           HttpStatus.BAD_REQUEST
         );
       }
 
-      if (files.length > 5) {
+      if (photoFiles.length > 5) {
         throw new AppError("Maximum 5 images allowed", HttpStatus.BAD_REQUEST);
       }
 
@@ -62,14 +77,26 @@ export class HostelController {
       }
 
       const uploadResults = await this.s3Service.uploadMultipleFiles(
-        files,
+        photoFiles,
         "hostels"
       );
       const imageUrls = uploadResults.map((result) => result.Location);
 
+      let proofUrl = "";
+      if (proofFile) {
+        const proofUpload = await this.s3Service.uploadFile(
+          proofFile,
+          "property_proof"
+        );
+        proofUrl = Array.isArray(proofUpload)
+          ? proofUpload[0].Location
+          : proofUpload.Location;
+      }
+
       const hostelData = {
         ...req.body,
         photos: imageUrls,
+        property_proof: proofUrl,
         provider_id: req.user?.id,
         location: locationResult.locationData,
         amenities: req.body.amenities ? req.body.amenities : [],
@@ -125,9 +152,14 @@ export class HostelController {
               )
             );
 
+            const signedProof = hostel.property_proof
+              ? await this.s3Service.generateSignedUrl(hostel.property_proof)
+              : "";
+
             return {
               ...hostel,
               photos: signedPhotos,
+              property_proof: signedProof,
             };
           })
         );
@@ -192,6 +224,11 @@ export class HostelController {
                 ? result.hostelData[0].photos
                 : result.hostelData.photos) || []
             ).map((photo: string) => this.s3Service.generateSignedUrl(photo))
+          ),
+          property_proof: await this.s3Service.generateSignedUrl(
+            Array.isArray(result.hostelData)
+              ? result.hostelData[0].property_proof || ""
+              : result.hostelData.property_proof || ""
           ),
         };
 

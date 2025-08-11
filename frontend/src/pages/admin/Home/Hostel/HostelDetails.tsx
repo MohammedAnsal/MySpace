@@ -20,6 +20,7 @@ import {
   WashingMachine,
   Cctv,
   GlassWaterIcon,
+  FileText, // Add this
 } from "lucide-react";
 import Loading from "@/components/global/Loading";
 import { useHostelDetails } from "@/hooks/admin/useAdminQueries";
@@ -43,6 +44,8 @@ const HostelDetails = () => {
   const navigate = useNavigate();
 
   const { data: hostel, isLoading } = useHostelDetails(id as string);
+
+  console.log(hostel);
 
   if (isLoading) {
     return (
@@ -88,7 +91,7 @@ const HostelDetails = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-between"
           >
-    <div>
+            <div>
               <h1 className="text-3xl font-bold text-white">
                 {hostel.hostel_name}
               </h1>
@@ -146,6 +149,28 @@ const HostelDetails = () => {
               </div>
             </motion.div>
 
+            {/* Property License Document */}
+            {(hostel.property_proof as string) && (
+              <motion.div
+                className="space-y-4"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <h3 className="text-white font-semibold flex items-center">
+                  <FileText className="w-5 h-5 mr-2 text-amber-500" />
+                  Property License Document
+                </h3>
+                <div className="relative h-64 rounded-xl overflow-hidden shadow-md border border-gray-600">
+                  <img
+                    src={hostel.property_proof as string}
+                    alt="Property License"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </motion.div>
+            )}
+
             {/* Simplified Key Information Cards */}
             <motion.div className="grid grid-cols-2 gap-4">
               <div className="bg-[#242529] p-6 rounded-xl border border-gray-700">
@@ -190,7 +215,6 @@ const HostelDetails = () => {
               </div>
             </motion.div>
           </div>
-
           {/* Right Column - Detailed Information */}
           <div className="space-y-6">
             {/* Provider Information */}
@@ -293,7 +317,7 @@ const HostelDetails = () => {
                 </div>
               )}
             </motion.div>
-          </div>
+          </div>{" "}
         </div>
       </motion.div>
     </div>

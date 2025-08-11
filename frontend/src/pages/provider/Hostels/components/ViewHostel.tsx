@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoClose } from 'react-icons/io5';
 import { 
@@ -18,7 +18,9 @@ import {
   WashingMachine,
   Cctv,
   GlassWaterIcon,
-  AlertTriangle
+  AlertTriangle,
+  FileText,
+  Eye
 } from 'lucide-react';
 
 interface ViewHostelProps {
@@ -28,6 +30,8 @@ interface ViewHostelProps {
 }
 
 const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
+  const [showLicenseModal, setShowLicenseModal] = useState(false);
+  
   if (!hostel) return null;
 
   // Map amenity names to icons
@@ -179,6 +183,42 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
               <p className="text-gray-600 leading-relaxed">{hostel.description}</p>
             </motion.div>
 
+            {/* Property License / Verification Document */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.45 }}
+              className="bg-gray-50 p-6 rounded-xl"
+            >
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-gray-600" />
+                Property License
+              </h3>
+
+              {hostel.property_proof ? (
+                <div className="relative">
+                  <img
+                    src={hostel.property_proof}
+                    alt="Property License"
+                    className="w-64 h-48 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    onClick={() => setShowLicenseModal(true)}
+                    className="absolute top-2 right-2 bg-amber-500 text-white p-2 rounded-full hover:bg-amber-600 transition-colors"
+                  >
+                    <Eye size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-64 h-48 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="text-center">
+                    <FileText size={48} className="text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500 text-sm">No license document uploaded</p>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+
             {/* Amenities */}
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
@@ -299,6 +339,37 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
             </div>
           </div>
         </motion.div>
+
+        {/* License Image Modal */}
+        {showLicenseModal && hostel.property_proof && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center p-4"
+            onClick={() => setShowLicenseModal(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className="relative max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowLicenseModal(false)}
+                className="absolute top-4 right-4 z-10 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition-colors"
+              >
+                <IoClose size={24} />
+              </button>
+              <img
+                src={hostel.property_proof}
+                alt="Property License - Full View"
+                className="w-full h-full object-contain"
+              />
+            </motion.div>
+          </motion.div>
+        )}
       </motion.div>
     </AnimatePresence>
   );

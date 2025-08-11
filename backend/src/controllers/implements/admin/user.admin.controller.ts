@@ -134,9 +134,16 @@ class AdminUserController implements IAdminController {
           )
         );
 
+        const signedProof = hostel.property_proof
+          ? await this.s3ServiceInstance.generateSignedUrl(
+              hostel.property_proof
+            )
+          : "";
+
         const hostelWithSignedUrls = {
           ...hostel.toObject(),
           photos: signedPhotos,
+          property_proof: signedProof,
         };
 
         return res.status(HttpStatus.OK).json({
@@ -189,9 +196,16 @@ class AdminUserController implements IAdminController {
               )
             );
 
+            const signedProof = hostel.property_proof
+              ? await this.s3ServiceInstance.generateSignedUrl(
+                  hostel.property_proof
+                )
+              : "";
+
             return {
               ...hostel.toObject(),
               photos: signedPhotos,
+              property_proof: signedProof,
             };
           })
         );
@@ -242,9 +256,17 @@ class AdminUserController implements IAdminController {
                 this.s3ServiceInstance.generateSignedUrl(photo)
               )
             );
+
+            const signedProof = hostel.property_proof
+              ? await this.s3ServiceInstance.generateSignedUrl(
+                  hostel.property_proof
+                )
+              : "";
+
             return {
               ...hostel.toObject(),
               photos: signedPhotos,
+              property_proof: signedProof,
             };
           })
         );
@@ -352,8 +374,6 @@ class AdminUserController implements IAdminController {
         throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
       }
       const { email } = req.body;
-
-      console.log(email);
 
       if (!email) {
         return res.status(HttpStatus.BAD_REQUEST).json({

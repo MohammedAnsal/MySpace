@@ -17,6 +17,7 @@ export interface IHostel extends Document {
   location: Types.ObjectId | null;
   provider_id: Types.ObjectId | null;
   facilities: Types.ObjectId[] | null;
+  property_proof?: string | null; // NEW
   reason: string;
   is_verified: boolean;
   is_rejected: boolean;
@@ -45,6 +46,7 @@ const HostelSchema: Schema = new Schema<IHostel>(
     reason: { type: String, default: "" },
     is_verified: { type: Boolean, default: false },
     is_rejected: { type: Boolean, default: false },
+    property_proof: { type: String, default: "" }, // NEW
   },
   { timestamps: true }
 );

@@ -19,6 +19,7 @@ import { Toaster } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { isValidImageFormat, compressImage } from "@/utils/imageCompression";
 import { ImageCompressionProgress } from "@/components/ui/ImageCompressionProgress";
+import { VerificationSection } from "./components/VerificationSection"; // NEW
 
 interface PropertyForm {
   hostel_name: string;
@@ -72,6 +73,10 @@ export const AddHostel: React.FC = () => {
   >({});
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
+
+  // NEW: property verification doc
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofError, setProofError] = useState("");
 
   let flag = 0;
 
@@ -189,6 +194,28 @@ export const AddHostel: React.FC = () => {
     setImageError("");
   };
 
+  // Handle verification proof
+  const handleProofUpload = (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      setProofError("File size should be less than 5MB");
+      return;
+    }
+    const ok =
+      ["application/pdf", "image/jpeg", "image/png"].includes(file.type) ||
+      /\.(pdf|jpg|jpeg|png)$/i.test(file.name);
+    if (!ok) {
+      setProofError("Accepted formats: PDF, JPG, PNG");
+      return;
+    }
+    setProofFile(file);
+    setProofError("");
+  };
+
+  const handleRemoveProof = () => {
+    setProofFile(null);
+    setProofError("");
+  };
+
   //  Handle Location Selection
 
   const handleLocationSelect = (location: {
@@ -231,10 +258,11 @@ export const AddHostel: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // if (images.length === 0) {
-    //   toast.error("Please upload at least one image of your property.");
-    //   return;
-    // }
+    if (!proofFile) {
+      setProofError("Please attach a property verification document");
+      toast.error("Please attach a property verification document");
+      return;
+    }
 
     if (!validateForm()) {
       const firstErrorField = Object.keys(formErrors)[0];
@@ -269,6 +297,11 @@ export const AddHostel: React.FC = () => {
       });
 
       formDataToSend.append("facilities", formData.facilities.join(","));
+
+      // NEW: property verification
+      if (proofFile) {
+        formDataToSend.append("property_proof", proofFile);
+      }
 
       images.forEach((image) => {
         formDataToSend.append("photos", image);
@@ -424,10 +457,16 @@ export const AddHostel: React.FC = () => {
                 handleFacilityToggle={handleFacilityToggle}
               />
 
+              <VerificationSection
+                proofFile={proofFile}
+                error={proofError}
+                onFileUpload={handleProofUpload}
+                onRemoveFile={handleRemoveProof}
+              />
+
               <ImageUploadSection
                 images={images}
                 imageError={imageError}
-                // errors={formErrors}
                 handleImageUpload={handleImageUpload}
                 handleRemoveImage={handleRemoveImage}
               />

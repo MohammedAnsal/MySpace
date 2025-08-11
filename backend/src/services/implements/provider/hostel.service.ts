@@ -39,6 +39,7 @@ class HostelService implements IHostelService {
         provider_id,
         description,
         photos,
+        property_proof,
       } = hostelData;
 
       if (
@@ -51,13 +52,14 @@ class HostelService implements IHostelService {
         !location ||
         !provider_id ||
         !description ||
-        !photos
+        !photos ||
+        !property_proof
       ) {
         throw new AppError("Missing required fields", HttpStatus.BAD_REQUEST);
       }
 
       const newHostelData: Partial<IHostel> = {
-        ...hostelData,
+        ...hostelData, // includes property_proof if present
         available_space: total_space,
         status: true,
         is_verified: false,
@@ -151,7 +153,7 @@ class HostelService implements IHostelService {
       }
 
       const updateHostelData: Partial<IHostel> = {
-        ...updateData,
+        ...updateData, // includes property_proof if set by controller
         location: updateData.location
           ? new mongoose.Types.ObjectId(updateData.location._id)
           : undefined,
