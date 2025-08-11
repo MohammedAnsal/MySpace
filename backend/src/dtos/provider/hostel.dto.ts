@@ -16,6 +16,7 @@ export interface HostelResponseDTO {
   photos: string[];
   amenities: string[];
   description: string;
+  property_proof: string; // NEW
   location: {
     _id: string;
     latitude: number;
@@ -51,6 +52,7 @@ export interface CreateHostelDTO {
   photos: string[];
   amenities: string[];
   description: string;
+  property_proof?: string; // NEW (optional on create)
   location: {
     _id: string;
     latitude: number;
@@ -146,6 +148,7 @@ export function mapToHostelDTO(hostel: IHostel): HostelResponseDTO {
     photos: hostel.photos || [],
     amenities: hostel.amenities || [],
     description: hostel.description || "",
+    property_proof: hostel.property_proof || "", // NEW
     location: isPopulatedLocation(hostel.location)
       ? {
           _id: hostel.location._id.toString(),

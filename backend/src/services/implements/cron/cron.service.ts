@@ -19,21 +19,45 @@ export class CronService {
   }
 
   private initializeCronJobs() {
-    cron.schedule("* * * * *", async () => {
+    // Stay duration reminder - every day at 10:00 AM
+    cron.schedule("0 10 * * *", async () => {
       try {
         await this.checkStayDurationReminders();
-        await this.checkMonthlyRentReminders();
       } catch (error) {
-        console.error("Error in reminder cron job:", error);
+        console.error(`[CRON ERROR] Stay Duration Reminder job failed:`, error);
       }
     });
 
-    cron.schedule("* * * * *", async () => {
+    // Monthly rent reminder - every day at 9:30 AM
+    cron.schedule("30 9 * * *", async () => {
+      try {
+        await this.checkMonthlyRentReminders();
+      } catch (error) {
+        console.error(`[CRON ERROR] Monthly Rent Reminder job failed:`, error);
+      }
+    });
+
+    // Clean up expired bookings - every 5 minutes
+    cron.schedule("*/5 * * * *", async () => {
       try {
         await this.cleanUpExpiredBookings();
+      } catch (error) {
+        console.error(
+          `[CRON ERROR] Clean Up Expired Bookings job failed:`,
+          error
+        );
+      }
+    });
+
+    // Delete expired bookings - every hour
+    cron.schedule("0 * * * *", async () => {
+      try {
         await this.deleteExpiredBookings();
       } catch (error) {
-        console.error("Error in expired booking cleanup cron job:", error);
+        console.error(
+          `[CRON ERROR] Delete Expired Bookings job failed:`,
+          error
+        );
       }
     });
   }
@@ -336,10 +360,8 @@ export class CronService {
     if (expiredBookingsToDelete.length > 0) {
       for (const booking of expiredBookingsToDelete) {
         try {
-          // Delete the booking
           await Booking.findByIdAndDelete(booking._id);
 
-          // Also delete related payment records
           await HostelPaymentModel.deleteOne({ bookingId: booking._id });
 
           console.log(`Deleted expired booking: ${booking._id}`);

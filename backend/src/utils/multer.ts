@@ -76,6 +76,21 @@ export const upload = multer({
       return cb(null, true);
     }
 
+    if (file.fieldname === "property_proof") {
+      const allowedMimeTypes = [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/jpg",
+      ];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        return cb(
+          new Error("Only PDF and image files are allowed for property proof")
+        );
+      }
+      return cb(null, true);
+    }
+
     return cb(null, false);
   },
 });

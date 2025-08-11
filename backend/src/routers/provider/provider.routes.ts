@@ -46,7 +46,10 @@ providerRoute.get(
 
 providerRoute.post(
   "/create-hostel",
-  upload.array("photos", 5),
+  upload.fields([
+    { name: "photos", maxCount: 5 },
+    { name: "property_proof", maxCount: 1 },
+  ]),
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.PROVIDER),
