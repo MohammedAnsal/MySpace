@@ -40,8 +40,8 @@ export class SocketService {
   initialize(httpServer: HttpServer): void {
     this.io = new Server(httpServer, {
       cors: {
-        // origin: process.env.CLIENT_URL || "http://localhost:5000",
-        origin: process.env.CLIENT_URL || "https://my-space.shop",
+        origin: process.env.CLIENT_URL || "http://localhost:5000",
+        // origin: process.env.CLIENT_URL || "https://my-space.shop",
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         credentials: true,
       },

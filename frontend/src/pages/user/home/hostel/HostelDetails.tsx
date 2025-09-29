@@ -22,6 +22,7 @@ import {
   Cctv,
   GlassWaterIcon,
   Maximize2,
+  Sparkles,
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
@@ -71,6 +72,20 @@ const getAmenityIcon = (amenity: string) => {
   return iconMap[amenity] || <CheckCircle className="w-5 h-5" />;
 };
 
+const getFacilityIcon = (facilityName: string) => {
+  const name = (facilityName || "").toLowerCase();
+  if (name.includes("food") || name.includes("cater") || name.includes("meal")) {
+    return <CookingPot className="w-5 h-5" />;
+  }
+  if (name.includes("laundry") || name.includes("wash")) {
+    return <WashingMachine className="w-5 h-5" />;
+  }
+  if (name.includes("clean") || name.includes("housekeep")) {
+    return <Sparkles className="w-5 h-5" />;
+  }
+  return <CheckCircle className="w-5 h-5" />;
+};
+
 const HostelDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: hostel, isLoading } = useHostelDetails(id);
@@ -80,8 +95,6 @@ const HostelDetails = () => {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const navigate = useNavigate();
-
-  console.log(hostel);
 
   if (isLoading) {
     return (
@@ -270,15 +283,18 @@ const HostelDetails = () => {
                         viewport={{ once: true }}
                         className="flex items-center space-x-3 bg-[#384f9514] p-3 rounded-lg"
                       >
-                        <span className="text-main-color">
-                          <CheckCircle className="w-5 h-5" />
+                      <span className="text-main-color">
+                          {getFacilityIcon(facility.name)}
                         </span>
                         <div>
                           <span className="text-gray-700 font-medium">
-                            {facility.type}
+                            {facility.name}
                           </span>
                           <p className="text-sm text-gray-500">
-                            ₹{facility.ratePerMonth}/month
+                            {facility.description}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            ₹{facility.price}/month
                           </p>
                         </div>
                       </motion.div>

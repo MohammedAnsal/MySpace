@@ -32,15 +32,6 @@ export class MessageController {
         replyToMessageId,
       } = req.body;
 
-      console.log(
-        chatRoomId,
-        senderId,
-        senderType,
-        content,
-        image,
-        replyToMessageId
-      );
-
       if (image) {
         if (!chatRoomId || !senderId || !senderType) {
           throw new AppError(
@@ -117,7 +108,9 @@ export class MessageController {
       const messagesWithSignedUrls = await Promise.all(
         messageListDTO.messages.map(async (message) => {
           if (message.image) {
-            const signedUrl = await this.s3Service.generateSignedUrl(message.image);
+            const signedUrl = await this.s3Service.generateSignedUrl(
+              message.image
+            );
             return {
               ...message,
               image: signedUrl,
@@ -288,7 +281,7 @@ export class MessageController {
         chatRoomId,
         senderId,
         senderType,
-        "", // Empty content for image-only messages
+        "📷 Image", // Empty content for image-only messages
         uploadResult.Location,
         replyToMessageId
       );

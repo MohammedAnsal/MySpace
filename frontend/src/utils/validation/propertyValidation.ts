@@ -26,7 +26,7 @@ export const hostelValidationSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Monthly rent must be a valid positive number",
     })
-    .refine((val) => Number(val) >= 100 && Number(val) <= 1000, {
+    .refine((val) => Number(val) >= 40 && Number(val) <= 1000, {
       message: "Monthly rent must be between $100 and $1000",
     }),
 
@@ -43,15 +43,15 @@ export const hostelValidationSchema = z.object({
     .trim()
     .nonempty("Deposit terms are required")
     .min(20, "Deposit terms must be at least 20 characters long")
-    .max(500, "Deposit terms cannot exceed 500 characters")
-    .refine(
-      (val) =>
-        val.toLowerCase().includes("refund") ||
-        val.toLowerCase().includes("return"),
-      {
-        message: "Deposit terms must mention refund or return policy",
-      }
-    ),
+    .max(500, "Deposit terms cannot exceed 500 characters"),
+    // .refine(
+    //   (val) =>
+    //     val.toLowerCase().includes("refund") ||
+    //     val.toLowerCase().includes("return"),
+    //   {
+    //     message: "Deposit terms must mention refund or return policy",
+    //   }
+    // ),
 
   maximum_occupancy: z
     .string()
@@ -60,7 +60,7 @@ export const hostelValidationSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Maximum occupancy must be a valid positive number",
     })
-    .refine((val) => Number(val) >= 1 && Number(val) <= 100, {
+    .refine((val) => Number(val) >= 1 && Number(val) <= 40, {
       message: "Maximum occupancy must be between 1 and 100",
     }),
 
@@ -68,7 +68,7 @@ export const hostelValidationSchema = z.object({
     .string()
     .trim()
     .nonempty("House rules are required")
-    .min(50, "House rules must be at least 50 characters long")
+    .min(30, "House rules must be at least 50 characters long")
     .max(1000, "House rules cannot exceed 1000 characters")
     .refine(
       (val) => {
