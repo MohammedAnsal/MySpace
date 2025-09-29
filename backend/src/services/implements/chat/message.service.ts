@@ -83,6 +83,7 @@ export class MessageService implements IMessageService {
         messageData
       );
 
+
       const recipientType = senderType === "user" ? "provider" : "user";
       await this.chatRoomRepository.updateLastMessage(
         chatRoomId,

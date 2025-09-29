@@ -3,7 +3,10 @@ import ChatRoom, { IChatRoom } from "../../../models/chat/chatRoom.model";
 import { IChatRoomRepository } from "../../interfaces/chat/chatRoom.Irepository";
 import { IMessage } from "../../../models/chat/message.model";
 import Container, { Service } from "typedi";
-import { CreateChatRoomDTO, UpdateChatRoomDTO } from "../../../dtos/chat/chat.room.dto";
+import {
+  CreateChatRoomDTO,
+  UpdateChatRoomDTO,
+} from "../../../dtos/chat/chat.room.dto";
 
 @Service()
 export class ChatRoomRepository implements IChatRoomRepository {
@@ -16,7 +19,7 @@ export class ChatRoomRepository implements IChatRoomRepository {
       providerUnreadCount: 0,
       lastMessageTime: new Date(),
     };
-    
+
     const chatRoom = new ChatRoom(dataToCreate);
     const savedChatRoom = await chatRoom.save();
     return savedChatRoom as IChatRoom;

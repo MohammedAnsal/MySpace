@@ -60,7 +60,7 @@ socketService.initialize(httpServer);
 
 app.use(morgan(morganFormat, morganOptions));
 
-app.use(express.json()); 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 

@@ -91,7 +91,13 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
         // Load messages
         const messagesData = await chatApi.getChatMessages(chatRoomId);
 
-        setMessages(messagesData);
+        // Ensure messagesData is an array and handle empty responses
+        if (Array.isArray(messagesData)) {
+          setMessages(messagesData);
+        } else {
+          console.warn("getChatMessages returned non-array:", messagesData);
+          setMessages([]);
+        }
 
         // Reset unread count for this room
         setChatRooms((prev) =>
@@ -396,6 +402,8 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           // Create appropriate last message text for display
           const lastMessageText = message.image ? "📷 Image" : message.content;
 
+          console.log(lastMessageText, "aaa");
+
           // Create updated room with new message info
           const updatedRoom = {
             ...roomToUpdate,
@@ -591,7 +599,7 @@ export const useChat = ({ selectedChatRoomId, userType }: UseChatProps) => {
           chatRoomId: selectedChatRoom._id,
           senderId: userId,
           senderType: userType,
-          content: message.content || "",
+          content: message.content || "📷 Image",
           image: message.image,
           replyToMessageId,
           _id: message._id,
