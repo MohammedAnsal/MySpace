@@ -12,12 +12,30 @@ import {
   Wind,
   Shirt,
   Star,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  DollarSign,
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import RatingModal from "./RatingModal";
 import { createRating } from "@/services/Api/userApi";
 import { useUserRating } from "@/hooks/user/hostel/useHostel";
 import MapModal from "./MapModal";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { useMonthlyPayment } from "@/hooks/user/booking/useBooking";
+
+interface MonthlyPayment {
+  month: number;
+  dueDate: string;
+  status: "pending" | "completed";
+  paid: boolean;
+  paidAt: string | null;
+  reminderSent: boolean;
+}
 
 interface Facility {
   facilityId: {
@@ -63,6 +81,7 @@ interface Booking {
   proof: string;
   providerId: string;
   selectedFacilities: Facility[];
+  monthlyPayments?: MonthlyPayment[];
 }
 
 interface BookingDetailsProps {
@@ -72,6 +91,7 @@ interface BookingDetailsProps {
 const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const [showAllPayments, setShowAllPayments] = useState(false);
 
   // Fetch user's existing rating for this hostel
   const {
@@ -79,6 +99,37 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
     isLoading: isRatingLoading,
     refetch: refetchUserRating,
   } = useUserRating(booking.hostelId._id, booking._id);
+
+  const {
+    mutate: processMonthlyPaymentMutation,
+    isPending: isProcessingMonthlyPayment,
+  } = useMonthlyPayment();
+
+  // Add this function after your existing helper functions
+  const handlePayNow = async (month: number) => {
+    try {
+      processMonthlyPaymentMutation(
+        { bookingId: booking._id, month },
+        {
+          onSuccess: (response) => {
+            if (response?.data?.checkoutUrl) {
+              window.location.href = response.data.checkoutUrl;
+              toast.success("Redirecting to payment...");
+            } else {
+              toast.error("Payment session creation failed");
+            }
+          },
+          onError: (error) => {
+            console.error("Payment processing error:", error);
+            toast.error("Failed to process payment. Please try again later.");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Failed to process payment. Please try again.");
+    }
+  };
 
   const formatDate = (dateString: string) => {
     try {
@@ -91,6 +142,52 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
     } catch (error) {
       return "Invalid Date";
     }
+  };
+
+  const formatMonthName = (monthNumber: number, checkInDate: string) => {
+    try {
+      const checkIn = new Date(checkInDate);
+      const monthDate = new Date(checkIn);
+      monthDate.setMonth(checkIn.getMonth() + monthNumber - 1);
+
+      return new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        year: "numeric",
+      }).format(monthDate);
+    } catch (error) {
+      return `Month ${monthNumber}`;
+    }
+  };
+
+  const getPaymentStatusIcon = (status: string, paid: boolean) => {
+    if (paid || status === "completed") {
+      return <CheckCircle className="text-green-500" size={18} />;
+    } else {
+      return <AlertTriangle className="text-amber-500" size={18} />;
+    }
+  };
+
+  const getPaymentStatusColor = (status: string, paid: boolean) => {
+    if (paid || status === "completed") {
+      return "bg-green-50 border-green-200 text-green-800";
+    } else {
+      return "bg-amber-50 border-amber-200 text-amber-800";
+    }
+  };
+
+  const getPaymentStatusText = (status: string, paid: boolean) => {
+    if (paid || status === "completed") {
+      return "Paid";
+    } else {
+      return "Pending";
+    }
+  };
+
+  const isPaymentOverdue = (dueDate: string, status: string, paid: boolean) => {
+    if (paid || status === "completed") return false;
+    const due = new Date(dueDate);
+    const now = new Date();
+    return now > due;
   };
 
   const getFacilityName = (facility: any) => {
@@ -151,7 +248,6 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
     } else if (name.includes("laundry")) {
       return <Shirt className="text-white" size={14} />;
     } else {
-      // Fallback icon
       return <Clock className="text-white" size={14} />;
     }
   };
@@ -161,12 +257,11 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
       const start = new Date(startDate);
       const end = new Date(endDate);
 
-      // Calculate the difference in months
       const months =
         (end.getFullYear() - start.getFullYear()) * 12 +
         (end.getMonth() - start.getMonth());
 
-      return months <= 0 ? 1 : months; // Ensure minimum of 1 month
+      return months <= 0 ? 1 : months;
     } catch (error) {
       return "—";
     }
@@ -191,13 +286,12 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
       const ratingData = {
         user_id: booking.userId,
         hostel_id: booking.hostelId._id,
-        booking_id:booking._id,
+        booking_id: booking._id,
         rating,
         comment,
       };
 
       await createRating(ratingData);
-      // Refetch rating after submission
       refetchUserRating();
       return Promise.resolve();
     } catch (error) {
@@ -205,6 +299,26 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
       return Promise.reject(error);
     }
   };
+
+  // Calculate payment statistics
+  const paymentStats = React.useMemo(() => {
+    if (!booking.monthlyPayments || booking.monthlyPayments.length === 0) {
+      return { total: 0, paid: 0, pending: 0, overdue: 0 };
+    }
+
+    const total = booking.monthlyPayments.length;
+    const paid = booking.monthlyPayments.filter(
+      (mp) => mp.paid || mp.status === "completed"
+    ).length;
+    const pending = booking.monthlyPayments.filter(
+      (mp) => !mp.paid && mp.status === "pending"
+    ).length;
+    const overdue = booking.monthlyPayments.filter((mp) =>
+      isPaymentOverdue(mp.dueDate, mp.status, mp.paid)
+    ).length;
+
+    return { total, paid, pending, overdue };
+  }, [booking.monthlyPayments]);
 
   return (
     <div className="p-6 pt-0 border-t">
@@ -272,6 +386,305 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
         </div>
       </div>
 
+      {/* Monthly Payments Section - SMART UI FOR DIFFERENT DURATIONS */}
+      {booking.monthlyPayments && booking.monthlyPayments.length > 0 && (
+        <div className="mt-6 pt-4 border-t">
+          <div className="flex items-center justify-between mb-6">
+            <h4 className="text-sm uppercase font-semibold text-gray-500 flex items-center">
+              <DollarSign className="text-[#b9a089] mr-2" size={16} />
+              Monthly Payment Schedule
+            </h4>
+
+            {/* Show total count */}
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              {booking.monthlyPayments.length} payments
+            </span>
+          </div>
+
+          {/* Payment Statistics */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4 text-xs">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                <span className="text-gray-600">{paymentStats.paid} Paid</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-amber-500 rounded-full mr-1"></div>
+                <span className="text-gray-600">
+                  {paymentStats.pending} Pending
+                </span>
+              </div>
+              {paymentStats.overdue > 0 && (
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mr-1"></div>
+                  <span className="text-red-600">
+                    {paymentStats.overdue} Overdue
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {!showAllPayments && booking.monthlyPayments.length > 3 && (
+              <span className="text-xs text-gray-500">
+                Showing 3 of {booking.monthlyPayments.length}
+              </span>
+            )}
+          </div>
+
+          {/* Monthly Payments Grid - Show 3 first, then all */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(showAllPayments
+              ? booking.monthlyPayments
+              : booking.monthlyPayments.slice(0, 3)
+            ).map((payment, index) => {
+              const isOverdue = isPaymentOverdue(
+                payment.dueDate,
+                payment.status,
+                payment.paid
+              );
+              const statusColor = isOverdue
+                ? "bg-red-50 border-red-200 text-red-800"
+                : getPaymentStatusColor(payment.status, payment.paid);
+
+              return (
+                <motion.div
+                  key={payment.month}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className={`relative p-4 rounded-lg border-2 ${statusColor} hover:shadow-md transition-all duration-200`}
+                >
+                  {/* Month Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-[#b9a089] text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                        {payment.month}
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-sm">
+                          {formatMonthName(payment.month, booking.checkIn)}
+                        </h5>
+                        <p className="text-xs text-gray-500">
+                          ${booking.monthlyRent}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Status Icon */}
+                    <div className="flex items-center">
+                      {isOverdue ? (
+                        <XCircle className="text-red-500" size={18} />
+                      ) : (
+                        getPaymentStatusIcon(payment.status, payment.paid)
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Payment Details */}
+
+                  {/* Payment Details */}
+                  <div className="space-y-2 text-xs">
+                    {payment.month !== 1 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Due Date:</span>
+                        <span className="font-medium">
+                          {formatDate(payment.dueDate)}
+                        </span>
+                      </div>
+                    )}
+
+                    {payment.paidAt && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Paid On:</span>
+                        <span className="font-medium">
+                          {formatDate(payment.paidAt)}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <span
+                        className={`font-medium ${
+                          isOverdue ? "text-red-600" : ""
+                        }`}
+                      >
+                        {isOverdue
+                          ? "Overdue"
+                          : getPaymentStatusText(payment.status, payment.paid)}
+                      </span>
+                    </div>
+
+                    {/* Reminder Status */}
+                    {payment.reminderSent &&
+                      !payment.paid &&
+                      payment.status !== "completed" && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Reminder:</span>
+                          <span className="font-medium text-amber-600">
+                            Sent
+                          </span>
+                        </div>
+                      )}
+                  </div>
+
+                  {/* Pay Now Button - Only show for pending payments with reminder sent */}
+                  {!payment.paid &&
+                    payment.status !== "completed" &&
+                    payment.reminderSent && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <button
+                          onClick={() => handlePayNow(payment.month)}
+                          disabled={isProcessingMonthlyPayment}
+                          className="w-full bg-[#b9a089] hover:bg-[#a58e77] disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-xs font-medium py-2 px-3 rounded-md transition-colors duration-200 flex items-center justify-center"
+                        >
+                          {isProcessingMonthlyPayment ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <CreditCard className="mr-1" size={14} />
+                              Pay Now (${booking.monthlyRent})
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  {isOverdue && (
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      Overdue
+                    </div>
+                  )}
+
+                  {/* <div className="space-y-2 text-xs">
+                    {payment.month !== 1 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Due Date:</span>
+                        <span className="font-medium">
+                          {formatDate(payment.dueDate)}
+                        </span>
+                      </div>
+                    )}
+
+                    {payment.paidAt && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Paid On:</span>
+                        <span className="font-medium">
+                          {formatDate(payment.paidAt)}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <span
+                        className={`font-medium ${
+                          isOverdue ? "text-red-600" : ""
+                        }`}
+                      >
+                        {isOverdue
+                          ? "Overdue"
+                          : getPaymentStatusText(payment.status, payment.paid)}
+                      </span>
+                    </div>
+                  </div> */}
+
+                  {/* Progress Indicator */}
+                  <div className="mt-3">
+                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                      <div
+                        className={`h-1.5 rounded-full transition-all duration-500 ${
+                          payment.paid || payment.status === "completed"
+                            ? "bg-green-500"
+                            : isOverdue
+                            ? "bg-red-500"
+                            : "bg-amber-500"
+                        }`}
+                        style={{
+                          width:
+                            payment.paid || payment.status === "completed"
+                              ? "100%"
+                              : isOverdue
+                              ? "100%"
+                              : "60%",
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Overdue Badge */}
+                  {isOverdue && (
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      Overdue
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Show More/Show Less Button - Only show if more than 3 payments */}
+          {booking.monthlyPayments.length > 3 && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setShowAllPayments(!showAllPayments)}
+                className={`px-4 py-2 text-sm rounded-md transition-colors flex items-center mx-auto ${
+                  showAllPayments
+                    ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    : "bg-[#b9a089] text-white hover:bg-[#a58e77]"
+                }`}
+              >
+                {showAllPayments ? (
+                  <>
+                    Show Less
+                    <ChevronUp className="ml-2" size={16} />
+                  </>
+                ) : (
+                  <>
+                    Show More ({booking.monthlyPayments.length - 3} more)
+                    <ChevronDown className="ml-2" size={16} />
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Payment Summary */}
+          <div className="mt-6 bg-gradient-to-r from-[#b9a089]/5 to-[#b9a089]/10 p-4 rounded-lg border border-[#b9a089]/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <TrendingUp className="text-[#b9a089] mr-2" size={18} />
+                <span className="font-medium text-gray-700">
+                  Payment Summary
+                </span>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">
+                  Total: {paymentStats.total} months |
+                  <span className="text-green-600 ml-1">
+                    Paid: {paymentStats.paid}
+                  </span>{" "}
+                  |
+                  <span className="text-amber-600 ml-1">
+                    Pending: {paymentStats.pending}
+                  </span>
+                  {paymentStats.overdue > 0 && (
+                    <span className="text-red-600 ml-1">
+                      | Overdue: {paymentStats.overdue}
+                    </span>
+                  )}
+                </p>
+                <p className="text-lg font-bold text-[#b9a089] mt-1">
+                  Total Amount: ${booking.monthlyRent * paymentStats.total}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Location Details (if available) */}
       {hasLocationDetails() && (
         <div className="mt-6 pt-4 border-t">
@@ -309,7 +722,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
             latitude: parseFloat(booking.hostelId.location.latitude || "0"),
             longitude: parseFloat(booking.hostelId.location.longitude || "0"),
             address: booking.hostelId.location.address || "Unknown Address",
-            hostelName:booking.hostelId.hostel_name
+            hostelName: booking.hostelId.hostel_name,
           }}
           onClose={() => setIsMapModalOpen(false)}
         />

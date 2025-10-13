@@ -10,6 +10,15 @@ export interface IFacilitySelection {
   totalCost: number;
 }
 
+export interface IMonthlyPayment {
+  month: number;
+  dueDate: Date;
+  paid: boolean;
+  status: "pending" | "completed";
+  paidAt: Date | null;
+  reminderSent: boolean;
+}
+
 export interface IBooking extends Document {
   userId: ObjectId;
   hostelId: ObjectId;
@@ -19,6 +28,8 @@ export interface IBooking extends Document {
   checkOut: Date;
   stayDurationInMonths: number;
   selectedFacilities: IFacilitySelection[];
+
+  monthlyPayments: IMonthlyPayment[];
 
   bookingDate: Date;
   totalPrice: number;
@@ -30,8 +41,9 @@ export interface IBooking extends Document {
   proof: string;
   reason: string;
   paymentExpiry: Date;
-  stayDurationReminderSent: Date; // Track stay duration reminders
-  monthlyRentReminderSent: Date; // Track monthly rent reminders
+  stayDurationReminderSent: Date;
+  monthlyRentReminderSent: Date;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +61,15 @@ const FacilitySelectionSchema: Schema<IFacilitySelection> = new Schema({
   totalCost: { type: Number },
 });
 
+const MonthlyPaymentSchema: Schema<IMonthlyPayment> = new Schema({
+  month: { type: Number, required: true },
+  dueDate: { type: Date, required: true },
+  paid: { type: Boolean, default: false },
+  status: { type: String, enum: ["pending", "completed"], default: "pending" },
+  paidAt: { type: Date, default: null },
+  reminderSent: { type: Boolean, default: false },
+});
+
 const BookingSchema: Schema<IBooking> = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -61,6 +82,8 @@ const BookingSchema: Schema<IBooking> = new Schema(
 
     reason: { type: String, default: "" },
     selectedFacilities: [FacilitySelectionSchema],
+
+    monthlyPayments: [MonthlyPaymentSchema],
 
     bookingDate: { type: Date, default: Date.now },
     totalPrice: { type: Number, required: true },

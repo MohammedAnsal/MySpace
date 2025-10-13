@@ -56,6 +56,13 @@ export class BookingService implements IBookingService {
     try {
       session.startTransaction();
 
+      if (bookingData.stayDurationInMonths < 1) {
+        throw new AppError(
+          "Minimum stay duration is 1 month",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
       if (
         !bookingData.userId ||
         !bookingData.hostelId ||
@@ -64,7 +71,6 @@ export class BookingService implements IBookingService {
         throw new AppError("Missing required IDs", HttpStatus.BAD_REQUEST);
       }
 
-      // Validate ObjectIds
       if (!mongoose.Types.ObjectId.isValid(bookingData.userId)) {
         throw new AppError(
           `Invalid user ID format: ${bookingData.userId}`,
@@ -84,36 +90,74 @@ export class BookingService implements IBookingService {
         );
       }
 
-      // CRITICAL: Atomic check and update of available space
-      const hostel = await this.hostelRepository.getHostelByIdWithLock(
-        bookingData.hostelId,
-        session
-      );
+      // Validate date conflicts - Check if any existing booking overlaps
+      const conflictingBookings =
+        await this.bookingRepository.findConflictingBookings(
+          bookingData.hostelId,
+          bookingData.checkIn,
+          bookingData.checkOut
+        );
 
-      if (!hostel) {
-        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
-      }
-
-      if (hostel.available_space !== null && hostel.available_space <= 0) {
+      if (conflictingBookings.length > 0) {
         throw new AppError(
-          "No beds available in this hostel",
+          "No beds available for the selected dates. Please choose different dates.",
           HttpStatus.BAD_REQUEST
         );
       }
 
-      // Decrease available space atomically
-      const updatedHostel = await this.hostelRepository.decreaseAvailableSpace(
-        bookingData.hostelId,
-        session
-      );
+      // // CRITICAL: Atomic check and update of available space
+      // const hostel = await this.hostelRepository.getHostelByIdWithLock(
+      //   bookingData.hostelId,
+      //   session
+      // );
 
-      if (
-        !updatedHostel ||
-        (updatedHostel.available_space !== null &&
-          updatedHostel.available_space < 0)
-      ) {
+      // if (!hostel) {
+      //   throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      // }
+
+      // Get hostel info (don't decrease space yet)
+      const hostel = await this.hostelRepository.getHostelById(
+        bookingData.hostelId
+      );
+      if (!hostel) {
+        throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
+      }
+
+      // if (hostel.available_space !== null && hostel.available_space <= 0) {
+      //   throw new AppError(
+      //     "No beds available in this hostel",
+      //     HttpStatus.BAD_REQUEST
+      //   );
+      // }
+
+      // // Decrease available space atomically
+      // const updatedHostel = await this.hostelRepository.decreaseAvailableSpace(
+      //   bookingData.hostelId,
+      //   session
+      // );
+
+      // if (
+      //   !updatedHostel ||
+      //   (updatedHostel.available_space !== null &&
+      //     updatedHostel.available_space < 0)
+      // ) {
+      //   throw new AppError(
+      //     "No beds available in this hostel",
+      //     HttpStatus.BAD_REQUEST
+      //   );
+      // }
+
+      // Check if there's enough space for the booking period
+      const availableSpace =
+        await this.bookingRepository.getAvailableSpaceForPeriod(
+          bookingData.hostelId,
+          bookingData.checkIn,
+          bookingData.checkOut
+        );
+
+      if (availableSpace <= 0) {
         throw new AppError(
-          "No beds available in this hostel",
+          "No beds available for the selected dates. Please choose different dates.",
           HttpStatus.BAD_REQUEST
         );
       }
@@ -160,6 +204,22 @@ export class BookingService implements IBookingService {
         bookingData.checkIn
       );
 
+      const monthlyPayments = [];
+
+      for (let month = 1; month <= bookingData.stayDurationInMonths; month++) {
+        const dueDate = new Date(bookingData.checkIn);
+        dueDate.setMonth(dueDate.getMonth() + month - 1);
+
+        monthlyPayments.push({
+          month,
+          dueDate,
+          status: month === 1 ? "completed" : "pending",
+          paid: month === 1,
+          paidAt: month === 1 ? new Date() : null,
+          reminderSent: month === 1 ? true : false,
+        });
+      }
+
       // Create booking with session
       const bookingDataToCreate = {
         ...bookingData,
@@ -178,6 +238,7 @@ export class BookingService implements IBookingService {
           ...facility,
           facilityId: new mongoose.Types.ObjectId(facility.facilityId),
         })),
+        monthlyPayments,
       };
 
       const booking = await this.bookingRepository.createBookingWithSession(
@@ -185,15 +246,11 @@ export class BookingService implements IBookingService {
         session
       );
 
-      // Commit transaction
       await session.commitTransaction();
-
       return mapToBookingDTO(booking);
     } catch (error) {
-      // Rollback transaction on error
       await session.abortTransaction();
 
-      // Only try to delete S3 file if upload was successful
       if (error instanceof AppError && uploadResult) {
         try {
           const s3Url = Array.isArray(uploadResult)
@@ -213,7 +270,6 @@ export class BookingService implements IBookingService {
       console.error("Error creating booking in repository:", error);
       throw error;
     } finally {
-      // End session
       session.endSession();
     }
   }
@@ -443,8 +499,8 @@ export class BookingService implements IBookingService {
             | "Catering Service"
             | "Laundry Service"
             | "Deep Cleaning Service",
-          startDate, // <-- Use checkIn
-          endDate, // <-- Calculated based on duration
+          startDate,
+          endDate,
           duration: Number(selected.duration),
           ratePerMonth: facility.price,
           totalCost: totalCost,
@@ -539,6 +595,69 @@ export class BookingService implements IBookingService {
     }
 
     return mapToBookingDTO(updatedBooking);
+  }
+
+  //  Monthly Payment :-
+
+  async updateMonthlyPaymentStatus(
+    bookingId: string,
+    month: number,
+    paymentStatus: "completed" | "failed"
+  ): Promise<BookingResponseDTO> {
+    try {
+      console.log("from service");
+      const booking = await this.bookingRepository.getBookingById(bookingId);
+      if (!booking) {
+        throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
+      }
+
+      // Find the specific monthly payment
+      const monthlyPayment = booking.monthlyPayments.find(
+        (mp) => mp.month === month
+      );
+      if (!monthlyPayment) {
+        throw new AppError(
+          `Monthly payment for month ${month} not found`,
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      // Update the monthly payment status
+      const updatedBooking =
+        await this.bookingRepository.updateMonthlyPaymentStatus(
+          bookingId,
+          month,
+          paymentStatus === "completed"
+            ? {
+                status: "completed",
+                paid: true,
+                paidAt: new Date(),
+              }
+            : {
+                status: "pending",
+                paid: false,
+                paidAt: null,
+              }
+        );
+
+      if (!updatedBooking) {
+        throw new AppError(
+          "Failed to update monthly payment",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      return mapToBookingDTO(updatedBooking);
+    } catch (error) {
+      console.error("Error updating monthly payment status:", error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "Error updating monthly payment status",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 }
 

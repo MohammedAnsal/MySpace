@@ -8,4 +8,5 @@ export interface IBookingController {
   getUserBookings(req: AuthRequset, res: Response): Promise<Response>;
   getAllBookings(req: AuthRequset, res: Response): Promise<Response>;
   cancelBooking(req: AuthRequset, res: Response): Promise<Response>;
+  processMonthlyPayment(req: AuthRequset, res: Response): Promise<Response>;
 }

@@ -49,7 +49,7 @@ const Checkout: React.FC = () => {
   }, [hostelId, navigate]);
 
   const [formData, setFormData] = useState<BookingFormData>({
-    startDate: new Date().toISOString().split("T")[0],
+    startDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
     selectedMonths: 1,
     selectedFacilities: [],
     userProof: null,
@@ -65,7 +65,18 @@ const Checkout: React.FC = () => {
   const calculateEndDate = () => {
     const startDate = new Date(formData.startDate);
     const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + formData.selectedMonths);
+
+    // Properly handle month addition that crosses year boundaries
+    const currentYear = endDate.getFullYear();
+    const currentMonth = endDate.getMonth();
+    const newMonth = currentMonth + formData.selectedMonths;
+
+    endDate.setFullYear(
+      currentYear + Math.floor(newMonth / 12),
+      newMonth % 12,
+      endDate.getDate()
+    );
+
     return endDate.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -167,9 +178,66 @@ const Checkout: React.FC = () => {
     setFormData({ ...formData, acceptedRules: accepted });
   };
 
+  // Helper function to properly add months to a date
+  const addMonthsToDate = (date: Date, months: number) => {
+    const newDate = new Date(date);
+    const currentYear = newDate.getFullYear();
+    const currentMonth = newDate.getMonth();
+    const newMonth = currentMonth + months;
+
+    newDate.setFullYear(
+      currentYear + Math.floor(newMonth / 12),
+      newMonth % 12,
+      newDate.getDate()
+    );
+
+    return newDate;
+  };
+
+  // Validate booking dates and duration
+  const validateBookingDates = (checkIn: string, duration: number) => {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = addMonthsToDate(checkInDate, duration);
+
+    // Check if checkout date is at least 1 month from check-in
+    const oneMonthFromCheckIn = addMonthsToDate(checkInDate, 1);
+
+    if (checkOutDate < oneMonthFromCheckIn) {
+      return {
+        isValid: false,
+        message:
+          "Minimum stay duration is 1 month. Please select a longer duration.",
+      };
+    }
+
+    // Check if check-in date is in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (checkInDate < today) {
+      return {
+        isValid: false,
+        message:
+          "Check-in date cannot be in the past. Please select a future date.",
+      };
+    }
+
+    return { isValid: true };
+  };
+
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+
+      // Validate dates first
+      const dateValidation = validateBookingDates(
+        formData.startDate,
+        formData.selectedMonths
+      );
+      if (!dateValidation.isValid) {
+        toast.error(dateValidation.message);
+        return;
+      }
 
       if (!formData.userProof) {
         toast.error("Please upload proof document");
@@ -190,10 +258,14 @@ const Checkout: React.FC = () => {
       bookingFormData.append("hostelId", hostel._id.toString());
       bookingFormData.append("providerId", hostel.provider_id._id.toString());
       bookingFormData.append("checkIn", formData.startDate);
-      bookingFormData.append(
-        "checkOut",
-        new Date(calculateEndDate()).toISOString()
+
+      // Calculate proper checkout date
+      const checkInDate = new Date(formData.startDate);
+      const checkOutDate = addMonthsToDate(
+        checkInDate,
+        formData.selectedMonths
       );
+      bookingFormData.append("checkOut", checkOutDate.toISOString());
       bookingFormData.append(
         "stayDurationInMonths",
         formData.selectedMonths.toString()
@@ -212,14 +284,38 @@ const Checkout: React.FC = () => {
 
       if (response) {
         toast.success("Redirecting to payment...");
-        // Add navigation to payment page if needed
-        // navigate('/payment');
       }
     } catch (error: any) {
       console.error("Booking error:", error);
-      toast.error(
-        error.response?.data?.message || "Error processing your request"
-      );
+
+      // Handle specific error messages from backend
+      const errorMessage = error.response?.data?.message;
+
+      if (errorMessage) {
+        // Check for specific error patterns and provide better messages
+        if (errorMessage.includes("No beds available")) {
+          const checkInMonth = new Date(formData.startDate).toLocaleDateString(
+            "en-US",
+            {
+              month: "long",
+              year: "numeric",
+            }
+          );
+          toast.error(
+            `No beds available for ${checkInMonth}. Please choose a different month or check-in date.`
+          );
+        } else if (errorMessage.includes("Minimum stay duration")) {
+          toast.error(
+            "Minimum stay duration is 1 month. Please select a longer duration."
+          );
+        } else if (errorMessage.includes("date")) {
+          toast.error("Please select valid dates for your stay.");
+        } else {
+          toast.error(errorMessage);
+        }
+      } else {
+        toast.error("Error processing your request. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -53,7 +53,16 @@ bookingRoute.post(
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
-  asyncHandler(bookingContrller.createFacilityPaymentSession.bind(bookingContrller))
+  asyncHandler(
+    bookingContrller.createFacilityPaymentSession.bind(bookingContrller)
+  )
 );
 
+bookingRoute.post(
+  "/bookings/:bookingId/monthly-payment",
+  authMiddleWare,
+  autherization,
+  authorizeRoles(Roles.USER),
+  asyncHandler(bookingContrller.processMonthlyPayment.bind(bookingContrller))
+);
 export default bookingRoute;

@@ -5,8 +5,16 @@ import {
 import Booking, { IBooking } from "../../../models/booking.model";
 import mongoose from "mongoose";
 import Container, { Service } from "typedi";
+import { IHostelRepository } from "../../interfaces/user/hostel.Irepository";
+import { hostelRepository } from "./hostel.repository";
 @Service()
 export class BookingRepository implements IBookingRepository {
+  private hostelRepository: IHostelRepository;
+
+  constructor() {
+    this.hostelRepository = hostelRepository;
+  }
+
   //  For create booking :-
 
   async createBooking(bookingData: CreateBookingData): Promise<IBooking> {
@@ -100,10 +108,10 @@ export class BookingRepository implements IBookingRepository {
     })
       .populate({
         path: "hostelId",
-        select: "hostel_name location", // Include location field
+        select: "hostel_name location",
         populate: {
-          path: "location", // Then populate this field
-          select: "latitude longitude address", // Select needed fields from the location document
+          path: "location",
+          select: "latitude longitude address",
         },
       })
       .sort({ createdAt: -1 });
@@ -177,6 +185,100 @@ export class BookingRepository implements IBookingRepository {
       .populate("hostelId", "hostel_name location")
       .populate("providerId", "fullName email phone")
       .populate("selectedFacilities.facilityId", "name description");
+  }
+
+  async updateMonthlyPaymentStatus(
+    bookingId: string,
+    month: number,
+    paymentData: {
+      status: "completed" | "pending";
+      paid: boolean;
+      paidAt: Date | null;
+    }
+  ): Promise<IBooking | null> {
+    try {
+      return await Booking.findOneAndUpdate(
+        {
+          _id: bookingId,
+          "monthlyPayments.month": month,
+        },
+        {
+          $set: {
+            "monthlyPayments.$.status": paymentData.status,
+            "monthlyPayments.$.paid": paymentData.paid,
+            "monthlyPayments.$.paidAt": paymentData.paidAt,
+            updatedAt: new Date(),
+          },
+        },
+        { new: true }
+      )
+        .populate("userId", "fullName email phone")
+        .populate({
+          path: "hostelId",
+          select: "hostel_name location facilities",
+          populate: [
+            {
+              path: "facilities",
+              select: "name price description",
+            },
+            {
+              path: "location",
+              select: "latitude longitude address",
+            },
+          ],
+        })
+        .populate("providerId", "fullName email phone");
+    } catch (error) {
+      console.error("Error updating monthly payment status:", error);
+      throw error;
+    }
+  }
+
+  async findConflictingBookings(
+    hostelId: string,
+    checkIn: Date,
+    checkOut: Date
+  ): Promise<IBooking[]> {
+    return await Booking.find({
+      hostelId: new mongoose.Types.ObjectId(hostelId),
+      paymentStatus: { $in: ["completed", "pending"] },
+      $or: [
+        // New booking starts during existing booking
+        {
+          checkIn: { $lte: checkIn },
+          checkOut: { $gt: checkIn },
+        },
+        // New booking ends during existing booking
+        {
+          checkIn: { $lt: checkOut },
+          checkOut: { $gte: checkOut },
+        },
+        // New booking completely contains existing booking
+        {
+          checkIn: { $gte: checkIn },
+          checkOut: { $lte: checkOut },
+        },
+      ],
+    });
+  }
+
+  async getAvailableSpaceForPeriod(
+    hostelId: string,
+    checkIn: Date,
+    checkOut: Date
+  ): Promise<number> {
+
+    const hostel = await this.hostelRepository.getHostelById(hostelId);
+    const totalBeds = hostel?.available_space || 0;
+
+    const overlappingBookings = await this.findConflictingBookings(
+      hostelId,
+      checkIn,
+      checkOut
+    );
+
+    const occupiedBeds = overlappingBookings.length;
+    return Math.max(0, totalBeds - occupiedBeds);
   }
 }
 
