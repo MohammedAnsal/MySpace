@@ -14,13 +14,15 @@ import { User } from "../../../models/user.model";
 
 @Service()
 export class CronService {
-  constructor() {
+  constructor() {}
+
+  public startJobs() {
     this.initializeCronJobs();
   }
 
   private initializeCronJobs() {
-    // Stay duration reminder - every day at 10:00 AM
-    cron.schedule("0 10 * * *", async () => {
+    // Stay duration reminder - every day at 8:00 AM
+    cron.schedule("0 * * * *", async () => {
       try {
         await this.checkStayDurationReminders();
       } catch (error) {
@@ -28,8 +30,8 @@ export class CronService {
       }
     });
 
-    // Monthly rent reminder - every day at 9:30 AM
-    cron.schedule("30 9 * * *", async () => {
+    // Monthly rent reminder - every day at 8:00 AM
+    cron.schedule("0 8 * * *", async () => {
       try {
         await this.checkMonthlyRentReminders();
       } catch (error) {
@@ -60,21 +62,80 @@ export class CronService {
         );
       }
     });
+
+    // **New Cron: Update hostel space on actual check-in/check-out**
+    // Runs daily at 00:05 AM
+    cron.schedule("5 0 * * *", async () => {
+      try {
+        await this.updateHostelSpaceOnCheckIn();
+      } catch (error) {
+        console.error(
+          `[CRON ERROR] Update Hostel Space on Check-In job failed:`,
+          error
+        );
+      }
+    });
+  }
+
+  //  Hostel check-in job :-
+
+  private async updateHostelSpaceOnCheckIn(): Promise<void> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Find bookings that start today
+      const bookingsStartingToday = await Booking.find({
+        checkIn: today,
+        paymentStatus: "completed",
+      });
+
+      for (const booking of bookingsStartingToday) {
+        await Hostel.updateOne(
+          { _id: booking.hostelId },
+          { $inc: { available_space: -1 } }
+        );
+        console.log(
+          `Decreased space for hostel ${booking.hostelId} - booking ${booking._id} checked in`
+        );
+      }
+
+      // Find bookings that ended yesterday
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const bookingsEndedYesterday = await Booking.find({
+        checkOut: yesterday,
+        paymentStatus: "completed",
+      });
+
+      for (const booking of bookingsEndedYesterday) {
+        await Hostel.updateOne(
+          { _id: booking.hostelId },
+          { $inc: { available_space: 1 } }
+        );
+        console.log(
+          `Increased space for hostel ${booking.hostelId} - booking ${booking._id} checked out`
+        );
+      }
+    } catch (error) {
+      console.error("Error updating hostel space:", error);
+    }
   }
 
   private async checkStayDurationReminders() {
     const today = new Date();
-    const oneWeekFromNow = new Date(today);
-    oneWeekFromNow.setDate(today.getDate() + 7);
 
-    // Only include bookings where stay duration reminder hasn't been sent in the last 24 hours
+    const twoDaysFromNow = new Date(today);
+    twoDaysFromNow.setDate(today.getDate() + 3);
+
     const oneDayAgo = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 
     const bookings = await Booking.find({
       paymentStatus: "completed",
       checkOut: {
         $gt: today,
-        $lte: oneWeekFromNow,
+        $lte: twoDaysFromNow,
       },
       $or: [
         { stayDurationReminderSent: { $exists: false } },
@@ -92,56 +153,6 @@ export class CronService {
 
     for (const booking of bookings) {
       await this.sendStayDurationReminder(booking);
-    }
-  }
-
-  private async checkMonthlyRentReminders() {
-    const today = new Date();
-    const twoDaysFromNow = new Date(today);
-    twoDaysFromNow.setDate(today.getDate() + 2);
-
-    // Only include bookings where monthly rent reminder hasn't been sent in the last 24 hours
-    const oneDayAgo = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-
-    const bookings = await Booking.find({
-      paymentStatus: "completed",
-      checkOut: { $gt: today },
-      $and: [
-        {
-          $or: [
-            {
-              "selectedFacilities.startDate": {
-                $lte: twoDaysFromNow,
-                $gt: today,
-              },
-            },
-            {
-              checkIn: {
-                $lte: twoDaysFromNow,
-                $gt: today,
-              },
-            },
-          ],
-        },
-        {
-          $or: [
-            { monthlyRentReminderSent: { $exists: false } },
-            { monthlyRentReminderSent: null },
-            { monthlyRentReminderSent: { $lt: oneDayAgo } },
-          ],
-        },
-      ],
-    }).populate({
-      path: "userId providerId hostelId",
-      select: "_id hostel_name",
-    });
-
-    console.log(
-      `Found ${bookings.length} bookings that need monthly rent reminders`
-    );
-
-    for (const booking of bookings) {
-      await this.sendMonthlyRentReminder(booking);
     }
   }
 
@@ -173,7 +184,6 @@ export class CronService {
     const provider = await User.findById(providerId);
 
     try {
-      // Send notification to user
       const userNotification = await notificationService.createNotification({
         recipient: new mongoose.Types.ObjectId(userId),
         sender: new mongoose.Types.ObjectId(providerId),
@@ -196,13 +206,12 @@ export class CronService {
         );
       }
 
-      // Send notification to provider
       const providerNotification = await notificationService.createNotification(
         {
           recipient: new mongoose.Types.ObjectId(providerId),
           sender: new mongoose.Types.ObjectId(userId),
           title: "Tenant Stay Ending Soon",
-          message: `A tenant's stay at ${hostelName} is ending in one week.`,
+          message: `A tenant's stay at ${hostelName} is ending in two week.`,
           type: "rent_reminder",
         }
       );
@@ -232,6 +241,42 @@ export class CronService {
         `Error sending stay duration reminder for booking ${booking._id}:`,
         error
       );
+    }
+  }
+
+  private async checkMonthlyRentReminders() {
+    try {
+      const today = new Date();
+
+      const bookings = await Booking.find({
+        "monthlyPayments.status": { $ne: "completed" },
+        checkOut: { $gt: today },
+      }).populate("userId providerId hostelId");
+
+      for (const booking of bookings) {
+        for (const payment of booking.monthlyPayments) {
+          if (payment.status === "completed" || payment.reminderSent) continue;
+
+          const dueDate = new Date(payment.dueDate);
+          const reminderDate = new Date(dueDate);
+          reminderDate.setDate(dueDate.getDate() - 2);
+
+          if (today.toDateString() === reminderDate.toDateString()) {
+            await this.sendMonthlyRentReminder(booking);
+
+            payment.reminderSent = true;
+            await booking.save();
+
+            console.log(
+              `📩 Sent rent reminder for booking ${booking._id}, month ${payment.month}`
+            );
+          }
+        }
+      }
+
+      console.log("✅ Monthly rent reminder job completed successfully");
+    } catch (error) {
+      console.error(`[CRON ERROR] Monthly Rent Reminder job failed:`, error);
     }
   }
 
@@ -311,7 +356,7 @@ export class CronService {
 
       await Booking.updateOne(
         { _id: booking._id },
-        { $set: { monthlyRentReminderSent: new Date() } }
+        { $set: { stayDurationReminderSent: new Date() } }
       );
 
       console.log(`Monthly rent reminder sent for booking: ${booking._id}`);

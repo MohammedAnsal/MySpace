@@ -5,6 +5,7 @@ import {
   listUserBookingsDetails,
   cancelBooking,
   reprocessBookingPayment,
+  processMonthlyPayment,
 } from "@/services/Api/userApi";
 import { createFacilityPaymentSession } from "@/services/Api/userApi";
 
@@ -44,11 +45,15 @@ export const useUserBookingsDetails = (bookingId: string) => {
 //   });
 // };
 
-// New hooks for cancel and reprocess
 export const useCancelBooking = () => {
   return useMutation({
-    mutationFn: ({ bookingId, reason }: { bookingId: string; reason: string }) =>
-      cancelBooking(bookingId, reason),
+    mutationFn: ({
+      bookingId,
+      reason,
+    }: {
+      bookingId: string;
+      reason: string;
+    }) => cancelBooking(bookingId, reason),
   });
 };
 
@@ -67,5 +72,12 @@ export const useFacilityPayment = () => {
       bookingId: string;
       facilities: { id: string; startDate: string; duration: number }[];
     }) => createFacilityPaymentSession(bookingId, facilities),
+  });
+};
+
+export const useMonthlyPayment = () => {
+  return useMutation({
+    mutationFn: ({ bookingId, month }: { bookingId: string; month: number }) =>
+      processMonthlyPayment(bookingId, month),
   });
 };

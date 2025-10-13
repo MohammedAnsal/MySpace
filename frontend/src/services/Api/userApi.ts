@@ -540,3 +540,22 @@ export const checkPaymentStatus = async (sessionId: string) => {
     handleError(error);
   }
 };
+
+export const processMonthlyPayment = async (
+  bookingId: string,
+  month: number
+) => {
+  try {
+    const response = await api.post(
+      `/user/bookings/${bookingId}/monthly-payment`,
+      { month }
+    );
+    console.log(response);
+    return handleResponse(
+      response.data,
+      "Error while processing monthly payment"
+    );
+  } catch (error) {
+    handleError(error);
+  }
+};

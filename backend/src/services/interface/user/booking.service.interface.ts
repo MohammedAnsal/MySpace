@@ -73,4 +73,9 @@ export interface IBookingService {
       name?: string;
     }[]
   ): Promise<BookingResponseDTO>;
+  updateMonthlyPaymentStatus(
+    bookingId: string,
+    month: number,
+    paymentStatus: "completed" | "failed"
+  ): Promise<BookingResponseDTO>;
 }

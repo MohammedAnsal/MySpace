@@ -18,7 +18,7 @@ interface PopulatedHostel {
     latitude: number;
     longitude: number;
   };
-  facilities: any[]; // <-- Add this line
+  facilities: any[];
 }
 
 interface PopulatedFacility {
@@ -27,12 +27,20 @@ interface PopulatedFacility {
   description: string;
 }
 
-// Add this interface for a facility
 interface FacilityDTO {
   _id: string;
   name: string;
   price: number;
   description: string;
+}
+
+export interface MonthlyPaymentDTO {
+  month: number;
+  dueDate: Date; // Rent due date for this month
+  status: "pending" | "completed";
+  paid: boolean;
+  paidAt: Date | null;
+  reminderSent: boolean; // Whether reminder was sent
 }
 
 export interface BookingResponseDTO {
@@ -52,7 +60,7 @@ export interface BookingResponseDTO {
       latitude: number;
       longitude: number;
     };
-    facilities: FacilityDTO[]; // <-- Add this line
+    facilities: FacilityDTO[];
   };
   providerId: {
     _id: string;
@@ -76,6 +84,9 @@ export interface BookingResponseDTO {
     ratePerMonth: number;
     totalCost: number;
   }>;
+
+  monthlyPayments: MonthlyPaymentDTO[];
+
   bookingDate: Date;
   totalPrice: number;
   firstMonthRent: number;
@@ -221,6 +232,16 @@ export function mapToBookingDTO(booking: IBooking): BookingResponseDTO {
       ratePerMonth: facility.ratePerMonth,
       totalCost: facility.totalCost,
     })),
+    // Map monthly payments
+    monthlyPayments:
+      booking.monthlyPayments?.map((mp) => ({
+        month: mp.month,
+        dueDate: mp.dueDate,
+        status: mp.status,
+        paid: mp.paid,
+        paidAt: mp.paidAt || null,
+        reminderSent: mp.reminderSent,
+      })) || [],
     bookingDate: booking.bookingDate,
     totalPrice: booking.totalPrice,
     firstMonthRent: booking.firstMonthRent,

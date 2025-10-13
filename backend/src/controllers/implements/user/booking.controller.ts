@@ -407,6 +407,81 @@ class BookingController implements IBookingController {
       }
     }
   }
+
+  //  Monthly Pyamnet :-
+
+  async processMonthlyPayment(
+    req: AuthRequset,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const userId = req.user?.id;
+      const { bookingId } = req.params;
+      const { month } = req.body;
+
+      if (!userId) {
+        throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
+      }
+
+      if (!month || month < 1) {
+        throw new AppError(
+          "Valid month number is required",
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      const booking = await this.bookingService.getBookingById(bookingId);
+      if (!booking) {
+        throw new AppError("Booking not found", HttpStatus.NOT_FOUND);
+      }
+
+      if (booking.userId._id.toString() !== userId) {
+        throw new AppError(
+          "Unauthorized access to booking",
+          HttpStatus.UNAUTHORIZED
+        );
+      }
+
+      const successUrl = `${process.env.CLIENT_URL}/user/bookings/${bookingId}?monthlyPayment=success&month=${month}`;
+      const cancelUrl = `${process.env.CLIENT_URL}/user/bookings/${bookingId}?monthlyPayment=cancel&month=${month}`;
+
+      const checkoutUrl = await this.stripeService.createCheckoutSession({
+        hostelId: new Types.ObjectId(booking.hostelId._id),
+        userId: new Types.ObjectId(userId),
+        providerId: new Types.ObjectId(booking.providerId._id),
+        bookingId: new Types.ObjectId(bookingId),
+        amount: booking.monthlyRent,
+        currency: "USD",
+        successUrl,
+        cancelUrl,
+        metadata: {
+          type: "monthly_payment",
+          month: month.toString(),
+          bookingId: bookingId,
+        },
+      });
+
+      return res.status(HttpStatus.OK).json({
+        status: "success",
+        data: {
+          checkoutUrl,
+          month,
+          amount: booking.monthlyRent,
+        },
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          status: "error",
+          message: error.message,
+        });
+      }
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        status: "error",
+        message: "Internal server error",
+      });
+    }
+  }
 }
 
 export const bookingContrller = Container.get(BookingController);

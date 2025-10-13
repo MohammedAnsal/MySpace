@@ -26,7 +26,7 @@ export const hostelValidationSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Monthly rent must be a valid positive number",
     })
-    .refine((val) => Number(val) >= 40 && Number(val) <= 1000, {
+    .refine((val) => Number(val) >= 10 && Number(val) <= 1000, {
       message: "Monthly rent must be between $100 and $1000",
     }),
 
@@ -100,7 +100,7 @@ export const hostelValidationSchema = z.object({
       required_error: "Select at least one amenity",
       invalid_type_error: "Amenities must be an array",
     })
-    .min(1, "Select at least one amenity"),
+    .min(0, "Select at least one amenity"),
 
   facilities: z
     .array(z.string(), {

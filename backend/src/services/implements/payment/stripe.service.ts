@@ -168,6 +168,31 @@ export class StripeService {
               StatusCodes.NOT_FOUND
             );
 
+          // Check if this is a monthly payment
+          if (session.metadata?.type === "monthly_payment") {
+            const month = parseInt(session.metadata.month);
+            const bookingId = session.metadata.bookingId;
+
+            console.log(
+              `Processing monthly payment for booking ${bookingId}, month ${month}`
+            );
+
+            // Update monthly payment status
+            await this.bookingService.updateMonthlyPaymentStatus(
+              bookingId,
+              month,
+              "completed"
+            );
+
+            // Update payment status
+            await this.paymentRepo.updateStatus(payment._id, "completed");
+
+            console.log(
+              `Monthly payment completed successfully for booking ${bookingId}, month ${month}`
+            );
+            break;
+          }
+
           // Check if this is a facility payment
           if (
             session.metadata?.type === "facility" &&
@@ -183,6 +208,7 @@ export class StripeService {
               facilities
             );
           } else {
+            // Regular booking payment (existing logic)
             const amount = session.amount_total! / 100;
 
             const userbooking = await this.bookingRepo.getBookingById(
@@ -266,6 +292,48 @@ export class StripeService {
 
           if (payment) {
             await this.paymentRepo.updateStatus(payment._id, "failed");
+
+            // Check if this is a monthly payment failure
+            const session = await this.stripe.checkout.sessions.retrieve(
+              paymentIntent.metadata?.checkout_session_id
+            );
+            if (session.metadata?.type === "monthly_payment") {
+              const month = parseInt(session.metadata.month);
+              const bookingId = session.metadata.bookingId;
+
+              console.log(
+                `Monthly payment failed for booking ${bookingId}, month ${month}`
+              );
+
+              // Update monthly payment status as failed
+              await this.bookingService.updateMonthlyPaymentStatus(
+                bookingId,
+                month,
+                "failed"
+              );
+            }
+          }
+          break;
+        }
+
+        case "checkout.session.expired": {
+          const session = event.data.object as Stripe.Checkout.Session;
+
+          // Check if this is a monthly payment that expired
+          if (session.metadata?.type === "monthly_payment") {
+            const month = parseInt(session.metadata.month);
+            const bookingId = session.metadata.bookingId;
+
+            console.log(
+              `Monthly payment session expired for booking ${bookingId}, month ${month}`
+            );
+
+            // Update monthly payment status as failed
+            await this.bookingService.updateMonthlyPaymentStatus(
+              bookingId,
+              month,
+              "failed"
+            );
           }
           break;
         }
