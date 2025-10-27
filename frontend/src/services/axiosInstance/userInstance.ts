@@ -8,16 +8,15 @@ const API_URL = import.meta.env.VITE_USER_BASE_URL;
 export const userAxiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-}); //  User Axios Instance
+});
 
 export const publicAxiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-}); //  Public Axios Instance
+});
 
 const controllerMap = new Map();
 
-//  **Request Interceptor**
 userAxiosInstance.interceptors.request.use(async (config) => {
   const token = localStorage.getItem("access-token");
 
@@ -34,7 +33,6 @@ userAxiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// **Response Interceptor**
 userAxiosInstance.interceptors.response.use(
   (response) => {
     controllerMap.delete(response.config.url);
@@ -47,9 +45,8 @@ userAxiosInstance.interceptors.response.use(
     if (error.response) {
       const status = error.response.status;
 
-      // **Handle Unauthorized (401) - Token Expired**
       if (status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true; // Prevent infinite retry loop
+        originalRequest._retry = true;
 
         try {
           const newAccessToken = await getNewAccessToken();
@@ -68,7 +65,6 @@ userAxiosInstance.interceptors.response.use(
         }
       }
 
-      // **Handle Forbidden (403) - Blocked User**
       if (status === 403) {
         toast.error("Your account has been blocked. Logging out...");
         store.dispatch(logout());
@@ -76,12 +72,10 @@ userAxiosInstance.interceptors.response.use(
         return Promise.reject(new Error("User blocked by admin"));
       }
 
-      // **Handle Server Errors (5xx)**
       if (status >= 500) {
         toast.error("Server error, please try again later.");
       }
 
-      // **Handle Other Client Errors (4xx)**
       if (status > 400 && status < 500 && status !== 401) {
         toast.error(error.response.data.message || "An error occured");
       }
@@ -96,12 +90,15 @@ userAxiosInstance.interceptors.response.use(
   }
 );
 
-// **Function to Get a New Access Token**
 async function getNewAccessToken() {
   try {
-    const response = await axios.get(`${API_URL}/auth/refresh-token`, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      `${API_URL}/auth/refresh-token`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
 
     return response.data.token;
   } catch (error) {

@@ -14,7 +14,7 @@ foodMenuRoute.get(
   asyncHandler(foodMenuController.getFoodMenu.bind(foodMenuController))
 );
 
-foodMenuRoute.put(
+foodMenuRoute.patch(
   "/food-menu/:id",
   asyncHandler(foodMenuController.updateFoodMenu.bind(foodMenuController))
 );
@@ -29,7 +29,7 @@ foodMenuRoute.post(
   asyncHandler(foodMenuController.addSingleDayMenu.bind(foodMenuController))
 );
 
-foodMenuRoute.put(
+foodMenuRoute.patch(
   "/food-menu/:id/cancel-meal",
   asyncHandler(foodMenuController.cancelMeal.bind(foodMenuController))
 );

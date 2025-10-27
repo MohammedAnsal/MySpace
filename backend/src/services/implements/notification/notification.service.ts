@@ -24,6 +24,7 @@ export class NotificationService implements INotificationService {
       const notification = await this.notificationRepo.create(notificationData);
       return mapToNotificationResponseDTO(notification);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -42,6 +43,7 @@ export class NotificationService implements INotificationService {
       }
       return mapToNotificationResponseDTO(notification);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -61,6 +63,7 @@ export class NotificationService implements INotificationService {
       }
       return mapToNotificationResponseDTO(notification);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -77,6 +80,7 @@ export class NotificationService implements INotificationService {
       }
       await this.notificationRepo.delete(id);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -100,6 +104,7 @@ export class NotificationService implements INotificationService {
         unreadCount
       );
     } catch (error) {
+      console.log(error);
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -112,6 +117,7 @@ export class NotificationService implements INotificationService {
     try {
       await this.notificationRepo.markAllAsRead(userId);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR

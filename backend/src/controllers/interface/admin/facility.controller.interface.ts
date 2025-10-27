@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { IAdminFacility } from "../../../models/admin/facility.model";
 import { AuthRequset } from "../../../types/api";
 
@@ -14,4 +14,4 @@ export interface IAdminFacilityController {
   updateFacilityStatus(req: AuthRequset, res: Response): Promise<Response>;
   deleteFacility(req: AuthRequset, res: Response): Promise<Response>;
   getFacilityById(req: AuthRequset, res: Response): Promise<Response>;
-} 
+}

@@ -117,6 +117,7 @@ export class AuthProviderService implements IAuthService {
             ? uploadResult[0].Location
             : uploadResult.Location;
         } catch (uploadError) {
+          console.log(uploadError)
           throw new AppError(
             "Failed to upload document image",
             HttpStatus.INTERNAL_SERVER_ERROR

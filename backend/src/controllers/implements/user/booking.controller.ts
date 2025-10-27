@@ -285,51 +285,6 @@ class BookingController implements IBookingController {
     }
   }
 
-  // async addFacilitiesToBooking(
-  //   req: AuthRequset,
-  //   res: Response
-  // ): Promise<Response> {
-  //   try {
-  //     const userId = req.user?.id;
-  //     const { bookingId } = req.params;
-  //     const { facilities } = req.body;
-
-  //     if (!userId) {
-  //       throw new AppError("User not authenticated", HttpStatus.UNAUTHORIZED);
-  //     }
-  //     if (
-  //       !facilities ||
-  //       !Array.isArray(facilities) ||
-  //       facilities.length === 0
-  //     ) {
-  //       throw new AppError("No facilities provided", HttpStatus.BAD_REQUEST);
-  //     }
-
-  //     const updatedBooking = await this.bookingService.addFacilitiesToBooking(
-  //       bookingId,
-  //       userId,
-  //       facilities
-  //     );
-
-  //     return res.status(HttpStatus.OK).json({
-  //       status: "success",
-  //       data: updatedBooking,
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       return res.status(error.statusCode).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     } else {
-  //       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-  //         status: "error",
-  //         message: "Internal server error",
-  //       });
-  //     }
-  //   }
-  // }
-
   async createFacilityPaymentSession(
     req: AuthRequset,
     res: Response

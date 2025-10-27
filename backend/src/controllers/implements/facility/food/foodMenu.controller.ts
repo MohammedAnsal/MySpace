@@ -30,7 +30,6 @@ interface DayMenu {
 
 interface PlainFoodMenu {
   menu: DayMenu[];
-  // add other properties if needed
 }
 
 @Service()
@@ -48,9 +47,6 @@ export class FoodMenuController {
   async getFoodMenu(req: Request, res: Response): Promise<Response> {
     try {
       const { facilityId, hostelId } = req.params;
-
-      console.log(facilityId)
-      console.log(hostelId)
 
       if (!facilityId) {
         return res.status(HttpStatus.BAD_REQUEST).json({

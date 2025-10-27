@@ -7,7 +7,7 @@ import { AppError } from "../../../utils/error";
 import { BookingService } from "../../../services/implements/user/booking.service";
 import { AuthRequset } from "../../../types/api";
 import { PaymentService } from "../../../services/implements/user/payment.service";
-import { HttpStatus, responseMessage } from "../../../enums/http.status";
+import { HttpStatus } from "../../../enums/http.status";
 
 interface PopulatedId {
   _id: Types.ObjectId;
@@ -228,6 +228,7 @@ export class PaymentController {
         data: payment,
       });
     } catch (error) {
+      console.log(error)
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: "Error finding payment",

@@ -31,7 +31,7 @@ adminUserRoute.get(
   asyncHandler(adminUserControllerr.fetchProviders.bind(adminUserControllerr))
 );
 
-adminUserRoute.put(
+adminUserRoute.patch(
   "/updateUser",
   authMiddleWare,
   autherization,
@@ -49,7 +49,7 @@ adminUserRoute.get(
   )
 );
 
-adminUserRoute.put(
+adminUserRoute.patch(
   "/verify-hostel",
   authMiddleWare,
   autherization,
@@ -95,7 +95,7 @@ adminUserRoute.get(
   )
 );
 
-adminUserRoute.put(
+adminUserRoute.patch(
   "/facility/status",
   authMiddleWare,
   autherization,
@@ -141,12 +141,14 @@ adminUserRoute.get(
   asyncHandler(adminUserControllerr.getDashboard.bind(adminUserControllerr))
 );
 
-adminUserRoute.put(
+adminUserRoute.patch(
   "/verify-provider-document",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.ADMIN),
-  asyncHandler(adminUserControllerr.verifyProviderDocument.bind(adminUserControllerr))
+  asyncHandler(
+    adminUserControllerr.verifyProviderDocument.bind(adminUserControllerr)
+  )
 );
 
 export default adminUserRoute;

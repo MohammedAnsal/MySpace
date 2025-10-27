@@ -16,7 +16,7 @@ notificationRouter.get(
   "/:id",
   notificationController.getNotificationById.bind(notificationController)
 );
-notificationRouter.put(
+notificationRouter.patch(
   "/:id",
   notificationController.updateNotification.bind(notificationController)
 );

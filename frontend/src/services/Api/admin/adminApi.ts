@@ -43,7 +43,7 @@ export const forgotPssword = async (email: string) => {
 
 export const resetPassword = async (email: string, newPassword: string) => {
   try {
-    const response = await public_api.put("/auth/admin/reset-password", {
+    const response = await public_api.patch("/auth/admin/reset-password", {
       email,
       newPassword,
     });
@@ -53,7 +53,11 @@ export const resetPassword = async (email: string, newPassword: string) => {
   }
 };
 
-export const getAllUsers = async (searchQuery?: string, page: number = 1, limit: number = 5) => {
+export const getAllUsers = async (
+  searchQuery?: string,
+  page: number = 1,
+  limit: number = 5
+) => {
   const response = await private_api.get("/admin/users", {
     params: { search: searchQuery, page, limit },
   });
@@ -78,7 +82,7 @@ export const getAllProviders = async (
 };
 
 export const updateStatus = async (email: string) => {
-  const response = await private_api.put("/admin/updateUser", { email });
+  const response = await private_api.patch("/admin/updateUser", { email });
 
   if (!response) console.error("Somthing Went Wrong in updateUser");
 
@@ -100,7 +104,7 @@ export const verifyHostel = async (
   isRejected: boolean
 ) => {
   try {
-    const response = await private_api.put("/admin/verify-hostel", {
+    const response = await private_api.patch("/admin/verify-hostel", {
       hostelId,
       reason,
       isVerified,
@@ -192,7 +196,10 @@ export const deleteFacility = async (facilityId: string) => {
   }
 };
 
-export const updateFacility = async (facilityId: string, facilityData: IFacilityData) => {
+export const updateFacility = async (
+  facilityId: string,
+  facilityData: IFacilityData
+) => {
   try {
     const response = await private_api.put(
       `/admin/facility/${facilityId}`,
@@ -252,7 +259,12 @@ export const getAdminTransactions = async () => {
 
 export const verifyProviderDocument = async (email: string) => {
   try {
-    const response = await private_api.put("/admin/verify-provider-document", { email });
+    const response = await private_api.patch(
+      "/admin/verify-provider-document",
+      {
+        email,
+      }
+    );
     return handleResponse(response, "Provider document verification failed");
   } catch (error) {
     handleError(error);

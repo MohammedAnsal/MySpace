@@ -14,7 +14,7 @@ authAdminRoute.post(
   asyncHandler(authController.forgetPassword.bind(authController))
 );
 
-authAdminRoute.put(
+authAdminRoute.patch(
   "/admin/reset-password",
   asyncHandler(authController.resetPassword.bind(authController))
 );
@@ -24,7 +24,7 @@ authAdminRoute.post(
   asyncHandler(authController.logout.bind(authController))
 );
 
-authAdminRoute.get(
+authAdminRoute.post(
   "/admin-refresh-token",
   asyncHandler(authController.setNewToken.bind(authController))
 );

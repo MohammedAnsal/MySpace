@@ -30,7 +30,7 @@ authProviderRoute.post(
   asyncHandler(authController.forgetPassword.bind(authController))
 );
 
-authProviderRoute.put(
+authProviderRoute.patch(
   "/provider/reset-password",
   asyncHandler(authController.resetPassword.bind(authController))
 );

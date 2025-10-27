@@ -6,7 +6,7 @@ import { IRatingRepository } from "../../../repositories/interfaces/user/rating.
 import { AppError } from "../../../utils/error";
 import { IRatingService } from "../../interface/user/rating.service.interface";
 import Container, { Service } from "typedi";
-import mongoose, { ObjectId, Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { S3Service } from "../s3/s3.service";
 import {
   HostelRatingsResponseDTO,
@@ -15,19 +15,12 @@ import {
 } from "../../../dtos/user/rating.dto";
 import { IRating } from "../../../models/rating.model";
 
-// Interface for populated user data in rating
 interface PopulatedUser {
   _id: Types.ObjectId;
   fullName: string;
   profile_picture?: string;
 }
 
-// Interface for rating with populated user
-interface IRatingWithPopulatedUser extends Omit<IRating, "user_id"> {
-  user_id: PopulatedUser;
-}
-
-// Interface for rating data creation
 interface CreateRatingData {
   user_id: Types.ObjectId;
   hostel_id: Types.ObjectId;

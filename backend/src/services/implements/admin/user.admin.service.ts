@@ -54,9 +54,10 @@ export class AdminUserService implements IAdminUserService {
       }
       return {
         ...adminWallet,
-        transactions: [], // Override with empty array to match AdminWalletDTO
+        transactions: [],
       };
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to create wallet",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -161,6 +162,7 @@ export class AdminUserService implements IAdminUserService {
             : "Provider status updated",
       };
     } catch (error) {
+      console.log(error);
       throw new AppError("Internal error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -172,7 +174,6 @@ export class AdminUserService implements IAdminUserService {
   ): Promise<AdminUserUpdateResponseDTO> {
     try {
       const findProvider = await this.userRepo.findUserByEmail(email);
-      console.log(findProvider);
       if (!findProvider) {
         return { success: false, message: "Provider not found" };
       }
@@ -191,7 +192,6 @@ export class AdminUserService implements IAdminUserService {
       findProvider.isDocumentVerified = true;
       await findProvider.save();
 
-      // Create notification
       const notification = await this.notificationService.createNotification({
         recipient: new Types.ObjectId(findProvider._id),
         sender: new Types.ObjectId(process.env.ADMIN_ID!),
@@ -201,7 +201,6 @@ export class AdminUserService implements IAdminUserService {
         type: "message",
       });
 
-      // Emit socket notification
       socketService.emitNotification(String(findProvider._id), {
         ...notification,
         recipient: notification.recipient.toString(),
@@ -212,6 +211,7 @@ export class AdminUserService implements IAdminUserService {
         message: "Provider document verified successfully",
       };
     } catch (error) {
+      console.log(error);
       throw new AppError("Internal error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

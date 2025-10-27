@@ -4,7 +4,6 @@ const nameRegex = /^[a-zA-Z\s]+$/;
 const phoneRegex = /^[0-9]{10,15}$/;
 const passwordRegex =
   /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
 // ✅ User Registration Validation Schema

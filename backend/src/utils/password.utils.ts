@@ -5,7 +5,7 @@ export const hashPassword = async (pass: string): Promise<string> => {
   try {
     return await bcrypt.hash(pass, 10);
   } catch (error) {
-    console.log(HttpStatus.BAD_REQUEST);
+    console.log(error);
     throw new Error("Error hashing password");
   }
 };

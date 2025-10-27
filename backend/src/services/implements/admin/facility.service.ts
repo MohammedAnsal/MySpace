@@ -157,9 +157,8 @@ export class AdminFacilityService implements IAdminFacilityService {
       }
 
       // Check if facility exists
-      const existingFacility = await this.adminFacilityRepository.findFacilityById(
-        facilityId
-      );
+      const existingFacility =
+        await this.adminFacilityRepository.findFacilityById(facilityId);
 
       if (!existingFacility) {
         return {
@@ -169,7 +168,8 @@ export class AdminFacilityService implements IAdminFacilityService {
       }
 
       // Check if name already exists (excluding current facility)
-      const allFacilities = await this.adminFacilityRepository.findAllFacilities();
+      const allFacilities =
+        await this.adminFacilityRepository.findAllFacilities();
       const nameExists = allFacilities.some(
         (facility) =>
           facility.name.toLowerCase() === name.toLowerCase() &&

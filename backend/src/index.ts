@@ -27,7 +27,7 @@ import notificationRouter from "./routers/notification/notification.routes";
 
 import { morganOptions } from "./utils/logger";
 import { userTokenBlackList } from "./middlewares/user/auth.blacklist.middleware";
-import { providerTokenBlackList } from "./middlewares/provider/auth.blacklist.middleware";
+// import { providerTokenBlackList } from "./middlewares/provider/auth.blacklist.middleware";
 
 import socketService from "./services/implements/socket/socket.service";
 import { cronService } from "./services/implements/cron/cron.service";

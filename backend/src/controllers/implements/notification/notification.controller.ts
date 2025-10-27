@@ -19,6 +19,7 @@ export class NotificationController {
         data: notification,
       });
     } catch (error) {
+      console.log(error)
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -42,6 +43,7 @@ export class NotificationController {
         data: notification,
       });
     } catch (error) {
+      console.log(error)
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -66,6 +68,7 @@ export class NotificationController {
         data: notification,
       });
     } catch (error) {
+      console.log(error)
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -80,6 +83,7 @@ export class NotificationController {
       await this.service.deleteNotification(req.params.id);
       res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
+      console.log(error)
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -100,6 +104,7 @@ export class NotificationController {
         data: notifications,
       });
     } catch (error) {
+      console.log(error)
       throw new AppError(
         responseMessage.ERROR_MESSAGE,
         HttpStatus.INTERNAL_SERVER_ERROR

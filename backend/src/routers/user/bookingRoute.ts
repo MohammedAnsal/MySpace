@@ -32,21 +32,13 @@ bookingRoute.get(
   asyncHandler(bookingContrller.getBookingDetails.bind(bookingContrller))
 );
 
-bookingRoute.post(
+bookingRoute.patch(
   "/cancel/:bookingId",
   authMiddleWare,
   autherization,
   authorizeRoles(Roles.USER),
   asyncHandler(bookingContrller.cancelBooking.bind(bookingContrller))
 );
-
-// bookingRoute.post(
-//   "/bookings/:bookingId/add-facilities",
-//   authMiddleWare,
-//   autherization,
-//   authorizeRoles(Roles.USER),
-//   asyncHandler(bookingContrller.addFacilitiesToBooking.bind(bookingContrller))
-// );
 
 bookingRoute.post(
   "/bookings/:bookingId/facility-payment",
@@ -65,4 +57,5 @@ bookingRoute.post(
   authorizeRoles(Roles.USER),
   asyncHandler(bookingContrller.processMonthlyPayment.bind(bookingContrller))
 );
+
 export default bookingRoute;

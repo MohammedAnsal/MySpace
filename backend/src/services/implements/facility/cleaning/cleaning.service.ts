@@ -69,6 +69,7 @@ export class CleaningService implements ICleaningService {
         data: cleaningRequests,
       };
     } catch (error) {
+      console.log(error)
       throw new AppError(
         "An error occurred while retrieving cleaning requests",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -205,6 +206,7 @@ export class CleaningService implements ICleaningService {
         data: cleaningRequests,
       };
     } catch (error) {
+      console.log(error)
       throw new AppError(
         "An error occurred while retrieving provider cleaning requests",
         HttpStatus.INTERNAL_SERVER_ERROR

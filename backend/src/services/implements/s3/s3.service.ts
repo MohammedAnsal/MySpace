@@ -151,11 +151,13 @@ export class s3Service implements IS3service {
         try {
           await this.s3Service.send(command);
         } catch (sendError) {
+          console.log(sendError)
           throw new Error("Faield to delete");
         }
       }
       return true;
     } catch (error) {
+      console.log(error)
       throw new Error("Error occured in delete file");
     }
   }

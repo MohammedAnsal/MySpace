@@ -73,7 +73,7 @@ export const forgotPassword = async (email: string) => {
 
 export const resetPassword = async (email: string, newPassword: string) => {
   try {
-    const response = await publicApi.put("/auth/reset-password", {
+    const response = await publicApi.patch("/auth/reset-password", {
       email,
       newPassword,
     });
@@ -99,6 +99,8 @@ export const googleRequest = async (token: string) => {
   }
 };
 
+//  Profile Endpoint's :-
+
 export const findUser = async () => {
   try {
     const response = await api.get("/user/profile");
@@ -114,7 +116,7 @@ export const changePassword = async (
   newPassword: string
 ) => {
   try {
-    const response = await api.post("/user/change-password", {
+    const response = await api.patch("/user/change-password", {
       email,
       currentPassword,
       newPassword,
@@ -127,7 +129,7 @@ export const changePassword = async (
 
 export const editProfile = async (formData: FormData) => {
   try {
-    const response = await api.put("/user/edit-profile", formData, {
+    const response = await api.patch("/user/edit-profile", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -137,6 +139,8 @@ export const editProfile = async (formData: FormData) => {
     handleError(error);
   }
 };
+
+//  Hostel's Endpoint's :-
 
 export const listAllHostels = async (
   filters?: HostelFilters
@@ -191,6 +195,29 @@ export const hostelDetails = async (hostelId: string) => {
     handleError(error);
   }
 };
+
+export const findNearbyHostels = async (
+  latitude: number,
+  longitude: number,
+  radius: number = 5
+): Promise<Hostel[] | undefined> => {
+  try {
+    const queryParams = new URLSearchParams();
+    queryParams.append("latitude", latitude.toString());
+    queryParams.append("longitude", longitude.toString());
+    queryParams.append("radius", radius.toString());
+
+    const response = await api.get<ApiResponse<Hostel[]>>(
+      `/user/nearby-hostels?${queryParams.toString()}`
+    );
+    return handleResponse(response.data.data, "Error finding nearby hostels");
+  } catch (error) {
+    handleError(error);
+    return undefined;
+  }
+};
+
+//  Booking's Endpoint's :-
 
 export const bookingHostel = async (bookingData: FormData) => {
   try {
@@ -253,26 +280,27 @@ export const listUserBookingsDetails = async (bookingId: string) => {
   }
 };
 
-export const findNearbyHostels = async (
-  latitude: number,
-  longitude: number,
-  radius: number = 5
-): Promise<Hostel[] | undefined> => {
+export const cancelBooking = async (bookingId: string, reason: string) => {
   try {
-    const queryParams = new URLSearchParams();
-    queryParams.append("latitude", latitude.toString());
-    queryParams.append("longitude", longitude.toString());
-    queryParams.append("radius", radius.toString());
-
-    const response = await api.get<ApiResponse<Hostel[]>>(
-      `/user/nearby-hostels?${queryParams.toString()}`
-    );
-    return handleResponse(response.data.data, "Error finding nearby hostels");
+    const response = await api.patch(`/user/cancel/${bookingId}`, { reason });
+    return handleResponse(response.data, "Error cancelling booking");
   } catch (error) {
     handleError(error);
-    return undefined;
   }
 };
+
+export const reprocessBookingPayment = async (bookingId: string) => {
+  try {
+    const response = await api.post(
+      `/user/payments/reprocess-payment/${bookingId}`
+    );
+    return handleResponse(response.data, "Error reprocessing payment");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+//  Rating's Endpoint's :-
 
 export const createRating = async (ratingData: {
   user_id: string;
@@ -308,25 +336,7 @@ export const getUserRating = async (hostelId: string, bookingId: string) => {
   }
 };
 
-export const reprocessBookingPayment = async (bookingId: string) => {
-  try {
-    const response = await api.post(
-      `/user/payments/reprocess-payment/${bookingId}`
-    );
-    return handleResponse(response.data, "Error reprocessing payment");
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const cancelBooking = async (bookingId: string, reason: string) => {
-  try {
-    const response = await api.post(`/user/cancel/${bookingId}`, { reason });
-    return handleResponse(response.data, "Error cancelling booking");
-  } catch (error) {
-    handleError(error);
-  }
-};
+//  Wallet's Endpoint's :-
 
 export const getUserWallet = async () => {
   try {
@@ -348,7 +358,7 @@ export const getWalletTransactions = async () => {
   }
 };
 
-//  Food Facility :-
+//  Food's Facility :-
 
 export const getFoodMenu = async (facilityId: string, hostelId: string) => {
   try {
@@ -368,7 +378,7 @@ export const cancelMeal = async (
   isAvailable: boolean
 ) => {
   try {
-    const response = await api.put(
+    const response = await api.patch(
       `/facility/food-menu/${menuId}/cancel-meal`,
       {
         day,
@@ -386,7 +396,7 @@ export const cancelMeal = async (
   }
 };
 
-//  Washing Facility
+//  Washing's Facility :-
 
 export const createWashingRequest = async (data: {
   providerId: string;
@@ -424,7 +434,7 @@ export const getUserWashingRequests = async () => {
 
 export const cancelWashingRequest = async (id: string) => {
   try {
-    const response = await api.post(`/facility/washing/${id}/cancel`);
+    const response = await api.patch(`/facility/washing/${id}/cancel`);
     return handleResponse(response.data, "Error cancelling washing request");
   } catch (error) {
     handleError(error);
@@ -435,7 +445,8 @@ export const cancelWashingRequest = async (id: string) => {
   }
 };
 
-// Cleaning Facility
+// Cleaning's Facility :-
+
 export const createCleaningRequest = async (data: {
   providerId: string;
   hostelId: string;
@@ -468,7 +479,7 @@ export const getUserCleaningRequests = async () => {
 
 export const cancelCleaningRequest = async (id: string) => {
   try {
-    const response = await api.post(`/facility/cleaning/${id}/cancel`);
+    const response = await api.patch(`/facility/cleaning/${id}/cancel`);
     return handleResponse(response.data, "Error cancelling cleaning request");
   } catch (error) {
     handleError(error);
@@ -479,42 +490,7 @@ export const cancelCleaningRequest = async (id: string) => {
   }
 };
 
-export const addCleaningFeedback = async (
-  id: string,
-  rating: number,
-  comment?: string
-) => {
-  try {
-    const response = await api.post(`/facility/cleaning/${id}/feedback`, {
-      rating,
-      comment,
-    });
-    return handleResponse(response.data, "Error adding cleaning feedback");
-  } catch (error) {
-    handleError(error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : "An error occurred",
-    };
-  }
-};
-
-// export const addFacilitiesToBooking = async (
-//   bookingId: string,
-//   facilities: { id: string; startDate: string; duration: number }[]
-// ) => {
-//   try {
-//     const response = await api.post(
-//       `/user/bookings/${bookingId}/add-facilities`,
-//       {
-//         facilities,
-//       }
-//     );
-//     return handleResponse(response, "Error adding facilities to booking");
-//   } catch (error) {
-//     handleError(error);
-//   }
-// };
+//  Facility Booking Endpoint's :-
 
 export const createFacilityPaymentSession = async (
   bookingId: string,
@@ -540,6 +516,8 @@ export const checkPaymentStatus = async (sessionId: string) => {
     handleError(error);
   }
 };
+
+//  Monthly Payment Endpoint's :-
 
 export const processMonthlyPayment = async (
   bookingId: string,
