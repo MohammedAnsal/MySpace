@@ -1,7 +1,6 @@
 import { IUser } from "../../models/user.model";
 import { IHostel } from "../../models/provider/hostel.model";
 
-// Request DTOs
 export interface AdminSearchDTO {
   searchQuery?: string;
 }
@@ -13,7 +12,6 @@ export interface AdminVerifyHostelDTO {
   isRejected: boolean;
 }
 
-// Response DTOs
 export interface AdminUserResponseDTO {
   success: boolean;
   data: IUser[];

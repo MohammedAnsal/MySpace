@@ -6,6 +6,7 @@ import Loading from "@/components/global/Loading";
 import { useState } from "react";
 import { HostelDetailsDialog } from "@/pages/admin/Home/Hostel/components/HostelDetailsDialog";
 import { useUnverifiedHostels } from "@/hooks/admin/useAdminQueries";
+import {ConfirmationModal} from "@/components/modals/confirmationModal";
 
 interface Hostel {
   _id: string;
@@ -42,33 +43,52 @@ export const Requests: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  
+  // Add new state for confirmation modals
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"approve" | "reject" | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { data: hostels = [], isLoading, error, refetch } = useUnverifiedHostels();
 
+  // Updated verification handler
   const handleVerification = async (hostelId: string, isVerified: boolean) => {
+    // Set the action type and show confirmation modal
+    setConfirmAction(isVerified ? "approve" : "reject");
+    setIsConfirmModalOpen(true);
+    setIsDialogOpen(false); // Close the details dialog
+  };
+
+  // Handle confirmation
+  const handleConfirmAction = async () => {
+    if (!selectedHostel || !confirmAction) return;
+
+    setIsProcessing(true);
+
     try {
-      if (!isVerified) {
-        // Close the details dialog first before showing the rejection modal
-        setIsDialogOpen(false);
-        
-        // Use setTimeout to ensure the first modal is closed before opening the second
+      if (confirmAction === "approve") {
+        await verifyHostel(selectedHostel._id, "", true, false);
+        toast.success("Hostel approved successfully");
+      } else {
+        // For rejection, show the reason modal instead
+        setIsConfirmModalOpen(false);
         setTimeout(() => {
           setIsRejectModalOpen(true);
         }, 100);
-        
+        setIsProcessing(false);
         return;
       }
       
-      // For approval, proceed normally
-      await verifyHostel(hostelId, "", isVerified , false);
-      toast.success("Hostel approved successfully");
       refetch();
-      setIsDialogOpen(false);
+      setIsConfirmModalOpen(false);
     } catch (error) {
-      toast.error("Failed to process hostel verification");
+      toast.error(`Failed to ${confirmAction} hostel`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
+  // Handle rejection with reason
   const handleRejection = async () => {
     try {
       if (!selectedHostel) return;
@@ -78,22 +98,39 @@ export const Requests: React.FC = () => {
         return;
       }
       
-      await verifyHostel(selectedHostel._id, rejectionReason, false , false);
+      setIsProcessing(true);
+      await verifyHostel(selectedHostel._id, rejectionReason, false, false);
       toast.success("Hostel rejected successfully");
       
       // Reset and close modals
       setRejectionReason("");
       setIsRejectModalOpen(false);
+      setIsConfirmModalOpen(false); // Also close confirmation modal
+      setConfirmAction(null); // Reset action
       refetch();
     } catch (error) {
       toast.error("Failed to reject hostel");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  // Function to close the rejection modal
+  // Close confirmation modal
+  const closeConfirmModal = () => {
+    if (!isProcessing) {
+      setIsConfirmModalOpen(false);
+      setConfirmAction(null);
+    }
+  };
+
+  // Close rejection modal
   const closeRejectionModal = () => {
-    setIsRejectModalOpen(false);
-    setRejectionReason("");
+    if (!isProcessing) {
+      setIsRejectModalOpen(false);
+      setRejectionReason("");
+      setIsConfirmModalOpen(false);
+      setConfirmAction(null);
+    }
   };
 
   const containerVariants = {
@@ -256,6 +293,21 @@ export const Requests: React.FC = () => {
         />
       )}
 
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirmAction}
+        title={confirmAction === "approve" ? "Approve Hostel" : "Reject Hostel"}
+        message={
+          confirmAction === "approve"
+            ? `Are you sure you want to approve "${selectedHostel?.hostel_name}"? This will make the hostel visible to users and the provider will be notified.`
+            : `Are you sure you want to reject "${selectedHostel?.hostel_name}"? You will be asked to provide a reason for rejection.`
+        }
+        type={confirmAction || "approve"}
+        isLoading={isProcessing}
+      />
+
       {/* Rejection Reason Modal */}
       <AnimatePresence>
         {isRejectModalOpen && (
@@ -273,6 +325,7 @@ export const Requests: React.FC = () => {
                 <button 
                   onClick={closeRejectionModal}
                   className="text-gray-400 hover:text-white"
+                  disabled={isProcessing}
                 >
                   <X size={20} />
                 </button>
@@ -288,20 +341,23 @@ export const Requests: React.FC = () => {
                 placeholder="Enter rejection reason..."
                 className="w-full bg-[#1e1f22] text-white border border-gray-700 rounded-lg p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 autoFocus
+                disabled={isProcessing}
               />
               
               <div className="flex gap-4 mt-6">
                 <button
                   onClick={closeRejectionModal}
-                  className="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors flex-1"
+                  className="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors flex-1 disabled:opacity-50"
+                  disabled={isProcessing}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleRejection}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors flex-1"
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isProcessing}
                 >
-                  Reject Hostel
+                  {isProcessing ? "Rejecting..." : "Reject Hostel"}
                 </button>
               </div>
             </motion.div>

@@ -42,6 +42,7 @@ export const userTokenBlackList = async (
 
     next();
   } catch (error) {
+    console.log(error)
     res.status(HttpStatus.FORBIDDEN).json({ message: "Invalid token" });
   }
 };

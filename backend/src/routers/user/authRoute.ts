@@ -25,12 +25,12 @@ authRoute.post(
   asyncHandler(authController.forgetPassword.bind(authController))
 );
 
-authRoute.put(
+authRoute.patch(
   "/reset-password",
   asyncHandler(authController.resetPassword.bind(authController))
 );
 
-authRoute.get(
+authRoute.post(
   "/refresh-token",
   asyncHandler(authController.setNewToken.bind(authController))
 );

@@ -32,7 +32,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Service()
 class AuthService implements IAuthService {
-
   constructor(
     private readonly userRepo: UserRepository,
     private readonly otpRepo: OtpRepository
@@ -117,6 +116,10 @@ class AuthService implements IAuthService {
           "Your account has been blocked",
           HttpStatus.UNAUTHORIZED
         );
+      }
+
+      if (existingUser?.role !== "user") {
+        throw new AppError("Unauthorized User", HttpStatus.UNAUTHORIZED);
       }
 
       if (!existingUser) {

@@ -42,7 +42,10 @@ export const updateNotification = async (
   data: UpdateNotificationDTO
 ): Promise<INotification> => {
   try {
-    const response = await userAxiosInstance.put(`${API_BASE_URL}/${id}`, data);
+    const response = await userAxiosInstance.patch(
+      `${API_BASE_URL}/${id}`,
+      data
+    );
     return response.data as INotification;
   } catch (error) {
     const err = error as AxiosError<{ message?: string }>;

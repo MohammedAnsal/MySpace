@@ -7,7 +7,6 @@ import {
   getUserCleaningRequests,
   createCleaningRequest,
   cancelCleaningRequest,
-  addCleaningFeedback,
 } from "@/services/Api/userApi";
 
 export const useFoodMenu = (facilityId: string, hostelId: string) => {
@@ -280,60 +279,6 @@ export const useCancelCleaningRequest = () => {
     onError: (err, requestId, context) => {
       console.error(err);
       console.info(requestId);
-      queryClient.setQueryData(
-        ["cleaning-requests"],
-        context?.previousRequests
-      );
-    },
-  });
-};
-
-export const useAddCleaningFeedback = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      rating,
-      comment,
-    }: {
-      id: string;
-      rating: number;
-      comment?: string;
-    }) => addCleaningFeedback(id, rating, comment),
-    onMutate: async ({ id, rating, comment }) => {
-      await queryClient.cancelQueries({ queryKey: ["cleaning-requests"] });
-
-      const previousRequests = queryClient.getQueryData(["cleaning-requests"]);
-
-      queryClient.setQueryData(["cleaning-requests"], (old: any) => {
-        if (!old?.data) return old;
-
-        const updatedData = old.data.map((item: any) => {
-          if (item._id === id) {
-            return {
-              ...item,
-              feedback: {
-                rating,
-                comment: comment || "",
-                submittedAt: new Date().toISOString(),
-              },
-            };
-          }
-          return item;
-        });
-
-        return {
-          ...old,
-          data: updatedData,
-        };
-      });
-
-      return { previousRequests };
-    },
-    onError: (err, variables, context) => {
-      console.error(err);
-      console.info(variables);
       queryClient.setQueryData(
         ["cleaning-requests"],
         context?.previousRequests

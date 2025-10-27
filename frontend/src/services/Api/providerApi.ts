@@ -16,6 +16,8 @@ const handleError = (error: any) => {
   throw error;
 };
 
+//  Auth Endpoint's :-
+
 export const signUpRequest = async (formData: FormData) => {
   try {
     const response = await publicApi.post("/auth/provider/sign-up", formData, {
@@ -51,7 +53,7 @@ export const forgotPssword = async (email: string) => {
 
 export const resetPassword = async (email: string, newPassword: string) => {
   try {
-    const response = await publicApi.put("/auth/provider/reset-password", {
+    const response = await publicApi.patch("/auth/provider/reset-password", {
       email,
       newPassword,
     });
@@ -86,6 +88,8 @@ export const providerLogout = async () => {
   }
 };
 
+//  Profile Endpoint's :-
+
 export const findProvider = async () => {
   try {
     const response = await privateApi.get("/provider/profile");
@@ -104,7 +108,7 @@ export const changePassword = async (
   newPassword: string
 ) => {
   try {
-    const response = await privateApi.post("/provider/change-password", {
+    const response = await privateApi.patch("/provider/change-password", {
       email,
       currentPassword,
       newPassword,
@@ -117,16 +121,22 @@ export const changePassword = async (
 
 export const editProfile = async (formData: FormData) => {
   try {
-    const response = await privateApi.put("/provider/edit-profile", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await privateApi.patch(
+      "/provider/edit-profile",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     return handleResponse(response.data, "Error in edit provider profile");
   } catch (error) {
     handleError(error);
   }
 };
+
+//  Facility Endpoint's :-
 
 export const findAllFacilities = async () => {
   try {
@@ -138,12 +148,11 @@ export const findAllFacilities = async () => {
   }
 };
 
+//  Hostel's Endpoint's :-
+
 export const createHostel = async (formData: FormData) => {
   try {
-    const response = await privateApi.post(
-      "/provider/create-hostel",
-      formData
-    );
+    const response = await privateApi.post("/provider/create-hostel", formData);
     return handleResponse(response.data, "Error adding hostel");
   } catch (error) {
     handleError(error);
@@ -170,8 +179,7 @@ export const getHostelById = async (hostelId: string) => {
 
 export const updateHostel = async (id: string, formData: FormData) => {
   try {
-
-    const response = await privateApi.put(
+    const response = await privateApi.patch(
       `/provider/edit-hostel/${id}`,
       formData,
       {
@@ -203,6 +211,8 @@ export const deleteHostel = async (hostelId: string) => {
   }
 };
 
+//  Booking's Endpoint's :-
+
 export const listProviderBookings = async () => {
   try {
     const response = await privateApi.get("/provider/bookings");
@@ -216,6 +226,8 @@ export const listProviderBookings = async () => {
   }
 };
 
+// Dashboard Endpoint's :-
+
 export const getProviderDashboard = async () => {
   try {
     const response = await privateApi.get("/provider/dashboard");
@@ -227,6 +239,8 @@ export const getProviderDashboard = async () => {
     handleError(error);
   }
 };
+
+//  Wallet's Endpoint's :-
 
 export const getProviderWallet = async () => {
   try {
@@ -247,6 +261,8 @@ export const getWalletTransactions = async () => {
     return { success: false, data: [] };
   }
 };
+
+//  Menu's Endpoint's :-
 
 export const createMenuItem = async (formData: FormData) => {
   try {
@@ -290,7 +306,7 @@ export const getMenuItemsByCategory = async (category: string) => {
 
 export const updateMenuItem = async (id: string, formData: FormData) => {
   try {
-    const response = await privateApi.put(
+    const response = await privateApi.patch(
       `/facility/menu-item/${id}`,
       formData,
       {
@@ -314,20 +330,7 @@ export const deleteMenuItem = async (id: string) => {
   }
 };
 
-// export const createFoodMenu = async (
-//   providerId: string,
-//   facilityId: string
-// ) => {
-//   try {
-//     const response = await privateApi.post("/facility/food-menu/create", {
-//       providerId,
-//       facilityId,
-//     });
-//     return handleResponse(response.data, "Error creating food menu");
-//   } catch (error) {
-//     handleError(error);
-//   }
-// };
+//  Food's Endpoint's :-
 
 export const getFoodMenu = async (facilityId: string, hostelId: string) => {
   try {
@@ -342,7 +345,7 @@ export const getFoodMenu = async (facilityId: string, hostelId: string) => {
 
 export const updateFoodMenu = async (id: string, menuData: any) => {
   try {
-    const response = await privateApi.put(
+    const response = await privateApi.patch(
       `/facility/food-menu/${id}`,
       menuData
     );
@@ -391,6 +394,8 @@ export const addSingleDayMenu = async (
   }
 };
 
+//  Washing's Endpoint's :-
+
 export const getProviderWashingRequests = async () => {
   try {
     const response = await privateApi.get(
@@ -408,7 +413,7 @@ export const updateWashingRequestStatus = async (
   status: string
 ) => {
   try {
-    const response = await privateApi.put(`/facility/washing/${id}/status`, {
+    const response = await privateApi.patch(`/facility/washing/${id}/status`, {
       status,
     });
     return handleResponse(
@@ -420,6 +425,8 @@ export const updateWashingRequestStatus = async (
     return { success: false, message: "Failed to update request status" };
   }
 };
+
+//  Cleaning's Endpoint's :-
 
 export const getProviderCleaningRequests = async () => {
   try {
@@ -438,7 +445,7 @@ export const updateCleaningRequestStatus = async (
   status: string
 ) => {
   try {
-    const response = await privateApi.put(`/facility/cleaning/${id}/status`, {
+    const response = await privateApi.patch(`/facility/cleaning/${id}/status`, {
       status,
     });
     return handleResponse(

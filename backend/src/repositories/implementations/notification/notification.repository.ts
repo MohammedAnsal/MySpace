@@ -4,24 +4,32 @@ import { Notification } from "../../../models/notification/notification.model";
 import { AppError } from "../../../utils/error";
 import { INotificationRepository } from "../../interfaces/notification/notification.Irepository";
 import { HttpStatus } from "../../../enums/http.status";
-import { CreateNotificationDTO, UpdateNotificationDTO } from "../../../dtos/notification/notification.dto";
+import {
+  CreateNotificationDTO,
+  UpdateNotificationDTO,
+} from "../../../dtos/notification/notification.dto";
 import { Types } from "mongoose";
 
 @Service()
 export class NotificationRepository implements INotificationRepository {
   // Create notification
-  async create(notificationData: CreateNotificationDTO): Promise<INotification> {
+  async create(
+    notificationData: CreateNotificationDTO
+  ): Promise<INotification> {
     try {
       // Convert string IDs to ObjectId if needed
       const dataToCreate = {
         ...notificationData,
         recipient: new Types.ObjectId(notificationData.recipient),
-        sender: notificationData.sender ? new Types.ObjectId(notificationData.sender) : undefined,
+        sender: notificationData.sender
+          ? new Types.ObjectId(notificationData.sender)
+          : undefined,
       };
-      
+
       const notification = await Notification.create(dataToCreate);
       return notification;
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to create notification",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -34,6 +42,7 @@ export class NotificationRepository implements INotificationRepository {
     try {
       return await Notification.findById(id).exec();
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to fetch notification",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -51,6 +60,7 @@ export class NotificationRepository implements INotificationRepository {
         new: true,
       }).exec();
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to update notification",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -63,6 +73,7 @@ export class NotificationRepository implements INotificationRepository {
     try {
       await Notification.findByIdAndDelete(id).exec();
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to delete notification",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -78,6 +89,7 @@ export class NotificationRepository implements INotificationRepository {
         isDeleted: false,
       }).exec();
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to fetch notifications",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -93,6 +105,7 @@ export class NotificationRepository implements INotificationRepository {
         { $set: { isRead: true } }
       );
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to mark all notifications as read",
         HttpStatus.INTERNAL_SERVER_ERROR

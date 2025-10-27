@@ -9,7 +9,8 @@ const cleaningRoute = express.Router();
 cleaningRoute.use(authMiddleWare);
 cleaningRoute.use(autherization);
 
-// User routes
+// User routes:-
+
 cleaningRoute.post(
   "/cleaning/create",
   asyncHandler(
@@ -28,21 +29,22 @@ cleaningRoute.get(
     cleaningController.getCleaningRequestById.bind(cleaningController)
   )
 );
-cleaningRoute.post(
+cleaningRoute.patch(
   "/cleaning/:id/cancel",
   asyncHandler(
     cleaningController.cancelCleaningRequest.bind(cleaningController)
   )
 );
 
-// Provider routes
+// Provider routes :-
+
 cleaningRoute.get(
   "/cleaning/provider/requests",
   asyncHandler(
     cleaningController.getProviderCleaningRequests.bind(cleaningController)
   )
 );
-cleaningRoute.put(
+cleaningRoute.patch(
   "/cleaning/:id/status",
   asyncHandler(
     cleaningController.updateCleaningRequestStatus.bind(cleaningController)

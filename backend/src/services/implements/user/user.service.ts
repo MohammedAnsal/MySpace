@@ -18,7 +18,6 @@ import { IUserRepository } from "../../../repositories/interfaces/user/user.Irep
 
 @Service()
 export class UserService implements IUserService {
-  // private userRepo: UserRepository;
   private userRepo: IUserRepository;
   private s3Service: IS3service;
   private walletService: IWalletService;

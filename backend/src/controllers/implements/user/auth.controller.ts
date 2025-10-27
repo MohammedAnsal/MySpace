@@ -312,6 +312,7 @@ export class AuthController implements IAuthController {
         .status(HttpStatus.OK)
         .json({ message: "Logged out successfully" });
     } catch (error) {
+      console.log(error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Server error" });

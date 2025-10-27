@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-// Type definitions (optional, remove if using JS)
 type Facility = {
   _id: string;
   name: string;
@@ -15,7 +14,7 @@ type Facility = {
 type SelectedFacility = {
   id: string;
   name: string;
-  startDate: string; // yyyy-MM-dd
+  startDate: string; 
   duration: number;
 };
 
@@ -23,8 +22,8 @@ interface BuyFacilityModalProps {
   isOpen: boolean;
   onClose: () => void;
   hostelFacilities: Facility[];
-  checkIn: string; // ISO string or yyyy-MM-dd
-  checkOut: string; // ISO string or yyyy-MM-dd
+  checkIn: string;
+  checkOut: string;
   onSubmit: (facilities: SelectedFacility[]) => Promise<void> | void;
 }
 
@@ -60,7 +59,6 @@ const BuyFacilityModal: React.FC<BuyFacilityModalProps> = ({
     return months > 0 ? months : 1;
   };
 
-  // Handle facility checkbox toggle
   const handleToggle = (facility: Facility) => {
     const exists = selectedFacilities.find((f) => f.id === facility._id);
     if (exists) {

@@ -7,7 +7,6 @@ import { HttpStatus } from "../../../enums/http.status";
 import { IMessageService } from "../../../services/interface/chat/message.service.interface";
 import { S3Service } from "../../../services/implements/s3/s3.service";
 import IS3service from "../../../services/interface/s3/s3.service.interface";
-import { MessageListResponseDTO } from "../../../dtos/chat/message.dto";
 
 @Service()
 export class MessageController {

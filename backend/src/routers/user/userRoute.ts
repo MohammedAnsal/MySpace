@@ -16,7 +16,7 @@ userRoute.get(
   authorizeRoles(Roles.USER),
   asyncHandler(userController.findUser.bind(userController))
 );
-userRoute.post(
+userRoute.patch(
   "/change-password",
   authMiddleWare,
   autherization,
@@ -24,7 +24,7 @@ userRoute.post(
   asyncHandler(userController.changePassword.bind(userController))
 );
 
-userRoute.put(
+userRoute.patch(
   "/edit-profile",
   upload.single("profile"),
   authMiddleWare,

@@ -48,6 +48,7 @@ export class WalletService implements IWalletService {
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
       return mapToWalletDTO(wallet);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to create user wallet",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -68,6 +69,7 @@ export class WalletService implements IWalletService {
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
       return mapToWalletDTO(wallet);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to create provider wallet",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -88,6 +90,7 @@ export class WalletService implements IWalletService {
       const wallet = await this.walletRepo.createWallet(walletData as IWallet);
       return mapToWalletDTO(wallet);
     } catch (error) {
+      console.log(error);
       throw new AppError(
         "Failed to create admin wallet",
         HttpStatus.INTERNAL_SERVER_ERROR

@@ -39,7 +39,7 @@ menuItemRoute.get(
   asyncHandler(menuItemController.getMenuItem.bind(menuItemController))
 );
 
-menuItemRoute.put(
+menuItemRoute.patch(
   "/menu-item/:id",
   authorizeRoles(Roles.PROVIDER),
   upload.single("image"),

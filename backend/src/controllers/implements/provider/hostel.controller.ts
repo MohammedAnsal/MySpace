@@ -38,7 +38,6 @@ export class HostelController {
         | Express.Multer.File[]
         | { [fieldname: string]: Express.Multer.File[] };
 
-      // Support both array (legacy) and fields map
       let photoFiles: Express.Multer.File[] = [];
       let proofFile: Express.Multer.File | undefined;
 

@@ -30,6 +30,6 @@ export const autherization = async (
       }
     }
   } catch (error) {
-    console.log("Error in Autherization");
+    console.log("Error in Autherization",error);
   }
 };

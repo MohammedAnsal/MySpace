@@ -344,6 +344,7 @@ const Hostels = () => {
         }}
         onConfirm={handleConfirmDelete}
         title="Delete Hostel"
+        type="approve"
         message="Are you sure you want to delete this hostel? This action cannot be undone and all associated data will be permanently removed."
       />
 

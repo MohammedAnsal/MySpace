@@ -1,4 +1,4 @@
-import { IBooking, IFacilitySelection } from "../../models/booking.model";
+import { IBooking } from "../../models/booking.model";
 import mongoose from "mongoose";
 
 // Add interfaces for populated types

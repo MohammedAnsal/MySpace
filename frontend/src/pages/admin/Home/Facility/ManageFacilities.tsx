@@ -569,6 +569,7 @@ export const AdminManageFacilities: React.FC = () => {
         }}
         onConfirm={handleConfirmDelete}
         title="Delete Facility"
+        type="approve"
         message="Are you sure you want to delete this facility? This action cannot be undone."
       />
     </>

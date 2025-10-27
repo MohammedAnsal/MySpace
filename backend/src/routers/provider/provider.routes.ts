@@ -19,7 +19,7 @@ providerRoute.get(
   asyncHandler(providerController.findUser.bind(providerController))
 );
 
-providerRoute.post(
+providerRoute.patch(
   "/change-password",
   authMiddleWare,
   autherization,
@@ -27,7 +27,7 @@ providerRoute.post(
   asyncHandler(providerController.changePassword.bind(providerController))
 );
 
-providerRoute.put(
+providerRoute.patch(
   "/edit-profile",
   upload.single("profile"),
   authMiddleWare,
@@ -72,7 +72,7 @@ providerRoute.get(
   asyncHandler(hostelController.getHostelById.bind(hostelController))
 );
 
-providerRoute.put(
+providerRoute.patch(
   "/edit-hostel/:hostelId",
   upload.array("photos", 5),
   authMiddleWare,

@@ -77,6 +77,7 @@ export class WashingService implements IWashingService {
         data: requests,
       };
     } catch (error) {
+      console.log(error)
       throw new AppError(
         "Failed to fetch washing requests",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -99,6 +100,7 @@ export class WashingService implements IWashingService {
         data: requests,
       };
     } catch (error) {
+      console.log(error)
       throw new AppError(
         "Failed to fetch provider washing requests",
         HttpStatus.INTERNAL_SERVER_ERROR

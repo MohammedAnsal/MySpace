@@ -67,7 +67,7 @@ export class FoodMenuRepository implements IFoodMenuRepository {
   ): Promise<IFoodMenu | null> {
     return await FoodMenu.findOne({ facilityId, hostelId }).populate({
       path: "menu.meals.morning.items menu.meals.noon.items menu.meals.night.items",
-      select: "_id name image", // Only select the fields we need
+      select: "_id name image",
     });
   }
 

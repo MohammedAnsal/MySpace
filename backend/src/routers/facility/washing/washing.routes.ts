@@ -9,7 +9,8 @@ const washingRoute = express.Router();
 washingRoute.use(authMiddleWare);
 washingRoute.use(autherization);
 
-// User routes
+// User routes :-
+
 washingRoute.post(
   "/washing/create",
   asyncHandler(washingController.createWashingRequest.bind(washingController))
@@ -22,19 +23,20 @@ washingRoute.get(
   "/washing/:id",
   asyncHandler(washingController.getWashingRequestById.bind(washingController))
 );
-washingRoute.post(
+washingRoute.patch(
   "/washing/:id/cancel",
   asyncHandler(washingController.cancelWashingRequest.bind(washingController))
 );
 
-// Provider routes
+// Provider routes:-
+
 washingRoute.get(
   "/washing/provider/requests",
   asyncHandler(
     washingController.getProviderWashingRequests.bind(washingController)
   )
 );
-washingRoute.put(
+washingRoute.patch(
   "/washing/:id/status",
   asyncHandler(
     washingController.updateWashingRequestStatus.bind(washingController)

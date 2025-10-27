@@ -1,8 +1,6 @@
 import express from "express";
 import { chatRoomController } from "../../controllers/implements/chat/chatRoom.controller";
 import { messageController } from "../../controllers/implements/chat/message.controller";
-import { authMiddleWare } from "../../middlewares/auth/auth.middleware";
-import { autherization } from "../../middlewares/auth/autherization.middlware";
 import { upload } from "../../utils/multer";
 import { asyncHandler } from "../../utils/asyncHandler";
 

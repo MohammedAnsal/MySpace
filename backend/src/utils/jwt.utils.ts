@@ -38,6 +38,7 @@ export const verifyAccessToken = (token: string) => {
   try {
     return jwt.verify(token, ACCESS_SECRET);
   } catch (error) {
+    console.log(error);
     return null;
   }
 };
@@ -51,6 +52,7 @@ export const verifyRefreshToken = (token: string) => {
   try {
     return jwt.verify(token, REFRESH_SECRET);
   } catch (error) {
+    console.log(error);
     return null;
   }
 };

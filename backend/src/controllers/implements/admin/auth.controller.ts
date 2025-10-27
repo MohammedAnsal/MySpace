@@ -69,7 +69,7 @@ export class AdminController {
         });
       }
 
-      const response = await this.adminService.forgotPassword(email);
+      const response = await this.adminService.forgotPassword({email});
       return res
         .status(response.success ? HttpStatus.OK : HttpStatus.UNAUTHORIZED)
         .json({ message: response.message, success: response.success });

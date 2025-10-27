@@ -25,7 +25,7 @@ class AdminUserController implements IAdminController {
 
   //  Admin create wallet :-
 
-  async createWallet(req: AuthRequset, res: Response): Promise<Response> {
+  async createWallet(res: Response): Promise<Response> {
     try {
       if (!AdminId) {
         throw new AppError("Admin not authenticated", HttpStatus.UNAUTHORIZED);
