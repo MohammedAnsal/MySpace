@@ -6,7 +6,7 @@ import Loading from "@/components/global/Loading";
 import { useState } from "react";
 import { HostelDetailsDialog } from "@/pages/admin/Home/Hostel/components/HostelDetailsDialog";
 import { useUnverifiedHostels } from "@/hooks/admin/useAdminQueries";
-import {ConfirmationModal} from "@/components/modals/confirmationModal";
+import { ConfirmationModal } from "@/components/modals/ConfirmationModal";
 
 interface Hostel {
   _id: string;
@@ -43,16 +43,23 @@ export const Requests: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
-  
+
   // Add new state for confirmation modals
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<"approve" | "reject" | null>(null);
+  const [confirmAction, setConfirmAction] = useState<
+    "approve" | "reject" | null
+  >(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const { data: hostels = [], isLoading, error, refetch } = useUnverifiedHostels();
+  const {
+    data: hostels = [],
+    isLoading,
+    error,
+    refetch,
+  } = useUnverifiedHostels();
 
   // Updated verification handler
-  const handleVerification = async (hostelId: string, isVerified: boolean) => {
+  const handleVerification = async (isVerified: boolean) => {
     // Set the action type and show confirmation modal
     setConfirmAction(isVerified ? "approve" : "reject");
     setIsConfirmModalOpen(true);
@@ -78,7 +85,7 @@ export const Requests: React.FC = () => {
         setIsProcessing(false);
         return;
       }
-      
+
       refetch();
       setIsConfirmModalOpen(false);
     } catch (error) {
@@ -92,16 +99,16 @@ export const Requests: React.FC = () => {
   const handleRejection = async () => {
     try {
       if (!selectedHostel) return;
-      
+
       if (!rejectionReason.trim()) {
         toast.error("Please provide a reason for rejection");
         return;
       }
-      
+
       setIsProcessing(true);
       await verifyHostel(selectedHostel._id, rejectionReason, false, false);
       toast.success("Hostel rejected successfully");
-      
+
       // Reset and close modals
       setRejectionReason("");
       setIsRejectModalOpen(false);
@@ -322,7 +329,7 @@ export const Requests: React.FC = () => {
                 <h3 className="text-xl font-semibold text-white">
                   Reject: {selectedHostel?.hostel_name}
                 </h3>
-                <button 
+                <button
                   onClick={closeRejectionModal}
                   className="text-gray-400 hover:text-white"
                   disabled={isProcessing}
@@ -330,11 +337,12 @@ export const Requests: React.FC = () => {
                   <X size={20} />
                 </button>
               </div>
-              
+
               <p className="text-gray-300 mb-4">
-                Please provide a reason for rejecting this hostel request. This will be visible to the provider.
+                Please provide a reason for rejecting this hostel request. This
+                will be visible to the provider.
               </p>
-              
+
               <textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
@@ -343,7 +351,7 @@ export const Requests: React.FC = () => {
                 autoFocus
                 disabled={isProcessing}
               />
-              
+
               <div className="flex gap-4 mt-6">
                 <button
                   onClick={closeRejectionModal}
