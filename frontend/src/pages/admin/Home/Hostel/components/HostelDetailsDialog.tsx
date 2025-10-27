@@ -57,7 +57,7 @@ interface HostelDetailsDialogProps {
   isOpen: boolean;
   onClose: (value: boolean) => void;
   selectedHostel: Hostel | null;
-  onVerify: (hostelId: string, isVerified: boolean) => void;
+  onVerify: (isVerified: boolean) => void;
 }
 
 // Helper component for consistent detail items
@@ -84,7 +84,7 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <Dialog open={isOpen} onOpenChange={onClose} >
+        <Dialog open={isOpen} onOpenChange={onClose}>
           <DialogContent className="max-w-5xl bg-[#2A2B2F] border border-gray-700 text-white overflow-y-auto max-h-[90vh] scrollbar-hide">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -119,21 +119,25 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                       >
-                        {selectedHostel.photos.slice(1, 5).map((photo, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="relative h-20 rounded-lg overflow-hidden"
-                          >
-                            <img
-                              src={photo}
-                              alt={`${selectedHostel.hostel_name} ${index + 2}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </motion.div>
-                        ))}
+                        {selectedHostel.photos
+                          .slice(1, 5)
+                          .map((photo, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="relative h-20 rounded-lg overflow-hidden"
+                            >
+                              <img
+                                src={photo}
+                                alt={`${selectedHostel.hostel_name} ${
+                                  index + 2
+                                }`}
+                                className="w-full h-full object-cover"
+                              />
+                            </motion.div>
+                          ))}
                       </motion.div>
 
                       {/* Description */}
@@ -162,7 +166,7 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                           <FileText className="w-5 h-5 mr-2" />
                           Property License
                         </h3>
-                        
+
                         {selectedHostel.property_proof ? (
                           <div className="relative">
                             <img
@@ -180,8 +184,13 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                         ) : (
                           <div className="w-64 h-48 bg-gray-700 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center">
                             <div className="text-center">
-                              <FileText size={48} className="text-gray-500 mx-auto mb-2" />
-                              <p className="text-gray-400 text-sm">No license document uploaded</p>
+                              <FileText
+                                size={48}
+                                className="text-gray-500 mx-auto mb-2"
+                              />
+                              <p className="text-gray-400 text-sm">
+                                No license document uploaded
+                              </p>
                             </div>
                           </div>
                         )}
@@ -255,7 +264,9 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                             value={selectedHostel.gender}
                           />
                           <DetailItem
-                            icon={<UserPlus className="w-4 h-4 text-amber-500" />}
+                            icon={
+                              <UserPlus className="w-4 h-4 text-amber-500" />
+                            }
                             label="Maximum Occupancy"
                             value={selectedHostel.maximum_occupancy}
                           />
@@ -314,14 +325,16 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                               Amenities
                             </h3>
                             <div className="flex flex-wrap gap-2">
-                              {selectedHostel.amenities.map((amenity, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-sm"
-                                >
-                                  {amenity}
-                                </span>
-                              ))}
+                              {selectedHostel.amenities.map(
+                                (amenity, index) => (
+                                  <span
+                                    key={index}
+                                    className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-sm"
+                                  >
+                                    {amenity}
+                                  </span>
+                                )
+                              )}
                             </div>
                           </div>
                         )}
@@ -355,7 +368,7 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => onVerify(selectedHostel._id, true)}
+                          onClick={() => onVerify(true)}
                           className="flex-1 flex items-center justify-center px-4 py-2 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/30 border border-green-600/30"
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
@@ -364,7 +377,7 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => onVerify(selectedHostel._id, false)}
+                          onClick={() => onVerify(false)}
                           className="flex-1 flex items-center justify-center px-4 py-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 border border-red-600/30"
                         >
                           <XCircle className="w-4 h-4 mr-2" />
@@ -381,14 +394,14 @@ export const HostelDetailsDialog: React.FC<HostelDetailsDialogProps> = ({
       )}
       {/* License Image Modal */}
       {showLicenseModal && selectedHostel?.property_proof && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black bg-opacity-75 z-[70] flex items-center justify-center p-4"
           onClick={() => setShowLicenseModal(false)}
         >
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0.8 }}
