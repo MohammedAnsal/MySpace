@@ -40,7 +40,7 @@ interface PropertyForm {
   deposit_terms: string;
 }
 
-export const AddHostel: React.FC = () => {
+const AddHostel: React.FC = () => {
   const [showInstructions, setShowInstructions] = useState(true);
   const [formData, setFormData] = useState<PropertyForm>({
     hostel_name: "",
@@ -533,3 +533,5 @@ export const AddHostel: React.FC = () => {
     </div>
   );
 };
+
+export default AddHostel

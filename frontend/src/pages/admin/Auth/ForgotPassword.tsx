@@ -1,11 +1,11 @@
-import { useState } from "react";
+  import { useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import Admin_ForgotPassword from "../../../assets/admin/AdminSignIn.png";
 import { forgotPssword, resetPassword } from "@/services/Api/admin/adminApi";
 import { AxiosError } from "axios";
 
-export const ForgotPassword = () => {
+const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [email, setEmail] = useState("");
@@ -209,3 +209,5 @@ export const ForgotPassword = () => {
     </div>
   );
 };
+
+export default ForgotPassword

@@ -21,7 +21,7 @@ import {
 } from "@/hooks/provider/facility/useFacility";
 import { FaBroom } from "react-icons/fa";
 
-export const Cleaning = () => {
+ const Cleaning = () => {
   const { hostelId } = useParams();
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -655,3 +655,5 @@ export const Cleaning = () => {
     </div>
   );
 };
+
+export default Cleaning

@@ -5,7 +5,7 @@ import forgotPassword_img from "../../../assets/provider/signUp.jpg";
 import { forgotPssword, resetPassword } from "@/services/Api/providerApi";
 import { AxiosError } from "axios";
 
-export const ForgotPassword = () => {
+const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [email, setEmail] = useState("");
@@ -207,3 +207,5 @@ export const ForgotPassword = () => {
     </div>
   );
 };
+
+export default ForgotPassword;

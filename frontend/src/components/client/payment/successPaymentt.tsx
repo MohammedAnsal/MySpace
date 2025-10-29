@@ -4,7 +4,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { checkPaymentStatus } from "@/services/Api/userApi";
 
-export const SuccessPayment = () => {
+const SuccessPayment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [status, setStatus] = useState<"loading" | "expired" | "success">(
@@ -83,3 +83,4 @@ export const SuccessPayment = () => {
     </div>
   );
 };
+export default SuccessPayment;

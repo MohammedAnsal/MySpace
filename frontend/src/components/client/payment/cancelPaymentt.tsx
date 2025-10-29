@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const CancelPayment = () => {
+const CancelPayment = () => {
   const navigate = useNavigate();
 
   return (
@@ -60,3 +60,5 @@ export const CancelPayment = () => {
     </div>
   );
 };
+
+export default CancelPayment;

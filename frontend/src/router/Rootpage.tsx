@@ -26,4 +26,4 @@ const RootPage = () => {
   );
 };
 
-export default RootPage
+export default RootPage;
