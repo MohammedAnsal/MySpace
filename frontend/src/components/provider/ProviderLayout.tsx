@@ -1,5 +1,5 @@
 import React from 'react';
-import Sidebar from '@/components/provider/sidebar';
+import Sidebar from '@/components/provider/Sidebar';
 import { Outlet } from 'react-router-dom';
 import { useNotifications } from '@/contexts/NotificationContext';
 
