@@ -1,11 +1,11 @@
 import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
-import { PublicRoute } from "@/router/authRoutes/user/publicRoute";
-import { ProtecteddRoute } from "@/router/authRoutes/user/protectRoute";
+import { PublicRoute } from "@/router/authRoutes/user/PublicRoute";
+import { ProtecteddRoute } from "@/router/authRoutes/user/ProtectRoute";
 import { Role } from "@/types/types";
-import Loading from "@/components/global/loading"; // fallback loader
-import NotFound from "@/components/global/notFound"; // keep as normal import (small, global)
-import RootPage from "@/router/rootpage"; // can stay normal (landing)
+import Loading from "@/components/global/Loading"; // fallback loader
+import NotFound from "@/components/global/NotFound"; // keep as normal import (small, global)
+import RootPage from "@/router/Rootpage"; // can stay normal (landing)
 
 const Auth = lazy(() => import("@/pages/user/auth/Auth"));
 const SignUp = lazy(() => import("@/pages/user/auth/SignUp"));
@@ -48,10 +48,10 @@ const HostelDetails = lazy(
 );
 const Checkout = lazy(() => import("@/pages/user/home/booking/BookingHostel"));
 const SuccessPayment = lazy(
-  () => import("@/components/client/payment/successPaymentt")
+  () => import("@/components/client/payment/SuccessPaymentt")
 );
 const CancelPayment = lazy(
-  () => import("@/components/client/payment/cancelPaymentt")
+  () => import("@/components/client/payment/CancelPaymentt")
 );
 const Contact = lazy(() => import("@/pages/user/home/contact/Contact"));
 const About = lazy(() => import("@/pages/user/home/about/About"));

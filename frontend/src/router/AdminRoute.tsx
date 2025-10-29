@@ -3,7 +3,7 @@ import { RouteObject } from "react-router-dom";
 import { ProtectedRoute } from "./authRoutes/admin/protectRoute";
 import { PublicRoute } from "./authRoutes/admin/publicRoute";
 import { Role } from "@/types/types";
-import Loading from "@/components/global/loading";
+import Loading from "@/components/global/Loading";
 
 const AdminSignIn = lazy(() => import("../pages/admin/Auth/SignIn"));
 const ForgotPassword = lazy(() => import("@/pages/admin/Auth/ForgotPassword"));

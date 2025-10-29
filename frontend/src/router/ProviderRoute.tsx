@@ -1,9 +1,9 @@
 import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
-import { ProtecteddRoute } from "./authRoutes/user/protectRoute";
-import { PublicRoute } from "./authRoutes/user/publicRoute";
+import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
+import { PublicRoute } from "./authRoutes/user/PublicRoute";
 import { Role } from "@/types/types";
-import Loading from "@/components/global/loading"; // use your global loading spinner
+import Loading from "@/components/global/Loading"; // use your global loading spinner
 
 const ProviderSignup = lazy(() => import("../pages/provider/Auth/SignUp"));
 const ProviderSignIn = lazy(() => import("../pages/provider/Auth/SignIn"));
@@ -12,7 +12,7 @@ const ForgotPassword = lazy(
 );
 
 const ProviderLayout = lazy(
-  () => import("@/components/provider/providerLayout")
+  () => import("@/components/provider/ProviderLayout")
 );
 const ProviderDashboard = lazy(() => import("../pages/provider/Home/Home"));
 const AddHostel = lazy(() => import("../pages/provider/AddProperty/AddHostel"));
