@@ -1,34 +1,54 @@
+import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
-import AdminSignIn from "../pages/admin/Auth/SignIn";
-import Home from "../pages/admin/Home/HomeLayout";
-import { ProtectedRoute } from "./authRoutes/admin/ProtectRoute";
-import Users from "@/pages/admin/Home/User/Users";
-import Providers from "@/pages/admin/Home/Provider/Providers";
-import Dash from "@/pages/admin/Home/Dashboard/Dashboard";
-import { PublicRoute } from "./authRoutes/admin/PublicRoute";
+import { ProtectedRoute } from "./authRoutes/admin/protectRoute";
+import { PublicRoute } from "./authRoutes/admin/publicRoute";
 import { Role } from "@/types/types";
-import { Requests } from "@/pages/admin/Home/Hostel/Requests";
-import HostelsList from "@/pages/admin/Home/Hostel/HostelsList";
-import HostelDetails from "@/pages/admin/Home/Hostel/HostelDetails";
-import AdminManageFacilities from "@/pages/admin/Home/Facility/ManageFacilities";
-import { Bookings } from "@/pages/admin/Home/Bookings/Bookings";
-import { Wallet } from "@/pages/admin/Home/Wallet/Wallet";
-import { ForgotPassword } from "@/pages/admin/Auth/ForgotPassword";
+import Loading from "@/components/global/loading";
+
+const AdminSignIn = lazy(() => import("../pages/admin/Auth/SignIn"));
+const ForgotPassword = lazy(() => import("@/pages/admin/Auth/ForgotPassword"));
+const Home = lazy(() => import("../pages/admin/Home/HomeLayout"));
+const Dash = lazy(() => import("@/pages/admin/Home/Dashboard/Dashboard"));
+const Users = lazy(() => import("@/pages/admin/Home/User/Users"));
+const Providers = lazy(() => import("@/pages/admin/Home/Provider/Providers"));
+const Requests = lazy(() => import("@/pages/admin/Home/Hostel/Requests"));
+const HostelsList = lazy(() => import("@/pages/admin/Home/Hostel/HostelsList"));
+const HostelDetails = lazy(
+  () => import("@/pages/admin/Home/Hostel/HostelDetails")
+);
+const AdminManageFacilities = lazy(
+  () => import("@/pages/admin/Home/Facility/ManageFacilities")
+);
+const Bookings = lazy(() => import("@/pages/admin/Home/Bookings/Bookings"));
+const Wallet = lazy(() => import("@/pages/admin/Home/Wallet/Wallet"));
 
 export const AdminRouter: RouteObject[] = [
+  // 🔹 Public Routes
   {
     path: "/admin/signIn",
-    element: <PublicRoute element={<AdminSignIn />} route="/admin/dashboard" />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <PublicRoute element={<AdminSignIn />} route="/admin/dashboard" />
+      </Suspense>
+    ),
   },
-
   {
     path: "/admin/forgot-password",
-    element: <PublicRoute element={<ForgotPassword />} route="/admin/signIn" />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <PublicRoute element={<ForgotPassword />} route="/admin/signIn" />
+      </Suspense>
+    ),
   },
 
+  // 🔹 Protected Routes
   {
     element: (
-      <ProtectedRoute allowedRole={Role.ADMIN}>{<Home />}</ProtectedRoute>
+      <Suspense fallback={<Loading />}>
+        <ProtectedRoute allowedRole={Role.ADMIN}>
+          <Home />
+        </ProtectedRoute>
+      </Suspense>
     ),
     children: [
       {
@@ -36,39 +56,75 @@ export const AdminRouter: RouteObject[] = [
         children: [
           {
             path: "dashboard",
-            element: <Dash />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Dash />
+              </Suspense>
+            ),
           },
           {
             path: "users",
-            element: <Users />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Users />
+              </Suspense>
+            ),
           },
           {
             path: "providers",
-            element: <Providers />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Providers />
+              </Suspense>
+            ),
           },
           {
             path: "accommodations/requests",
-            element: <Requests />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Requests />
+              </Suspense>
+            ),
           },
           {
             path: "accommodations",
-            element: <HostelsList />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <HostelsList />
+              </Suspense>
+            ),
           },
           {
             path: "accommodations/:id",
-            element: <HostelDetails />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <HostelDetails />
+              </Suspense>
+            ),
           },
           {
             path: "facility",
-            element: <AdminManageFacilities />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <AdminManageFacilities />
+              </Suspense>
+            ),
           },
           {
             path: "bookings",
-            element: <Bookings />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Bookings />
+              </Suspense>
+            ),
           },
           {
             path: "wallet",
-            element: <Wallet />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Wallet />
+              </Suspense>
+            ),
           },
         ],
       },

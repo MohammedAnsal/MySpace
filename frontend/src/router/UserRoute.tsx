@@ -1,46 +1,78 @@
+import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
-import SignUp from "@/pages/user/auth/SignUp";
-import SignIn from "@/pages/user/auth/SignIn";
-import HomePage from "@/pages/user/home/Home";
-import Auth from "@/pages/user/auth/Auth";
 import { PublicRoute } from "@/router/authRoutes/user/publicRoute";
-import OTPVerification from "@/pages/user/auth/Otp";
-import NotFound from "@/components/global/NotFound";
+import { ProtecteddRoute } from "@/router/authRoutes/user/protectRoute";
 import { Role } from "@/types/types";
-import { ProtecteddRoute } from "@/router/authRoutes/user/ProtectRoute";
-import ForgotPassword from "@/pages/user/auth/ForgotPassword";
-import ResetPassword from "@/pages/user/auth/ResetPassword";
-import ProfileLayout from "@/pages/user/home/profile/components/ProfileLayout";
-import UserProfile from "@/pages/user/home/profile/UserProfile";
-import Hostels from "@/pages/user/home/hostel/Hostels";
-import HostelDetails from "@/pages/user/home/hostel/HostelDetails";
-import Checkout from "@/pages/user/home/booking/BookingHostel";
-import { SuccessPayment } from "@/components/client/payment/successPaymentt";
-import { CancelPayment } from "@/components/client/payment/cancelPaymentt";
-import { MyBookings } from "@/pages/user/home/profile/bookings/MyBookings";
-import RootPage from "@/router/Rootpage";
-import Contact from "@/pages/user/home/contact/Contact";
-import About from "@/pages/user/home/about/About";
-import BookingDetailsPage from "@/pages/user/home/profile/bookings/BookingDetailsPage";
-import Wallet from "@/pages/user/home/profile/wallet/Wallet";
-import Chat from "@/pages/user/home/profile/chat/Chat";
-import { MyFacility } from "@/pages/user/home/profile/facility/MyFacility";
-import Food from "@/pages/user/home/profile/facility/components/food/Food";
-import Washing from "@/pages/user/home/profile/facility/components/washing/Washing";
-import Cleaning from "@/pages/user/home/profile/facility/components/cleaning/Cleaning";
-import Notification from "@/pages/user/home/notification/Notification";
+import Loading from "@/components/global/loading"; // fallback loader
+import NotFound from "@/components/global/notFound"; // keep as normal import (small, global)
+import RootPage from "@/router/rootpage"; // can stay normal (landing)
+
+const Auth = lazy(() => import("@/pages/user/auth/Auth"));
+const SignUp = lazy(() => import("@/pages/user/auth/SignUp"));
+const SignIn = lazy(() => import("@/pages/user/auth/SignIn"));
+const OTPVerification = lazy(() => import("@/pages/user/auth/Otp"));
+const ForgotPassword = lazy(() => import("@/pages/user/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/user/auth/ResetPassword"));
+const HomePage = lazy(() => import("@/pages/user/home/Home"));
+const ProfileLayout = lazy(
+  () => import("@/pages/user/home/profile/components/ProfileLayout")
+);
+const UserProfile = lazy(() => import("@/pages/user/home/profile/UserProfile"));
+const MyBookings = lazy(
+  () => import("@/pages/user/home/profile/bookings/MyBookings")
+);
+const BookingDetailsPage = lazy(
+  () => import("@/pages/user/home/profile/bookings/BookingDetailsPage")
+);
+const Wallet = lazy(() => import("@/pages/user/home/profile/wallet/Wallet"));
+const Notification = lazy(
+  () => import("@/pages/user/home/notification/Notification")
+);
+const Chat = lazy(() => import("@/pages/user/home/profile/chat/Chat"));
+const MyFacility = lazy(
+  () => import("@/pages/user/home/profile/facility/MyFacility")
+);
+const Food = lazy(
+  () => import("@/pages/user/home/profile/facility/components/food/Food")
+);
+const Washing = lazy(
+  () => import("@/pages/user/home/profile/facility/components/washing/Washing")
+);
+const Cleaning = lazy(
+  () =>
+    import("@/pages/user/home/profile/facility/components/cleaning/Cleaning")
+);
+const Hostels = lazy(() => import("@/pages/user/home/hostel/Hostels"));
+const HostelDetails = lazy(
+  () => import("@/pages/user/home/hostel/HostelDetails")
+);
+const Checkout = lazy(() => import("@/pages/user/home/booking/BookingHostel"));
+const SuccessPayment = lazy(
+  () => import("@/components/client/payment/successPaymentt")
+);
+const CancelPayment = lazy(
+  () => import("@/components/client/payment/cancelPaymentt")
+);
+const Contact = lazy(() => import("@/pages/user/home/contact/Contact"));
+const About = lazy(() => import("@/pages/user/home/about/About"));
 
 export const UserRoutes: RouteObject[] = [
   // AUTH ROUTES
   {
     path: "/auth",
-    element: <Auth />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <Auth />
+      </Suspense>
+    ),
     children: [
       {
         path: "signUp",
         element: (
           <PublicRoute routeType={Role.USER}>
-            <SignUp />
+            <Suspense fallback={<Loading />}>
+              <SignUp />
+            </Suspense>
           </PublicRoute>
         ),
       },
@@ -48,7 +80,9 @@ export const UserRoutes: RouteObject[] = [
         path: "signIn",
         element: (
           <PublicRoute routeType={Role.USER}>
-            <SignIn />
+            <Suspense fallback={<Loading />}>
+              <SignIn />
+            </Suspense>
           </PublicRoute>
         ),
       },
@@ -56,7 +90,9 @@ export const UserRoutes: RouteObject[] = [
         path: "forgot-password",
         element: (
           <PublicRoute routeType={Role.USER}>
-            <ForgotPassword />
+            <Suspense fallback={<Loading />}>
+              <ForgotPassword />
+            </Suspense>
           </PublicRoute>
         ),
       },
@@ -64,7 +100,9 @@ export const UserRoutes: RouteObject[] = [
         path: "reset-password",
         element: (
           <PublicRoute routeType={Role.USER}>
-            <ResetPassword />
+            <Suspense fallback={<Loading />}>
+              <ResetPassword />
+            </Suspense>
           </PublicRoute>
         ),
       },
@@ -75,7 +113,9 @@ export const UserRoutes: RouteObject[] = [
     path: "/auth/verify-otp",
     element: (
       <PublicRoute routeType={Role.USER}>
-        <OTPVerification />
+        <Suspense fallback={<Loading />}>
+          <OTPVerification />
+        </Suspense>
       </PublicRoute>
     ),
   },
@@ -85,20 +125,28 @@ export const UserRoutes: RouteObject[] = [
     path: "/home",
     element: (
       <ProtecteddRoute allowedRole={Role.USER}>
-        <HomePage />
+        <Suspense fallback={<Loading />}>
+          <HomePage />
+        </Suspense>
       </ProtecteddRoute>
     ),
   },
 
   {
     path: "/user",
-    element: <ProfileLayout />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <ProfileLayout />
+      </Suspense>
+    ),
     children: [
       {
         path: "profile",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <UserProfile />
+            <Suspense fallback={<Loading />}>
+              <UserProfile />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -106,7 +154,9 @@ export const UserRoutes: RouteObject[] = [
         path: "bookings",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <MyBookings />
+            <Suspense fallback={<Loading />}>
+              <MyBookings />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -114,7 +164,9 @@ export const UserRoutes: RouteObject[] = [
         path: "bookings/:bookingId",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <BookingDetailsPage />
+            <Suspense fallback={<Loading />}>
+              <BookingDetailsPage />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -122,7 +174,9 @@ export const UserRoutes: RouteObject[] = [
         path: "wallet",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <Wallet />
+            <Suspense fallback={<Loading />}>
+              <Wallet />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -130,7 +184,9 @@ export const UserRoutes: RouteObject[] = [
         path: "notification",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <Notification />
+            <Suspense fallback={<Loading />}>
+              <Notification />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -138,7 +194,9 @@ export const UserRoutes: RouteObject[] = [
         path: "chat",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <Chat />
+            <Suspense fallback={<Loading />}>
+              <Chat />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -146,7 +204,9 @@ export const UserRoutes: RouteObject[] = [
         path: "facility",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <MyFacility />
+            <Suspense fallback={<Loading />}>
+              <MyFacility />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -154,7 +214,9 @@ export const UserRoutes: RouteObject[] = [
         path: "facility/food/:facilityId/:hostelId",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <Food />
+            <Suspense fallback={<Loading />}>
+              <Food />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -162,16 +224,19 @@ export const UserRoutes: RouteObject[] = [
         path: "facility/washing/:facilityId/:hostelId/:providerId",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <Washing />
+            <Suspense fallback={<Loading />}>
+              <Washing />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
-
       {
         path: "facility/cleaning/:facilityId/:hostelId/:providerId",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <Cleaning />
+            <Suspense fallback={<Loading />}>
+              <Cleaning />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -182,7 +247,9 @@ export const UserRoutes: RouteObject[] = [
     path: "/accommodations",
     element: (
       <ProtecteddRoute allowedRole={Role.USER}>
-        <Hostels />
+        <Suspense fallback={<Loading />}>
+          <Hostels />
+        </Suspense>
       </ProtecteddRoute>
     ),
   },
@@ -191,7 +258,9 @@ export const UserRoutes: RouteObject[] = [
     path: "/accommodations/:id",
     element: (
       <ProtecteddRoute allowedRole={Role.USER}>
-        <HostelDetails />
+        <Suspense fallback={<Loading />}>
+          <HostelDetails />
+        </Suspense>
       </ProtecteddRoute>
     ),
   },
@@ -200,7 +269,9 @@ export const UserRoutes: RouteObject[] = [
     path: "/checkout/:hostelId",
     element: (
       <ProtecteddRoute allowedRole={Role.USER}>
-        <Checkout />
+        <Suspense fallback={<Loading />}>
+          <Checkout />
+        </Suspense>
       </ProtecteddRoute>
     ),
   },
@@ -212,7 +283,9 @@ export const UserRoutes: RouteObject[] = [
         path: "success",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <SuccessPayment />
+            <Suspense fallback={<Loading />}>
+              <SuccessPayment />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -220,7 +293,9 @@ export const UserRoutes: RouteObject[] = [
         path: "cancel",
         element: (
           <ProtecteddRoute allowedRole={Role.USER}>
-            <CancelPayment />
+            <Suspense fallback={<Loading />}>
+              <CancelPayment />
+            </Suspense>
           </ProtecteddRoute>
         ),
       },
@@ -229,15 +304,23 @@ export const UserRoutes: RouteObject[] = [
 
   {
     path: "/contact",
-    element: <Contact />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <Contact />
+      </Suspense>
+    ),
   },
 
   {
     path: "/about",
-    element: <About />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <About />
+      </Suspense>
+    ),
   },
 
-  //  Landing Page
+  // Landing Page
   {
     path: "/",
     element: <RootPage />,

@@ -1,50 +1,74 @@
+import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
-import ProviderSignup from "../pages/provider/Auth/SignUp";
-import ProviderSignIn from "../pages/provider/Auth/SignIn";
-import { AddHostel } from "../pages/provider/AddProperty/AddHostel";
-import Notifications from "../pages/provider/Notifications/Notifications";
-import Profile from "../pages/provider/Profile/Profile";
-import NotFound from "../components/global/NotFound";
-import { ProtecteddRoute } from "./authRoutes/user/ProtectRoute";
-import { Role } from "@/types/types";
+import { ProtecteddRoute } from "./authRoutes/user/protectRoute";
 import { PublicRoute } from "./authRoutes/user/publicRoute";
-import ProviderLayout from "@/components/provider/ProviderLayout";
-import ProviderDashboard from "../pages/provider/Home/Home";
-import Hostels from "../pages/provider/Hostels/Hostels";
-import EditHostel from "@/pages/provider/Hostels/components/EditHostel";
-import { Bookings } from "@/pages/provider/Bookings/Bookings";
-import Wallet from "@/pages/provider/wallet/Wallet";
-import ProviderChat from "@/pages/provider/Chat/Chat";
-import { ListHostelFacility } from "@/pages/provider/Facilities/ListHostelFacility";
-import { Food } from "@/pages/provider/Facilities/components/Food";
-import { Cleaning } from "@/pages/provider/Facilities/components/Cleaning";
-import { Washing } from "@/pages/provider/Facilities/components/Washing";
-import { ForgotPassword } from "@/pages/provider/Auth/ForgotPassword";
+import { Role } from "@/types/types";
+import Loading from "@/components/global/loading"; // use your global loading spinner
+
+const ProviderSignup = lazy(() => import("../pages/provider/Auth/SignUp"));
+const ProviderSignIn = lazy(() => import("../pages/provider/Auth/SignIn"));
+const ForgotPassword = lazy(
+  () => import("../pages/provider/Auth/ForgotPassword")
+);
+
+const ProviderLayout = lazy(
+  () => import("@/components/provider/providerLayout")
+);
+const ProviderDashboard = lazy(() => import("../pages/provider/Home/Home"));
+const AddHostel = lazy(() => import("../pages/provider/AddProperty/AddHostel"));
+const Hostels = lazy(() => import("../pages/provider/Hostels/Hostels"));
+const EditHostel = lazy(
+  () => import("@/pages/provider/Hostels/components/EditHostel")
+);
+const Bookings = lazy(() => import("@/pages/provider/Bookings/Bookings"));
+const ListHostelFacility = lazy(
+  () => import("@/pages/provider/Facilities/ListHostelFacility")
+);
+const Food = lazy(() => import("@/pages/provider/Facilities/components/Food"));
+const Cleaning = lazy(
+  () => import("@/pages/provider/Facilities/components/Cleaning")
+);
+const Washing = lazy(
+  () => import("@/pages/provider/Facilities/components/Washing")
+);
+const Notifications = lazy(
+  () => import("../pages/provider/Notifications/Notifications")
+);
+const Wallet = lazy(() => import("@/pages/provider/wallet/Wallet"));
+const ProviderChat = lazy(() => import("@/pages/provider/Chat/Chat"));
+const Profile = lazy(() => import("../pages/provider/Profile/Profile"));
+const NotFound = lazy(() => import("../components/global/notFound"));
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes
   {
     path: "/provider/signUp",
     element: (
-      <PublicRoute routeType={Role.PROVIDER}>
-        <ProviderSignup />
-      </PublicRoute>
+      <Suspense fallback={<Loading />}>
+        <PublicRoute routeType={Role.PROVIDER}>
+          <ProviderSignup />
+        </PublicRoute>
+      </Suspense>
     ),
   },
   {
     path: "/provider/signIn",
     element: (
-      <PublicRoute routeType={Role.PROVIDER}>
-        <ProviderSignIn />
-      </PublicRoute>
+      <Suspense fallback={<Loading />}>
+        <PublicRoute routeType={Role.PROVIDER}>
+          <ProviderSignIn />
+        </PublicRoute>
+      </Suspense>
     ),
   },
   {
     path: "/provider/forgot-password",
     element: (
-      <PublicRoute routeType={Role.PROVIDER}>
-        <ForgotPassword />
-      </PublicRoute>
+      <Suspense fallback={<Loading />}>
+        <PublicRoute routeType={Role.PROVIDER}>
+          <ForgotPassword />
+        </PublicRoute>
+      </Suspense>
     ),
   },
 
@@ -52,67 +76,121 @@ export const ProviderRouter: RouteObject[] = [
   {
     path: "/provider",
     element: (
-      <ProtecteddRoute allowedRole={Role.PROVIDER}>
-        <ProviderLayout />
-      </ProtecteddRoute>
+      <Suspense fallback={<Loading />}>
+        <ProtecteddRoute allowedRole={Role.PROVIDER}>
+          <ProviderLayout />
+        </ProtecteddRoute>
+      </Suspense>
     ),
     children: [
       {
         path: "dashboard",
-        element: <ProviderDashboard />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <ProviderDashboard />
+          </Suspense>
+        ),
       },
       {
         path: "hostel/add",
-        element: <AddHostel />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AddHostel />
+          </Suspense>
+        ),
       },
       {
         path: "hostels",
-        element: <Hostels />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Hostels />
+          </Suspense>
+        ),
       },
       {
         path: "hostel/edit/:hostelId",
-        element: <EditHostel />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <EditHostel />
+          </Suspense>
+        ),
       },
       {
         path: "bookings",
-        element: <Bookings />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Bookings />
+          </Suspense>
+        ),
       },
       {
         path: "manage-facility",
         children: [
           {
             path: "",
-            element: <ListHostelFacility />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <ListHostelFacility />
+              </Suspense>
+            ),
           },
           {
             path: ":hostelId/:facilityId/catering-service",
-            element: <Food />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Food />
+              </Suspense>
+            ),
           },
           {
             path: ":hostelId/deep-cleaning-service",
-            element: <Cleaning />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Cleaning />
+              </Suspense>
+            ),
           },
           {
             path: ":hostelId/laundry-service",
-            element: <Washing />,
+            element: (
+              <Suspense fallback={<Loading />}>
+                <Washing />
+              </Suspense>
+            ),
           },
         ],
       },
       {
         path: "notifications",
-        element: <Notifications />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Notifications />
+          </Suspense>
+        ),
       },
       {
         path: "wallet",
-        element: <Wallet />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Wallet />
+          </Suspense>
+        ),
       },
       {
         path: "chat",
-        element: <ProviderChat />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <ProviderChat />
+          </Suspense>
+        ),
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Profile />
+          </Suspense>
+        ),
       },
     ],
   },
@@ -120,6 +198,10 @@ export const ProviderRouter: RouteObject[] = [
   // NOT FOUND PAGE
   {
     path: "*",
-    element: <NotFound />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <NotFound />
+      </Suspense>
+    ),
   },
 ];
