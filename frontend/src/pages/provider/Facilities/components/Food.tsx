@@ -85,7 +85,7 @@ const MenuItemDetailsModal = ({
   );
 };
 
-export const Food = () => {
+const Food = () => {
   const [isAddingMenuItem, setIsAddingMenuItem] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -352,3 +352,5 @@ export const Food = () => {
     </div>
   );
 };
+
+export default Food;

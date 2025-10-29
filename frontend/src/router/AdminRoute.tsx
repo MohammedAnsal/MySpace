@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
-import { ProtectedRoute } from "./authRoutes/admin/protectRoute";
-import { PublicRoute } from "./authRoutes/admin/publicRoute";
+import { ProtectedRoute } from "./authRoutes/admin/ProtectRoute";
+import { PublicRoute } from "./authRoutes/admin/PublicRoute";
 import { Role } from "@/types/types";
 import Loading from "@/components/global/Loading";
 

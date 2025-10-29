@@ -22,7 +22,7 @@ import {
   useUpdateWashingStatus,
 } from "@/hooks/provider/facility/useFacility";
 
-export const Washing = () => {
+const Washing = () => {
   const { hostelId } = useParams();
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -416,7 +416,9 @@ export const Washing = () => {
                   <div className="flex items-center">
                     <div
                       className={`${
-                        status === "Pending" ? `bg-${PROVIDER_LIGHT}` : details.bgColor
+                        status === "Pending"
+                          ? `bg-${PROVIDER_LIGHT}`
+                          : details.bgColor
                       } p-2 sm:p-3 rounded-full mr-3 sm:mr-4`}
                     >
                       {status === "Pending" ? (
@@ -426,7 +428,9 @@ export const Washing = () => {
                       )}
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm text-gray-500">{status}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">
+                        {status}
+                      </p>
                       <p className="text-xl sm:text-2xl font-bold">{count}</p>
                     </div>
                   </div>
@@ -448,7 +452,9 @@ export const Washing = () => {
             {isLoading ? (
               <div className="flex justify-center py-8">
                 <div className="flex flex-col items-center">
-                  <Loader2 className={`h-8 w-8 text-${PROVIDER_DARK} animate-spin`} />
+                  <Loader2
+                    className={`h-8 w-8 text-${PROVIDER_DARK} animate-spin`}
+                  />
                   <p className="mt-2 text-gray-500">Loading requests...</p>
                 </div>
               </div>
@@ -474,7 +480,7 @@ export const Washing = () => {
                       const isInProgress = request.status === "In Progress";
                       const requestDate = parseISO(request.requestedDate);
 
-  return (
+                      return (
                         <motion.div
                           key={request._id}
                           className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
@@ -585,7 +591,9 @@ export const Washing = () => {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-3 sm:mt-4">
                               <div className="flex items-start">
-                                <Calendar className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`} />
+                                <Calendar
+                                  className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`}
+                                />
                                 <div>
                                   <p className="text-xs sm:text-sm font-medium text-gray-700">
                                     Requested Date
@@ -597,7 +605,9 @@ export const Washing = () => {
                               </div>
 
                               <div className="flex items-start">
-                                <AlarmClock className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`} />
+                                <AlarmClock
+                                  className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`}
+                                />
                                 <div>
                                   <p className="text-xs sm:text-sm font-medium text-gray-700">
                                     Time Slot
@@ -609,7 +619,9 @@ export const Washing = () => {
                               </div>
 
                               <div className="flex items-start">
-                                <Package className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`} />
+                                <Package
+                                  className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`}
+                                />
                                 <div>
                                   <p className="text-xs sm:text-sm font-medium text-gray-700">
                                     Items
@@ -625,9 +637,13 @@ export const Washing = () => {
                             </div>
 
                             {request.specialInstructions && (
-                              <div className={`mt-3 sm:mt-4 p-2 sm:p-3 bg-${PROVIDER_LIGHT} rounded-lg border border-${PROVIDER_MEDIUM}`}>
+                              <div
+                                className={`mt-3 sm:mt-4 p-2 sm:p-3 bg-${PROVIDER_LIGHT} rounded-lg border border-${PROVIDER_MEDIUM}`}
+                              >
                                 <div className="flex items-start">
-                                  <MessageSquare className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`} />
+                                  <MessageSquare
+                                    className={`h-4 w-4 sm:h-5 sm:w-5 text-${PROVIDER_DARK} mt-0.5 mr-2`}
+                                  />
                                   <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700">
                                       Special Instructions
@@ -678,3 +694,5 @@ export const Washing = () => {
     </div>
   );
 };
+
+export default Washing;

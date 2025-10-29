@@ -38,7 +38,7 @@ interface Hostel {
   }>;
 }
 
-export const Requests: React.FC = () => {
+const Requests: React.FC = () => {
   const [selectedHostel, setSelectedHostel] = useState<Hostel | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -375,3 +375,5 @@ export const Requests: React.FC = () => {
     </motion.div>
   );
 };
+
+export default Requests;

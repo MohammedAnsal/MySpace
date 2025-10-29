@@ -5,18 +5,18 @@ import { PublicRoute } from "./authRoutes/user/PublicRoute";
 import { Role } from "@/types/types";
 import Loading from "@/components/global/Loading"; // use your global loading spinner
 
-const ProviderSignup = lazy(() => import("../pages/provider/Auth/SignUp"));
-const ProviderSignIn = lazy(() => import("../pages/provider/Auth/SignIn"));
+const ProviderSignup = lazy(() => import("@/pages/provider/Auth/SignUp"));
+const ProviderSignIn = lazy(() => import("@/pages/provider/Auth/SignIn"));
 const ForgotPassword = lazy(
-  () => import("../pages/provider/Auth/ForgotPassword")
+  () => import("@/pages/provider/Auth/ForgotPassword")
 );
 
 const ProviderLayout = lazy(
-  () => import("@/components/provider/ProviderLayout")
+  () => import("@/components/provider/providerLayout")
 );
-const ProviderDashboard = lazy(() => import("../pages/provider/Home/Home"));
-const AddHostel = lazy(() => import("../pages/provider/AddProperty/AddHostel"));
-const Hostels = lazy(() => import("../pages/provider/Hostels/Hostels"));
+const ProviderDashboard = lazy(() => import("@/pages/provider/Home/Home"));
+const AddHostel = lazy(() => import("@/pages/provider/AddProperty/AddHostel"));
+const Hostels = lazy(() => import("@/pages/provider/Hostels/Hostels"));
 const EditHostel = lazy(
   () => import("@/pages/provider/Hostels/components/EditHostel")
 );
@@ -36,8 +36,8 @@ const Notifications = lazy(
 );
 const Wallet = lazy(() => import("@/pages/provider/wallet/Wallet"));
 const ProviderChat = lazy(() => import("@/pages/provider/Chat/Chat"));
-const Profile = lazy(() => import("../pages/provider/Profile/Profile"));
-const NotFound = lazy(() => import("../components/global/notFound"));
+const Profile = lazy(() => import("@/pages/provider/Profile/Profile"));
+const NotFound = lazy(() => import("@/components/global/NotFound"));
 
 export const ProviderRouter: RouteObject[] = [
   // Public Routes

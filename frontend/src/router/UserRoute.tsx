@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
-import { PublicRoute } from "@/router/authRoutes/user/PublicRoute";
+import { PublicRoute } from "@/router/authRoutes/user/publicRoute";
 import { ProtecteddRoute } from "@/router/authRoutes/user/ProtectRoute";
 import { Role } from "@/types/types";
 import Loading from "@/components/global/Loading"; // fallback loader
@@ -48,10 +48,10 @@ const HostelDetails = lazy(
 );
 const Checkout = lazy(() => import("@/pages/user/home/booking/BookingHostel"));
 const SuccessPayment = lazy(
-  () => import("@/components/client/payment/SuccessPaymentt")
+  () => import("@/components/client/payment/successPaymentt")
 );
 const CancelPayment = lazy(
-  () => import("@/components/client/payment/CancelPaymentt")
+  () => import("@/components/client/payment/cancelPaymentt")
 );
 const Contact = lazy(() => import("@/pages/user/home/contact/Contact"));
 const About = lazy(() => import("@/pages/user/home/about/About"));

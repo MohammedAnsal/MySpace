@@ -10,7 +10,7 @@ import {
 import { useProviderHostels } from "@/hooks/provider/hostel/useHostel";
 import Loading from "@/components/global/Loading";
 
-export const ListHostelFacility = () => {
+const ListHostelFacility = () => {
   const navigate = useNavigate();
   const { data: hostels = [], isLoading } = useProviderHostels();
 
@@ -42,7 +42,7 @@ export const ListHostelFacility = () => {
   ) => {
     // Extract the ID from the facility object
     const facilityId = facility._id?.toString() || facility._id;
-    
+
     if (facilityType.includes("Catering Service")) {
       navigate(
         `/provider/manage-facility/${hostelId}/${facilityId}/catering-service`
@@ -188,3 +188,5 @@ export const ListHostelFacility = () => {
     </div>
   );
 };
+
+export default ListHostelFacility;
