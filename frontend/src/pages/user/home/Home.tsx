@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHostelsHome } from "@/hooks/user/hostel/useHostel";
 import Navbar from "@/components/layouts/Navbar";
@@ -15,16 +15,22 @@ export default function HomePage() {
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const navigate = useNavigate();
 
-  const filteredHostels = data?.data
-    ?.filter((hostel: { gender: string }) => {
-      if (selectedGender === "all") return true;
-      return hostel.gender === selectedGender;
-    })
-    .slice(0, 3);
+  const filteredHostels = useMemo(() => {
+    return data?.data
+      ?.filter((hostel: { gender: string }) => {
+        if (selectedGender === "all") return true;
+        return hostel.gender === selectedGender;
+      })
+      .slice(0, 3);
+  }, [data, selectedGender]);
 
-  const handleHostelClick = (hostelId: string) => {
-    navigate(`/accommodations/${hostelId}`);
-  };
+
+  const handleHostelClick = useCallback(
+    (id: string) => {
+      navigate(`/accommodations/${id}`);
+    },
+    [navigate]
+  );
 
   return (
     <>

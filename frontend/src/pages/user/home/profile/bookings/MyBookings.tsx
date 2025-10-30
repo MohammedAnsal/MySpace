@@ -362,7 +362,7 @@ export const MyBookings = () => {
                             Total Amount
                           </div>
                           <div className="text-sm font-medium">
-                            ${booking.totalPrice}
+                            ₹{booking.totalPrice}
                           </div>
                         </div>
                       </div>

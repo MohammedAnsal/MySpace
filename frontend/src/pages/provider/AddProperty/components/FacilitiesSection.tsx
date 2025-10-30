@@ -98,7 +98,7 @@ export const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
               />
               <div className="flex flex-col flex-1">
                 <span className="text-gray-700">{facility.name}</span>
-                <span className="text-sm text-gray-500">${facility.price}</span>
+                <span className="text-sm text-gray-500">₹{facility.price}</span>
                 {facility.description && (
                   <span className="text-xs text-gray-500 mt-1">
                     {facility.description}

@@ -118,12 +118,12 @@ class AuthService implements IAuthService {
         );
       }
 
-      if (existingUser?.role !== "user") {
-        throw new AppError("Unauthorized User", HttpStatus.UNAUTHORIZED);
-      }
-
       if (!existingUser) {
         throw new AppError("Invalid Credentials", HttpStatus.BAD_REQUEST);
+      }
+
+      if (existingUser?.role !== "user") {
+        throw new AppError("Unauthorized User", HttpStatus.UNAUTHORIZED);
       }
 
       const passwordCheck = await bcrypt.compare(

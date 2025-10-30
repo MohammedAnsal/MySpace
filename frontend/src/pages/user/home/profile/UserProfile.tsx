@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { SquarePen, Mail, Phone, Wallet, User } from "lucide-react";
 import { toast } from "sonner";
@@ -31,7 +31,6 @@ const UserProfile: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-
   useEffect(() => {
     if (profile) {
       setuserProfile({
@@ -39,7 +38,7 @@ const UserProfile: React.FC = () => {
         email: profile.email,
         phone: profile.phone,
         profile_picture: profile.profile_picture,
-        wallet: profile.wallet
+        wallet: profile.wallet,
       });
       setwallet(profile.wallet);
       setProfilePic(profile.profile_picture);
@@ -62,16 +61,16 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  const handleProfileUpdate = (updatedProfile: any) => {
+  const handleProfileUpdate = useCallback((updatedProfile: any) => {
     setuserProfile(updatedProfile);
     setProfilePic(updatedProfile.profile_picture);
     setIsEditModalOpen(false);
     toast.success("Profile updated successfully!");
-  };
+  }, []);
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = useCallback(() => {
     setIsPasswordModalOpen(false);
-  };
+  }, []);
 
   const getProfileImageSrc = (imageUrl: string | null | undefined) => {
     if (imageUrl && imageUrl.trim() !== "") return imageUrl;

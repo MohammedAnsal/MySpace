@@ -144,7 +144,7 @@ const ListHostelFacility = () => {
                                 {facility.name}
                               </h4>
                               <p className="text-sm text-amber-600 font-medium">
-                                ${facility.price}/month
+                                ₹{facility.price}/month
                               </p>
                             </div>
                           </div>

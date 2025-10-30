@@ -241,7 +241,7 @@ export const bookingHostel = async (bookingData: FormData) => {
       providerId: bookingResponse.data.data.providerId,
       bookingId: bookingResponse.data.data._id,
       amount: bookingResponse.data.data.firstMonthRent,
-      currency: "USD",
+      currency: "INR",
       metadata: {
         bookingId: bookingResponse.data.data._id,
         stayDuration: bookingResponse.data.data.stayDurationInMonths,

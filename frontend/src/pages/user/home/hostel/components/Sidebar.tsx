@@ -47,8 +47,8 @@ const Sidebar: React.FC<SidebarProps> = ({ filters, onFilterChange }) => {
           }
         />
         <div className="flex justify-between text-sm text-gray-500">
-          <span>${filters.minPrice}</span>
-          <span>${filters.maxPrice}</span>
+          <span>₹{filters.minPrice}</span>
+          <span>₹{filters.maxPrice}</span>
         </div>
       </div>
 

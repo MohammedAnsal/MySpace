@@ -108,7 +108,7 @@ const WalletSummary: React.FC = () => {
         </div>
         <div>
           <p className="text-gray-500 text-sm">Available Balance</p>
-          <p className="text-xl font-bold">${walletData.balance.toFixed(2)}</p>
+          <p className="text-xl font-bold">₹{walletData.balance.toFixed(2)}</p>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ const WalletSummary: React.FC = () => {
             <p className="text-gray-600 text-sm">Total Income</p>
           </div>
           <p className="text-lg font-semibold mt-1">
-            ${walletData.totalCredits.toFixed(2)}
+            ₹{walletData.totalCredits.toFixed(2)}
           </p>
         </div>
 
@@ -129,7 +129,7 @@ const WalletSummary: React.FC = () => {
             <p className="text-gray-600 text-sm">Total Expenses</p>
           </div>
           <p className="text-lg font-semibold mt-1">
-            ${walletData.totalDebits.toFixed(2)}
+            ₹{walletData.totalDebits.toFixed(2)}
           </p>
         </div>
       </div>

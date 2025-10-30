@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { IoClose } from 'react-icons/io5';
-import { 
-  MapPin, 
-  Users, 
-  Bed, 
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { IoClose } from "react-icons/io5";
+import {
+  MapPin,
+  Users,
+  Bed,
   Wifi,
   DollarSign,
   Home,
@@ -20,8 +20,8 @@ import {
   GlassWaterIcon,
   AlertTriangle,
   FileText,
-  Eye
-} from 'lucide-react';
+  Eye,
+} from "lucide-react";
 
 interface ViewHostelProps {
   hostel: any;
@@ -31,32 +31,32 @@ interface ViewHostelProps {
 
 const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
   const [showLicenseModal, setShowLicenseModal] = useState(false);
-  
+
   if (!hostel) return null;
 
   // Map amenity names to icons
   const getAmenityIcon = (amenity: string) => {
     const icons: { [key: string]: JSX.Element } = {
-      'Wifi': <Wifi className="w-5 h-5" />,
-      'Parking': <Car className="w-5 h-5" />,
-      'Kitchen': <CookingPot className="w-5 h-5" />,
-      'Laundry': <WashingMachine className="w-5 h-5" />,
-      'Cctv': <Cctv className="w-5 h-5" />,
-      'Water filter': <GlassWaterIcon className="w-5 h-5" />,
-      'Air Conditioning': <AirVent className="w-5 h-5" />
+      Wifi: <Wifi className="w-5 h-5" />,
+      Parking: <Car className="w-5 h-5" />,
+      Kitchen: <CookingPot className="w-5 h-5" />,
+      Laundry: <WashingMachine className="w-5 h-5" />,
+      Cctv: <Cctv className="w-5 h-5" />,
+      "Water filter": <GlassWaterIcon className="w-5 h-5" />,
+      "Air Conditioning": <AirVent className="w-5 h-5" />,
     };
     return icons[amenity] || <CheckCircle className="w-5 h-5" />;
   };
 
   return (
     <AnimatePresence>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
       >
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
@@ -66,7 +66,9 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
           {/* Header */}
           <div className="sticky top-0 bg-white z-10 border-b px-6 py-4 flex justify-between items-center backdrop-blur-md bg-white/90">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{hostel.hostel_name}</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                {hostel.hostel_name}
+              </h2>
               <p className="text-gray-500 flex items-center mt-1">
                 <MapPin className="w-4 h-4 mr-1" />
                 {hostel.location.address}
@@ -91,7 +93,8 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                     {hostel.reason}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
-                    Please address these issues and resubmit your hostel for verification.
+                    Please address these issues and resubmit your hostel for
+                    verification.
                   </p>
                 </div>
               </div>
@@ -100,7 +103,7 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
 
           <div className="p-6 space-y-8">
             {/* Image Gallery */}
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -124,7 +127,7 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
             </motion.div>
 
             {/* Key Information Cards */}
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -137,7 +140,9 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                   </div>
                   <div>
                     <p className="text-gray-600">Monthly Rent</p>
-                    <p className="text-2xl font-bold text-amber-600">${hostel.monthly_rent}</p>
+                    <p className="text-2xl font-bold text-amber-600">
+                      ₹{hostel.monthly_rent}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -149,7 +154,9 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                   </div>
                   <div>
                     <p className="text-gray-600">For</p>
-                    <p className="text-2xl font-bold text-blue-600 capitalize">{hostel.gender}</p>
+                    <p className="text-2xl font-bold text-blue-600 capitalize">
+                      {hostel.gender}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -170,7 +177,7 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
             </motion.div>
 
             {/* Description */}
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -180,7 +187,9 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                 <Home className="w-5 h-5 mr-2 text-gray-600" />
                 About this Hostel
               </h3>
-              <p className="text-gray-600 leading-relaxed">{hostel.description}</p>
+              <p className="text-gray-600 leading-relaxed">
+                {hostel.description}
+              </p>
             </motion.div>
 
             {/* Property License / Verification Document */}
@@ -212,15 +221,20 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
               ) : (
                 <div className="w-64 h-48 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
                   <div className="text-center">
-                    <FileText size={48} className="text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 text-sm">No license document uploaded</p>
+                    <FileText
+                      size={48}
+                      className="text-gray-400 mx-auto mb-2"
+                    />
+                    <p className="text-gray-500 text-sm">
+                      No license document uploaded
+                    </p>
                   </div>
                 </div>
               )}
             </motion.div>
 
             {/* Amenities */}
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -249,7 +263,7 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
             </motion.div>
 
             {/* Facilities Section */}
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.55 }}
@@ -273,17 +287,23 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                         <Shield className="w-5 h-5 text-blue-500" />
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-800">{facility.name}</h4>
+                        <h4 className="font-medium text-gray-800">
+                          {facility.name}
+                        </h4>
                         {facility.description && (
-                          <p className="text-sm text-gray-600 mt-1">{facility.description}</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {facility.description}
+                          </p>
                         )}
                         <div className="mt-2 flex items-center">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            facility.status 
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-red-100 text-red-700'
-                          }`}>
-                            {facility.status ? 'Available' : 'Not Available'}
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              facility.status
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {facility.status ? "Available" : "Not Available"}
                           </span>
                         </div>
                       </div>
@@ -295,7 +315,7 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
 
             {/* Rules and Deposit */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div 
+              <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
@@ -306,16 +326,18 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                   House Rules
                 </h3>
                 <div className="space-y-2 text-gray-600">
-                  {hostel.rules.split('\n').map((rule: string, index: number) => (
-                    <div key={index} className="flex items-start space-x-2">
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                      <p>{rule}</p>
-                    </div>
-                  ))}
+                  {hostel.rules
+                    .split("\n")
+                    .map((rule: string, index: number) => (
+                      <div key={index} className="flex items-start space-x-2">
+                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                        <p>{rule}</p>
+                      </div>
+                    ))}
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.7 }}
@@ -328,7 +350,9 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
                 <div className="space-y-4">
                   <div className="bg-white p-4 rounded-lg">
                     <p className="text-gray-600">Deposit Amount</p>
-                    <p className="text-xl font-semibold text-amber-600">${hostel.deposit_amount}</p>
+                    <p className="text-xl font-semibold text-amber-600">
+                      ₹{hostel.deposit_amount}
+                    </p>
                   </div>
                   <div className="bg-white p-4 rounded-lg">
                     <p className="text-gray-600">Terms</p>
@@ -342,14 +366,14 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
 
         {/* License Image Modal */}
         {showLicenseModal && hostel.property_proof && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center p-4"
             onClick={() => setShowLicenseModal(false)}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}
@@ -375,4 +399,4 @@ const ViewHostel: React.FC<ViewHostelProps> = ({ hostel, onClose }) => {
   );
 };
 
-export default ViewHostel; 
+export default ViewHostel;

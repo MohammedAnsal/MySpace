@@ -246,7 +246,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                           : "text-red-400"
                       }`}
                     >
-                      {transaction.type === "credit" ? "+" : "-"}$
+                      {transaction.type === "credit" ? "+" : "-"}₹
                       {transaction.amount.toFixed(2)}
                     </span>
                   </td>

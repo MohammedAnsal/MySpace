@@ -403,7 +403,7 @@ export const Bookings = () => {
                           Total Amount
                         </div>
                         <div className="text-sm font-medium">
-                          ${booking.totalPrice}
+                          ₹{booking.totalPrice}
                         </div>
                       </div>
                     </div>
@@ -544,7 +544,7 @@ export const Bookings = () => {
                               Monthly Rent:
                             </span>
                             <span className="text-gray-800 text-sm font-medium">
-                              ${booking.monthlyRent}
+                              ₹{booking.monthlyRent}
                             </span>
                           </div>
                           <div className="flex items-start">
@@ -552,7 +552,7 @@ export const Bookings = () => {
                               Deposit Amount:
                             </span>
                             <span className="text-gray-800 text-sm font-medium">
-                              ${booking.depositAmount}
+                              ₹{booking.depositAmount}
                             </span>
                           </div>
                           <div className="flex items-start">
@@ -560,7 +560,7 @@ export const Bookings = () => {
                               First Month Payment:
                             </span>
                             <span className="text-gray-800 text-sm font-medium">
-                              ${booking.firstMonthRent}
+                              ₹{booking.firstMonthRent}
                             </span>
                           </div>
                           <div className="flex items-start">
@@ -568,7 +568,7 @@ export const Bookings = () => {
                               Total Amount:
                             </span>
                             <span className="text-gray-800 text-sm font-medium">
-                              ${booking.totalPrice}
+                              ₹{booking.totalPrice}
                             </span>
                           </div>
                           <div className="flex items-start">
@@ -615,7 +615,7 @@ export const Bookings = () => {
                                       </span>
                                     </div>
                                     <span className="text-amber-600 text-sm font-medium">
-                                      ${facility.totalCost}
+                                      ₹{facility.totalCost}
                                     </span>
                                   </div>
 
@@ -651,7 +651,7 @@ export const Bookings = () => {
                                     <div className="flex items-center">
                                       <CreditCard className="mr-1 h-3 w-3" />
                                       <span>
-                                        Rate: ${facility.ratePerMonth}/month
+                                        Rate: ₹{facility.ratePerMonth}/month
                                       </span>
                                     </div>
                                   </div>

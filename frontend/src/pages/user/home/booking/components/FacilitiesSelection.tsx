@@ -65,7 +65,7 @@ const FacilitiesSelection: React.FC<FacilitiesSelectionProps> = ({
                   </span>
                 </div>
                 <span className="text-sm text-main-color font-medium">
-                  ${facility.price}/month
+                  ₹{facility.price}/month
                 </span>
               </label>
 

@@ -18,23 +18,25 @@ interface ChangePasswordModalProps {
   onPasswordChange: () => void;
 }
 
-const passwordChangeSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z
-    .string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[@$!%*?&#^]/,
-      "Password must contain at least one special character"
-    ),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const passwordChangeSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .regex(
+        /[@$!%*?&#^]/,
+        "Password must contain at least one special character"
+      ),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   isOpen,
@@ -49,9 +51,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   });
   const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
-  
   React.useEffect(() => {
     if (isOpen) {
       setPasswordData({
@@ -72,7 +75,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       ...passwordData,
       [name]: value,
     });
-    
+
     // Clear validation error when user types
     if (validationErrors[name]) {
       setValidationErrors({
@@ -80,7 +83,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         [name]: "",
       });
     }
-    
+
     // Also clear the general password error
     if (passwordError) {
       setPasswordError("");
@@ -91,11 +94,11 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     try {
       // Validate password data using Zod
       passwordChangeSchema.parse(passwordData);
-      
+
       // Clear validation errors
       setValidationErrors({});
       setPasswordError("");
-      
+
       setIsLoading(true);
       try {
         const response = await changePassword(
@@ -153,11 +156,15 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             onChange={handlePasswordInputChange}
             disabled={isLoading}
             className={`mt-1 block w-full px-3 py-2 border ${
-              validationErrors.currentPassword ? "border-red-500" : "border-gray-300"
+              validationErrors.currentPassword
+                ? "border-red-500"
+                : "border-gray-300"
             } rounded-md shadow-sm focus:outline-none focus:ring-[#b9a089] focus:border-[#b9a089]`}
           />
           {validationErrors.currentPassword && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.currentPassword}</p>
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.currentPassword}
+            </p>
           )}
         </div>
 
@@ -172,11 +179,15 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             onChange={handlePasswordInputChange}
             disabled={isLoading}
             className={`mt-1 block w-full px-3 py-2 border ${
-              validationErrors.newPassword ? "border-red-500" : "border-gray-300"
+              validationErrors.newPassword
+                ? "border-red-500"
+                : "border-gray-300"
             } rounded-md shadow-sm focus:outline-none focus:ring-[#b9a089] focus:border-[#b9a089]`}
           />
           {validationErrors.newPassword && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.newPassword}</p>
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.newPassword}
+            </p>
           )}
         </div>
 
@@ -191,11 +202,15 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             onChange={handlePasswordInputChange}
             disabled={isLoading}
             className={`mt-1 block w-full px-3 py-2 border ${
-              validationErrors.confirmPassword ? "border-red-500" : "border-gray-300"
+              validationErrors.confirmPassword
+                ? "border-red-500"
+                : "border-gray-300"
             } rounded-md shadow-sm focus:outline-none focus:ring-[#b9a089] focus:border-[#b9a089]`}
           />
           {validationErrors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">{validationErrors.confirmPassword}</p>
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.confirmPassword}
+            </p>
           )}
         </div>
 
@@ -231,4 +246,4 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   );
 };
 
-export default ChangePasswordModal; 
+export default React.memo(ChangePasswordModal);

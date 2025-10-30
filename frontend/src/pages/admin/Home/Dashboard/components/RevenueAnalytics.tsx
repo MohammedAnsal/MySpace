@@ -95,10 +95,7 @@ const RevenueAnalytics = ({ revenueData }: RevenueAnalyticsProps) => {
               data={renderChartData()}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#444"
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#444" />
               <XAxis
                 dataKey={
                   activeChart === "yearly"
@@ -111,12 +108,12 @@ const RevenueAnalytics = ({ revenueData }: RevenueAnalyticsProps) => {
               />
               <YAxis stroke="#ccc" />
               <Tooltip
-                formatter={(value) => [`$${value}`, "Revenue"]}
+                formatter={(value) => [`₹${value}`, "Revenue"]}
                 contentStyle={{
                   backgroundColor: "#2A2B2F",
                   borderRadius: "8px",
                   border: "1px solid #444",
-                  color: "#fff"
+                  color: "#fff",
                 }}
                 labelStyle={{ color: "#C8ED4F" }}
               />
@@ -133,24 +130,19 @@ const RevenueAnalytics = ({ revenueData }: RevenueAnalyticsProps) => {
               data={renderChartData()}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#444"
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#444" />
               <XAxis
-                dataKey={
-                  activeChart === "monthly" ? "month" : "week"
-                }
+                dataKey={activeChart === "monthly" ? "month" : "week"}
                 stroke="#ccc"
               />
               <YAxis stroke="#ccc" />
               <Tooltip
-                formatter={(value) => [`$${value}`, "Revenue"]}
+                formatter={(value) => [`₹${value}`, "Revenue"]}
                 contentStyle={{
                   backgroundColor: "#2A2B2F",
                   borderRadius: "8px",
                   border: "1px solid #444",
-                  color: "#fff"
+                  color: "#fff",
                 }}
                 labelStyle={{ color: "#C8ED4F" }}
               />

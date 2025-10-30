@@ -17,7 +17,7 @@ const Dashboard = () => {
     useAdminDashboard();
 
   const formatCurrency = (value: number) => {
-    return "$" + value.toLocaleString("en-US");
+    return "₹" + value.toLocaleString("en-US");
   };
 
   const metrics: Metric[] = [
@@ -43,7 +43,7 @@ const Dashboard = () => {
       title: "Total Revenue",
       count: dashboardData?.totalRevenue
         ? formatCurrency(dashboardData.totalRevenue)
-        : "$0",
+        : "₹0",
       color: "bg-[#C8ED4F]",
       icon: <DollarSign size={20} color="#242529" />,
     },

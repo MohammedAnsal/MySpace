@@ -7,7 +7,7 @@ import {
   Phone,
   Users,
   Bed,
-  DollarSignIcon,
+  IndianRupeeIcon,
   Shield,
   Info,
   CheckCircle2,
@@ -178,7 +178,7 @@ const HostelDetails = () => {
                   Monthly Rent
                 </p>
                 <p className="text-2xl font-bold text-white flex items-center">
-                  <DollarSignIcon className="w-6 h-6 mr-1 text-amber-500" />
+                  <IndianRupeeIcon className="w-6 h-6 mr-1 text-amber-500" />
                   {hostel.monthly_rent}
                 </p>
               </div>
@@ -187,7 +187,7 @@ const HostelDetails = () => {
                   Security Deposit
                 </p>
                 <p className="text-2xl font-bold text-white flex items-center">
-                  <DollarSignIcon className="w-6 h-6 mr-1 text-amber-500" />
+                  <IndianRupeeIcon className="w-6 h-6 mr-1 text-amber-500" />
                   {hostel.deposit_amount}
                 </p>
               </div>

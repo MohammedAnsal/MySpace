@@ -10,7 +10,7 @@ import {
   User,
   Calendar,
   Shield,
-  DollarSign,
+  IndianRupee,
   FileText,
   CheckCircle,
   AlertCircle,
@@ -332,7 +332,7 @@ const Profile: React.FC = () => {
                 onClick={() => setActiveTab("wallet")}
               >
                 <div className="flex items-center justify-center">
-                  <DollarSign size={16} className="mr-2" />
+                  <IndianRupee size={16} className="mr-2" />
                   <span>Wallet</span>
                 </div>
               </button>
@@ -448,7 +448,7 @@ const Profile: React.FC = () => {
                   <FileText size={20} className="mr-2 text-amber-500" />
                   Document Verification
                 </h3>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="bg-white p-6 rounded-lg border border-gray-200">
                     <h4 className="text-md font-semibold mb-4 text-gray-800">
@@ -466,7 +466,7 @@ const Profile: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div>
                         <p className="text-sm text-gray-500 font-medium mb-1">
                           Verification Status
@@ -474,13 +474,23 @@ const Profile: React.FC = () => {
                         <div className="flex items-center bg-gray-50 p-3 rounded-lg">
                           {profile.isDocumentVerified ? (
                             <>
-                              <CheckCircle className="text-green-500 mr-3" size={18} />
-                              <p className="text-green-600 font-medium">Verified</p>
+                              <CheckCircle
+                                className="text-green-500 mr-3"
+                                size={18}
+                              />
+                              <p className="text-green-600 font-medium">
+                                Verified
+                              </p>
                             </>
                           ) : (
                             <>
-                              <AlertCircle className="text-yellow-500 mr-3" size={18} />
-                              <p className="text-yellow-600 font-medium">Pending Verification</p>
+                              <AlertCircle
+                                className="text-yellow-500 mr-3"
+                                size={18}
+                              />
+                              <p className="text-yellow-600 font-medium">
+                                Pending Verification
+                              </p>
                             </>
                           )}
                         </div>
@@ -499,7 +509,8 @@ const Profile: React.FC = () => {
                           alt="Document"
                           className="w-full h-48 object-cover rounded-lg border border-gray-200"
                           onError={(e) => {
-                            e.currentTarget.src = "https://via.placeholder.com/400x200?text=Document+Image";
+                            e.currentTarget.src =
+                              "https://via.placeholder.com/400x200?text=Document+Image";
                           }}
                         />
                         <button
@@ -512,8 +523,13 @@ const Profile: React.FC = () => {
                     ) : (
                       <div className="w-full h-48 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
                         <div className="text-center">
-                          <FileText size={48} className="text-gray-400 mx-auto mb-2" />
-                          <p className="text-gray-500 text-sm">No document uploaded</p>
+                          <FileText
+                            size={48}
+                            className="text-gray-400 mx-auto mb-2"
+                          />
+                          <p className="text-gray-500 text-sm">
+                            No document uploaded
+                          </p>
                         </div>
                       </div>
                     )}
@@ -549,7 +565,8 @@ const Profile: React.FC = () => {
               alt="Document"
               className="w-full h-auto rounded-lg"
               onError={(e) => {
-                e.currentTarget.src = "https://via.placeholder.com/600x400?text=Document+Image";
+                e.currentTarget.src =
+                  "https://via.placeholder.com/600x400?text=Document+Image";
               }}
             />
           </div>

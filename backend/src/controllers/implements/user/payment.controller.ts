@@ -26,12 +26,12 @@ export class PaymentController {
   async createCheckoutSession(req: Request, res: Response): Promise<Response> {
     try {
       const {
-        hostelId,
+        hostelId, 
         userId,
         providerId,
         bookingId,
         amount,
-        currency = "USD",
+        currency = "INR",
         metadata,
       } = req.body;
 
@@ -228,7 +228,7 @@ export class PaymentController {
         data: payment,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: "error",
         message: "Error finding payment",

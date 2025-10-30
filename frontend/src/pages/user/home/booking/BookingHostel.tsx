@@ -1,6 +1,6 @@
 import Footer from "@/components/layouts/Footer";
 import Navbar from "@/components/layouts/Navbar";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { bookingHostel, hostelDetails } from "@/services/Api/userApi";
 import { toast } from "sonner";
@@ -62,11 +62,33 @@ const Checkout: React.FC = () => {
   const tomorrow = addDays(new Date(), 1);
   const minDate = format(tomorrow, "yyyy-MM-dd");
 
-  const calculateEndDate = () => {
+  // const calculateEndDate = () => {
+  //   const startDate = new Date(formData.startDate);
+  //   const endDate = new Date(startDate);
+
+  //   // Properly handle month addition that crosses year boundaries
+  //   const currentYear = endDate.getFullYear();
+  //   const currentMonth = endDate.getMonth();
+  //   const newMonth = currentMonth + formData.selectedMonths;
+
+  //   endDate.setFullYear(
+  //     currentYear + Math.floor(newMonth / 12),
+  //     newMonth % 12,
+  //     endDate.getDate()
+  //   );
+
+  //   return endDate.toLocaleDateString("en-US", {
+  //     weekday: "long",
+  //     year: "numeric",
+  //     month: "long",
+  //     day: "numeric",
+  //   });
+  // };
+
+  const calculateEndDate = useMemo(() => {
     const startDate = new Date(formData.startDate);
     const endDate = new Date(startDate);
 
-    // Properly handle month addition that crosses year boundaries
     const currentYear = endDate.getFullYear();
     const currentMonth = endDate.getMonth();
     const newMonth = currentMonth + formData.selectedMonths;
@@ -83,14 +105,35 @@ const Checkout: React.FC = () => {
       month: "long",
       day: "numeric",
     });
-  };
+  }, [formData.startDate, formData.selectedMonths]);
 
-  const calculateTotalPrice = () => {
-    const monthlyRent = hostel?.monthly_rent || 0;
-    const depositAmount = hostel?.deposit_amount || 0;
+  // const calculateTotalPrice = () => {
+  //   const monthlyRent = hostel?.monthly_rent || 0;
+  //   const depositAmount = hostel?.deposit_amount || 0;
+
+  //   const facilityCost =
+  //     hostel?.facilities
+  //       ?.filter((facility: { _id: string }) =>
+  //         formData.selectedFacilities.some((f) => f.id === facility._id)
+  //       )
+  //       .reduce((total: number, facility: { _id: string; price: number }) => {
+  //         const selectedFacility = formData.selectedFacilities.find(
+  //           (f) => f.id === facility._id
+  //         );
+  //         return total + facility.price * (selectedFacility?.duration || 1);
+  //       }, 0) || 0;
+
+  //   return monthlyRent * formData.selectedMonths + facilityCost + depositAmount;
+  // };
+
+  const totalPrice = useMemo(() => {
+    if (!hostel) return 0;
+
+    const monthlyRent = hostel.monthly_rent || 0;
+    const depositAmount = hostel.deposit_amount || 0;
 
     const facilityCost =
-      hostel?.facilities
+      hostel.facilities
         ?.filter((facility: { _id: string }) =>
           formData.selectedFacilities.some((f) => f.id === facility._id)
         )
@@ -102,14 +145,34 @@ const Checkout: React.FC = () => {
         }, 0) || 0;
 
     return monthlyRent * formData.selectedMonths + facilityCost + depositAmount;
-  };
+  }, [hostel, formData.selectedFacilities, formData.selectedMonths]);
 
-  const calculatePaymentTotal = () => {
-    const monthlyRent = hostel?.monthly_rent || 0;
-    const depositAmount = hostel?.deposit_amount || 0;
+  // const calculatePaymentTotal = () => {
+  //   const monthlyRent = hostel?.monthly_rent || 0;
+  //   const depositAmount = hostel?.deposit_amount || 0;
+
+  //   const firstMonthFacilityCost =
+  //     hostel?.facilities
+  //       ?.filter((facility: { _id: string }) =>
+  //         formData.selectedFacilities.some((f) => f.id === facility._id)
+  //       )
+  //       .reduce(
+  //         (total: number, facility: { price: number }) =>
+  //           total + facility.price,
+  //         0
+  //       ) || 0;
+
+  //   return monthlyRent + firstMonthFacilityCost + depositAmount;
+  // };
+
+  const paymentTotal = useMemo(() => {
+    if (!hostel) return 0;
+
+    const monthlyRent = hostel.monthly_rent || 0;
+    const depositAmount = hostel.deposit_amount || 0;
 
     const firstMonthFacilityCost =
-      hostel?.facilities
+      hostel.facilities
         ?.filter((facility: { _id: string }) =>
           formData.selectedFacilities.some((f) => f.id === facility._id)
         )
@@ -120,7 +183,7 @@ const Checkout: React.FC = () => {
         ) || 0;
 
     return monthlyRent + firstMonthFacilityCost + depositAmount;
-  };
+  }, [hostel, formData.selectedFacilities]);
 
   const handleFacilityToggle = (facilityId: string, facilityName: string) => {
     const updatedFacilities = formData.selectedFacilities.some(
@@ -147,32 +210,43 @@ const Checkout: React.FC = () => {
     setFormData({ ...formData, selectedFacilities: updatedFacilities });
   };
 
-  const handleFileUpload = (file: File) => {
-    setFormData({ ...formData, userProof: file });
-  };
+  // const handleFileUpload = (file: File) => {
+  //   setFormData({ ...formData, userProof: file });
+  // };
 
-  const handleRemoveFile = () => {
-    setFormData({ ...formData, userProof: null });
-  };
+  const handleFileUpload = useCallback((file: File) => {
+    setFormData((prev) => ({ ...prev, userProof: file }));
+  }, []);
 
-  const handleDateChange = (date: string) => {
-    setFormData({ ...formData, startDate: date });
-  };
+  // const handleRemoveFile = () => {
+  //   setFormData({ ...formData, userProof: null });
+  // };
 
-  const handleMonthsChange = (
-    months: number,
-    updatedFacilities: {
-      id: string;
-      name: string;
-      duration: number;
-    }[]
-  ) => {
-    setFormData({
-      ...formData,
-      selectedMonths: months,
-      selectedFacilities: updatedFacilities,
-    });
-  };
+  const handleRemoveFile = useCallback(() => {
+    setFormData((prev) => ({ ...prev, userProof: null }));
+  }, []);
+
+  const handleDateChange = useCallback((date: string) => {
+    setFormData((prev) => ({ ...prev, startDate: date }));
+  }, []);
+
+  const handleMonthsChange = useCallback(
+    (
+      months: number,
+      updatedFacilities: {
+        id: string;
+        name: string;
+        duration: number;
+      }[]
+    ) => {
+      setFormData({
+        ...formData,
+        selectedMonths: months,
+        selectedFacilities: updatedFacilities,
+      });
+    },
+    []
+  );
 
   const handleRulesAcceptanceChange = (accepted: boolean) => {
     setFormData({ ...formData, acceptedRules: accepted });
@@ -390,8 +464,8 @@ const Checkout: React.FC = () => {
               selectedMonths={formData.selectedMonths}
               selectedFacilities={formData.selectedFacilities}
               calculateEndDate={calculateEndDate}
-              calculateTotalPrice={calculateTotalPrice}
-              calculatePaymentTotal={calculatePaymentTotal}
+              calculateTotalPrice={totalPrice}
+              calculatePaymentTotal={paymentTotal}
             />
           </div>
 
@@ -400,8 +474,8 @@ const Checkout: React.FC = () => {
             <PaymentSection
               acceptedRules={formData.acceptedRules}
               isSubmitting={isSubmitting}
-              calculatePaymentTotal={calculatePaymentTotal}
-              calculateTotalPrice={calculateTotalPrice}
+              calculatePaymentTotal={paymentTotal}
+              calculateTotalPrice={totalPrice}
               onSubmit={handleSubmit}
             />
           </div>

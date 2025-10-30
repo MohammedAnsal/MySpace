@@ -6,7 +6,6 @@ import {
   Wifi,
   Phone,
   Mail,
-  DollarSign,
   Calendar,
   Shield,
   Home,
@@ -23,6 +22,7 @@ import {
   GlassWaterIcon,
   Maximize2,
   Sparkles,
+  IndianRupee,
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
@@ -74,7 +74,11 @@ const getAmenityIcon = (amenity: string) => {
 
 const getFacilityIcon = (facilityName: string) => {
   const name = (facilityName || "").toLowerCase();
-  if (name.includes("food") || name.includes("cater") || name.includes("meal")) {
+  if (
+    name.includes("food") ||
+    name.includes("cater") ||
+    name.includes("meal")
+  ) {
     return <CookingPot className="w-5 h-5" />;
   }
   if (name.includes("laundry") || name.includes("wash")) {
@@ -283,7 +287,7 @@ const HostelDetails = () => {
                         viewport={{ once: true }}
                         className="flex items-center space-x-3 bg-[#384f9514] p-3 rounded-lg"
                       >
-                      <span className="text-main-color">
+                        <span className="text-main-color">
                           {getFacilityIcon(facility.name)}
                         </span>
                         <div>
@@ -368,7 +372,7 @@ const HostelDetails = () => {
               </div>
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="text-3xl font-bold text-main-color mb-4 flex items-center">
-                  <DollarSign className="w-8 h-8 mr-2" />
+                  <IndianRupee className="w-8 h-8 mr-2" />
                   {hostel.monthly_rent}
                   <span className="text-base font-normal text-gray-500 ml-2">
                     /month
@@ -378,7 +382,7 @@ const HostelDetails = () => {
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="text-gray-600">Deposit</span>
                     <span className="font-semibold">
-                      ${hostel.deposit_amount}
+                      ₹{hostel.deposit_amount}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">

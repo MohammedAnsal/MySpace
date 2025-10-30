@@ -46,12 +46,12 @@ const HostelCard: React.FC<HostelCardProps> = ({ hostel }) => {
       {/* Price Badge */}
       <div className="absolute top-3 left-3 z-20">
         <span className="bg-green-400 backdrop-blur-sm text-gray-900 px-2 py-1.5 rounded-full text-xs font-semibold">
-          ${hostel.monthly_rent}/month
+          ₹{hostel.monthly_rent}/month
         </span>
       </div>
 
       {/* Rating Badge */}
-      {(hostel.averageRating !== undefined && hostel.ratingCount) && (
+      {hostel.averageRating !== undefined && hostel.ratingCount && (
         <div className="absolute top-3 right-3 z-20">
           <span className="bg-amber-400 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-full text-sm font-semibold flex items-center">
             <Star className="w-3.5 h-3.5 mr-1 fill-gray-900" />
@@ -62,13 +62,17 @@ const HostelCard: React.FC<HostelCardProps> = ({ hostel }) => {
 
       {/* Availability Badge */}
       <div className="absolute top-12 left-3 z-20">
-        <span className={`backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold flex items-center ${
-          isNoBedsAvailable 
-            ? 'bg-red-500 text-white' 
-            : 'bg-blue-500 text-white'
-        }`}>
+        <span
+          className={`backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold flex items-center ${
+            isNoBedsAvailable
+              ? "bg-red-500 text-white"
+              : "bg-blue-500 text-white"
+          }`}
+        >
           <Bed className="w-2 h-2 mr-1" />
-          {isNoBedsAvailable ? 'Full' : `${hostel.available_space}/${hostel.total_space}`}
+          {isNoBedsAvailable
+            ? "Full"
+            : `${hostel.available_space}/${hostel.total_space}`}
         </span>
       </div>
 
@@ -113,11 +117,12 @@ const HostelCard: React.FC<HostelCardProps> = ({ hostel }) => {
           </div>
 
           {/* Rating Display (visible on hover) */}
-          {(hostel.averageRating !== undefined && hostel.ratingCount) && (
+          {hostel.averageRating !== undefined && hostel.ratingCount && (
             <div className="flex items-center space-x-2 text-amber-400 text-sm mb-2">
               <Star className="w-4 h-4 fill-amber-400" />
               <span>
-                {hostel.averageRating.toFixed(1)} ({hostel.ratingCount} {hostel.ratingCount === 1 ? 'review' : 'reviews'})
+                {hostel.averageRating.toFixed(1)} ({hostel.ratingCount}{" "}
+                {hostel.ratingCount === 1 ? "review" : "reviews"})
               </span>
             </div>
           )}

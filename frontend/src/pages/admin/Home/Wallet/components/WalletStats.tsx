@@ -43,7 +43,7 @@ const WalletStats: React.FC<WalletStatsProps> = ({
         <div>
           <p className="text-sm text-gray-400">Current Month Income</p>
           <p className="font-medium text-[#C8ED4F]">
-            ${currentMonthCredits.toFixed(2)}
+            ₹{currentMonthCredits.toFixed(2)}
           </p>
         </div>
       </div>
@@ -55,7 +55,7 @@ const WalletStats: React.FC<WalletStatsProps> = ({
         <div>
           <p className="text-sm text-gray-400">Current Month Expenses</p>
           <p className="font-medium text-red-400">
-            ${currentMonthDebits.toFixed(2)}
+            ₹{currentMonthDebits.toFixed(2)}
           </p>
           <p className="text-xs text-gray-500 mt-1">Including refunds</p>
         </div>
