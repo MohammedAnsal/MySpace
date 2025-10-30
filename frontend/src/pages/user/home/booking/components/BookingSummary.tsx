@@ -27,9 +27,9 @@ interface BookingSummaryProps {
     name: string;
     duration: number;
   }[];
-  calculateEndDate: () => string;
-  calculateTotalPrice: () => number;
-  calculatePaymentTotal: () => number;
+  calculateEndDate: string;
+  calculateTotalPrice: number;
+  calculatePaymentTotal: number;
 }
 
 const BookingSummary: React.FC<BookingSummaryProps> = ({
@@ -81,7 +81,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         </div>
         <div className="flex justify-between py-2 border-b border-gray-100 text-sm">
           <span>Check-out</span>
-          <span>{calculateEndDate()}</span>
+          <span>{calculateEndDate}</span>
         </div>
         <div className="flex justify-between py-2 border-b border-gray-100 text-sm">
           <span>Selected Facilities</span>
@@ -96,7 +96,9 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 </div>
               ))
             ) : (
-              <span className="text-gray-500 text-xs italic">None selected</span>
+              <span className="text-gray-500 text-xs italic">
+                None selected
+              </span>
             )}
           </div>
         </div>
@@ -110,7 +112,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           <div className="flex justify-between py-2 text-sm">
             <span>Facility Cost</span>
             <span>
-              $
+              ₹
               {hostel.facilities
                 .filter((facility: { _id: string; name: string }) =>
                   selectedFacilities.some((f) => f.id === facility._id)
@@ -129,11 +131,11 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       <div className="bg-white rounded-md p-4 mb-5 shadow-sm">
         <div className="flex justify-between py-2 border-b border-gray-100 text-sm">
           <span>Monthly-Rent</span>
-          <span>${hostel.monthly_rent}</span>
+          <span>₹{hostel.monthly_rent}</span>
         </div>
         <div className="flex justify-between py-2 border-b border-gray-100 text-sm">
           <span>Deposit-Amount</span>
-          <span>${hostel.deposit_amount}</span>
+          <span>₹{hostel.deposit_amount}</span>
         </div>
 
         {/* First payment details */}
@@ -142,16 +144,16 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           <div className="bg-[#384f9514] rounded-md p-3 mt-2">
             <div className="flex justify-between py-1 text-sm">
               <span>Deposit Amount</span>
-              <span>${hostel.deposit_amount}</span>
+              <span>₹{hostel.deposit_amount}</span>
             </div>
             <div className="flex justify-between py-1 text-sm">
               <span>First Month Rent</span>
-              <span>${hostel.monthly_rent}</span>
+              <span>₹{hostel.monthly_rent}</span>
             </div>
             <div className="flex justify-between py-1 text-sm">
               <span>First Month Facilities</span>
               <span>
-                $
+                ₹
                 {hostel?.facilities
                   ?.filter((facility: { _id: string }) =>
                     selectedFacilities.some((f) => f.id === facility._id)
@@ -165,7 +167,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
             </div>
             <div className="flex justify-between pt-2 mt-1 border-t border-white font-medium text-black">
               <span>Payment Total</span>
-              <span>${calculatePaymentTotal()}</span>
+              <span>₹{calculatePaymentTotal}</span>
             </div>
           </div>
         </div>
@@ -175,7 +177,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           <h4 className="font-medium text-sm text-gray-800">Entire Stay</h4>
           <div className="flex justify-between py-2 mt-2 font-medium text-base border-t border-gray-200 pt-3">
             <span>Total Price</span>
-            <span>${calculateTotalPrice()}</span>
+            <span>₹{calculateTotalPrice}</span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
             (Includes rent for {selectedMonths}{" "}

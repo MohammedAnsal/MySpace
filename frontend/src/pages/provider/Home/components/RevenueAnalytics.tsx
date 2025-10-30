@@ -101,7 +101,7 @@ const RevenueAnalytics = ({ revenueData }: RevenueAnalyticsProps) => {
               />
               <YAxis />
               <Tooltip
-                formatter={(value) => [`$${value}`, "Revenue"]}
+                formatter={(value) => [`₹${value}`, "Revenue"]}
                 contentStyle={{
                   borderRadius: "8px",
                   border: "none",
@@ -125,7 +125,7 @@ const RevenueAnalytics = ({ revenueData }: RevenueAnalyticsProps) => {
               <XAxis dataKey={activeChart === "monthly" ? "month" : "week"} />
               <YAxis />
               <Tooltip
-                formatter={(value) => [`$${value}`, "Revenue"]}
+                formatter={(value) => [`₹${value}`, "Revenue"]}
                 contentStyle={{
                   borderRadius: "8px",
                   border: "none",

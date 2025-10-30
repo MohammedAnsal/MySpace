@@ -121,7 +121,7 @@ const HostelsList = () => {
 
               <div className="flex justify-between items-center">
                 <div className="text-amber-500 font-semibold">
-                  ${hostel.monthly_rent}/month
+                  ₹{hostel.monthly_rent}/month
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}

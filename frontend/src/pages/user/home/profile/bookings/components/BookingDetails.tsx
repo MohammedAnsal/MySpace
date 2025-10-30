@@ -15,10 +15,10 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  DollarSign,
   TrendingUp,
   ChevronDown,
   ChevronUp,
+  IndianRupee,
 } from "lucide-react";
 import RatingModal from "./RatingModal";
 import { createRating } from "@/services/Api/userApi";
@@ -363,14 +363,14 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                 First Month Rent
               </p>
               <p className="text-sm text-gray-800 font-medium">
-                ${booking.firstMonthRent}
+                ₹{booking.firstMonthRent}
               </p>
             </div>
 
             <div className="flex justify-between items-center border-b border-dashed border-gray-200 pb-2">
               <p className="text-sm font-medium text-gray-600">Monthly Rent</p>
               <p className="text-sm text-gray-800 font-medium">
-                ${booking.monthlyRent}
+                ₹{booking.monthlyRent}
               </p>
             </div>
 
@@ -379,7 +379,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                 Security Deposit
               </p>
               <p className="text-sm text-gray-800 font-medium">
-                ${booking.depositAmount}
+                ₹{booking.depositAmount}
               </p>
             </div>
           </div>
@@ -391,7 +391,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
         <div className="mt-6 pt-4 border-t">
           <div className="flex items-center justify-between mb-6">
             <h4 className="text-sm uppercase font-semibold text-gray-500 flex items-center">
-              <DollarSign className="text-[#b9a089] mr-2" size={16} />
+              <IndianRupee className="text-[#b9a089] mr-2" size={16} />
               Monthly Payment Schedule
             </h4>
 
@@ -465,7 +465,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                           {formatMonthName(payment.month, booking.checkIn)}
                         </h5>
                         <p className="text-xs text-gray-500">
-                          ${booking.monthlyRent}
+                          ₹{booking.monthlyRent}
                         </p>
                       </div>
                     </div>
@@ -546,7 +546,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                           ) : (
                             <>
                               <CreditCard className="mr-1" size={14} />
-                              Pay Now (${booking.monthlyRent})
+                              Pay Now (₹{booking.monthlyRent})
                             </>
                           )}
                         </button>
@@ -677,7 +677,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                   )}
                 </p>
                 <p className="text-lg font-bold text-[#b9a089] mt-1">
-                  Total Amount: ${booking.monthlyRent * paymentStats.total}
+                  Total Amount: ₹{booking.monthlyRent * paymentStats.total}
                 </p>
               </div>
             </div>
@@ -768,7 +768,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                       </h3>
                     </div>
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#b9a089]/20 text-[#b9a089]">
-                      ${getFacilityPrice(facility)}/month
+                      ₹{getFacilityPrice(facility)}/month
                     </span>
                   </div>
 
@@ -798,7 +798,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
                         <span className="text-gray-700">
                           Total:{" "}
                           <span className="font-medium">
-                            ${facility.totalCost || "—"}
+                            ₹{facility.totalCost || "—"}
                           </span>
                         </span>
                       </div>
@@ -847,7 +847,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking }) => {
               Total Facilities Cost
             </p>
             <p className="text-lg font-bold text-[#b9a089]">
-              ${calculateTotalFacilitiesCost(booking.selectedFacilities)}
+              ₹{calculateTotalFacilitiesCost(booking.selectedFacilities)}
             </p>
           </div>
         </div>

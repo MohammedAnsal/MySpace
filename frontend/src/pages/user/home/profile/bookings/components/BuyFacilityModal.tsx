@@ -186,7 +186,7 @@ const BuyFacilityModal: React.FC<BuyFacilityModalProps> = ({
                       />
                       <span className="font-medium">{facility.name}</span>
                       <span className="text-sm text-gray-500">
-                        (${facility.price}/month)
+                        (₹{facility.price}/month)
                       </span>
                     </label>
                     {selected && (

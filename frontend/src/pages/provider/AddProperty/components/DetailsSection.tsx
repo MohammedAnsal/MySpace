@@ -1,5 +1,5 @@
 import React from "react";
-import { DollarSign, Users, Bed, DollarSignIcon } from "lucide-react";
+import { Users, Bed, IndianRupeeIcon, IndianRupee } from "lucide-react";
 
 interface DetailsSectionProps {
   formData: {
@@ -8,7 +8,7 @@ interface DetailsSectionProps {
     deposit_terms: string;
     total_space: string;
     maximum_occupancy: string;
-    available_space:string
+    available_space: string;
   };
   errors: {
     monthly_rent?: string;
@@ -16,7 +16,7 @@ interface DetailsSectionProps {
     deposit_terms?: string;
     total_space?: string;
     maximum_occupancy?: string;
-    available_space?:string
+    available_space?: string;
   };
   handleInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -28,11 +28,10 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
   errors,
   handleInputChange,
 }) => {
-
   return (
     <div className="bg-white border border-amber-100 p-4 rounded-lg shadow-sm sm:p-6">
       <h2 className="flex text-gray-800 text-xl font-medium items-center mb-4">
-        <DollarSign size={20} className="text-amber-500 mr-2" />
+        <IndianRupee size={20} className="text-amber-500 mr-2" />
         Property Details
       </h2>
 
@@ -43,7 +42,7 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
           </label>
           <div className="relative">
             <span className="text-gray-500 absolute left-3 top-2">
-              <DollarSignIcon size={20} />
+              <IndianRupeeIcon size={20} />
             </span>
             <input
               type="number"
@@ -89,7 +88,7 @@ export const DetailsSection: React.FC<DetailsSectionProps> = ({
           </label>
           <div className="relative">
             <span className="text-gray-500 absolute left-3 top-2">
-              <DollarSignIcon size={20} />
+              <IndianRupeeIcon size={20} />
             </span>
             <input
               type="number"

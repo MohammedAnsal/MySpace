@@ -91,71 +91,23 @@ export class BookingService implements IBookingService {
       }
 
       // Validate date conflicts - Check if any existing booking overlaps
-      const conflictingBookings =
-        await this.bookingRepository.findConflictingBookings(
-          bookingData.hostelId,
-          bookingData.checkIn,
-          bookingData.checkOut
-        );
-
-      if (conflictingBookings.length > 0) {
-        throw new AppError(
-          "No beds available for the selected dates. Please choose different dates.",
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      // // CRITICAL: Atomic check and update of available space
-      // const hostel = await this.hostelRepository.getHostelByIdWithLock(
-      //   bookingData.hostelId,
-      //   session
-      // );
-
-      // if (!hostel) {
-      //   throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
-      // }
-
-      // Get hostel info (don't decrease space yet)
       const hostel = await this.hostelRepository.getHostelById(
         bookingData.hostelId
       );
       if (!hostel) {
         throw new AppError("Hostel not found", HttpStatus.NOT_FOUND);
       }
+      const availableSpace = hostel.available_space ?? 0;
 
-      // if (hostel.available_space !== null && hostel.available_space <= 0) {
-      //   throw new AppError(
-      //     "No beds available in this hostel",
-      //     HttpStatus.BAD_REQUEST
-      //   );
-      // }
-
-      // // Decrease available space atomically
-      // const updatedHostel = await this.hostelRepository.decreaseAvailableSpace(
-      //   bookingData.hostelId,
-      //   session
-      // );
-
-      // if (
-      //   !updatedHostel ||
-      //   (updatedHostel.available_space !== null &&
-      //     updatedHostel.available_space < 0)
-      // ) {
-      //   throw new AppError(
-      //     "No beds available in this hostel",
-      //     HttpStatus.BAD_REQUEST
-      //   );
-      // }
-
-      // Check if there's enough space for the booking period
-      const availableSpace =
-        await this.bookingRepository.getAvailableSpaceForPeriod(
+      const overlappingBookings =
+        await this.bookingRepository.findConflictingBookings(
           bookingData.hostelId,
           bookingData.checkIn,
           bookingData.checkOut
         );
 
-      if (availableSpace <= 0) {
+      // Prevent booking if all beds are already reserved for this period
+      if (overlappingBookings.length >= availableSpace) {
         throw new AppError(
           "No beds available for the selected dates. Please choose different dates.",
           HttpStatus.BAD_REQUEST

@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 interface PaymentSectionProps {
   acceptedRules: boolean;
   isSubmitting: boolean;
-  calculatePaymentTotal: () => number;
-  calculateTotalPrice: () => number;
+  calculatePaymentTotal: number;
+  calculateTotalPrice: number;
   onSubmit: () => void;
 }
 
@@ -58,7 +58,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           <div className="flex items-center justify-center">
             {acceptedRules ? (
               <>
-                Pay Now: ${calculatePaymentTotal()}
+                Pay Now: ₹{calculatePaymentTotal}
                 <svg
                   className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform"
                   fill="none"
@@ -86,14 +86,15 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           </p>
           <div className="flex justify-between items-center mt-2 text-sm">
             <span>First Payment:</span>
-            <span className="font-semibold">${calculatePaymentTotal()}</span>
+            <span className="font-semibold">₹{calculatePaymentTotal}</span>
           </div>
           <div className="flex justify-between items-center mt-1 text-sm">
             <span>Total Booking Value:</span>
-            <span className="font-semibold">${calculateTotalPrice()}</span>
+            <span className="font-semibold">₹{calculateTotalPrice}</span>
           </div>
           <p className="text-xs text-center mt-2 text-gray-500">
-            You'll be charged ${calculatePaymentTotal()} now for your first payment.
+            You'll be charged ₹{calculatePaymentTotal} now for your first
+            payment.
           </p>
         </div>
       )}

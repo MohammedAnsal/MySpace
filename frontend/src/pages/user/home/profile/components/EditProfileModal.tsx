@@ -258,4 +258,4 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   );
 };
 
-export default EditProfileModal;
+export default React.memo(EditProfileModal);

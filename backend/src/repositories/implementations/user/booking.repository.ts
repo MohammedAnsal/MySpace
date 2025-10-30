@@ -242,23 +242,9 @@ export class BookingRepository implements IBookingRepository {
     return await Booking.find({
       hostelId: new mongoose.Types.ObjectId(hostelId),
       paymentStatus: { $in: ["completed", "pending"] },
-      $or: [
-        // New booking starts during existing booking
-        {
-          checkIn: { $lte: checkIn },
-          checkOut: { $gt: checkIn },
-        },
-        // New booking ends during existing booking
-        {
-          checkIn: { $lt: checkOut },
-          checkOut: { $gte: checkOut },
-        },
-        // New booking completely contains existing booking
-        {
-          checkIn: { $gte: checkIn },
-          checkOut: { $lte: checkOut },
-        },
-      ],
+      // Overlap condition: existing.checkIn < newCheckOut AND existing.checkOut > newCheckIn
+      checkIn: { $lt: checkOut },
+      checkOut: { $gt: checkIn },
     });
   }
 
@@ -267,7 +253,6 @@ export class BookingRepository implements IBookingRepository {
     checkIn: Date,
     checkOut: Date
   ): Promise<number> {
-
     const hostel = await this.hostelRepository.getHostelById(hostelId);
     const totalBeds = hostel?.available_space || 0;
 

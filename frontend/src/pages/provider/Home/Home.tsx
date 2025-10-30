@@ -53,7 +53,7 @@ const ProviderDashboard: React.FC = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
-    return "$" + value.toLocaleString("en-US");
+    return "₹" + value.toLocaleString("en-US");
   };
 
   const metrics: Metric[] = [
@@ -73,7 +73,7 @@ const ProviderDashboard: React.FC = () => {
       title: "Total Revenue",
       count: dashboardData?.totalRevenue
         ? formatCurrency(dashboardData.totalRevenue)
-        : "$0",
+        : "₹0",
       color: "bg-yellow-400",
       icon: <IndianRupeeIcon size={20} color="white" />,
     },

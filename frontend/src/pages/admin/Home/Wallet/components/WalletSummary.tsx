@@ -35,7 +35,7 @@ const WalletSummary: React.FC<WalletSummaryProps> = ({
         <div className="mt-6">
           <p className="text-sm text-gray-400">Available Balance</p>
           <h1 className="text-4xl font-bold mt-1 text-[#C8ED4F]">
-            ${walletBalance.toFixed(2)}
+            ₹{walletBalance.toFixed(2)}
           </h1>
           <p className="text-sm text-gray-400 mt-2">
             Platform commission from all bookings
@@ -54,13 +54,13 @@ const WalletSummary: React.FC<WalletSummaryProps> = ({
           <div>
             <p className="text-sm text-gray-400">Total Platform Revenue</p>
             <p className="text-2xl font-bold text-[#C8ED4F]">
-              ${totalCredits.toFixed(2)}
+              ₹{totalCredits.toFixed(2)}
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-400">Total Booking Revenue</p>
             <p className="text-2xl font-bold text-white">
-              ${totalBookingRevenue.toFixed(2)}
+              ₹{totalBookingRevenue.toFixed(2)}
             </p>
           </div>
           <div>
