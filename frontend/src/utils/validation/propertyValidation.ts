@@ -26,8 +26,8 @@ export const hostelValidationSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Monthly rent must be a valid positive number",
     })
-    .refine((val) => Number(val) >= 10 && Number(val) <= 1000, {
-      message: "Monthly rent must be between $100 and $1000",
+    .refine((val) => Number(val) >= 500 && Number(val) <= 10000, {
+      message: "Monthly rent must be between 500 and 10000",
     }),
 
   deposit_amount: z
@@ -44,14 +44,14 @@ export const hostelValidationSchema = z.object({
     .nonempty("Deposit terms are required")
     .min(20, "Deposit terms must be at least 20 characters long")
     .max(500, "Deposit terms cannot exceed 500 characters"),
-    // .refine(
-    //   (val) =>
-    //     val.toLowerCase().includes("refund") ||
-    //     val.toLowerCase().includes("return"),
-    //   {
-    //     message: "Deposit terms must mention refund or return policy",
-    //   }
-    // ),
+  // .refine(
+  //   (val) =>
+  //     val.toLowerCase().includes("refund") ||
+  //     val.toLowerCase().includes("return"),
+  //   {
+  //     message: "Deposit terms must mention refund or return policy",
+  //   }
+  // ),
 
   maximum_occupancy: z
     .string()
