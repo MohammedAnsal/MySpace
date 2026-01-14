@@ -1,18 +1,32 @@
 import { z } from "zod";
+import parsePhoneNumberFromString from "libphonenumber-js";
 
 export const signUpSchema = z
   .object({
     fullName: z.string().trim().min(1, "Full name is required"),
     email: z.string().email("Invalid email address"),
+    // phone: z
+    //   .string()
+    //   .min(10, "Phone number must be at least 10 digits")
+    //   .max(15, "Phone number cannot exceed 15 digits")
+    //   .regex(/^[0-9]+$/, "Phone number must contain only digits")
+    //   .transform((val) => val.trim())
+    //   .refine((val) => !isNaN(Number(val)), {
+    //     message: "Invalid phone number format",
+    //   }),
     phone: z
-      .string()
-      .min(10, "Phone number must be at least 10 digits")
-      .max(15, "Phone number cannot exceed 15 digits")
-      .regex(/^[0-9]+$/, "Phone number must contain only digits")
-      .transform((val) => val.trim())
-      .refine((val) => !isNaN(Number(val)), {
-        message: "Invalid phone number format",
-      }),
+      .string({ required_error: "Phone number is required" })
+      .min(1, "Phone number is required")
+      .refine(
+        (value) => {
+          const phone = parsePhoneNumberFromString(value);
+          return phone?.isValid();
+        },
+        {
+          message: "Enter a valid international phone number",
+        }
+      ),
+
     password: z
       .string()
       .trim()
@@ -55,14 +69,17 @@ export type SignInFormData = z.infer<typeof signInSchema>;
 export const profileSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required"),
   phone: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number cannot exceed 15 digits")
-    .regex(/^[0-9]+$/, "Phone number must contain only digits")
-    .transform((val) => val.trim())
-    .refine((val) => !isNaN(Number(val)), {
-      message: "Invalid phone number format",
-    }),
+    .string({ required_error: "Phone number is required" })
+    .min(1, "Phone number is required")
+    .refine(
+      (value) => {
+        const phone = parsePhoneNumberFromString(value);
+        return phone?.isValid();
+      },
+      {
+        message: "Enter a valid international phone number",
+      }
+    ),
 });
 
 export type ProfileEditSchema = z.infer<typeof profileSchema>;

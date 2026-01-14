@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Home } from "lucide-react";
 import login_img from "../../../assets/provider/signUp.jpg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,7 +60,11 @@ const ProviderLogin = () => {
         // Connect to socket after successful login
         socketService.connect();
         // Emit user status as online
-        socketService.emitUserStatus(response.data.userId, response.data.role, true);
+        socketService.emitUserStatus(
+          response.data.userId,
+          response.data.role,
+          true
+        );
 
         navigate("/provider/dashboard");
       }
@@ -78,7 +82,25 @@ const ProviderLogin = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen relative">
+      {/* Home Button */}
+      <Link
+        to="/"
+        className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-2 bg-white/90 hover:bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 hover:text-[#c3a07c] group"
+      >
+        <Home size={18} className="group-hover:scale-110 transition-transform" />
+        <span className="text-sm font-medium hidden sm:inline">Home</span>
+      </Link>
+
+      {/* Left Side (Image Section) */}
+      <div className="w-full md:w-1/2 h-56 md:h-auto">
+        <img
+          src={login_img}
+          alt="Login"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
       {/* Left Side (Form Section) */}
       <div className="w-full md:w-1/2 bg-gray-100 flex flex-col justify-center items-center p-6 md:p-10 min-h-screen md:min-h-0">
         <h2 className="text-xl md:text-2xl font-semibold mb-2">
@@ -187,13 +209,13 @@ const ProviderLogin = () => {
       </div>
 
       {/* Right Side (Image Section) */}
-      <div className="hidden md:block w-1/2 min-h-screen">
+      {/* <div className="hidden md:block w-1/2 min-h-screen">
         <img
           src={login_img}
           alt="Login"
           className="w-full h-full object-cover"
         />
-      </div>
+      </div> */}
     </div>
   );
 };

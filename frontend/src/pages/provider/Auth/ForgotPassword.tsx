@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
+import { Home } from "lucide-react";
 import forgotPassword_img from "../../../assets/provider/signUp.jpg";
 import { forgotPssword, resetPassword } from "@/services/Api/providerApi";
 import { AxiosError } from "axios";
@@ -56,7 +57,16 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen relative">
+      {/* Home Button */}
+      <Link
+        to="/"
+        className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-2 bg-white/90 hover:bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 hover:text-[#c3a07c] group"
+      >
+        <Home size={18} className="group-hover:scale-110 transition-transform" />
+        <span className="text-sm font-medium hidden sm:inline">Home</span>
+      </Link>
+
       {/* Left Side (Form Section) */}
       <div className="w-full md:w-1/2 bg-gray-100 flex flex-col justify-center items-center p-6 md:p-10 min-h-screen md:min-h-0">
         <h2 className="text-xl md:text-2xl font-semibold mb-2">
@@ -197,7 +207,7 @@ const ForgotPassword = () => {
       </div>
 
       {/* Right Side (Image Section) */}
-      <div className="hidden md:block w-1/2 min-h-screen">
+      <div className="w-full md:w-1/2 h-56 md:h-auto">
         <img
           src={forgotPassword_img}
           alt="Forgot Password"

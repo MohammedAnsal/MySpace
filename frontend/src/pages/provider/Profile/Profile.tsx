@@ -22,6 +22,11 @@ import Loading from "@/components/global/Loading";
 import ChangePasswordModal from "./components/ChangePasswordModal";
 import WalletSummary from "../wallet/components/WalletSummary";
 import { useProviderProfile } from "@/hooks/provider/profile/useProfile";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import "@/style/phone-input.css";
+import { profileSchema } from "@/utils/validation/provider.z.validation";
+import { z } from "zod";
 
 export interface ProviderProfile {
   fullName: string | null;
@@ -49,6 +54,7 @@ const Profile: React.FC = () => {
   const [tempProfile, setTempProfile] = useState<ProviderProfile | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState<"personal" | "wallet" | "documents">("personal");
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (profile) {
@@ -61,6 +67,26 @@ const Profile: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setTempProfile((prev) => (prev ? { ...prev, [name]: value } : null));
+
+    if (validationErrors[name]) {
+      setValidationErrors({
+        ...validationErrors,
+        [name]: "",
+      });
+    }
+  };
+
+  const handlePhoneChange = (value: string | undefined) => {
+    setTempProfile((prev) =>
+      prev ? { ...prev, phone: value || "" } : null
+    );
+
+    if (validationErrors.phone) {
+      setValidationErrors({
+        ...validationErrors,
+        phone: "",
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -69,31 +95,51 @@ const Profile: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("fullName", tempProfile.fullName || "");
-      formData.append("phone", tempProfile.phone || "");
+      profileSchema.parse({
+        fullName: tempProfile.fullName || "",
+        phone: tempProfile.phone || "",
+      });
 
-      if (imageFile) {
-        formData.append("profile", imageFile);
-      }
+      setValidationErrors({});
 
-      const response = await editProfile(formData);
+      setIsLoading(true);
+      try {
+        const formData = new FormData();
+        formData.append("fullName", tempProfile.fullName || "");
+        formData.append("phone", tempProfile.phone || "");
 
-      if (response && response.success) {
-        refetch();
-        setIsEditing(false);
-        setImageFile(null);
-        toast.success("Profile updated successfully!");
-      } else {
-        toast.error(response?.message || "Failed to update profile");
+        if (imageFile) {
+          formData.append("profile", imageFile);
+        }
+
+        const response = await editProfile(formData);
+
+        if (response && response.success) {
+          refetch();
+          setIsEditing(false);
+          setImageFile(null);
+          toast.success("Profile updated successfully!");
+        } else {
+          toast.error(response?.message || "Failed to update profile");
+        }
+      } catch (error) {
+        console.error("Error saving profile:", error);
+        toast.error("Failed to update profile. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
     } catch (error) {
-      console.error("Error saving profile:", error);
-      toast.error("Failed to update profile. Please try again.");
-    } finally {
-      setIsLoading(false);
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path) {
+            errors[err.path[0]] = err.message;
+          }
+        });
+        setValidationErrors(errors);
+        toast.error("Please fix the validation errors");
+      }
     }
   };
 
@@ -103,6 +149,7 @@ const Profile: React.FC = () => {
     }
     setIsEditing(false);
     setImageFile(null);
+    setValidationErrors({});
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -252,14 +299,25 @@ const Profile: React.FC = () => {
             <div className="flex-1 md:ml-6 text-center md:text-left">
               <div>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={tempProfile?.fullName || ""}
-                    onChange={handleInputChange}
-                    className="text-2xl font-bold mb-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none w-full md:w-auto"
-                    placeholder="Full Name"
-                  />
+                  <div className="w-full md:w-auto">
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={tempProfile?.fullName || ""}
+                      onChange={handleInputChange}
+                      className={`text-2xl font-bold mb-2 px-3 py-2 border ${
+                        validationErrors.fullName
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none w-full`}
+                      placeholder="Full Name"
+                    />
+                    {validationErrors.fullName && (
+                      <p className="text-sm text-red-600 mb-2">
+                        {validationErrors.fullName}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <h2 className="text-2xl font-bold text-gray-800">
                     {profile.fullName || "Not Set"}
@@ -362,19 +420,29 @@ const Profile: React.FC = () => {
                         Phone Number
                       </p>
                       {isEditing ? (
-                        <div className="flex items-center bg-white p-2 rounded-lg border border-gray-200">
-                          <Phone
-                            className="text-amber-500 ml-1 mr-3"
-                            size={18}
-                          />
-                          <input
-                            type="tel"
-                            name="phone"
-                            value={tempProfile?.phone || ""}
-                            onChange={handleInputChange}
-                            className="flex-1 px-2 py-1 focus:outline-none"
-                            placeholder="Phone Number"
-                          />
+                        <div>
+                          <div
+                            className={`bg-white rounded-lg border ${
+                              validationErrors.phone
+                                ? "border-red-500"
+                                : "border-gray-200"
+                            }`}
+                          >
+                            <PhoneInput
+                              international
+                              defaultCountry="IN"
+                              withCountryCallingCode
+                              value={tempProfile?.phone || ""}
+                              onChange={handlePhoneChange}
+                              className="phone-input"
+                              placeholder="Phone Number"
+                            />
+                          </div>
+                          {validationErrors.phone && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {validationErrors.phone}
+                            </p>
+                          )}
                         </div>
                       ) : (
                         <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200">
