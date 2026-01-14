@@ -1,0 +1,24 @@
+.PhoneInput {
+  @apply flex items-center gap-2 h-12 w-full
+    rounded-lg border border-gray-300
+    bg-white px-3
+    transition;
+}
+
+.PhoneInput--focus {
+  @apply border-blue-500 ring-1 ring-blue-500;
+}
+
+.PhoneInputCountry {
+  @apply flex items-center;
+}
+
+.PhoneInputCountrySelect {
+  @apply bg-transparent text-gray-700 text-sm
+    border-none outline-none cursor-pointer;
+}
+
+.PhoneInputInput {
+  @apply flex-1 bg-transparent text-gray-700 text-sm
+    placeholder:text-gray-400 outline-none;
+}

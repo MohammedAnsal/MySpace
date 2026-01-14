@@ -39,7 +39,7 @@ const userSchema = new Schema<IUser>(
       ref: "Address",
       default: null,
     },
-    role: { 
+    role: {
       type: String,
       enum: ["user", "provider"],
       default: "user",
@@ -49,10 +49,12 @@ const userSchema = new Schema<IUser>(
     google_id: { type: String },
     created_at: { type: Date },
     // Document verification fields
-    documentType: { 
-      type: String, 
+    documentType: {
+      type: String,
       enum: ["aadhar", "pan", "passport", "driving_license"],
-      required: function() { return this.role === "provider"; }
+      required: function () {
+        return this.role === "provider";
+      },
     },
     documentImage: { type: String },
     isDocumentVerified: { type: Boolean, default: false },

@@ -5,6 +5,9 @@ import { toast } from "sonner";
 import { editProfile } from "@/services/Api/userApi";
 import { profileSchema } from "@/utils/validation/user.z.validation";
 import { z } from "zod";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import "@/style/phone-input.css";
 
 interface UserProfile {
   fullName: string;
@@ -63,6 +66,20 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       setValidationErrors({
         ...validationErrors,
         [name]: "",
+      });
+    }
+  };
+
+  const handlePhoneChange = (value: string | undefined) => {
+    setEditableProfile({
+      ...editableProfile,
+      phone: value || "",
+    });
+
+    if (validationErrors.phone) {
+      setValidationErrors({
+        ...validationErrors,
+        phone: "",
       });
     }
   };
@@ -213,16 +230,22 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           <label className="block text-sm font-medium text-gray-700">
             Phone
           </label>
-          <input
-            type="tel"
-            name="phone"
-            value={editableProfile.phone}
-            onChange={handleChange}
-            disabled={isLoading}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              validationErrors.phone ? "border-red-500" : "border-gray-300"
-            } rounded-md shadow-sm focus:outline-none focus:ring-[#b9a089] focus:border-[#b9a089]`}
-          />
+          <div className="mt-1">
+            <PhoneInput
+              international
+              defaultCountry="IN"
+              withCountryCallingCode
+              value={editableProfile.phone}
+              onChange={handlePhoneChange}
+              disabled={isLoading}
+              className={`w-full !flex items-center !px-3 !py-2 !bg-white !border ${
+                validationErrors.phone
+                  ? "!border-red-500"
+                  : "!border-gray-300"
+              } !rounded-md shadow-sm focus-within:!ring-[#b9a089] focus-within:!border-[#b9a089] transition-all [&_.PhoneInputInput]:!bg-transparent [&_.PhoneInputInput]:!border-none [&_.PhoneInputInput]:!outline-none [&_.PhoneInputInput]:!w-full [&_.PhoneInputInput]:!text-sm`}
+              placeholder="Enter phone number"
+            />
+          </div>
           {validationErrors.phone && (
             <p className="mt-1 text-sm text-red-600">
               {validationErrors.phone}
