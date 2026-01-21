@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const nameRegex = /^[a-zA-Z\s]+$/;
-const phoneRegex = /^[0-9]{10,15}$/;
+const phoneRegex = /^[0-9]{10,12}$/;
 const passwordRegex =
   /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
