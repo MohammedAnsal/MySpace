@@ -19,19 +19,23 @@ export const registerSchema = z
       .string()
       .regex(
         gmailRegex,
-        "Email must be a valid Gmail address (e.g., example@gmail.com)"
+        "Email must be a valid Gmail address (e.g., example@gmail.com)",
       ),
 
     phone: z
       .string()
-      .regex(phoneRegex, "Phone number must be between 10-15 digits"),
+      .refine(
+        (val) => /^\+?[0-9\s]{10,15}$/.test(val),
+        "Phone number must contain 10–15 digits",
+      )
+      .transform((val) => val.replace(/\s+/g, "")),
 
     password: z
       .string()
       .min(8, "Password must be at least 8 characters long")
       .regex(
         passwordRegex,
-        "Password must contain at least one uppercase letter, one number, and one special character"
+        "Password must contain at least one uppercase letter, one number, and one special character",
       ),
 
     confirmPassword: z.string(),
@@ -51,7 +55,7 @@ export const signInSchema = z.object({
     .string()
     .regex(
       gmailRegex,
-      "Email must be a valid Gmail address (e.g., example@gmail.com)"
+      "Email must be a valid Gmail address (e.g., example@gmail.com)",
     ),
 
   password: z.string().min(8, "Password must be at least 8 characters long"),
